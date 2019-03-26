@@ -27,6 +27,7 @@ There's an external dependency on [MinHook](https://github.com/TsudaKageyu/minho
 automatically when you clone the repo. The camera uses DirectXMath for the 3D math, which is a self-contained .h file, from the Windows SDK. 
 
 ## Camera's released: 
+Ace COmbat 7: https://github.com/ghostinthecamera/IGCS-GITC/releases/tag/AC7v1.0
 
 ## In-depth article about IGCS and how to create camera tools
 Frans has written a long, in-depth article about how to create camera tools and how IGCS works [on his blog](https://weblogs.asp.net/fbouma/let-s-add-a-photo-mode-to-wolfenstein-ii-the-new-colossus-pc).

@@ -1,0 +1,3 @@
+[submodule "dependencies/MinHook"]
+	path = dependencies/MinHook
+	url = https://github.com/TsudaKageyu/minhook

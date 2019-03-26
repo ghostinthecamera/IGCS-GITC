@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WndProcDumper", "Src\WndProcDumper.vcxproj", "{A27B0E55-A5C9-4DCD-9C74-2C8074757FBE}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{BA46013C-7486-4C48-945C-5D059C19F494}"
+	ProjectSection(SolutionItems) = preProject
+		LICENSE = LICENSE
+		ReadMe.md = ReadMe.md
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A27B0E55-A5C9-4DCD-9C74-2C8074757FBE}.Debug|x64.ActiveCfg = Debug|x64
+		{A27B0E55-A5C9-4DCD-9C74-2C8074757FBE}.Debug|x64.Build.0 = Debug|x64
+		{A27B0E55-A5C9-4DCD-9C74-2C8074757FBE}.Debug|x86.ActiveCfg = Debug|Win32
+		{A27B0E55-A5C9-4DCD-9C74-2C8074757FBE}.Debug|x86.Build.0 = Debug|Win32
+		{A27B0E55-A5C9-4DCD-9C74-2C8074757FBE}.Release|x64.ActiveCfg = Release|x64
+		{A27B0E55-A5C9-4DCD-9C74-2C8074757FBE}.Release|x64.Build.0 = Release|x64
+		{A27B0E55-A5C9-4DCD-9C74-2C8074757FBE}.Release|x86.ActiveCfg = Release|Win32
+		{A27B0E55-A5C9-4DCD-9C74-2C8074757FBE}.Release|x86.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

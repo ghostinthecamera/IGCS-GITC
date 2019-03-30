@@ -26,7 +26,7 @@ The SDK is needed for DirectXMath.h
 There's an external dependency on [MinHook](https://github.com/TsudaKageyu/minhook) through a git submodule. This should be downloaded
 automatically when you clone the repo. The camera uses DirectXMath for the 3D math, which is a self-contained .h file, from the Windows SDK. 
 
-## Camera's released: 
+## Cameras released: 
 Ace Combat 7: https://github.com/ghostinthecamera/IGCS-GITC/releases/tag/AC7v1.0
 
 ## In-depth article about IGCS and how to create camera tools

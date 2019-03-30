@@ -40,6 +40,7 @@ namespace IGCS::GameSpecific::CameraManipulator
 	void changeFoV(float amount);
 	void timeStop();
 	void hudToggle();
+	void plusFrame(int amount);
 	void setImageAddress(LPBYTE hostImageAddress);
 	void getSettingsFromGameState();
 	void applySettingsToGameState();

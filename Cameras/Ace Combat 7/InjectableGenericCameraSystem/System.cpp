@@ -54,7 +54,7 @@ namespace IGCS
 	{
 	}
 
-	//BYTE hudstate = (BYTE)0;
+	BYTE hudstate = (BYTE)0;
 
 	void System::start(LPBYTE hostBaseAddress, DWORD hostImageSize)
 	{
@@ -123,7 +123,7 @@ namespace IGCS
 			// camera not found yet, can't proceed.
 			return;
 		}
-		if (OverlayControl::isMainMenuVisible())
+		if (OverlayControl::isMainMenuVisible() && !Globals::instance().settings().allowCameraMovementWhenMenuIsUp)
 		{
 			// stop here, so keys used in the camera system won't affect anything of the camera
 			return;
@@ -149,10 +149,32 @@ namespace IGCS
 		}
 		if (Input::keyDown(IGCS_KEY_TIMESTOP))
 		{
+			if (!!Globals::instance().settings().hudandtimestop)
+			{
+				if (!hudstate)
+				{
+					CameraManipulator::hudToggle();
+					hudstate = hudstate == 0 ? (BYTE)1 : (BYTE)0;
+					displayGameHUDState();
+					Sleep(300);
+				}
+			}
+			
+
 			g_gamePaused = g_gamePaused == 0 ? (BYTE)1 : (BYTE)0;
+			CameraManipulator::timeStop();
 			displayGamePauseState();
 			Sleep(350);
 		}
+
+		if (Input::keyDown(IGCS_KEY_HUD_TOGGLE))
+		{
+			hudstate = hudstate == 0 ? (BYTE)1 : (BYTE)0;
+			CameraManipulator::hudToggle();
+			displayGameHUDState();
+			Sleep(350);
+		}
+
 		if (Input::keyDown(IGCS_KEY_FOV_RESET))
 		{
 			CameraManipulator::resetFoV();
@@ -174,17 +196,18 @@ namespace IGCS
 
 		if (Input::keyDown(IGCS_KEY_BLOCK_INPUT))
 		{
-			CameraManipulator::hudToggle();
 			toggleInputBlockState(!Globals::instance().inputBlocked());
 			Sleep(350);				// wait for 350ms to avoid fast keyboard hammering
 		}
 		
-		if (Input::keyDown(IGCS_KEY_HUD_TOGGLE))
+		if (Input::keyDown(IGCS_KEY_ADVANCE))
 		{
-			
-			CameraManipulator::hudToggle();
-			//displayGameHUDState();
-			Sleep(350);
+			if (g_gamePaused)
+			{
+				CameraManipulator::plusFrame(Globals::instance().settings().frameskip);
+				displayframeskip();
+				Sleep(350);
+			}
 		}
 
 		_camera.resetMovement();
@@ -383,8 +406,15 @@ namespace IGCS
 		OverlayControl::addNotification(g_gamePaused ? "Game paused" : "Game unpaused");
 	}
 
-	//void System::displayGameHUDState()
-	//{
-	//	OverlayControl::addNotification(hudstate ? "HUD Off" : "HUD On");
-	//}
+	void System::displayGameHUDState()
+	{
+		OverlayControl::addNotification(hudstate ? "HUD Off" : "HUD On");
+	}
+
+	void System::displayframeskip()
+	{
+		std::string frames = std::to_string(Globals::instance().settings().frameskip);
+		string framewording = wording + frames + millisecs;
+		OverlayControl::addNotification(framewording);
+	}
 }

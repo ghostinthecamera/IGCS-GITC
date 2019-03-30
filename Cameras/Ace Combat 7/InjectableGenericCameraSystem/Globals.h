@@ -41,6 +41,8 @@ namespace IGCS
 	struct Settings
 	{
 		bool invertY;
+		bool allowCameraMovementWhenMenuIsUp;
+		bool hudandtimestop;
 		float fastMovementMultiplier;
 		float slowMovementMultiplier;
 		float movementUpMultiplier;
@@ -48,6 +50,7 @@ namespace IGCS
 		float rotationSpeed;
 		float fovChangeSpeed;
 		float resolutionScale;		//50.0-200.0
+		int frameskip;
 		float clampFloat(float value, float min, float default)
 		{
 			return value < min ? default : value;
@@ -62,6 +65,8 @@ namespace IGCS
 				return;
 			}
 			invertY = iniFile.GetBool("invertY", "CameraSettings");
+			hudandtimestop = iniFile.GetBool("hudandtimestop", "CameraSettings");
+			allowCameraMovementWhenMenuIsUp = iniFile.GetBool("allowCameraMovementWhenMenuIsUp", "CameraSettings");
 			fastMovementMultiplier = clampFloat(iniFile.GetFloat("fastMovementMultiplier", "CameraSettings"), 0.0f, FASTER_MULTIPLIER);
 			slowMovementMultiplier = clampFloat(iniFile.GetFloat("slowMovementMultiplier", "CameraSettings"), 0.0f, SLOWER_MULTIPLIER);
 			movementUpMultiplier = clampFloat(iniFile.GetFloat("movementUpMultiplier", "CameraSettings"), 0.0f, DEFAULT_UP_MOVEMENT_MULTIPLIER);
@@ -74,6 +79,8 @@ namespace IGCS
 		{
 			CDataFile iniFile;
 			iniFile.SetBool("invertY", invertY, "", "CameraSettings");
+			iniFile.SetBool("allowCameraMovementWhenMenuIsUp", allowCameraMovementWhenMenuIsUp, "", "CameraSettings");
+			iniFile.SetBool("hudandtimestop", hudandtimestop, "", "CameraSettings");
 			iniFile.SetFloat("fastMovementMultiplier", fastMovementMultiplier, "", "CameraSettings");
 			iniFile.SetFloat("slowMovementMultiplier", slowMovementMultiplier, "", "CameraSettings");
 			iniFile.SetFloat("movementUpMultiplier", movementUpMultiplier, "", "CameraSettings");
@@ -94,6 +101,9 @@ namespace IGCS
 			rotationSpeed = DEFAULT_ROTATION_SPEED;
 			fovChangeSpeed = DEFAULT_FOV_SPEED;
 			resolutionScale = 100.0f;
+			frameskip = 15;
+			allowCameraMovementWhenMenuIsUp = false;
+			hudandtimestop = true;
 		}
 	};
 

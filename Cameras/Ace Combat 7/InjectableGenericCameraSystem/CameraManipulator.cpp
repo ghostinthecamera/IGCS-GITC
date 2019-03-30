@@ -43,10 +43,16 @@ extern "C" {
 
 namespace IGCS::GameSpecific::CameraManipulator
 {
+	static LPBYTE _hostImageAddress = nullptr;
 	static float _originalCoords[3];
 	static float _originalAngles[3];
 	static float _currentCameraCoords[3];
 	static float _resolutionScaleCache;
+
+	void setImageAddress(LPBYTE hostImageAddress)
+	{
+		_hostImageAddress = hostImageAddress;
+	}
 	
 	// Resets the FOV to the one it got when we enabled the camera
 	void resetFoV()
@@ -89,6 +95,16 @@ namespace IGCS::GameSpecific::CameraManipulator
 		float* timescaleInMemory = reinterpret_cast<float*>(g_timestopStructAddress + TIMESTOP_IN_STRUCT_OFFSET);
 		*timescaleInMemory = *timescaleInMemory == 1.0f ? 0.0f : 1.0f;
 	}
+
+	void hudToggle()
+	{
+		float* hud1InMemory = reinterpret_cast<float*>(_hostImageAddress + HUD_TOGGLE_1);
+		*hud1InMemory = 0.0f;
+
+		//BYTE* hud2InMemory = reinterpret_cast<BYTE*>(HUD_TOGGLE_2);
+		//*hud2InMemory = *hud2InMemory == (BYTE)1 ? (BYTE)0 : (BYTE)1;
+	}
+
 
 	void getSettingsFromGameState()
 	{
@@ -149,7 +165,10 @@ namespace IGCS::GameSpecific::CameraManipulator
 
 	void displayCameraStructAddress()
 	{
+		LPBYTE hudoffset = _hostImageAddress + HUD_TOGGLE_1;
 		OverlayConsole::instance().logDebug("Camera struct address: %p", (void*)g_cameraStructAddress);
+		OverlayConsole::instance().logDebug("HUD Toggle address: %p", (void*)hudoffset);
+		OverlayConsole::instance().logDebug("HUD Toggle value: %f", (void*)*hudoffset);
 	}
 	
 

@@ -54,6 +54,7 @@ namespace IGCS
 	{
 	}
 
+	//BYTE hudstate = (BYTE)0;
 
 	void System::start(LPBYTE hostBaseAddress, DWORD hostImageSize)
 	{
@@ -149,7 +150,6 @@ namespace IGCS
 		if (Input::keyDown(IGCS_KEY_TIMESTOP))
 		{
 			g_gamePaused = g_gamePaused == 0 ? (BYTE)1 : (BYTE)0;
-			CameraManipulator::timeStop();
 			displayGamePauseState();
 			Sleep(350);
 		}
@@ -171,10 +171,20 @@ namespace IGCS
 			// camera is disabled. We simply disable all input to the camera movement, by returning now.
 			return;
 		}
+
 		if (Input::keyDown(IGCS_KEY_BLOCK_INPUT))
 		{
+			CameraManipulator::hudToggle();
 			toggleInputBlockState(!Globals::instance().inputBlocked());
 			Sleep(350);				// wait for 350ms to avoid fast keyboard hammering
+		}
+		
+		if (Input::keyDown(IGCS_KEY_HUD_TOGGLE))
+		{
+			
+			CameraManipulator::hudToggle();
+			//displayGameHUDState();
+			Sleep(350);
 		}
 
 		_camera.resetMovement();
@@ -310,7 +320,7 @@ namespace IGCS
 		InputHooker::setInputHooks();
 		DX11Hooker::initializeHook();
 		Input::registerRawInput();
-
+		GameSpecific::CameraManipulator::setImageAddress(_hostImageAddress);
 		GameSpecific::InterceptorHelper::initializeAOBBlocks(_hostImageAddress, _hostImageSize, _aobBlocks);
 		GameSpecific::InterceptorHelper::setCameraStructInterceptorHook(_aobBlocks);
 		waitForCameraStructAddresses();		// blocks till camera is found.
@@ -372,4 +382,9 @@ namespace IGCS
 	{
 		OverlayControl::addNotification(g_gamePaused ? "Game paused" : "Game unpaused");
 	}
+
+	//void System::displayGameHUDState()
+	//{
+	//	OverlayControl::addNotification(hudstate ? "HUD Off" : "HUD On");
+	//}
 }

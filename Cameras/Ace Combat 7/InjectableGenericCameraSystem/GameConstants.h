@@ -60,4 +60,6 @@ namespace IGCS::GameSpecific
 	#define ANGLES_IN_STRUCT_OFFSET						0x40C
 	#define FOV_IN_STRUCT_OFFSET						0x418
 	#define TIMESTOP_IN_STRUCT_OFFSET					0x4D0
+    #define HUD_TOGGLE_1								0x2578CBC  //float
+	#define HUD_TOGGLE_2								0x349D6D0  //byte
 }

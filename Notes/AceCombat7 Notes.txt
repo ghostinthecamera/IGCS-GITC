@@ -59,3 +59,47 @@ Ace7Game.exe+EA7521B - 0F2F C1               - comiss xmm0,xmm1
 Ace7Game.exe+EA7521E - 77 08                 - ja Ace7Game.exe+EA75228
 Ace7Game.exe+EA75220 - F3 0F10 81 18040000   - movss xmm0,[rcx+00000418] << FoV Read
 Ace7Game.exe+EA75228 - C3                    - ret 
+
+Ace7Game.exe+A437C30 - 40 53                 - push rbx
+Ace7Game.exe+A437C32 - 48 83 EC 20           - sub rsp,20 { 32 }
+Ace7Game.exe+A437C36 - 80 B9 180C0000 00     - cmp byte ptr [rcx+00000C18],00 { 0 }
+Ace7Game.exe+A437C3D - 48 89 CB              - mov rbx,rcx
+Ace7Game.exe+A437C40 - 74 08                 - je Ace7Game.exe+A437C4A
+Ace7Game.exe+A437C42 - 30 C0                 - xor al,al
+Ace7Game.exe+A437C44 - 48 83 C4 20           - add rsp,20 { 32 }
+Ace7Game.exe+A437C48 - 5B                    - pop rbx
+Ace7Game.exe+A437C49 - C3                    - ret 
+Ace7Game.exe+A437C4A - 80 B9 9E0B0000 00     - cmp byte ptr [rcx+00000B9E],00 { 0 }
+Ace7Game.exe+A437C51 - 74 16                 - je Ace7Game.exe+A437C69
+Ace7Game.exe+A437C53 - 80 3D 765A06F9 00     - cmp byte ptr [Ace7Game.AmdPowerXpressRequestHighPerformance+A618],00 { (1),0 }    <<<<<This compares 00 against the byte in the address at +A816 for the plane markers (byte)
+Ace7Game.exe+A437C5A - 74 0D                 - je Ace7Game.exe+A437C69
+Ace7Game.exe+A437C5C - E8 0FC137F6           - call Ace7Game.exe+7B3D70
+Ace7Game.exe+A437C61 - 84 C0                 - test al,al
+Ace7Game.exe+A437C63 - 74 04                 - je Ace7Game.exe+A437C69
+Ace7Game.exe+A437C65 - B0 01                 - mov al,01 { 1 }
+Ace7Game.exe+A437C67 - EB 02                 - jmp Ace7Game.exe+A437C6B
+Ace7Game.exe+A437C69 - 30 C0                 - xor al,al
+Ace7Game.exe+A437C6B - 0F57 C0               - xorps xmm0,xmm0
+Ace7Game.exe+A437C6E - 0F2F 83 D40B0000      - comiss xmm0,[rbx+00000BD4]
+Ace7Game.exe+A437C75 - 73 1A                 - jae Ace7Game.exe+A437C91
+
+Ace7Game.exe+EAB2656 - 0F11 8B 20010000      - movups [rbx+00000120],xmm1
+Ace7Game.exe+EAB265D - 0F11 8B 30010000      - movups [rbx+00000130],xmm1
+Ace7Game.exe+EAB2664 - 0F11 8B 40010000      - movups [rbx+00000140],xmm1
+Ace7Game.exe+EAB266B - 0F11 8B 50010000      - movups [rbx+00000150],xmm1
+Ace7Game.exe+EAB2672 - 0F57 C9               - xorps xmm1,xmm1
+Ace7Game.exe+EAB2675 - 0F11 8B 60010000      - movups [rbx+00000160],xmm1
+Ace7Game.exe+EAB267C - F3 0F10 0D 0C2EA4F3   - movss xmm1,[Ace7Game.exe+24F5490] { (0.50) }
+Ace7Game.exe+EAB2684 - 0F11 83 88010000      - movups [rbx+00000188],xmm0
+Ace7Game.exe+EAB268B - C7 83 C0000000 EC51B83D - mov [rbx+000000C0],3DB851EC { (11) }
+Ace7Game.exe+EAB2695 - 0F10 05 1466ACF3      - movups xmm0,[Ace7Game.exe+2578CB0] { (1.00) }		<<<< Reads from address for static HUD elements (float)
+Ace7Game.exe+EAB269C - C7 83 70010000 0000003F - mov [rbx+00000170],3F000000 { (0) }
+Ace7Game.exe+EAB26A6 - C7 83 B0010000 0000803F - mov [rbx+000001B0],3F800000 { (E31C0AA0) }
+Ace7Game.exe+EAB26B0 - 0F11 83 B4010000      - movups [rbx+000001B4],xmm0
+Ace7Game.exe+EAB26B7 - C7 83 E4010000 8FC2F53C - mov [rbx+000001E4],3CF5C28F { 0.03 }
+Ace7Game.exe+EAB26C1 - 0F10 05 E8C6A6F3      - movups xmm0,[Ace7Game.exe+251EDB0] { (0.00) }
+Ace7Game.exe+EAB26C8 - C7 83 F0010000 00008040 - mov [rbx+000001F0],40800000 { (0) }
+Ace7Game.exe+EAB26D2 - C7 83 EC010000 0000803F - mov [rbx+000001EC],3F800000 { (E31C0AA0) }
+Ace7Game.exe+EAB26DC - 0F11 83 C4010000      - movups [rbx+000001C4],xmm0
+Ace7Game.exe+EAB26E3 - C7 83 E8010000 0000803F - mov [rbx+000001E8],3F800000 { (E31C0AA0) }
+Ace7Game.exe+EAB26ED - 0F10 05 4C44ABF3      - movups xmm0,[Ace7Game.exe+2566B40] { (0.00) }

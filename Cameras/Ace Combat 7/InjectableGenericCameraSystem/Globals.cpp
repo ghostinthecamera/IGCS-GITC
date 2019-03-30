@@ -35,6 +35,7 @@
 extern "C" {
 	BYTE g_cameraEnabled = 0;
 	BYTE g_gamePaused = 0;
+	BYTE g_gameHud = 0;
 	float g_fovValue = DEFAULT_FOV_DEGREES;
 }
 

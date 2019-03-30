@@ -39,6 +39,9 @@ namespace IGCS::GameSpecific::CameraManipulator
 	void resetFoV();
 	void changeFoV(float amount);
 	void timeStop();
+	void hudToggle();
+	void plusFrame(int amount);
+	void setImageAddress(LPBYTE hostImageAddress);
 	void getSettingsFromGameState();
 	void applySettingsToGameState();
 	bool isCameraFound();

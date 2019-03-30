@@ -175,7 +175,7 @@ Special thanks to:
 		if (ImGui::CollapsingHeader("General info"))
 		{
 			ImGui::PushTextWrapPos();
-			ImGui::TextUnformatted("* When the main window is open, all input of keyboard / mouse to the game is blocked and the camera is locked.");
+			ImGui::TextUnformatted("* When the main window is open, all input of keyboard / mouse to the game is blocked and the camera is locked. This can be toggled in the relevant setting below");
 			ImGui::TextUnformatted("* All changes you make to the main window (position/size) are saved to a file in the game root folder.");
 			ImGui::TextUnformatted("* Any setting you change will make the settings to be saved to a file in the game root folder.");
 			ImGui::TextUnformatted("* To block input to the game when the camera is enabled, you have to press 'Numpad .' just once. Next time you enable the camera, input is blocked automatically.");
@@ -187,7 +187,9 @@ Special thanks to:
 			ImGui::TextUnformatted("Ctrl-INS                              : Show / Hide Camera tools main window");
 			ImGui::TextUnformatted("Ctrl + Mouse wheel                    : Resize font");
 			ImGui::TextUnformatted("INS                                   : Enable/Disable camera");
-			ImGui::TextUnformatted("DEL                                   : Lock/unlock camera movement");
+			ImGui::TextUnformatted("HOME                                  : Lock/unlock camera movement");
+			ImGui::TextUnformatted("DEL                                   : Toggle HUD");
+			ImGui::TextUnformatted("PG UP                                 : Skip specified ms");
 			ImGui::TextUnformatted("ALT + rotate/move                     : Faster rotate / move");
 			ImGui::TextUnformatted("Right-CTRL + rotate/move              : Slower rotate / move");
 			ImGui::TextUnformatted("Controller Y-button + l/r-stick       : Faster rotate / move");
@@ -244,6 +246,7 @@ Special thanks to:
 			settingsChanged |= ImGui::SliderFloat("Slow movement multiplier", &currentSettings.slowMovementMultiplier, 0.001f, 1.0f, "%.3f");
 			settingsChanged |= ImGui::SliderFloat("Up movement multiplier", &currentSettings.movementUpMultiplier, 0.1f, 10.0f, "%.3f");
 			settingsChanged |= ImGui::SliderFloat("Movement speed", &currentSettings.movementSpeed, 0.01f, 2.0f, "%.3f");
+			settingsChanged |= ImGui::Checkbox("Allow camera movement when this menu is up", &currentSettings.allowCameraMovementWhenMenuIsUp);
 		}
 		if (ImGui::CollapsingHeader("Camera rotation options", ImGuiTreeNodeFlags_DefaultOpen))
 		{
@@ -253,8 +256,10 @@ Special thanks to:
 		}
 		if (ImGui::CollapsingHeader("Misc. camera options", ImGuiTreeNodeFlags_DefaultOpen))
 		{
-			settingsChanged |= ImGui::SliderFloat("Resolution scale factor", &currentSettings.resolutionScale, 50.0f, RESOLUTION_SCALE_MAX, "%.0f");
+			ImGui::SliderFloat("Resolution scale factor", &currentSettings.resolutionScale, 50.0f, RESOLUTION_SCALE_MAX, "%.0f");
 			settingsChanged |= ImGui::SliderFloat("FoV zoom speed", &currentSettings.fovChangeSpeed, 0.001f, 1.0f, "%.3f");
+			settingsChanged |= ImGui::SliderInt("Frame Skip in ms", &currentSettings.frameskip, 15, 300, "%.0f");
+			settingsChanged |= ImGui::Checkbox("Toggle HUD with Timestop?", &currentSettings.hudandtimestop);
 		}
 		ImGui::PopItemWidth();
 		if (settingsChanged)

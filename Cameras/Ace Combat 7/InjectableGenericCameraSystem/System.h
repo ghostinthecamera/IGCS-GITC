@@ -40,6 +40,7 @@ namespace IGCS
 		System();
 		~System();
 		void start(LPBYTE hostBaseAddress, DWORD hostImageSize);
+		LPBYTE hostImageAddress() { return System::_hostImageAddress; }
 
 	private:
 		void mainLoop();
@@ -49,6 +50,8 @@ namespace IGCS
 		void writeNewCameraValuesToCameraStructs();
 		void displayCameraState();
 		void displayGamePauseState();
+		void displayGameHUDState();
+		void displayframeskip();
 		void toggleCameraMovementLockState(bool newValue);
 		void toggleInputBlockState(bool newValue);
 		void handleKeyboardCameraMovement(float multiplier);
@@ -62,6 +65,8 @@ namespace IGCS
 		bool _cameraMovementLocked = false;
 		bool _cameraStructFound = false;
 		map<string, AOBBlock*> _aobBlocks;
+		string wording = "Skip ";
+		string millisecs = "ms";
 	};
 }
 

@@ -42,7 +42,8 @@ namespace IGCS
 	// Keyboard system control
 	#define IGCS_KEY_TOGGLE_OVERLAY					VK_INSERT		// With control
 	#define IGCS_KEY_CAMERA_ENABLE					VK_INSERT
-	#define IGCS_KEY_CAMERA_LOCK					VK_DELETE
+	#define IGCS_KEY_CAMERA_LOCK					VK_HOME
+	#define IGCS_KEY_HUD_TOGGLE						VK_DELETE
 	#define IGCS_KEY_ROTATE_RIGHT					VK_RIGHT		// yaw
 	#define IGCS_KEY_ROTATE_LEFT					VK_LEFT
 	#define IGCS_KEY_ROTATE_UP						VK_UP			// pitch
@@ -60,6 +61,7 @@ namespace IGCS
 	#define IGCS_KEY_FOV_INCREASE					VK_ADD
 	#define IGCS_KEY_FOV_DECREASE					VK_SUBTRACT
 	#define IGCS_KEY_BLOCK_INPUT					VK_DECIMAL
+	#define IGCS_KEY_ADVANCE						VK_PRIOR
 
 	#define IGCS_BUTTON_FOV_DECREASE	Gamepad::button_t::UP
 	#define IGCS_BUTTON_FOV_INCREASE	Gamepad::button_t::DOWN

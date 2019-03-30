@@ -43,10 +43,16 @@ extern "C" {
 
 namespace IGCS::GameSpecific::CameraManipulator
 {
+	static LPBYTE _hostImageAddress = nullptr;
 	static float _originalCoords[3];
 	static float _originalAngles[3];
 	static float _currentCameraCoords[3];
 	static float _resolutionScaleCache;
+
+	void setImageAddress(LPBYTE hostImageAddress)
+	{
+		_hostImageAddress = hostImageAddress;
+	}
 	
 	// Resets the FOV to the one it got when we enabled the camera
 	void resetFoV()
@@ -87,8 +93,35 @@ namespace IGCS::GameSpecific::CameraManipulator
 			return;
 		}
 		float* timescaleInMemory = reinterpret_cast<float*>(g_timestopStructAddress + TIMESTOP_IN_STRUCT_OFFSET);
-		*timescaleInMemory = *timescaleInMemory == 1.0f ? 0.0f : 1.0f;
+		*timescaleInMemory = *timescaleInMemory > 0.5f ? 0.0f : 1.0f;
 	}
+
+	void plusFrame(int amount)
+	{
+		float* timescaleInMemory = reinterpret_cast<float*>(g_timestopStructAddress + TIMESTOP_IN_STRUCT_OFFSET);
+		if (*timescaleInMemory < 0.1f)
+		{
+			*timescaleInMemory = 1.0f;
+			Sleep(amount);
+			*timescaleInMemory = 0.0f;
+		}
+	}
+
+	void hudToggle()
+	{
+		float* hud1InMemory = reinterpret_cast<float*>(_hostImageAddress + HUD_TOGGLE_1);
+		//OverlayConsole::instance().logDebug("HUD Toggle 1 Address: %p", (void*)hud1InMemory);
+		//OverlayConsole::instance().logDebug("HUD Toggle 1 value: %f", (float)*hud1InMemory);
+		*hud1InMemory = *hud1InMemory > 0.1f ? 0.0f : 1.0f;
+		//OverlayConsole::instance().logDebug("HUD Toggle 1 value: %f", (float)*hud1InMemory);
+
+		BYTE* hud2InMemory = reinterpret_cast<BYTE*>(_hostImageAddress + HUD_TOGGLE_2);
+		//OverlayConsole::instance().logDebug("HUD Toggle 2 Address: %p", (void*)hud2InMemory);
+		//OverlayConsole::instance().logDebug("HUD Toggle 2 Value: %x", (BYTE)*hud2InMemory);
+		*hud2InMemory = *hud2InMemory == (BYTE)1 ? (BYTE)0 : (BYTE)1;
+		//OverlayConsole::instance().logDebug("HUD Toggle 1 value: %f", (float)*hud1InMemory);
+	}
+
 
 	void getSettingsFromGameState()
 	{
@@ -149,7 +182,10 @@ namespace IGCS::GameSpecific::CameraManipulator
 
 	void displayCameraStructAddress()
 	{
+		LPBYTE hudoffset = _hostImageAddress + HUD_TOGGLE_1;
 		OverlayConsole::instance().logDebug("Camera struct address: %p", (void*)g_cameraStructAddress);
+		OverlayConsole::instance().logDebug("HUD Toggle address: %p", (void*)hudoffset);
+		OverlayConsole::instance().logDebug("HUD Toggle value: %f", (void*)*hudoffset);
 	}
 	
 

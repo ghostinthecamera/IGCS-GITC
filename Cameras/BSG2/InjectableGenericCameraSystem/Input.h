@@ -28,7 +28,7 @@
 #pragma once
 #include "stdafx.h"
 
-namespace IGCS::Input
+namespace Input
 {
 	bool keyDown(int virtualKeyCode);
 	long getMouseDeltaX();

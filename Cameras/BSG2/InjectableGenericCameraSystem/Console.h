@@ -30,7 +30,7 @@
 
 using namespace std;
 
-namespace IGCS::Console
+namespace Console
 {
 	#define CONSOLE_WHITE	15
 	#define CONSOLE_NORMAL  7

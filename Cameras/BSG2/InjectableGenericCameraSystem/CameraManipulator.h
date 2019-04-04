@@ -30,7 +30,7 @@
 
 using namespace DirectX;
 
-namespace IGCS::GameSpecific::CameraManipulator
+namespace CameraManipulator
 {
 	void writeNewCameraValuesToGameData(XMFLOAT3 newCoords, XMVECTOR newLookQuaternion);
 	void waitForCameraStructAddresses(LPBYTE hostImageAddress);
@@ -43,6 +43,6 @@ namespace IGCS::GameSpecific::CameraManipulator
 	//void toggleHud();
 	//void setSupersamplingFactor(BYTE newValue);
 	XMFLOAT3 getCurrentCameraCoords();
-	void resetFoV();
-	void changeFoV(float amount);
+	//void resetFoV();
+	//void changeFoV(float amount);
 }

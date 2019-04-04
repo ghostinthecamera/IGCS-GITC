@@ -56,11 +56,11 @@ extern "C" {
 }
 
 
-namespace IGCS::GameSpecific::InterceptorHelper
+namespace InterceptorHelper
 {
-	void initializeAOBBlocks(LPBYTE hostImageAddress, DWORD hostImageSize, map<string, AOBBlock*> &aobBlocks)
+	void initializeAOBBlocks(LPBYTE hostImageAddress, DWORD hostImageSize, map<string, LPBYTE*> &aobBlocks)
 	{
-		aobBlocks[CAMERA_ADDRESS_INTERCEPT_KEY] = new AOBBlock(CAMERA_ADDRESS_INTERCEPT_KEY, "0F 11 08 0F 50 C0 A8 07 74 2A", 1);	
+		aobBlocks[CAMERA_ADDRESS_INTERCEPT_KEY] = new AOBBlock(CAMERA_ADDRESS_INTERCEPT_KEY, "0F 11 08 0F 50 C0 A8 07 74 2A", 1);
 		/*aobBlocks[FOV_INTERCEPT_KEY] = new AOBBlock(FOV_INTERCEPT_KEY, "F3 0F 58 48 08 0F 2F C8 76 03 0F 28 C1 48 83 C4 20", 1);*/
 		aobBlocks[CAMERA_WRITE1_INTERCEPT_KEY] = new AOBBlock(CAMERA_WRITE1_INTERCEPT_KEY, "0F 11 51 10 0F 50 C0 85 C0 74 2D", 1);
 		/*aobBlocks[CAMERA_WRITE2_INTERCEPT_KEY] = new AOBBlock(CAMERA_WRITE2_INTERCEPT_KEY, "0F 11 51 10 0F 50 C0 85 C0 74 2D", 1);*/
@@ -70,7 +70,7 @@ namespace IGCS::GameSpecific::InterceptorHelper
 		//aobBlocks[SUPERSAMPLING_KEY] = new AOBBlock(SUPERSAMPLING_KEY, "41 F7 F8 44 8B C0 8B C1  8B 0D | ?? ?? ?? ?? 99  F7 FF 44 3B C0 41 0F 4C C0", 1);
 		//aobBlocks[HUD_TOGGLE_KEY] = new AOBBlock(HUD_TOGGLE_KEY, "83 3D | ?? ?? ?? ?? 00 0F B6 F2 48 89 CF 74 ?? 48 8B 81 C8 00 00 00 48 89 5C 24", 1);
 		
-		map<string, AOBBlock*>::iterator it;
+		map<string, LPBYTE*>::iterator it;
 		bool result = true;
 		for (it = aobBlocks.begin(); it != aobBlocks.end(); it++)
 		{
@@ -87,16 +87,16 @@ namespace IGCS::GameSpecific::InterceptorHelper
 	}
 
 
-	void setCameraStructInterceptorHook(map<string, AOBBlock*> &aobBlocks)
+	void setCameraStructInterceptorHook(map<string, LPBYTE*> &aobBlocks)
 	{
 		GameImageHooker::setHook(aobBlocks[CAMERA_ADDRESS_INTERCEPT_KEY], 0x06, &_cameraStructInterceptionContinue, &cameraStructInterceptor);
 	}
 
 
-	void setPostCameraStructHooks(map<string, AOBBlock*> &aobBlocks)
+	void setPostCameraStructHooks(map<string, LPBYTE*> &aobBlocks)
 	{
 		//GameImageHooker::setHook(aobBlocks[FOV_INTERCEPT_KEY], 0x11, &_fovReadInterceptionContinue, &fovReadInterceptor);
-		GameImageHooker::setHook(aobBlocks[CAMERA_WRITE1_INTERCEPT_KEY], 0x07, &_cameraWrite1InterceptionContinue, &cameraWrite1Interceptor);
+	    GameImageHooker::setHook(aobBlocks[CAMERA_WRITE1_INTERCEPT_KEY], 0x07, &_cameraWrite1InterceptionContinue, &cameraWrite1Interceptor);
 		/*GameImageHooker::setHook(aobBlocks[CAMERA_WRITE2_INTERCEPT_KEY], 0x07, &_cameraWrite2InterceptionContinue, &cameraWrite2Interceptor);*/
 		//GameImageHooker::setHook(aobBlocks[CAMERA_WRITE3_INTERCEPT_KEY], 0x12, &_cameraWrite3InterceptionContinue, &cameraWrite3Interceptor);
 		//GameImageHooker::setHook(aobBlocks[TIMESTOP_INTERCEPT_KEY], 0xF, &_timestopInterceptionContinue, &timestopInterceptor);

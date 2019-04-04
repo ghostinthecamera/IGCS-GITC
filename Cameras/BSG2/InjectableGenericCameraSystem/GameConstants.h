@@ -27,7 +27,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-namespace IGCS::GameSpecific
+namespace GameSpecific
 {
 	// Mandatory constants to define for a game
 	#define GAME_NAME									"BSG"

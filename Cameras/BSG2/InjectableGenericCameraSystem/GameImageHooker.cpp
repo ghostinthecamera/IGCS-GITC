@@ -30,7 +30,7 @@
 #include "Defaults.h"
 #include "Console.h"
 
-namespace IGCS::GameImageHooker
+namespace GameImageHooker
 {
 	// Sets a jmp qword ptr [address] statement at hostImageAddress + startOffset for x64 and a jmp <relative address> for x86
 	void setHook(LPBYTE hostImageAddress, DWORD startOffset, DWORD continueOffset, LPBYTE* interceptionContinue, void* asmFunction)
@@ -72,7 +72,7 @@ namespace IGCS::GameImageHooker
 
 
 	// Sets a jmp qword ptr [address] statement at baseAddress + startOffset for x64 and a jmp <relative address> for x86
-	void setHook(AOBBlock* hookData, DWORD continueOffset, LPBYTE* interceptionContinue, void* asmFunction)
+	void setHook(LPBYTE* hookData, DWORD continueOffset, LPBYTE* interceptionContinue, void* asmFunction)
 	{
 		setHook(hookData->locationInImage(), hookData->customOffset(), continueOffset, interceptionContinue, asmFunction);
 	}
@@ -87,7 +87,7 @@ namespace IGCS::GameImageHooker
 
 
 	// Writes the bytes pointed at by bufferToWrite starting at address startAddress, for the length in 'length'.
-	void writeRange(AOBBlock* hookData, BYTE* bufferToWrite, int length)
+	void writeRange(LPBYTE* hookData, BYTE* bufferToWrite, int length)
 	{
 		writeRange(hookData->locationInImage() + hookData->customOffset(), bufferToWrite, length);
 	}
@@ -114,7 +114,7 @@ namespace IGCS::GameImageHooker
 
 
 	// Writes NOP opcodes to a range of memory.
-	void nopRange(AOBBlock* hookData, int length)
+	void nopRange(LPBYTE* hookData, int length)
 	{
 		nopRange(hookData->locationInImage() + hookData->customOffset(), length);
 	}

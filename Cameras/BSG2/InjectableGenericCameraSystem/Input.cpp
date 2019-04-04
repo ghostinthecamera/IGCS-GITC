@@ -31,7 +31,7 @@
 #include "Console.h"
 #include "Globals.h"
 
-namespace IGCS::Input
+namespace Input
 {
 	using namespace std;
 

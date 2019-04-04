@@ -32,7 +32,7 @@
 
 using namespace std;
 
-namespace IGCS::Utils
+namespace Utils
 {
 	BOOL isMainWindow(HWND handle)
 	{
@@ -139,7 +139,7 @@ namespace IGCS::Utils
 	}
 
 
-	LPBYTE findAOBPattern(LPBYTE imageAddress, DWORD imageSize, AOBBlock* const toScanFor)
+	LPBYTE findAOBPattern(LPBYTE imageAddress, DWORD imageSize, LPBYTE* const toScanFor)
 	{
 		BYTE firstByte = *(toScanFor->bytePattern());
 		__int64 length = (__int64)imageAddress + imageSize - toScanFor->patternSize();

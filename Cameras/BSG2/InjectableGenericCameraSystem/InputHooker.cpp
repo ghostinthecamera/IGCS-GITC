@@ -162,9 +162,9 @@ namespace IGCS::InputHooker
 	void setInputHooks()
 	{
 		MH_Initialize();
-		if (MH_CreateHookApiEx(L"xinput9_1_0", "XInputGetState", &detourXInputGetState, &hookedXInputGetState) != MH_OK)
+		if (MH_CreateHookApiEx(L"xinput1_3", "XInputGetState", &detourXInputGetState, &hookedXInputGetState) != MH_OK)
 		{
-			Console::WriteError("Hooking XInput9_1_0 failed!");
+			Console::WriteError("Hooking XInput1_3 failed!");
 		}
 #ifdef _DEBUG
 		Console::WriteLine("Hook set to XInputSetState");

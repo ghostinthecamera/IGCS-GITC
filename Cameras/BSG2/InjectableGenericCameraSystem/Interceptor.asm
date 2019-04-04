@@ -78,7 +78,7 @@ cameraStructInterceptor PROC
 originalcode:
 	movups [eax],xmm1
 exit:
-	movmskps eax,xmm0
+    movmskps eax,xmm0
 	jmp dword ptr [_cameraStructInterceptionContinue]	; jmp back into the original game code, which is the location after the original statementiginal statements above.
 cameraStructInterceptor ENDP
 

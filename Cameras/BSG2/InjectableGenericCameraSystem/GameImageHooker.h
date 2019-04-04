@@ -28,12 +28,12 @@
 #pragma once
 #include "AOBBlock.h"
 
-namespace IGCS::GameImageHooker
+namespace GameImageHooker
 {
 	void nopRange(LPBYTE startAddress, int length);
-	void nopRange(AOBBlock* hookData, int length);
+	void nopRange(LPBYTE* hookData, int length);
 	void setHook(LPBYTE hostImageAddress, DWORD startOffset, DWORD continueOffset, LPBYTE* interceptionContinue, void* asmFunction);
-	void setHook(AOBBlock* hookData, DWORD continueOffset, LPBYTE* interceptionContinue, void* asmFunction);
+	void setHook(LPBYTE* hookData, DWORD continueOffset, LPBYTE* interceptionContinue, void* asmFunction);
 	void writeRange(LPBYTE startAddress, BYTE* bufferToWrite, int length);
-	void writeRange(AOBBlock* hookData, BYTE* bufferToWrite, int length);
+	void writeRange(LPBYTE* hookData, BYTE* bufferToWrite, int length);
 }

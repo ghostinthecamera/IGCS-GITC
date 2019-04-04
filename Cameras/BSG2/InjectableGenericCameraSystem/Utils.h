@@ -36,7 +36,7 @@ namespace IGCS
 	class AOBBlock;
 }
 
-namespace IGCS::Utils
+namespace Utils
 {
 
 	struct handle_data {
@@ -48,7 +48,7 @@ namespace IGCS::Utils
 	HWND findMainWindow(unsigned long process_id);
 	MODULEINFO getModuleInfoOfContainingProcess();
 	MODULEINFO getModuleInfoOfDll(LPCWSTR libraryName);
-	LPBYTE findAOBPattern(LPBYTE imageAddress, DWORD imageSize, AOBBlock* const toScanFor);
+	LPBYTE findAOBPattern(LPBYTE imageAddress, DWORD imageSize, LPBYTE* const toScanFor);
 	BYTE CharToByte(char c);
-	LPBYTE calculateAbsoluteAddress(AOBBlock* locationData, int nextOpCodeOffset);
+	LPBYTE calculateAbsoluteAddress(LPBYTE* locationData, int nextOpCodeOffset);
 }

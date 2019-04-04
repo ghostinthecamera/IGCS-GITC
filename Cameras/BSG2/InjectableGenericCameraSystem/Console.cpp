@@ -31,7 +31,7 @@
 
 using namespace std;
 
-namespace IGCS::Console
+namespace Console
 {
 	void Release()
 	{

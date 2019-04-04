@@ -10,7 +10,7 @@
 
 #define clamp(v, _min, _max) max(min(v, _max), _min)
 
-#pragma comment(lib, "Xinput9_1_0.lib")
+#pragma comment(lib, "Xinput.lib")
 
 XINPUT_STATE* Gamepad::getState() { return &gpState; }
 int Gamepad::getIndex() { return gpIndex; }

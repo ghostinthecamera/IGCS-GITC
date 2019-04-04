@@ -29,9 +29,9 @@
 #include <map>
 #include "Utils.h"
 
-namespace IGCS::GameSpecific::InterceptorHelper
+namespace InterceptorHelper
 {
-	void initializeAOBBlocks(LPBYTE hostImageAddress, DWORD hostImageSize, map<string, AOBBlock*> &aobBlocks);
-	void setCameraStructInterceptorHook(map<string, AOBBlock*> &aobBlocks);
-	void setPostCameraStructHooks(map<string, AOBBlock*> &aobBlocks);
+	void initializeAOBBlocks(LPBYTE hostImageAddress, DWORD hostImageSize, map<string, LPBYTE*> &aobBlocks);
+	void setCameraStructInterceptorHook(map<string, LPBYTE*> &aobBlocks);
+	void setPostCameraStructHooks(map<string, LPBYTE*> &aobBlocks);
 }

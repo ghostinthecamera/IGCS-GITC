@@ -163,20 +163,25 @@ namespace IGCS::GameSpecific::CameraManipulator
 		coordsInMemory[2] = newCoords.z;
 		coordsInMemorySecond[2] = secondarycoordz;
 
-		float* lookQInMemory = reinterpret_cast<float*>(g_cameraStructAddress + LOOK_DATA_IN_CAMERA_STRUCT_OFFSET);
-		float* lookQInMemorySecond = reinterpret_cast<float*>(g_cameraStructAddress - 0x50);
+		float* lookQInMemory = reinterpret_cast<float*>(g_cameraStructAddress + LOOK_DATA3_IN_CAMERA_STRUCT_OFFSET);
+		//float* lookQInMemorySecond = reinterpret_cast<float*>(g_cameraStructAddress + LOOK_DATA2_IN_CAMERA_STRUCT_OFFSET);
+		//float* lookQInMemoryThird = reinterpret_cast<float*>(g_cameraStructAddress + LOOK_DATA_IN_CAMERA_STRUCT_OFFSET);
 
-		lookQInMemorySecond[0] = qAsFloat4.x;
 		lookQInMemory[0] = qAsFloat4.x;
-	
-		lookQInMemorySecond[1] = qAsFloat4.y;
+		//lookQInMemorySecond[0] = qAsFloat4.x;
+		//lookQInMemoryThird[0] = qAsFloat4.x;
+		
 		lookQInMemory[1] = qAsFloat4.y;
-
-		lookQInMemorySecond[2] = qAsFloat4.z;
+		//lookQInMemorySecond[1] = qAsFloat4.y;
+		//lookQInMemoryThird[1] = qAsFloat4.y;
+		
 		lookQInMemory[2] = qAsFloat4.z;
-
-		lookQInMemorySecond[3] = qAsFloat4.w;
+		//lookQInMemorySecond[2] = qAsFloat4.z;
+		//lookQInMemoryThird[2] = qAsFloat4.z;
+		
 		lookQInMemory[3] = qAsFloat4.w;
+		//lookQInMemorySecond[3] = qAsFloat4.w;
+		//lookQInMemoryThird[3] = qAsFloat4.w;
 
 		_currentCameraCoords[0] = newCoords.x;
 		_currentCameraCoords[1] = newCoords.y;
@@ -195,8 +200,9 @@ namespace IGCS::GameSpecific::CameraManipulator
 		Console::WriteLine("Camera found.");
 
 #ifdef _DEBUG
-		cout << "Camera struct address: " << hex << (void*)(g_cameraStructAddress + CAMERA_COORDS_IN_CAMERA_STRUCT_OFFSET) << endl;
-#endif
+		cout << "Camera coord address: " << hex << (void*)(g_cameraStructAddress + CAMERA_COORDS_IN_CAMERA_STRUCT_OFFSET) << endl;
+		cout << "Camera quaternion address: " << hex << (void*)(g_cameraStructAddress + LOOK_DATA3_IN_CAMERA_STRUCT_OFFSET) << endl;
+#endif  
 	}
 
 
@@ -205,7 +211,7 @@ namespace IGCS::GameSpecific::CameraManipulator
 	{
 		float* coordsInMemory = reinterpret_cast<float*>(g_cameraStructAddress+CAMERA_COORDS_IN_CAMERA_STRUCT_OFFSET);
 		memcpy(coordsInMemory, _originalCoordsData, 3 * sizeof(float));
-		float* lookQInMemory = reinterpret_cast<float*>(g_cameraStructAddress+LOOK_DATA_IN_CAMERA_STRUCT_OFFSET);
+		float* lookQInMemory = reinterpret_cast<float*>(g_cameraStructAddress+LOOK_DATA3_IN_CAMERA_STRUCT_OFFSET);
 		memcpy(lookQInMemory, _originalLookData, 4 * sizeof(float));
 	}
 

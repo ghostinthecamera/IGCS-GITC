@@ -49,12 +49,12 @@ namespace IGCS
 	XMVECTOR Camera::calculateLookQuaternion()
 	{
 		// for the camera 3x3 matrix, it uses X right, Z up and Y into the screen.
-		XMVECTOR xQ = XMQuaternionRotationNormal(XMVectorSet(1.0f, 0.0f, 0.0f, 1.0f), _pitch);
-		XMVECTOR yQ = XMQuaternionRotationNormal(XMVectorSet(0.0f, 1.0f, 0.0f, 1.0f), _roll);
-		XMVECTOR zQ = XMQuaternionRotationNormal(XMVectorSet(0.0f, 0.0f, 1.0f, 1.0f), -_yaw);
+		XMVECTOR xQ = XMQuaternionRotationNormal(XMVectorSet(1.0f, 0.0f, 0.0f, 1.0f), -_pitch);
+		XMVECTOR yQ = XMQuaternionRotationNormal(XMVectorSet(0.0f, 1.0f, 0.0f, 1.0f), _yaw);
+		XMVECTOR zQ = XMQuaternionRotationNormal(XMVectorSet(0.0f, 0.0f, 1.0f, 1.0f), _roll);
 
-		XMVECTOR tmpQ = XMQuaternionMultiply(zQ, xQ);
-		XMVECTOR qToReturn = XMQuaternionMultiply(yQ, tmpQ);
+		XMVECTOR tmpQ = XMQuaternionMultiply(xQ, yQ);
+		XMVECTOR qToReturn = XMQuaternionMultiply(zQ, tmpQ);
 		XMQuaternionNormalize(qToReturn);
 		return qToReturn;
 	}

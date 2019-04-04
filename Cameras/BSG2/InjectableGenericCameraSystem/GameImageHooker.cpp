@@ -32,9 +32,6 @@
 
 namespace IGCS::GameImageHooker
 {
-	//nopRange(AOBBlock * hookData, int length)
-	//{
-	//}
 	// Sets a jmp qword ptr [address] statement at hostImageAddress + startOffset for x64 and a jmp <relative address> for x86
 	void setHook(LPBYTE hostImageAddress, DWORD startOffset, DWORD continueOffset, LPBYTE* interceptionContinue, void* asmFunction)
 	{
@@ -72,7 +69,7 @@ namespace IGCS::GameImageHooker
 			cout << "Error code: " << hex << GetLastError() << endl;
 		}
 	}
-	
+
 
 	// Sets a jmp qword ptr [address] statement at baseAddress + startOffset for x64 and a jmp <relative address> for x86
 	void setHook(AOBBlock* hookData, DWORD continueOffset, LPBYTE* interceptionContinue, void* asmFunction)

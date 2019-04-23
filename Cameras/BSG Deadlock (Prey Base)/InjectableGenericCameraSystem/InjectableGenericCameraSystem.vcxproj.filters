@@ -1,0 +1,120 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Game Specific">
+      <UniqueIdentifier>{7d1d0a8c-82f0-4e04-a360-931ee20d50fd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Hooking">
+      <UniqueIdentifier>{e64ed4d2-5b1f-47da-b3e9-c7dd3250c7c3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Input">
+      <UniqueIdentifier>{6cb4b263-7ea7-45c4-b669-ca73cbdade1d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Main">
+      <UniqueIdentifier>{70868572-74c1-41e1-94a6-bc39b32c96e6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Misc">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="stdafx.h">
+      <Filter>Misc</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>Misc</Filter>
+    </ClInclude>
+    <ClInclude Include="InterceptorHelper.h">
+      <Filter>Game Specific</Filter>
+    </ClInclude>
+    <ClInclude Include="GameConstants.h">
+      <Filter>Game Specific</Filter>
+    </ClInclude>
+    <ClInclude Include="CameraManipulator.h">
+      <Filter>Game Specific</Filter>
+    </ClInclude>
+    <ClInclude Include="InputHooker.h">
+      <Filter>Hooking</Filter>
+    </ClInclude>
+    <ClInclude Include="Gamepad.h">
+      <Filter>Input</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>Main</Filter>
+    </ClInclude>
+    <ClInclude Include="Console.h">
+      <Filter>Main</Filter>
+    </ClInclude>
+    <ClInclude Include="Defaults.h">
+      <Filter>Main</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils.h">
+      <Filter>Main</Filter>
+    </ClInclude>
+    <ClInclude Include="Globals.h">
+      <Filter>Main</Filter>
+    </ClInclude>
+    <ClInclude Include="System.h">
+      <Filter>Main</Filter>
+    </ClInclude>
+    <ClInclude Include="GameImageHooker.h">
+      <Filter>Hooking</Filter>
+    </ClInclude>
+    <ClInclude Include="Input.h">
+      <Filter>Input</Filter>
+    </ClInclude>
+    <ClInclude Include="AOBBlock.h">
+      <Filter>Hooking</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="InterceptorHelper.cpp">
+      <Filter>Game Specific</Filter>
+    </ClCompile>
+    <ClCompile Include="CameraManipulator.cpp">
+      <Filter>Game Specific</Filter>
+    </ClCompile>
+    <ClCompile Include="InputHooker.cpp">
+      <Filter>Hooking</Filter>
+    </ClCompile>
+    <ClCompile Include="Gamepad.cpp">
+      <Filter>Input</Filter>
+    </ClCompile>
+    <ClCompile Include="Console.cpp">
+      <Filter>Main</Filter>
+    </ClCompile>
+    <ClCompile Include="Camera.cpp">
+      <Filter>Main</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Misc</Filter>
+    </ClCompile>
+    <ClCompile Include="Main.cpp">
+      <Filter>Main</Filter>
+    </ClCompile>
+    <ClCompile Include="Utils.cpp">
+      <Filter>Main</Filter>
+    </ClCompile>
+    <ClCompile Include="Globals.cpp">
+      <Filter>Main</Filter>
+    </ClCompile>
+    <ClCompile Include="System.cpp">
+      <Filter>Main</Filter>
+    </ClCompile>
+    <ClCompile Include="GameImageHooker.cpp">
+      <Filter>Hooking</Filter>
+    </ClCompile>
+    <ClCompile Include="Input.cpp">
+      <Filter>Input</Filter>
+    </ClCompile>
+    <ClCompile Include="AOBBlock.cpp">
+      <Filter>Hooking</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <MASM Include="Interceptor.asm">
+      <Filter>Game Specific</Filter>
+    </MASM>
+  </ItemGroup>
+</Project>

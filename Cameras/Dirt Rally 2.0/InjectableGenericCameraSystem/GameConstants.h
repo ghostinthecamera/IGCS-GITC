@@ -31,8 +31,8 @@ namespace IGCS::GameSpecific
 {
 	// Mandatory constants to define for a game
 	#define GAME_NAME									"Dirt Rally 2.0 v1.3"
-	#define CAMERA_VERSION								"1.0"
-	#define CAMERA_CREDITS								"Otis_Inf, Hattiwatti and Ghostinthecamera"
+	#define CAMERA_VERSION								"1.01"
+	#define CAMERA_CREDITS								"Ghostinthecamera & Hattiwatti"
 	#define GAME_WINDOW_TITLE							"DiRT Rally 2.0"
 	#define INITIAL_PITCH_RADIANS						0.0f	// around X axis	(right)
 	#define INITIAL_YAW_RADIANS							0.0f	// around Y axis	(up)

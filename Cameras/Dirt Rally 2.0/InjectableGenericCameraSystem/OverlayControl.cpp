@@ -287,7 +287,7 @@ Special thanks to:
 		}
 		if (ImGui::CollapsingHeader("Misc. camera options", ImGuiTreeNodeFlags_DefaultOpen))
 		{
-			settingsChanged |= ImGui::SliderFloat("Field of View (FoV) zoom speed", &currentSettings.fovChangeSpeed, 0.0001f, 0.01f, "%.3f");
+			settingsChanged |= ImGui::SliderFloat("Field of View (FoV) zoom speed", &currentSettings.fovChangeSpeed, 0.001f, 1.0f, "%.1f");
 		}
 		ImGui::PopItemWidth();
 		if (settingsChanged)

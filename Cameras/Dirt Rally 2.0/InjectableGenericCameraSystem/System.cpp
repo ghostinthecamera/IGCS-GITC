@@ -223,7 +223,7 @@ namespace IGCS
 		{
 			Settings& settings = Globals::instance().settings();
 			float  multiplier = gamePad.isButtonPressed(IGCS_BUTTON_FASTER) ? settings.fastMovementMultiplier 
-																			: gamePad.isButtonPressed(IGCS_BUTTON_SLOWER) ? settings.slowMovementMultiplier : multiplierBase;
+																		    : gamePad.isButtonPressed(IGCS_BUTTON_SLOWER) ? settings.slowMovementMultiplier : multiplierBase;
 			vec2 rightStickPosition = gamePad.getRStickPosition();
 			_camera.pitch(rightStickPosition.y * multiplier);
 			_camera.yaw(rightStickPosition.x * multiplier);

@@ -126,17 +126,17 @@ namespace IGCS::GameSpecific::CameraManipulator
 			return;
 		}
 		float* fovAddress = reinterpret_cast<float*>(g_cameraStructAddress + FOV_IN_STRUCT_OFFSET);
-		float newValue = *fovAddress + amount;
+		float newValue = *fovAddress*(180 / XM_PI) + amount;
 		if (newValue < 0.001f)
 		{
-			// clamp. 
+			// lower clamp. 
 			newValue = 0.001f;
 		}
-		if (newValue > 1.100f) {
+		if (newValue > 120.0f) {
 			// upper clamp.
-			newValue = 1.100f;
+			newValue = 120.0f;
 		}
-		*fovAddress = newValue;
+		*fovAddress = newValue*(XM_PI/180);
 	}
 	
 

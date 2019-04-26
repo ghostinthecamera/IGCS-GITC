@@ -149,12 +149,19 @@ namespace IGCS
 		}
 		if (Input::keyDown(IGCS_KEY_TIMESTOP))
 		{
-			if (!!Globals::instance().settings().hudandtimestop)
+			if (Globals::instance().settings().hudandtimestop)
 			{
-				if (!hudstate)
+				if (hudstate == 0)
 				{
 					CameraManipulator::hudToggle();
-					hudstate = hudstate == 0 ? (BYTE)1 : (BYTE)0;
+					hudstate = (BYTE)1;
+					displayGameHUDState();
+					Sleep(300);
+				}
+				else
+				{
+					CameraManipulator::hudToggle();
+					hudstate = (BYTE)0;
 					displayGameHUDState();
 					Sleep(300);
 				}

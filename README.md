@@ -27,7 +27,7 @@ There's an external dependency on [MinHook](https://github.com/TsudaKageyu/minho
 automatically when you clone the repo. The camera uses DirectXMath for the 3D math, which is a self-contained .h file, from the Windows SDK. 
 
 ## Cameras released: 
-Ace Combat 7: https://github.com/ghostinthecamera/IGCS-GITC/releases/tag/AC7v1.1  
+Ace Combat 7: https://github.com/ghostinthecamera/IGCS-GITC/releases/tag/AC7v1.11 
 Dirt Rally 2.0: https://github.com/ghostinthecamera/IGCS-GITC/releases/tag/DR2v1.01
 
 ## In-depth article about IGCS and how to create camera tools

@@ -40,10 +40,10 @@ using namespace std;
 extern "C" {
 	void cameraStructInterceptor();
 	void cameraWrite1Interceptor();
-	//void cameraWrite2Interceptor();
-	//void cameraWrite3Interceptor();
-	//void cameraWrite4Interceptor();
-	//void cameraWrite5Interceptor();
+	void cameraWrite2Interceptor();
+	void cameraWrite3Interceptor();
+	void cameraWrite4Interceptor();
+	void cameraWrite5Interceptor();
 	//void resolutionScaleReadInterceptor();
 	//void timestopReadInterceptor();
 	//void displayTypeInterceptor();
@@ -54,10 +54,10 @@ extern "C" {
 extern "C" {
 	LPBYTE _cameraStructInterceptionContinue = nullptr;
 	LPBYTE _cameraWrite1InterceptionContinue = nullptr;
-	//LPBYTE _cameraWrite2InterceptionContinue = nullptr;
-	//LPBYTE _cameraWrite3InterceptionContinue = nullptr;
-	//LPBYTE _cameraWrite4InterceptionContinue = nullptr;
-	//LPBYTE _cameraWrite5InterceptionContinue = nullptr;
+	LPBYTE _cameraWrite2InterceptionContinue = nullptr;
+	LPBYTE _cameraWrite3InterceptionContinue = nullptr;
+	LPBYTE _cameraWrite4InterceptionContinue = nullptr;
+	LPBYTE _cameraWrite5InterceptionContinue = nullptr;
 	//LPBYTE _resolutionScaleReadInterceptionContinue = nullptr;
 	//LPBYTE _timestopReadInterceptionContinue = nullptr;
 	//LPBYTE _displayTypeInterceptionContinue = nullptr;
@@ -69,12 +69,12 @@ namespace IGCS::GameSpecific::InterceptorHelper
 {
 	void initializeAOBBlocks(LPBYTE hostImageAddress, DWORD hostImageSize, map<string, AOBBlock*> &aobBlocks)
 	{
-		aobBlocks[CAMERA_ADDRESS_INTERCEPT_KEY] = new AOBBlock(CAMERA_ADDRESS_INTERCEPT_KEY, "48 8D 4C 24 ?? 48 8B F8 E8 ?? ?? ?? ?? | 0F 28 00 66 0F 7F 43 ?? 0F 28 48 ?? 66 0F 7F 4B ?? 0F 28 40 ?? 66 0F 7F 43 ?? 0F 57 C0 0F 28 4F ?? 66 0F 7F 4B ?? F3 0F 10 57 ?? 0F 2F D0", 1);	
-		aobBlocks[CAMERA_WRITE1_INTERCEPT_KEY] = new AOBBlock(CAMERA_WRITE1_INTERCEPT_KEY, "F3 0F 11 53 ?? 8B 47 ?? 89 43 ?? 0F 28 47 ?? 66 0F 7F 43 ?? 48 8B 5C 24 ?? 48 83 C4 ?? 5F C3", 1);
-		//aobBlocks[CAMERA_WRITE2_INTERCEPT_KEY] = new AOBBlock(CAMERA_WRITE2_INTERCEPT_KEY, "0F 29 5C 24 ?? 0F 56 D0 41 0F 28 C1 0F 29 56 ??", 1);
-		//aobBlocks[CAMERA_WRITE3_INTERCEPT_KEY] = new AOBBlock(CAMERA_WRITE3_INTERCEPT_KEY, "45 0A 88 ?? ?? ?? ?? 66 41 0F 7F 40 ?? 66 41 0F 7F 08", 1);
-		//aobBlocks[CAMERA_WRITE4_INTERCEPT_KEY] = new AOBBlock(CAMERA_WRITE4_INTERCEPT_KEY, "66 41 0F 7F 40 ?? 66 41 0F 7F 80 ?? ?? ?? ?? 66 41 0F 7F 88 ?? ?? ?? ??", 1);
-		//aobBlocks[CAMERA_WRITE5_INTERCEPT_KEY] = new AOBBlock(CAMERA_WRITE5_INTERCEPT_KEY, "66 0F 7F 03 66 0F 7F 4B ?? 48 8B 5C 24 ??", 1);
+		aobBlocks[CAMERA_ADDRESS_INTERCEPT_KEY] = new AOBBlock(CAMERA_ADDRESS_INTERCEPT_KEY, "FF 90 ?? ?? ?? ?? 48 8B D0 48 8D 4C 24 ?? 48 8B F8", 1);	
+		aobBlocks[CAMERA_WRITE1_INTERCEPT_KEY] = new AOBBlock(CAMERA_WRITE1_INTERCEPT_KEY, "41 0F 28 88 ?? ?? ?? ?? 66 41 0F 7F 00 66 41 0F 7F 48 ??", 1);
+		aobBlocks[CAMERA_WRITE2_INTERCEPT_KEY] = new AOBBlock(CAMERA_WRITE2_INTERCEPT_KEY, "0F 29 5C 24 ?? 0F 56 D0 41 0F 28 C1 0F 29 56 ??", 1);
+		aobBlocks[CAMERA_WRITE3_INTERCEPT_KEY] = new AOBBlock(CAMERA_WRITE3_INTERCEPT_KEY, "45 0A 88 ?? ?? ?? ?? 66 41 0F 7F 40 ?? 66 41 0F 7F 08", 1);
+		aobBlocks[CAMERA_WRITE4_INTERCEPT_KEY] = new AOBBlock(CAMERA_WRITE4_INTERCEPT_KEY, "66 41 0F 7F 40 ?? 66 41 0F 7F 80 ?? ?? ?? ?? 66 41 0F 7F 88 ?? ?? ?? ??", 1);
+		aobBlocks[CAMERA_WRITE5_INTERCEPT_KEY] = new AOBBlock(CAMERA_WRITE5_INTERCEPT_KEY, "66 0F 7F 03 66 0F 7F 4B ?? 48 8B 5C 24 ??", 1);
 		//aobBlocks[TIMESTOP_READ_INTERCEPT_KEY] = new AOBBlock(TIMESTOP_READ_INTERCEPT_KEY, "F3 0F 10 87 84 03 00 00 0F 2F C2 F3 0F 10 9F 80 03 00 00", 1);
 		//aobBlocks[RESOLUTION_SCALE_INTERCEPT_KEY] = new AOBBlock(RESOLUTION_SCALE_INTERCEPT_KEY, "F3 0F 10 80 6C 12 00 00 48 8D 44 24 3C F3 41 0F 59 46 40", 1);
 		//aobBlocks[DISPLAYTYPE_INTERCEPT_KEY] = new AOBBlock(DISPLAYTYPE_INTERCEPT_KEY, "44 0F 29 44 24 40 44 0F 29 4C 24 30 F3 0F 11 45 10 F3 0F 11 4D 14", 1);
@@ -101,17 +101,17 @@ namespace IGCS::GameSpecific::InterceptorHelper
 
 	void setCameraStructInterceptorHook(map<string, AOBBlock*> &aobBlocks)
 	{
-		GameImageHooker::setHook(aobBlocks[CAMERA_ADDRESS_INTERCEPT_KEY], 0x2B, &_cameraStructInterceptionContinue, &cameraStructInterceptor);
+		GameImageHooker::setHook(aobBlocks[CAMERA_ADDRESS_INTERCEPT_KEY], 0x0E, &_cameraStructInterceptionContinue, &cameraStructInterceptor);
 	}
 
 
 	void setPostCameraStructHooks(map<string, AOBBlock*> &aobBlocks)
 	{
-		GameImageHooker::setHook(aobBlocks[CAMERA_WRITE1_INTERCEPT_KEY], 0x0F, &_cameraWrite1InterceptionContinue, &cameraWrite1Interceptor);
-		//GameImageHooker::setHook(aobBlocks[CAMERA_WRITE2_INTERCEPT_KEY], 0x10, &_cameraWrite2InterceptionContinue, &cameraWrite2Interceptor);
-		//GameImageHooker::setHook(aobBlocks[CAMERA_WRITE3_INTERCEPT_KEY], 0x12, &_cameraWrite3InterceptionContinue, &cameraWrite3Interceptor);
-		//GameImageHooker::setHook(aobBlocks[CAMERA_WRITE4_INTERCEPT_KEY], 0x0F, &_cameraWrite4InterceptionContinue, &cameraWrite4Interceptor);
-		//GameImageHooker::setHook(aobBlocks[CAMERA_WRITE5_INTERCEPT_KEY], 0x0E, &_cameraWrite5InterceptionContinue, &cameraWrite5Interceptor);
+		GameImageHooker::setHook(aobBlocks[CAMERA_WRITE1_INTERCEPT_KEY], 0x13, &_cameraWrite1InterceptionContinue, &cameraWrite1Interceptor);
+		GameImageHooker::setHook(aobBlocks[CAMERA_WRITE2_INTERCEPT_KEY], 0x10, &_cameraWrite2InterceptionContinue, &cameraWrite2Interceptor);
+		GameImageHooker::setHook(aobBlocks[CAMERA_WRITE3_INTERCEPT_KEY], 0x12, &_cameraWrite3InterceptionContinue, &cameraWrite3Interceptor);
+		GameImageHooker::setHook(aobBlocks[CAMERA_WRITE4_INTERCEPT_KEY], 0x0F, &_cameraWrite4InterceptionContinue, &cameraWrite4Interceptor);
+		GameImageHooker::setHook(aobBlocks[CAMERA_WRITE5_INTERCEPT_KEY], 0x0E, &_cameraWrite5InterceptionContinue, &cameraWrite5Interceptor);
 		//GameImageHooker::setHook(aobBlocks[TIMESTOP_READ_INTERCEPT_KEY], 0x13, &_timestopReadInterceptionContinue, &timestopReadInterceptor);
 		//GameImageHooker::setHook(aobBlocks[RESOLUTION_SCALE_INTERCEPT_KEY], 0x13, &_resolutionScaleReadInterceptionContinue, &resolutionScaleReadInterceptor);
 		//GameImageHooker::setHook(aobBlocks[DISPLAYTYPE_INTERCEPT_KEY], 0x11, &_displayTypeInterceptionContinue, &displayTypeInterceptor);

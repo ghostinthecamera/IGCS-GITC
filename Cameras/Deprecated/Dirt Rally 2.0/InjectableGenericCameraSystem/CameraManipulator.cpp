@@ -46,7 +46,7 @@ extern "C" {
 namespace IGCS::GameSpecific::CameraManipulator
 {
 	static float _originalCoords[3];
-	static float _originalMatrix[12];
+	static float _originalQuaternion[4];
 	static float _originalFoV = DEFAULT_FOV;
 	//static float _originalResolutionScale;
 
@@ -126,7 +126,7 @@ namespace IGCS::GameSpecific::CameraManipulator
 			return;
 		}
 		float* fovAddress = reinterpret_cast<float*>(g_cameraStructAddress + FOV_IN_STRUCT_OFFSET);
-		float newValue = *fovAddress*(180 / XM_PI) + amount; //convert to degrees as we use degrees here but games uses radians
+		float newValue = *fovAddress*(180 / XM_PI) + amount;
 		if (newValue < 0.001f)
 		{
 			// lower clamp. 
@@ -136,12 +136,14 @@ namespace IGCS::GameSpecific::CameraManipulator
 			// upper clamp.
 			newValue = 120.0f;
 		}
-		*fovAddress = newValue*(XM_PI/180);  //convert back to radians and write to game memory
+		*fovAddress = newValue*(XM_PI/180);
 	}
 	
 
 	XMFLOAT3 getCurrentCameraCoords()
 	{
+		// we write to both cameras at once, so we just grab one of the coords, it always works. Photomode does inherit its coords from the 
+		// gameplay / current cam anyway. 
 		float* coordsInMemory = reinterpret_cast<float*>(g_cameraStructAddress + COORDS_IN_STRUCT_OFFSET);
 		XMFLOAT3 currentCoords = XMFLOAT3(coordsInMemory[0], coordsInMemory[1], coordsInMemory[2]);
 		return currentCoords;
@@ -157,33 +159,23 @@ namespace IGCS::GameSpecific::CameraManipulator
 			return;
 		}
 
-		XMMATRIX rotationMatrixPacked = XMMatrixRotationQuaternion(newLookQuaternion);
-		XMFLOAT4X4 rotationMatrix;
-		XMStoreFloat4x4(&rotationMatrix, rotationMatrixPacked);
+		XMFLOAT4 qAsFloat4;
+		XMStoreFloat4(&qAsFloat4, newLookQuaternion);
 
 		float* coordsInMemory = nullptr;
-		float* matrixInMemory = nullptr;
+		float* quaternionInMemory = nullptr;
 
+		// only the gameplay camera. Photomode coords aren't updated.
 		coordsInMemory = reinterpret_cast<float*>(g_cameraStructAddress + COORDS_IN_STRUCT_OFFSET);
 		coordsInMemory[0] = newCoords.x;
 		coordsInMemory[1] = newCoords.y;
 		coordsInMemory[2] = newCoords.z;
 
-		//Game calculates a 3x3 matrix from internal quaternions and uses the matrix for the current replay camera.
-		//Matrix is ordered y,x,z
-		matrixInMemory = reinterpret_cast<float*>(g_cameraStructAddress + MATRIX_IN_STRUCT_OFFSET);
-		matrixInMemory[0] = rotationMatrix._12;
-		matrixInMemory[1] = rotationMatrix._22;
-		matrixInMemory[2] = rotationMatrix._32;
-		matrixInMemory[3] = 0.0f;	//boundary has a zero rather than 1
-		matrixInMemory[4] = rotationMatrix._11;
-		matrixInMemory[5] = rotationMatrix._21;
-		matrixInMemory[6] = rotationMatrix._31;
-		matrixInMemory[7] = 0.0f;
-		matrixInMemory[8] = rotationMatrix._13;
-		matrixInMemory[9] = rotationMatrix._23;
-		matrixInMemory[10] = rotationMatrix._33;
-		matrixInMemory[11] = 0.0f;
+		quaternionInMemory = reinterpret_cast<float*>(g_cameraStructAddress + QUATERNION_IN_STRUCT_OFFSET);
+		quaternionInMemory[0] = qAsFloat4.x;
+		quaternionInMemory[1] = qAsFloat4.y;
+		quaternionInMemory[2] = qAsFloat4.z;
+		quaternionInMemory[3] = qAsFloat4.w;
 	}
 
 
@@ -202,8 +194,7 @@ namespace IGCS::GameSpecific::CameraManipulator
 	// should restore the camera values in the camera structures to the cached values. This assures the free camera is always enabled at the original camera location.
 	void restoreOriginalValuesAfterCameraDisable()
 	{
-		//float* quaternionInMemory = nullptr;
-		float* matrixInMemory = nullptr;
+		float* quaternionInMemory = nullptr;
 		float* coordsInMemory = nullptr;
 		float *fovInMemory = nullptr;
 
@@ -211,9 +202,10 @@ namespace IGCS::GameSpecific::CameraManipulator
 		{
 			return;
 		}
-		matrixInMemory = reinterpret_cast<float*>(g_cameraStructAddress + MATRIX_IN_STRUCT_OFFSET);
+		// gameplay / cutscene cam
+		quaternionInMemory = reinterpret_cast<float*>(g_cameraStructAddress + QUATERNION_IN_STRUCT_OFFSET);
 		coordsInMemory = reinterpret_cast<float*>(g_cameraStructAddress + COORDS_IN_STRUCT_OFFSET);
-		memcpy(matrixInMemory, _originalMatrix, 12 * sizeof(float));
+		memcpy(quaternionInMemory, _originalQuaternion, 4 * sizeof(float));
 		memcpy(coordsInMemory, _originalCoords, 3 * sizeof(float));
 
 		fovInMemory = reinterpret_cast<float*>(g_cameraStructAddress + FOV_IN_STRUCT_OFFSET);
@@ -228,8 +220,7 @@ namespace IGCS::GameSpecific::CameraManipulator
 
 	void cacheOriginalValuesBeforeCameraEnable()
 	{
-		//float* quaternionInMemory = nullptr;
-		float* matrixInMemory = nullptr;
+		float* quaternionInMemory = nullptr;
 		float* coordsInMemory = nullptr;
 		float *fovInMemory = nullptr;
 
@@ -237,9 +228,10 @@ namespace IGCS::GameSpecific::CameraManipulator
 		{
 			return;
 		}
-		matrixInMemory = reinterpret_cast<float*>(g_cameraStructAddress + MATRIX_IN_STRUCT_OFFSET);
+		// gameplay/cutscene cam
+		quaternionInMemory = reinterpret_cast<float*>(g_cameraStructAddress + QUATERNION_IN_STRUCT_OFFSET);
 		coordsInMemory = reinterpret_cast<float*>(g_cameraStructAddress + COORDS_IN_STRUCT_OFFSET);
-		memcpy(_originalMatrix, matrixInMemory, 12 * sizeof(float));
+		memcpy(_originalQuaternion, quaternionInMemory, 4 * sizeof(float));
 		memcpy(_originalCoords, coordsInMemory, 3 * sizeof(float));
 
 		fovInMemory = reinterpret_cast<float*>(g_cameraStructAddress + FOV_IN_STRUCT_OFFSET);

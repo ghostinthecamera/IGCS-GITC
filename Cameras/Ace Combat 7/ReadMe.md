@@ -2,7 +2,7 @@ Injectable camera for Ace Combat 7
 ============================
 
 Current supported game version: v1.0.2+  
-Camera version: 1.0 
+Camera version: 1.11 
 Camera release binaries: 
 Credits: IGCS and tools by Otis_Inf, Adapted to AC7 by ghostinthecamera
 

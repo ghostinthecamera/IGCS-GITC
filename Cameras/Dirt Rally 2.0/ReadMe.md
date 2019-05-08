@@ -2,7 +2,7 @@ Injectable camera for Dirt Rally 2
 ============================
 
 Current supported game version: v1.3+  
-Camera version: 2.1
+Camera version: 2.1  
 Camera release binaries:  
 Credits: ghostinthecamera, Hattiwatti
 

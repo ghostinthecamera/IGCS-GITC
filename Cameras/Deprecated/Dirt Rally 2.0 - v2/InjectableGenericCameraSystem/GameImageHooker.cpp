@@ -93,18 +93,6 @@ namespace IGCS::GameImageHooker
 		writeRange(hookData->locationInImage() + hookData->customOffset(), bufferToWrite, length);
 	}
 
-	void readRange(LPBYTE startAddress, BYTE* bufferToRead, int length)
-	{
-		SIZE_T noBytesRead;
-		ReadProcessMemory(OpenProcess(PROCESS_VM_OPERATION | PROCESS_VM_READ, FALSE, GetCurrentProcessId()), startAddress, bufferToRead, length, &noBytesRead);
-	}
-
-
-	// Writes the bytes pointed at by bufferToWrite starting at address startAddress, for the length in 'length'.
-	void readRange(AOBBlock* hookData, BYTE* bufferToRead, int length)
-	{
-		readRange(hookData->locationInImage() + hookData->customOffset(), bufferToRead, length);
-	}
 
 	// Writes NOP opcodes to a range of memory.
 	void nopRange(LPBYTE startAddress, int length)

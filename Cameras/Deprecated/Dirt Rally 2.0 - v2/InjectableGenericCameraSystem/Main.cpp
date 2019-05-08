@@ -25,16 +25,51 @@
 // OR TORT(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
-#pragma once
 #include "stdafx.h"
-#include <map>
+#include "Console.h"
+#include "Globals.h"
+#include "System.h"
 #include "Utils.h"
 
-namespace IGCS::GameSpecific::InterceptorHelper
+using namespace std;
+using namespace IGCS;
+
+DWORD WINAPI MainThread(LPVOID lpParam);
+
+BOOL APIENTRY DllMain(HMODULE hModule, DWORD  reason, LPVOID lpReserved)
 {
-	void initializeAOBBlocks(LPBYTE hostImageAddress, DWORD hostImageSize, std::map<std::string, AOBBlock*> &aobBlocks);
-	void setCameraStructInterceptorHook(std::map<std::string, AOBBlock*> &aobBlocks);
-	void setPostCameraStructHooks(std::map<std::string, AOBBlock*> &aobBlocks);
-	void SaveNOPReplace(AOBBlock* hookData, int numberOfBytes, bool enabled);
-	//void toggleHud(std::map<std::string, AOBBlock*> &aobBlocks, bool hideHud);
+	DWORD threadID;
+	HANDLE threadHandle;
+
+	DisableThreadLibraryCalls(hModule);
+
+	switch (reason)
+	{
+		case DLL_PROCESS_ATTACH:
+			threadHandle = CreateThread(nullptr, 0, MainThread, hModule, 0, &threadID);
+			SetThreadPriority(threadHandle, THREAD_PRIORITY_ABOVE_NORMAL);
+			break;
+		case DLL_PROCESS_DETACH:
+			Globals::instance().systemActive(false);
+			break;
+	}
+	return TRUE;
+}
+
+
+// lpParam gets the hModule value of the DllMain process
+DWORD WINAPI MainThread(LPVOID lpParam)
+{
+	MODULEINFO hostModuleInfo = Utils::getModuleInfoOfContainingProcess();
+	if (nullptr == hostModuleInfo.lpBaseOfDll)
+	{
+		Console::WriteError("Not able to obtain parent process base address... exiting");
+	}
+	else
+	{
+		System s;
+		s.start((LPBYTE)hostModuleInfo.lpBaseOfDll, hostModuleInfo.SizeOfImage);
+	}
+	Console::Release();
+	return 0;
 }

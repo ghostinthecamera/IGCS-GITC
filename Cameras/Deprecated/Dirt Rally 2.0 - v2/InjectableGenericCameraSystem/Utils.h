@@ -27,14 +27,43 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma once
 #include "stdafx.h"
-#include <map>
-#include "Utils.h"
 
-namespace IGCS::GameSpecific::InterceptorHelper
+namespace IGCS
 {
-	void initializeAOBBlocks(LPBYTE hostImageAddress, DWORD hostImageSize, std::map<std::string, AOBBlock*> &aobBlocks);
-	void setCameraStructInterceptorHook(std::map<std::string, AOBBlock*> &aobBlocks);
-	void setPostCameraStructHooks(std::map<std::string, AOBBlock*> &aobBlocks);
-	void SaveNOPReplace(AOBBlock* hookData, int numberOfBytes, bool enabled);
-	//void toggleHud(std::map<std::string, AOBBlock*> &aobBlocks, bool hideHud);
+	// forward declaration to avoid cyclic dependency.
+	class AOBBlock;
+}
+
+namespace IGCS::Utils
+{
+	struct handle_data {
+		unsigned long process_id;
+		HWND best_handle;
+	};
+
+	template <typename T>
+	T clamp(T value, T min, T max, T default)
+	{
+		return value < min ? default
+			: value > max ? default: value;
+	}
+	
+	template <typename T>
+	T clamp(T value, T min, T default)
+	{
+		return value < min ? default : value;
+	}
+	
+
+	HWND findMainWindow(unsigned long process_id);
+	MODULEINFO getModuleInfoOfContainingProcess();
+	MODULEINFO getModuleInfoOfDll(LPCWSTR libraryName);
+	LPBYTE findAOBPattern(LPBYTE imageAddress, DWORD imageSize, AOBBlock* const toScanFor);
+	BYTE CharToByte(char c);
+	LPBYTE calculateAbsoluteAddress(AOBBlock* locationData, int nextOpCodeOffset);
+	std::string formatString(const char *fmt, va_list args);
+	bool stringStartsWith(const char *a, const char *b);
+	bool keyDown(int virtualKeyCode);
+	bool altPressed();
+	std::string vkCodeToString(int vkCode);
 }

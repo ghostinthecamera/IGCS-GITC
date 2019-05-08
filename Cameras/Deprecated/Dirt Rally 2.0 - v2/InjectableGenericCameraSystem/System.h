@@ -27,14 +27,45 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma once
 #include "stdafx.h"
+#include "Camera.h"
+#include "Gamepad.h"
 #include <map>
-#include "Utils.h"
+#include "AOBBlock.h"
 
-namespace IGCS::GameSpecific::InterceptorHelper
+namespace IGCS
 {
-	void initializeAOBBlocks(LPBYTE hostImageAddress, DWORD hostImageSize, std::map<std::string, AOBBlock*> &aobBlocks);
-	void setCameraStructInterceptorHook(std::map<std::string, AOBBlock*> &aobBlocks);
-	void setPostCameraStructHooks(std::map<std::string, AOBBlock*> &aobBlocks);
-	void SaveNOPReplace(AOBBlock* hookData, int numberOfBytes, bool enabled);
-	//void toggleHud(std::map<std::string, AOBBlock*> &aobBlocks, bool hideHud);
+	class System
+	{
+	public:
+		System();
+		~System();
+		void start(LPBYTE hostBaseAddress, DWORD hostImageSize);
+
+	private:
+		void mainLoop();
+		void initialize();
+		void updateFrame();
+		void handleUserInput();
+		void writeNewCameraValuesToCameraStructs();
+		void displayCameraState();
+		void toggleCameraMovementLockState(bool newValue);
+		void handleKeyboardCameraMovement(float multiplier);
+		void handleMouseCameraMovement(float multiplier);
+		void handleGamePadMovement(float multiplierBase);
+		void waitForCameraStructAddresses();
+		void toggleInputBlockState(bool newValue);
+		void toggleTimestopState();
+		void toggleHudRenderState();
+
+		Camera _camera;
+		LPBYTE _hostImageAddress;
+		DWORD _hostImageSize;
+		bool _timeStopped = false;
+		bool _cameraMovementLocked = false;
+		bool _cameraStructFound = false;
+		bool _hudToggled = false;
+		map<string, AOBBlock*> _aobBlocks;
+		bool _applyHammerPrevention = false;	// set to true by a keyboard action and which triggers a sleep before keyboard handling is performed.
+	};
 }
+

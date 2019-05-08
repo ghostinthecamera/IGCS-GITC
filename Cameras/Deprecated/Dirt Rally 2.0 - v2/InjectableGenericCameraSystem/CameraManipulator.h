@@ -27,14 +27,19 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma once
 #include "stdafx.h"
-#include <map>
-#include "Utils.h"
 
-namespace IGCS::GameSpecific::InterceptorHelper
+namespace IGCS::GameSpecific::CameraManipulator
 {
-	void initializeAOBBlocks(LPBYTE hostImageAddress, DWORD hostImageSize, std::map<std::string, AOBBlock*> &aobBlocks);
-	void setCameraStructInterceptorHook(std::map<std::string, AOBBlock*> &aobBlocks);
-	void setPostCameraStructHooks(std::map<std::string, AOBBlock*> &aobBlocks);
-	void SaveNOPReplace(AOBBlock* hookData, int numberOfBytes, bool enabled);
-	//void toggleHud(std::map<std::string, AOBBlock*> &aobBlocks, bool hideHud);
+	void writeNewCameraValuesToGameData(DirectX::XMFLOAT3 newCoords, DirectX::XMVECTOR newLookQuaternion);
+	void restoreOriginalValuesAfterCameraDisable();
+	void cacheOriginalValuesBeforeCameraEnable();
+	//void setTimeStopValue(bool pauseGame);
+	DirectX::XMFLOAT3 getCurrentCameraCoords();
+	void resetFoV();
+	void changeFoV(float amount);
+	bool isCameraFound();
+	void displayCameraStructAddress();
+	void getSettingsFromGameState();
+	void applySettingsToGameState();
+	//void selectDoF(int dofToSelect);
 }

@@ -32,9 +32,7 @@
 ;---------------------------------------------------------------
 ; Public definitions so the linker knows which names are present in this file
 PUBLIC cameraStructInterceptor
-PUBLIC cameraStructInterceptor2
 PUBLIC cameraWrite1Interceptor
-PUBLIC cameraWrite2Interceptor
 ;PUBLIC timestopReadInterceptor
 ;PUBLIC resolutionScaleReadInterceptor
 ;PUBLIC displayTypeInterceptor
@@ -47,7 +45,6 @@ PUBLIC cameraWrite2Interceptor
 ; values in asm to communicate with the system
 EXTERN g_cameraEnabled: byte
 EXTERN g_cameraStructAddress: qword
-EXTERN g_cameraStructAddress2: qword
 ;EXTERN g_resolutionScaleAddress: qword
 ;EXTERN g_timestopStructAddress: qword
 ;EXTERN g_displayTypeStructAddress: qword
@@ -58,9 +55,7 @@ EXTERN g_cameraStructAddress2: qword
 ;---------------------------------------------------------------
 ; Own externs, defined in InterceptorHelper.cpp
 EXTERN _cameraStructInterceptionContinue: qword
-EXTERN _cameraStructInterception2Continue: qword
 EXTERN _cameraWrite1InterceptionContinue: qword
-EXTERN _cameraWrite2InterceptionContinue: qword
 ;EXTERN _timestopReadInterceptionContinue: qword
 ;EXTERN _resolutionScaleReadInterceptionContinue: qword
 ;EXTERN _displayTypeInterceptionContinue: qword
@@ -69,26 +64,6 @@ EXTERN _cameraWrite2InterceptionContinue: qword
 .data
 
 .code
-
-cameraStructInterceptor2 PROC
-; camera address interceptor is also a the FoV write blocker.
-;dirtrally2.exe+9F1FA5 - 57                    - push rdi
-;dirtrally2.exe+9F1FA6 - 48 83 EC 50           - sub rsp,50 { 80 }
-;dirtrally2.exe+9F1FAA - 48 8B 01              - mov rax,[rcx]
-;dirtrally2.exe+9F1FAD - 48 8B DA              - mov rbx,rdx
-;dirtrally2.exe+9F1FB0 - FF 90 C0000000        - call qword ptr [rax+000000C0]  <<inject here
-;dirtrally2.exe+9F1FB6 - 48 8B D0              - mov rdx,rax
-;dirtrally2.exe+9F1FB9 - 48 8D 4C 24 20        - lea rcx,[rsp+20]
-;dirtrally2.exe+9F1FBE - 48 8B F8              - mov rdi,rax
-;dirtrally2.exe+9F1FC1 - E8 AA5E6BFF           - call dirtrally2.exe+A7E70
-;dirtrally2.exe+9F1FC6 - 0F28 00               - movaps xmm0,[rax]
-;dirtrally2.exe+9F1FC9 - 66 0F7F 43 20         - movdqa [rbx+20],xmm0
-	call qword ptr [rax+000000C0h]
-	mov [g_cameraStructAddress2], rax
-	mov rdx,rax
-	lea rcx,[rsp+20h]
-	jmp qword ptr [_cameraStructInterception2Continue]	; jmp back into the original game code, which is the location after the original statements above.
-cameraStructInterceptor2 ENDP
 
 cameraStructInterceptor PROC
 ; camera address interceptor also blocks writes to matrix
@@ -165,26 +140,5 @@ exit:
 	movaps xmm0,[rdi+50h]
 	jmp qword ptr [_cameraWrite1InterceptionContinue]  ;jmp back into the original game code, which is the location after the original statements above.
 cameraWrite1Interceptor ENDP
-
-cameraWrite2Interceptor PROC
-;AOB: 0F 29 03 F3 0F 5C 4B ??
-;dirtrally2.exe+A02DC3 - 0F28 45 00            - movaps xmm0,[rbp+00]
-;dirtrally2.exe+A02DC7 - F3 0F10 4D A0         - movss xmm1,[rbp-60]		
-;dirtrally2.exe+A02DCC - 0F29 03               - movaps [rbx],xmm0          <<< inject here/skip this
-;dirtrally2.exe+A02DCF - F3 0F5C 4B 70         - subss xmm1,[rbx+70]
-;dirtrally2.exe+A02DD4 - F3 0F59 CF            - mulss xmm1,xmm7			
-;dirtrally2.exe+A02DD8 - F3 0F58 4B 70         - addss xmm1,dword ptr [rbx+70]	<<< return here
-;dirtrally2.exe+A02DDD - F3 0F11 4B 70         - movss [rbx+70],xmm1
-;dirtrally2.exe+A02DE2 - F3 0F10 4D A8         - movss xmm1,[rbp-58]
-	cmp [g_cameraEnabled], 1
-	je exit
-	movaps [rbx],xmm0 
-exit:
-	subss xmm1,dword ptr [rbx+70h]
-	mulss xmm1,xmm7
-	addss xmm1,dword ptr [rbx+70h]
-	jmp qword ptr [_cameraWrite2InterceptionContinue]  ;jmp back into the original game code, which is the location after the original statements above.
-cameraWrite2Interceptor ENDP
-
 
 END

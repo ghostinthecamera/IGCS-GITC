@@ -22,7 +22,6 @@ namespace IGCS
 		float fovChangeSpeed;
 		int cameraControlDevice;		// 0==keyboard/mouse, 1 == gamepad, 2 == both, see Defaults.h
 		bool allowCameraMovementWhenMenuIsUp;
-		bool videomode;
 
 
 		void loadFromFile(map<ActionType, ActionData*> keyBindingPerActionType)
@@ -96,7 +95,6 @@ namespace IGCS
 			movementSpeed = DEFAULT_MOVEMENT_SPEED;
 			rotationSpeed = DEFAULT_ROTATION_SPEED;
 			fovChangeSpeed = DEFAULT_FOV_SPEED;
-			videomode = false;
 			cameraControlDevice = DEVICE_ID_ALL;
 			allowCameraMovementWhenMenuIsUp = false;
 

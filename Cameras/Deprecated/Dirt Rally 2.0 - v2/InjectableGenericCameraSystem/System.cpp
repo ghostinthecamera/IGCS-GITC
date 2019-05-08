@@ -96,28 +96,13 @@ namespace IGCS
 
 		// calculate new camera values. We have two cameras, but they might not be available both, so we have to test before we do anything. 
 		DirectX::XMVECTOR newLookQuaternion = _camera.calculateLookQuaternion();
-		DirectX::XMVECTOR newDustQuaternion = _camera.calculateDustQuaternion();
 		DirectX::XMFLOAT3 currentCoords;
-		DirectX::XMFLOAT3 currentDustCoords;
 		DirectX::XMFLOAT3 newCoords;
-		DirectX::XMFLOAT3 newDustCoords;
 		if (GameSpecific::CameraManipulator::isCameraFound())
 		{
 			currentCoords = GameSpecific::CameraManipulator::getCurrentCameraCoords();
-			currentDustCoords = GameSpecific::CameraManipulator::getCurrentDustCameraCoords();
-
-			if (Globals::instance().settings().videomode)
-			{
 			newCoords = _camera.calculateNewCoords(currentCoords, newLookQuaternion);
 			GameSpecific::CameraManipulator::writeNewCameraValuesToGameData(newCoords, newLookQuaternion);
-			}
-			else
-			{
-			newCoords = _camera.calculateNewCoords(currentCoords, newLookQuaternion);
-			newDustCoords = _camera.calculateNewDustCoords(currentDustCoords, newDustQuaternion);
-			GameSpecific::CameraManipulator::writeNewDustCameraValuesToGameData(newDustCoords, newDustQuaternion);
-			GameSpecific::CameraManipulator::writeNewCameraValuesToGameData(newCoords, newLookQuaternion);
-			}
 		}
 	}
 
@@ -154,7 +139,7 @@ namespace IGCS
 				// it's going to be disabled, make sure things are alright when we give it back to the host
 				CameraManipulator::restoreOriginalValuesAfterCameraDisable();
 				toggleCameraMovementLockState(false);
-				InterceptorHelper::SaveNOPReplace(_aobBlocks[QUATERNION_WRITE2_KEY], 5, false);
+				//InterceptorHelper::toggleInGameDoFOff(_aobBlocks, false);		// switch dof back on
 			}
 			else
 			{
@@ -163,7 +148,7 @@ namespace IGCS
 				_camera.resetAngles();
 				CameraManipulator::displayCameraStructAddress();
 				toggleInputBlockState(true);
-				InterceptorHelper::SaveNOPReplace(_aobBlocks[QUATERNION_WRITE2_KEY], 5, true);
+				//InterceptorHelper::toggleInGameDoFOff(_aobBlocks, Globals::instance().settings().disableInGameDofWhenCameraIsEnabled);
 			}
 			g_cameraEnabled = g_cameraEnabled == 0 ? (BYTE)1 : (BYTE)0;
 			displayCameraState();

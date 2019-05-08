@@ -12,7 +12,6 @@
 #include "CameraManipulator.h"
 #include "Input.h"
 #include <atomic>
-#include "InterceptorHelper.h"
 
 using namespace std;
 
@@ -268,6 +267,7 @@ Special thanks to:
 			currentSettings.init(true);
 			settingsChanged = true;
 		}
+
 		if (ImGui::CollapsingHeader("Camera movement options", ImGuiTreeNodeFlags_DefaultOpen))
 		{
 			settingsChanged |= ImGui::SliderFloat("Fast movement multiplier", &currentSettings.fastMovementMultiplier, 0.1f, 100.0f, "%.3f");
@@ -288,8 +288,6 @@ Special thanks to:
 		if (ImGui::CollapsingHeader("Misc. camera options", ImGuiTreeNodeFlags_DefaultOpen))
 		{
 			settingsChanged |= ImGui::SliderFloat("Field of View (FoV) zoom speed", &currentSettings.fovChangeSpeed, 0.001f, 1.0f, "%.1f");
-			ImGui::Checkbox("Legacy Mode", &currentSettings.videomode);
-			ImGui::SameLine(); showHelpMarker("Will revert to the camera code in v2 of the tools. This has less issues for video, however dirt/dust plumes will not be orientated towards the camera.\n");
 		}
 		ImGui::PopItemWidth();
 		if (settingsChanged)

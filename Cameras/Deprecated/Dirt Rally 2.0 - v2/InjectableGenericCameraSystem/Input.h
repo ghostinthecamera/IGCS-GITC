@@ -27,14 +27,20 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma once
 #include "stdafx.h"
-#include <map>
-#include "Utils.h"
+#include "ActionData.h"
 
-namespace IGCS::GameSpecific::InterceptorHelper
+namespace IGCS::Input
 {
-	void initializeAOBBlocks(LPBYTE hostImageAddress, DWORD hostImageSize, std::map<std::string, AOBBlock*> &aobBlocks);
-	void setCameraStructInterceptorHook(std::map<std::string, AOBBlock*> &aobBlocks);
-	void setPostCameraStructHooks(std::map<std::string, AOBBlock*> &aobBlocks);
-	void SaveNOPReplace(AOBBlock* hookData, int numberOfBytes, bool enabled);
-	//void toggleHud(std::map<std::string, AOBBlock*> &aobBlocks, bool hideHud);
+	long getMouseDeltaX();
+	long getMouseDeltaY();
+	void processRawMouseData(const RAWMOUSE *rmouse);
+	void resetMouseDeltas();
+	bool handleMessage(LPMSG lpMsg);
+	void registerRawInput();
+	void resetKeyStates();
+	void resetMouseState();
+	void setKeyboardMouseStateInImGuiIO();
+	bool isActionActivated(ActionType type);
+	bool isActionActivated(ActionType type, bool altCtrlShiftOptional);
+	void collectPressedKeysCumulatively();
 }

@@ -27,14 +27,13 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma once
 #include "stdafx.h"
-#include <map>
-#include "Utils.h"
 
-namespace IGCS::GameSpecific::InterceptorHelper
+namespace IGCS::Console
 {
-	void initializeAOBBlocks(LPBYTE hostImageAddress, DWORD hostImageSize, std::map<std::string, AOBBlock*> &aobBlocks);
-	void setCameraStructInterceptorHook(std::map<std::string, AOBBlock*> &aobBlocks);
-	void setPostCameraStructHooks(std::map<std::string, AOBBlock*> &aobBlocks);
-	void SaveNOPReplace(AOBBlock* hookData, int numberOfBytes, bool enabled);
-	//void toggleHud(std::map<std::string, AOBBlock*> &aobBlocks, bool hideHud);
+	void Release();
+	void WriteLine(const std::string& toWrite);
+	void WriteLine(const std::string& toWrite, int color);
+	void WriteError(const std::string& error);
+	void SetColor(int color);
 }
+

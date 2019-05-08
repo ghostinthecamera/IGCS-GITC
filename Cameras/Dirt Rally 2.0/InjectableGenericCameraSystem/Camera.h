@@ -37,7 +37,9 @@ namespace IGCS
 		~Camera(void);
 
 		DirectX::XMVECTOR calculateLookQuaternion();
+		DirectX::XMVECTOR calculateDustQuaternion();
 		DirectX::XMFLOAT3 calculateNewCoords(const DirectX::XMFLOAT3 currentCoords, const DirectX::XMVECTOR lookQ);
+		DirectX::XMFLOAT3 calculateNewDustCoords(const DirectX::XMFLOAT3 currentCoords, const DirectX::XMVECTOR lookQ);
 		void resetMovement();
 		void resetAngles();
 		void moveForward(float amount);

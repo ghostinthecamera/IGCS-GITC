@@ -31,10 +31,12 @@
 namespace IGCS::GameSpecific::CameraManipulator
 {
 	void writeNewCameraValuesToGameData(DirectX::XMFLOAT3 newCoords, DirectX::XMVECTOR newLookQuaternion);
+	void writeNewDustCameraValuesToGameData(DirectX::XMFLOAT3 newCoords, DirectX::XMVECTOR newLookQuaternion);
 	void restoreOriginalValuesAfterCameraDisable();
 	void cacheOriginalValuesBeforeCameraEnable();
 	//void setTimeStopValue(bool pauseGame);
 	DirectX::XMFLOAT3 getCurrentCameraCoords();
+	DirectX::XMFLOAT3 getCurrentDustCameraCoords();
 	void resetFoV();
 	void changeFoV(float amount);
 	bool isCameraFound();

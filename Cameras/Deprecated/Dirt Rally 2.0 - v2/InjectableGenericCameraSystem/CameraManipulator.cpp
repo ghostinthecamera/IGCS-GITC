@@ -37,7 +37,6 @@ using namespace std;
 
 extern "C" {
 	LPBYTE g_cameraStructAddress = nullptr;
-	LPBYTE g_cameraStructAddress2 = nullptr;
 	//LPBYTE g_resolutionScaleAddress = nullptr;
 	//LPBYTE g_timestopStructAddress = nullptr;
 	//LPBYTE g_displayTypeStructAddress = nullptr;
@@ -47,9 +46,7 @@ extern "C" {
 namespace IGCS::GameSpecific::CameraManipulator
 {
 	static float _originalCoords[3];
-	static float _originalCoords2[3];
 	static float _originalMatrix[12];
-	static float _originalQuaternion[4];
 	static float _originalFoV = DEFAULT_FOV;
 	//static float _originalResolutionScale;
 
@@ -150,13 +147,6 @@ namespace IGCS::GameSpecific::CameraManipulator
 		return currentCoords;
 	}
 
-	XMFLOAT3 getCurrentDustCameraCoords()
-	{
-		float* dustcoordsInMemory = reinterpret_cast<float*>(g_cameraStructAddress2 + COORDS_IN_STRUCT2_OFFSET);
-		XMFLOAT3 currentDustCoords = XMFLOAT3(dustcoordsInMemory[0], dustcoordsInMemory[1], dustcoordsInMemory[2]);
-		return currentDustCoords;
-	}
-
 
 	// newLookQuaternion: newly calculated quaternion of camera view space. Can be used to construct a 4x4 matrix if the game uses a matrix instead of a quaternion
 	// newCoords are the new coordinates for the camera in worldspace.
@@ -196,45 +186,6 @@ namespace IGCS::GameSpecific::CameraManipulator
 		matrixInMemory[11] = 0.0f;
 	}
 
-	void writeNewDustCameraValuesToGameData(XMFLOAT3 newCoords, XMVECTOR newLookQuaternion)
-	{
-		if (!isCameraFound())
-		{
-			return;
-		}
-
-		XMFLOAT4 qAsFloat4;
-		XMStoreFloat4(&qAsFloat4, newLookQuaternion);
-
-		float* coords2InMemory = nullptr;
-		float* quaternion2InMemory = nullptr;
-		float* quaternion3InMemory = nullptr;
-		float* quaternion4InMemory = nullptr;
-
-		coords2InMemory = reinterpret_cast<float*>(g_cameraStructAddress2 + COORDS_IN_STRUCT2_OFFSET);
-		coords2InMemory[0] = newCoords.x;
-		coords2InMemory[1] = newCoords.y;
-		coords2InMemory[2] = newCoords.z;
-
-		quaternion2InMemory = reinterpret_cast<float*>(g_cameraStructAddress2 + QUATERNION_IN_STRUCT2_OFFSET);
-		quaternion2InMemory[0] = qAsFloat4.x;
-		quaternion2InMemory[1] = qAsFloat4.y;
-		quaternion2InMemory[2] = qAsFloat4.z;
-		quaternion2InMemory[3] = qAsFloat4.w;
-
-		//quaternion3InMemory = reinterpret_cast<float*>(g_cameraStructAddress2 + OTHER_QUAT1);
-		//quaternion3InMemory[0] = qAsFloat4.x;
-		//quaternion3InMemory[1] = qAsFloat4.y;
-		//quaternion3InMemory[2] = qAsFloat4.z;
-		//quaternion3InMemory[3] = qAsFloat4.w;
-
-		//quaternion4InMemory = reinterpret_cast<float*>(g_cameraStructAddress2 + OTHER_QUAT2);
-		//quaternion4InMemory[0] = qAsFloat4.x;
-		//quaternion4InMemory[1] = qAsFloat4.y;
-		//quaternion4InMemory[2] = qAsFloat4.z;
-		//quaternion4InMemory[3] = qAsFloat4.w;
-	}
-
 
 	bool isCameraFound()
 	{
@@ -245,7 +196,6 @@ namespace IGCS::GameSpecific::CameraManipulator
 	void displayCameraStructAddress()
 	{
 		OverlayConsole::instance().logDebug("Camera struct address: %p", (void*)g_cameraStructAddress);
-		OverlayConsole::instance().logDebug("Camera struct address: %p", (void*)g_cameraStructAddress2);
 	}
 	
 
@@ -273,20 +223,6 @@ namespace IGCS::GameSpecific::CameraManipulator
 		//	float* resolutionScaleInMemory = reinterpret_cast<float*>(g_resolutionScaleAddress + RESOLUTION_SCALE_IN_STRUCT_OFFSET);
 		//	*resolutionScaleInMemory = _originalResolutionScale;
 		//}
-
-		float* quaternion2InMemory = nullptr;
-		float* coords2InMemory = nullptr;
-
-		if (!isCameraFound())
-		{
-			return;
-		}
-		// gameplay / cutscene cam
-		quaternion2InMemory = reinterpret_cast<float*>(g_cameraStructAddress2 + QUATERNION_IN_STRUCT2_OFFSET);
-		coords2InMemory = reinterpret_cast<float*>(g_cameraStructAddress2 + COORDS_IN_STRUCT2_OFFSET);
-		memcpy(quaternion2InMemory, _originalQuaternion, 4 * sizeof(float));
-		memcpy(coords2InMemory, _originalCoords2, 3 * sizeof(float));
-
 	}
 
 
@@ -313,18 +249,5 @@ namespace IGCS::GameSpecific::CameraManipulator
 		//	float* resolutionScaleInMemory = reinterpret_cast<float*>(g_resolutionScaleAddress + RESOLUTION_SCALE_IN_STRUCT_OFFSET);
 		//	_originalResolutionScale = *resolutionScaleInMemory;
 		//}
-
-		float* quaternion2InMemory = nullptr;
-		float* coords2InMemory = nullptr;
-
-		if (!isCameraFound())
-		{
-			return;
-		}
-		// gameplay/cutscene cam
-		quaternion2InMemory = reinterpret_cast<float*>(g_cameraStructAddress2 + QUATERNION_IN_STRUCT2_OFFSET);
-		coords2InMemory = reinterpret_cast<float*>(g_cameraStructAddress2 + COORDS_IN_STRUCT2_OFFSET);
-		memcpy(_originalQuaternion, quaternion2InMemory, 4 * sizeof(float));
-		memcpy(_originalCoords2, coords2InMemory, 3 * sizeof(float));
 	}
 }

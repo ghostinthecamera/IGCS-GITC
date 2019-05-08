@@ -31,7 +31,7 @@ namespace IGCS::GameSpecific
 {
 	// Mandatory constants to define for a game
 	#define GAME_NAME									"Dirt Rally 2.0 v1.3"
-	#define CAMERA_VERSION								"2.1"
+	#define CAMERA_VERSION								"2.0"
 	#define CAMERA_CREDITS								"Ghostinthecamera & Hattiwatti"
 	#define GAME_WINDOW_TITLE							"DiRT Rally 2.0"
 	#define INITIAL_PITCH_RADIANS						0.0f	// around X axis	(right)
@@ -50,7 +50,6 @@ namespace IGCS::GameSpecific
 
 	// AOB Keys for interceptor's AOB scanner
 	#define CAMERA_ADDRESS_INTERCEPT_KEY				"AOB_CAMERA_ADDRESS_INTERCEPT"
-	#define CAMERA_ADDRESS2_INTERCEPT_KEY				"AOB_CAMERA_ADDRESS2_INTERCEPT"
 	#define CAMERA_WRITE1_INTERCEPT_KEY					"AOB_CAMERA_WRITE1_INTERCEPT"
 	#define CAMERA_WRITE2_INTERCEPT_KEY					"AOB_CAMERA_WRITE2_INTERCEPT"
 	#define CAMERA_WRITE3_INTERCEPT_KEY					"AOB_CAMERA_WRITE3_INTERCEPT"
@@ -60,18 +59,13 @@ namespace IGCS::GameSpecific
 	//#define TIMESTOP_READ_INTERCEPT_KEY				"AOB_TIMESTOP_READ_INTERCEPT"
 	//#define DISPLAYTYPE_INTERCEPT_KEY					"AOB_DISPLAYTYPE_INTERCEPT"
 	//#define DOF_SELECTOR_WRITE_INTERCEPT_KEY			"AOB_DOF_SELECTOR_WRITE_INTERCEPT"
-	#define QUATERNION_WRITE2_KEY						"QUATERNION_WRITE2"
+	//#define DOF_FAR_BLUR_STRENGTH_WRITE_KEY			"AOB_DOF_FAR_BLUR_STRENGTH_WRITE"
 	//#define HUD_TOGGLE_ADDRESS_KEY					"AOB_HUD_TOGGLE_ADDRESS_KEY"
 
 	// Indices in the structures read by interceptors 
 	#define COORDS_IN_STRUCT_OFFSET						0x40
 	#define MATRIX_IN_STRUCT_OFFSET						0x10
 	#define FOV_IN_STRUCT_OFFSET						0x50
-	#define COORDS_IN_STRUCT2_OFFSET					0x10
-	#define QUATERNION_IN_STRUCT2_OFFSET				0x00
-	#define FOV_IN_STRUCT2_OFFSET						0x70
-	#define OTHER_QUAT1									0x110
-	#define OTHER_QUAT2									0x120
 	//#define RESOLUTION_SCALE_IN_STRUCT_OFFSET			0x126C
 	//#define TIMESTOP_FLOAT_OFFSET						0x380		// set float to 1.0 to proceed normally, 0.000001 to pause
 	//#define DISPLAYTYPE_IN_STRUCT_OFFSET				0x74

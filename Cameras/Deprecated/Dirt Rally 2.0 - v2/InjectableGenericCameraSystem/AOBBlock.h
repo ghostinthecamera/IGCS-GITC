@@ -26,15 +26,36 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma once
-#include "stdafx.h"
-#include <map>
+#include "AOBBlock.h"
 #include "Utils.h"
 
-namespace IGCS::GameSpecific::InterceptorHelper
+namespace IGCS
 {
-	void initializeAOBBlocks(LPBYTE hostImageAddress, DWORD hostImageSize, std::map<std::string, AOBBlock*> &aobBlocks);
-	void setCameraStructInterceptorHook(std::map<std::string, AOBBlock*> &aobBlocks);
-	void setPostCameraStructHooks(std::map<std::string, AOBBlock*> &aobBlocks);
-	void SaveNOPReplace(AOBBlock* hookData, int numberOfBytes, bool enabled);
-	//void toggleHud(std::map<std::string, AOBBlock*> &aobBlocks, bool hideHud);
+	class AOBBlock
+	{
+	public:
+		AOBBlock(std::string blockName, std::string bytePatternAsString, int occurrence);
+		~AOBBlock();
+
+		bool scan(LPBYTE imageAddress, DWORD imageSize);
+		LPBYTE locationInImage() { return _locationInImage; }
+		LPBYTE bytePattern() { return _bytePattern; }
+		int occurrence() { return _occurrence; }
+		int patternSize() { return _patternSize; }
+		char* patternMask() { return _patternMask; }
+		int customOffset() { return _customOffset; }
+		LPBYTE absoluteAddress() { return (LPBYTE)(_locationInImage + (DWORD)customOffset()); }
+
+	private:
+		void createAOBPatternFromStringPattern(std::string pattern);
+
+		std::string _blockName;
+		std::string _bytePatternAsString;
+		LPBYTE _bytePattern;
+		char* _patternMask;
+		int _patternSize;
+		int _customOffset;
+		int _occurrence;		// starts at 1: if there are more occurrences, and e.g. the 3rd has to be picked, set this to 3.
+		LPBYTE _locationInImage;	// the location to use after the scan has been completed.
+	};
 }

@@ -57,18 +57,6 @@ namespace IGCS
 		return qToReturn;
 	}
 
-	XMVECTOR Camera::calculateDustQuaternion()
-	{
-		XMVECTOR xQ = XMQuaternionRotationNormal(XMVectorSet(1.0f, 0.0f, 0.0f, 1.0f), _pitch);
-		XMVECTOR yQ = XMQuaternionRotationNormal(XMVectorSet(0.0f, 1.0f, 0.0f, 1.0f), -_yaw);
-		XMVECTOR zQ = XMQuaternionRotationNormal(XMVectorSet(0.0f, 0.0f, 1.0f, 1.0f), -_roll);
-
-		XMVECTOR tmpQ = XMQuaternionMultiply(xQ, yQ);
-		XMVECTOR qToReturn = XMQuaternionMultiply(zQ, tmpQ);
-		XMQuaternionNormalize(qToReturn);
-		return qToReturn;
-	}
-
 
 	void Camera::resetMovement()
 	{
@@ -104,22 +92,6 @@ namespace IGCS
 		return toReturn;
 	}
 
-	XMFLOAT3 Camera::calculateNewDustCoords(const XMFLOAT3 currentCoords, const XMVECTOR lookQ)
-	{
-		XMFLOAT3 toReturn;
-		toReturn.x = currentCoords.x;
-		toReturn.y = currentCoords.y;
-		toReturn.z = currentCoords.z;
-		if (_movementOccurred)
-		{
-			XMVECTOR directionAsQ = XMVectorSet(_direction.x, _direction.y, _direction.z, 0.0f);
-			XMVECTOR newDirection = XMVector3Rotate(directionAsQ, lookQ);
-			toReturn.x += XMVectorGetX(newDirection);
-			toReturn.y += XMVectorGetY(newDirection);
-			toReturn.z += XMVectorGetZ(newDirection);
-		}
-		return toReturn;
-	}
 
 	void Camera::moveForward(float amount)
 	{

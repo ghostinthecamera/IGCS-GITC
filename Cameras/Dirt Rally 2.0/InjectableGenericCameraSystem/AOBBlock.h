@@ -34,21 +34,23 @@ namespace IGCS
 	class AOBBlock
 	{
 	public:
+		BYTE* byteStorage;
+		bool nopState;
+
 		AOBBlock(std::string blockName, std::string bytePatternAsString, int occurrence);
 		~AOBBlock();
 
 		bool scan(LPBYTE imageAddress, DWORD imageSize);
 		LPBYTE locationInImage() { return _locationInImage; }
 		LPBYTE bytePattern() { return _bytePattern; }
+		std::string byteString() { return _bytePatternAsString; }
 		int occurrence() { return _occurrence; }
 		int patternSize() { return _patternSize; }
 		char* patternMask() { return _patternMask; }
 		int customOffset() { return _customOffset; }
 		LPBYTE absoluteAddress() { return (LPBYTE)(_locationInImage + (DWORD)customOffset()); }
-
 	private:
 		void createAOBPatternFromStringPattern(std::string pattern);
-
 		std::string _blockName;
 		std::string _bytePatternAsString;
 		LPBYTE _bytePattern;

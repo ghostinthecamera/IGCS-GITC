@@ -30,11 +30,19 @@
 #include <map>
 #include "Utils.h"
 
+
 namespace IGCS::GameSpecific::InterceptorHelper
 {
 	void initializeAOBBlocks(LPBYTE hostImageAddress, DWORD hostImageSize, std::map<std::string, AOBBlock*> &aobBlocks);
 	void setCameraStructInterceptorHook(std::map<std::string, AOBBlock*> &aobBlocks);
 	void setPostCameraStructHooks(std::map<std::string, AOBBlock*> &aobBlocks);
 	void SaveNOPReplace(AOBBlock* hookData, int numberOfBytes, bool enabled);
-	//void toggleHud(std::map<std::string, AOBBlock*> &aobBlocks, bool hideHud);
+	//void toggleHud(std::map<std::string, AOBBlock*> &aobBlocks, bool hideHud)
+
+	//struct byteStorageStruct
+	//{
+	//	std::string storeName;
+	//	BYTE* byteStorage;
+	//	bool nopState;
+	//};
 }

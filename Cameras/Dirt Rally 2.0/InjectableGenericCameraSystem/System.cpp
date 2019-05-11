@@ -155,6 +155,7 @@ namespace IGCS
 				CameraManipulator::restoreOriginalValuesAfterCameraDisable();
 				toggleCameraMovementLockState(false);
 				InterceptorHelper::SaveNOPReplace(_aobBlocks[QUATERNION_WRITE2_KEY], 5, false);
+				InterceptorHelper::SaveNOPReplace(_aobBlocks[CAMERA_WRITE2_INTERCEPT_KEY], 3, false);
 			}
 			else
 			{
@@ -164,6 +165,7 @@ namespace IGCS
 				CameraManipulator::displayCameraStructAddress();
 				toggleInputBlockState(true);
 				InterceptorHelper::SaveNOPReplace(_aobBlocks[QUATERNION_WRITE2_KEY], 5, true);
+				InterceptorHelper::SaveNOPReplace(_aobBlocks[CAMERA_WRITE2_INTERCEPT_KEY], 3, true);
 			}
 			g_cameraEnabled = g_cameraEnabled == 0 ? (BYTE)1 : (BYTE)0;
 			displayCameraState();

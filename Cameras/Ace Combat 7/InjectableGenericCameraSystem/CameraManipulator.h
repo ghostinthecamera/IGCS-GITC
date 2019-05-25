@@ -46,4 +46,7 @@ namespace IGCS::GameSpecific::CameraManipulator
 	void applySettingsToGameState();
 	bool isCameraFound();
 	void displayCameraStructAddress();
+	void sloMoFunc(float amount);
+	void hudOn();
+	void hudOff();
 }

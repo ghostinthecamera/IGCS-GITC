@@ -93,13 +93,26 @@ namespace IGCS::GameSpecific::CameraManipulator
 			return;
 		}
 		float* timescaleInMemory = reinterpret_cast<float*>(g_timestopStructAddress + TIMESTOP_IN_STRUCT_OFFSET);
-		*timescaleInMemory = *timescaleInMemory > 0.5f ? 0.0f : 1.0f;
+		*timescaleInMemory = *timescaleInMemory > 0.04f ? 0.0f : 1.0f;
+	}
+
+	void sloMoFunc(float amount)
+	{
+		if (nullptr == g_timestopStructAddress)
+		{
+			return;
+		}
+		if (!g_gamePaused)
+		{
+			float* timescaleInMemory = reinterpret_cast<float*>(g_timestopStructAddress + TIMESTOP_IN_STRUCT_OFFSET);
+			*timescaleInMemory = *timescaleInMemory > 0.96f ? amount : 1.0f;
+		}
 	}
 
 	void plusFrame(int amount)
 	{
 		float* timescaleInMemory = reinterpret_cast<float*>(g_timestopStructAddress + TIMESTOP_IN_STRUCT_OFFSET);
-		if (*timescaleInMemory < 0.1f)
+		if (g_gamePaused)
 		{
 			*timescaleInMemory = 1.0f;
 			Sleep(amount);
@@ -120,6 +133,24 @@ namespace IGCS::GameSpecific::CameraManipulator
 		//OverlayConsole::instance().logDebug("HUD Toggle 2 Value: %x", (BYTE)*hud2InMemory);
 		*hud2InMemory = *hud2InMemory == (BYTE)1 ? (BYTE)0 : (BYTE)1;
 		//OverlayConsole::instance().logDebug("HUD Toggle 1 value: %f", (float)*hud1InMemory);
+	}
+
+	void hudOn()
+	{
+		float* hud1InMemory = reinterpret_cast<float*>(_hostImageAddress + HUD_TOGGLE_1);
+		*hud1InMemory = 1.0f;
+
+		BYTE* hud2InMemory = reinterpret_cast<BYTE*>(_hostImageAddress + HUD_TOGGLE_2);
+		*hud2InMemory = (BYTE)1;
+	}
+
+	void hudOff()
+	{
+		float* hud1InMemory = reinterpret_cast<float*>(_hostImageAddress + HUD_TOGGLE_1);
+		*hud1InMemory = 0.0f;
+
+		BYTE* hud2InMemory = reinterpret_cast<BYTE*>(_hostImageAddress + HUD_TOGGLE_2);
+		*hud2InMemory = (BYTE)0;
 	}
 
 

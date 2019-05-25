@@ -62,6 +62,7 @@ namespace IGCS
 	#define IGCS_KEY_FOV_DECREASE					VK_SUBTRACT
 	#define IGCS_KEY_BLOCK_INPUT					VK_DECIMAL
 	#define IGCS_KEY_ADVANCE						VK_PRIOR
+	#define IGCS_KEY_SLOMO							VK_NEXT
 
 	#define IGCS_BUTTON_FOV_DECREASE	Gamepad::button_t::UP
 	#define IGCS_BUTTON_FOV_INCREASE	Gamepad::button_t::DOWN

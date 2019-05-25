@@ -190,6 +190,7 @@ Special thanks to:
 			ImGui::TextUnformatted("HOME                                  : Lock/unlock camera movement");
 			ImGui::TextUnformatted("DEL                                   : Toggle HUD");
 			ImGui::TextUnformatted("PG UP                                 : Skip specified ms");
+			ImGui::TextUnformatted("PG DN                                 : Toggle Slow Motion");
 			ImGui::TextUnformatted("ALT + rotate/move                     : Faster rotate / move");
 			ImGui::TextUnformatted("Right-CTRL + rotate/move              : Slower rotate / move");
 			ImGui::TextUnformatted("Controller Y-button + l/r-stick       : Faster rotate / move");
@@ -259,6 +260,7 @@ Special thanks to:
 			ImGui::SliderFloat("Resolution scale factor", &currentSettings.resolutionScale, 50.0f, RESOLUTION_SCALE_MAX, "%.0f");
 			settingsChanged |= ImGui::SliderFloat("FoV zoom speed", &currentSettings.fovChangeSpeed, 0.001f, 1.0f, "%.3f");
 			settingsChanged |= ImGui::SliderInt("Frame Skip in ms", &currentSettings.frameskip, 15, 300, "%.0f");
+			ImGui::SliderFloat("Slow Motion Multiplier", &currentSettings.slomoMult, 0.05f, 0.95f, "%.2f");
 			settingsChanged |= ImGui::Checkbox("Toggle HUD with Timestop?", &currentSettings.hudandtimestop);
 		}
 		ImGui::PopItemWidth();

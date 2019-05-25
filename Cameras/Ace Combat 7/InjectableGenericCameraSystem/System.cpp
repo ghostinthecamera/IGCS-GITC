@@ -54,7 +54,10 @@ namespace IGCS
 	{
 	}
 
-	BYTE hudstate = (BYTE)0;
+	BYTE hudstate = (BYTE)1;
+	BYTE prevhudState = (BYTE)1;
+	BYTE slomoActive = (BYTE)0;
+	BYTE gamepauseState = (BYTE)0;
 
 	void System::start(LPBYTE hostBaseAddress, DWORD hostImageSize)
 	{
@@ -128,6 +131,11 @@ namespace IGCS
 			// stop here, so keys used in the camera system won't affect anything of the camera
 			return;
 		}
+		if (Input::keyDown(IGCS_KEY_SLOMO))
+		{
+				CameraManipulator::sloMoFunc(Globals::instance().settings().slomoMult);
+				Sleep(350);
+		}
 		if (Input::keyDown(IGCS_KEY_CAMERA_ENABLE))
 		{
 			if (g_cameraEnabled)
@@ -151,27 +159,37 @@ namespace IGCS
 		{
 			if (Globals::instance().settings().hudandtimestop)
 			{
-				if (hudstate == 0)
+				float* hud1InMemory = reinterpret_cast<float*>(_hostImageAddress + HUD_TOGGLE_1);
+				BYTE* hud2InMemory = reinterpret_cast<BYTE*>(_hostImageAddress + HUD_TOGGLE_2);
+
+				if (*hud2InMemory == 1 && *hud1InMemory > 0.9f && !g_gamePaused)
+				{
+					prevhudState = (BYTE)1;
+				}
+				else if ((*hud2InMemory == 0 && *hud1InMemory < 0.5f && !g_gamePaused))
+				{
+					prevhudState = (BYTE)0;
+				}
+
+				if (g_gamePaused == 0 && hudstate == 1)
 				{
 					CameraManipulator::hudToggle();
-					hudstate = (BYTE)1;
+					hudstate = hudstate == 1 ? (BYTE)0 : (BYTE)1;
 					displayGameHUDState();
 					Sleep(300);
 				}
-				else
+				if (g_gamePaused == 1 && hudstate == 0 && prevhudState == 1)
 				{
 					CameraManipulator::hudToggle();
-					hudstate = (BYTE)0;
+					hudstate = hudstate == 1 ? (BYTE)0 : (BYTE)1;
 					displayGameHUDState();
 					Sleep(300);
 				}
 			}
-			
-
-			g_gamePaused = g_gamePaused == 0 ? (BYTE)1 : (BYTE)0;
-			CameraManipulator::timeStop();
-			displayGamePauseState();
-			Sleep(350);
+		g_gamePaused = g_gamePaused == 0 ? (BYTE)1 : (BYTE)0;
+		CameraManipulator::timeStop();
+		displayGamePauseState();
+		Sleep(350);
 		}
 
 		if (Input::keyDown(IGCS_KEY_HUD_TOGGLE))
@@ -415,7 +433,7 @@ namespace IGCS
 
 	void System::displayGameHUDState()
 	{
-		OverlayControl::addNotification(hudstate ? "HUD Off" : "HUD On");
+		OverlayControl::addNotification(hudstate ? "HUD On" : "HUD Off");
 	}
 
 	void System::displayframeskip()

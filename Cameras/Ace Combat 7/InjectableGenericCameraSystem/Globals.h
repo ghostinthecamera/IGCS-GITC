@@ -51,6 +51,7 @@ namespace IGCS
 		float fovChangeSpeed;
 		float resolutionScale;		//50.0-200.0
 		int frameskip;
+		float slomoMult;
 		float clampFloat(float value, float min, float default)
 		{
 			return value < min ? default : value;
@@ -102,6 +103,7 @@ namespace IGCS
 			fovChangeSpeed = DEFAULT_FOV_SPEED;
 			resolutionScale = 100.0f;
 			frameskip = 15;
+			slomoMult = 0.05f;
 			allowCameraMovementWhenMenuIsUp = false;
 			hudandtimestop = true;
 		}

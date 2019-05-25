@@ -171,9 +171,9 @@ namespace IGCS::InputHooker
 	void setInputHooks()
 	{
 		MH_Initialize();
-		if (MH_CreateHookApiEx(L"xinput1_3", "XInputGetState", &detourXInputGetState, &hookedXInputGetState) != MH_OK)
+		if (MH_CreateHookApiEx(L"xinput9_1_0", "XInputGetState", &detourXInputGetState, &hookedXInputGetState) != MH_OK)
 		{
-			OverlayConsole::instance().logError("Hooking XInput1_3 failed!");
+			OverlayConsole::instance().logError("Hooking XInput9_1_0 failed!");
 		}
 		OverlayConsole::instance().logDebug("Hook set to XInputSetState");
 

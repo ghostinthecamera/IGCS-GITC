@@ -198,7 +198,7 @@ namespace IGCS::GameSpecific::CameraManipulator
 
 #ifdef _DEBUG
 		cout << "Camera struct address: " << hex << (void*)g_cameraStructAddress << endl;
-		cout << "Second quaternion address: " << hex << (void*)(g_secondQuaternion + LOOK_DATA_SECOND_QAUTERNION) << endl;
+//		cout << "Second quaternion address: " << hex << (void*)(g_secondQuaternion + LOOK_DATA_SECOND_QAUTERNION) << endl;
 #endif
 	}
 
@@ -210,8 +210,8 @@ namespace IGCS::GameSpecific::CameraManipulator
 		memcpy(coordsInMemory, _originalCoordsData, 3 * sizeof(float));
 		float* lookQInMemory = reinterpret_cast<float*>(g_cameraStructAddress + LOOK_DATA3_IN_CAMERA_STRUCT_OFFSET);
 		memcpy(lookQInMemory, _originalLookData, 4 * sizeof(float));
-		float* lookQInMemoryFourth = reinterpret_cast<float*>(g_secondQuaternion + LOOK_DATA_SECOND_QAUTERNION);
-		memcpy(lookQInMemoryFourth, _originalLookData, 4 * sizeof(float));
+		//float* lookQInMemoryFourth = reinterpret_cast<float*>(g_secondQuaternion + LOOK_DATA_SECOND_QAUTERNION);
+		//memcpy(lookQInMemoryFourth, _originalLookData, 4 * sizeof(float));
 	}
 
 

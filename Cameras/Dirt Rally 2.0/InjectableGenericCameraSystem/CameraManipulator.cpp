@@ -208,8 +208,8 @@ namespace IGCS::GameSpecific::CameraManipulator
 
 		float* coords2InMemory = nullptr;
 		float* quaternion2InMemory = nullptr;
-		float* quaternion3InMemory = nullptr;
-		float* quaternion4InMemory = nullptr;
+//		float* quaternion3InMemory = nullptr;
+//		float* quaternion4InMemory = nullptr;
 
 		coords2InMemory = reinterpret_cast<float*>(g_cameraStructAddress2 + COORDS_IN_STRUCT2_OFFSET);
 		coords2InMemory[0] = newCoords.x;

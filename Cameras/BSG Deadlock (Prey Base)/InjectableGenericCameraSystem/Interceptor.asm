@@ -72,10 +72,10 @@ cameraStructInterceptor PROC
 ;UnityPlayer.dll+8E018 - 66 0F70 C1 55          - pshufd xmm0,xmm1,55
 ;UnityPlayer.dll+8E01D - 0F10 4E 10             - movups xmm1,[esi+10]
 	xorps xmm1,[edi+eax*8]
-	push ecx
-	lea ecx,[edi+eax*8]
-	mov [g_cameraStructAddress],ecx
-	pop ecx
+	push edx
+	lea edx,[edi+eax*8]
+	mov [g_cameraStructAddress],edx
+	pop edx
 	pshufd xmm3,xmm1,-56
 	pshufd xmm2,xmm1,00
 	jmp dword ptr [_cameraStructInterceptionContinue]	; jmp back into the original game code, which is the location after the original statements above.

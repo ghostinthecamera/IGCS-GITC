@@ -44,7 +44,7 @@ PUBLIC cameraWrite2Interceptor
 ; values in asm to communicate with the system
 EXTERN g_cameraEnabled: byte
 EXTERN g_cameraStructAddress: dword
-EXTERN g_secondQuaternion: dword
+;EXTERN g_secondQuaternion: dword
 ;EXTERN g_fovConstructAddress: dword
 ;EXTERN g_timestopStructAddress: dword
 ;---------------------------------------------------------------
@@ -99,23 +99,17 @@ exit:
 cameraWrite1Interceptor ENDP
 
 cameraWrite2Interceptor PROC
-;UnityPlayer.dll+51A1E6 - 0F5E D0               - divps xmm2,xmm0
-;UnityPlayer.dll+51A1E9 - 0F54 D1               - andps xmm2,xmm1
-;UnityPlayer.dll+51A1EC - 0F55 CC               - andnps xmm1,xmm4
-;UnityPlayer.dll+51A1EF - 0F56 D1               - orps xmm2,xmm1
-;UnityPlayer.dll+51A1F2 - 0F11 50 74            - movups [eax+74],xmm2			<<inject here
-;UnityPlayer.dll+51A1F6 - 8B 46 28              - mov eax,[esi+28]
-;UnityPlayer.dll+51A1F9 - 0F10 40 34            - movups xmm0,[eax+34]			<<< return here
-;UnityPlayer.dll+51A1FD - 0F11 80 84000000      - movups [eax+00000084],xmm0
-;UnityPlayer.dll+51A204 - 0F10 40 44            - movups xmm0,[eax+44]
-;UnityPlayer.dll+51A208 - 0F11 80 94000000      - movups [eax+00000094],xmm0
-	mov [g_secondQuaternion],eax
+;UnityPlayer.dll+923EF - 0F10 00               - movups xmm0,[eax]
+;UnityPlayer.dll+923F2 - 0FC2 C1 04            - cmpps xmm0,xmm104 { 4 }
+;UnityPlayer.dll+923F6 - 0F11 08               - movups [eax],xmm1    <<<intercept here
+;UnityPlayer.dll+923F9 - 0F50 C0               - movmskps eax,xmm0
+;UnityPlayer.dll+923FC - A8 07                 - test al,07 { 7 }	<<<return here
 	cmp byte ptr [g_cameraEnabled], 1
 	je exit
 originalcode:
-	movups [eax+74h],xmm2
+	movups [eax],xmm1
 exit:
-	mov eax,[esi+28h]
+	movmskps eax,xmm0
 	jmp dword ptr [_cameraWrite2InterceptionContinue]
 cameraWrite2Interceptor ENDP
 

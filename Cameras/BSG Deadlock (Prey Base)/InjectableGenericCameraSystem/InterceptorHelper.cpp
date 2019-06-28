@@ -63,7 +63,7 @@ namespace IGCS::GameSpecific::InterceptorHelper
 		aobBlocks[CAMERA_ADDRESS_INTERCEPT_KEY] = new AOBBlock(CAMERA_ADDRESS_INTERCEPT_KEY, "0F 57 0C C7 66 0F 70 ?? ??", 1);	
 		//aobBlocks[FOV_INTERCEPT_KEY] = new AOBBlock(FOV_INTERCEPT_KEY, "F3 0F 58 48 08 0F 2F C8 76 03 0F 28 C1 48 83 C4 20", 1);
 		aobBlocks[CAMERA_WRITE1_INTERCEPT_KEY] = new AOBBlock(CAMERA_WRITE1_INTERCEPT_KEY, "0F 11 51 10 0F 50 C0 85 C0 74 2D", 1);
-		//aobBlocks[CAMERA_WRITE2_INTERCEPT_KEY] = new AOBBlock(CAMERA_WRITE2_INTERCEPT_KEY, "0F 11 50 74 8B 46 28", 1);
+		aobBlocks[CAMERA_WRITE2_INTERCEPT_KEY] = new AOBBlock(CAMERA_WRITE2_INTERCEPT_KEY, "03 47 10 0F ?? 00 0F C2 C1 ?? | 0F 11 08 0F 50 C0 A8 ?? 74", 1);
 		//aobBlocks[CAMERA_WRITE3_INTERCEPT_KEY] = new AOBBlock(CAMERA_WRITE3_INTERCEPT_KEY, "F3 44 0F 11 77 24 F3 0F 10 8D 88 00 00 00 48 8D 4F 1C", 1);
 		//aobBlocks[TIMESTOP_INTERCEPT_KEY] = new AOBBlock(TIMESTOP_INTERCEPT_KEY, "48 89 5C 24 10 48 89 6C 24 18 48 89 74 24 20 57 41 54 41 55 41 56 41 57 48 83 EC 40 48 8B B1", 1);
 		// the following 2 blocks are obtained from code which isn't intercepted; these AOB scans are used to obtain a RIP relative DWord offset, see interceptor.asm for details.
@@ -97,7 +97,7 @@ namespace IGCS::GameSpecific::InterceptorHelper
 	{
 		//GameImageHooker::setHook(aobBlocks[FOV_INTERCEPT_KEY], 0x11, &_fovReadInterceptionContinue, &fovReadInterceptor);
 		GameImageHooker::setHook(aobBlocks[CAMERA_WRITE1_INTERCEPT_KEY], 0x07, &_cameraWrite1InterceptionContinue, &cameraWrite1Interceptor);
-		//GameImageHooker::setHook(aobBlocks[CAMERA_WRITE2_INTERCEPT_KEY], 0x07, &_cameraWrite2InterceptionContinue, &cameraWrite2Interceptor);
+		GameImageHooker::setHook(aobBlocks[CAMERA_WRITE2_INTERCEPT_KEY], 0x06, &_cameraWrite2InterceptionContinue, &cameraWrite2Interceptor);
 		//GameImageHooker::setHook(aobBlocks[CAMERA_WRITE3_INTERCEPT_KEY], 0x12, &_cameraWrite3InterceptionContinue, &cameraWrite3Interceptor);
 		//GameImageHooker::setHook(aobBlocks[TIMESTOP_INTERCEPT_KEY], 0xF, &_timestopInterceptionContinue, &timestopInterceptor);
 	}

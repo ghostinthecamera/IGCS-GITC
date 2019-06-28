@@ -155,25 +155,31 @@ namespace IGCS::GameSpecific::CameraManipulator
 		coordsInMemory[0] = newCoords.x;
 		coordsInMemory[1] = newCoords.y;
 		coordsInMemory[2] = newCoords.z;
+
+		/*float* coordsInMemorySecond = reinterpret_cast<float*>(g_cameraStructAddress + LOOK_DATA_IN_CAMERA_STRUCT_OFFSET);
+		coordsInMemorySecond[0] = newCoords.x/100;
+		coordsInMemorySecond[1] = newCoords.y/100;
+		coordsInMemorySecond[2] = newCoords.z/100;*/
+
 		float* lookQInMemory = reinterpret_cast<float*>(g_cameraStructAddress + LOOK_DATA3_IN_CAMERA_STRUCT_OFFSET);
-		//float* lookQInMemorySecond = reinterpret_cast<float*>(g_cameraStructAddress + LOOK_DATA2_IN_CAMERA_STRUCT_OFFSET);
+		float* lookQInMemorySecond = reinterpret_cast<float*>(g_cameraStructAddress + LOOK_DATA2_IN_CAMERA_STRUCT_OFFSET);
 		//float* lookQInMemoryThird = reinterpret_cast<float*>(g_cameraStructAddress + LOOK_DATA_IN_CAMERA_STRUCT_OFFSET);
-		//float* lookQInMemoryFourth = reinterpret_cast<float*>(g_secondQuaternion + LOOK_DATA_SECOND_QAUTERNION);
-		//
-		//lookQInMemorySecond[0] = qAsFloat4.x;
-		//lookQInMemorySecond[1] = qAsFloat4.y;
-		//lookQInMemorySecond[2] = qAsFloat4.z;
-		//lookQInMemorySecond[3] = qAsFloat4.w;
+		float* lookQInMemoryFourth = reinterpret_cast<float*>(g_cameraStructAddress + LOOK_DATA_SECOND_QAUTERNION);
+		
+		lookQInMemorySecond[0] = qAsFloat4.x;
+		lookQInMemorySecond[1] = qAsFloat4.y;
+		lookQInMemorySecond[2] = qAsFloat4.z;
+		lookQInMemorySecond[3] = qAsFloat4.w;
 
 		//lookQInMemoryThird[0] = qAsFloat4.x;
 		//lookQInMemoryThird[1] = qAsFloat4.y;
 		//lookQInMemoryThird[2] = qAsFloat4.z;
 		//lookQInMemoryThird[3] = qAsFloat4.w;
 		//
-		//lookQInMemoryFourth[0] = qAsFloat4.x;
-		//lookQInMemoryFourth[1] = qAsFloat4.y;
-		//lookQInMemoryFourth[2] = qAsFloat4.z;
-		//lookQInMemoryFourth[3] = qAsFloat4.w;
+		lookQInMemoryFourth[0] = qAsFloat4.x;
+		lookQInMemoryFourth[1] = qAsFloat4.y;
+		lookQInMemoryFourth[2] = qAsFloat4.z;
+		lookQInMemoryFourth[3] = qAsFloat4.w;
 
 		lookQInMemory[0] = qAsFloat4.x;
 		lookQInMemory[1] = qAsFloat4.y;

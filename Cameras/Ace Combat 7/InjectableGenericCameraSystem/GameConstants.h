@@ -31,7 +31,7 @@ namespace IGCS::GameSpecific
 {
 	// Mandatory constants to define for a game
 	#define GAME_NAME									"Ace Combat 7"
-	#define CAMERA_VERSION								"1.21"
+	#define CAMERA_VERSION								"1.22"
 	#define CAMERA_CREDITS								"Ghostinthecamera"
 	#define GAME_WINDOW_TITLE							"ACE COMBAT™7: SKIES UNKNOWN"
 	#define INITIAL_PITCH_RADIANS						0.0f	// around X axis	(right)
@@ -60,7 +60,7 @@ namespace IGCS::GameSpecific
 	#define ANGLES_IN_STRUCT_OFFSET						0x40C
 	#define FOV_IN_STRUCT_OFFSET						0x418
 	#define TIMESTOP_IN_STRUCT_OFFSET					0x4D0
-    #define HUD_TOGGLE_1								0x3632FBC  //float
-	#define HUD_TOGGLE_2								0x3526B00  //byte
+    #define HUD_TOGGLE_1								0x363622C  //float
+	#define HUD_TOGGLE_2								0x3529B00  //byte
 }
 

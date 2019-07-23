@@ -37,7 +37,7 @@ using namespace std;
 
 extern "C" {
 	LPBYTE g_cameraStructAddress = nullptr;
-	LPBYTE g_secondQuaternion = nullptr;
+	//LPBYTE g_secondQuaternion = nullptr;
 	//LPBYTE g_fovConstructAddress = nullptr;
 	//LPBYTE g_timestopStructAddress = nullptr;
 	//LPBYTE g_superSamplingStructAddress = nullptr;

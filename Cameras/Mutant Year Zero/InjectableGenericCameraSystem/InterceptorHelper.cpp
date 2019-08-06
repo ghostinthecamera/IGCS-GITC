@@ -32,7 +32,6 @@
 #include <map>
 #include "OverlayConsole.h"
 #include "CameraManipulator.h"
-#include "AOBBlock.h"
 
 using namespace std;
 
@@ -40,46 +39,30 @@ using namespace std;
 // external asm functions
 extern "C" {
 	void cameraStructInterceptor();
-	/*void cameraWrite1Interceptor();
-	void cameraWrite2Interceptor();
-	void fovReadInterceptor();
 	void resolutionScaleReadInterceptor();
-	void todWriteInterceptor();
 	void timestopReadInterceptor();
-	void fogReadInterceptor();*/
 }
 
 // external addresses used in asm.
 extern "C" {
 	LPBYTE _cameraStructInterceptionContinue = nullptr;
-	LPBYTE _divssAbsoluteAdd = nullptr;
-	/*LPBYTE _cameraWrite1InterceptionContinue = nullptr;
-	LPBYTE _cameraWrite2InterceptionContinue = nullptr;
-	LPBYTE _fovReadInterceptionContinue = nullptr;
+	LPBYTE _resolutionHookABSADD = nullptr;
 	LPBYTE _resolutionScaleReadInterceptionContinue = nullptr;
-	LPBYTE _todWriteInterceptionContinue = nullptr;
 	LPBYTE _timestopReadInterceptionContinue = nullptr;
-	LPBYTE _fogReadInterceptionContinue = nullptr;*/
+	LPBYTE _HUDAddress = nullptr;
 }
+
 
 
 namespace IGCS::GameSpecific::InterceptorHelper
 {
 	void initializeAOBBlocks(LPBYTE hostImageAddress, DWORD hostImageSize, map<string, AOBBlock*> &aobBlocks)
 	{
-		aobBlocks[CAMERA_ADDRESS_INTERCEPT_KEY] = new AOBBlock(CAMERA_ADDRESS_INTERCEPT_KEY, "F3 0F 10 83 84 02 00 00", 1);	
-		//aobBlocks[CAMERA_WRITE1_INTERCEPT_KEY] = new AOBBlock(CAMERA_WRITE1_INTERCEPT_KEY, "E8 66 6A E6 FF 48 83 C4 28 C3", 1);
-		//aobBlocks[CAMERA_WRITE2_INTERCEPT_KEY] = new AOBBlock(CAMERA_WRITE2_INTERCEPT_KEY, "E8 16 68 E6 FF 48 83 C4 28 C3", 1);
-		aobBlocks[DIVSS_ABSOLUTE_ADD_KEY] = new AOBBlock(DIVSS_ABSOLUTE_ADD_KEY, "F3 0F 5E 05 | ?? ?? ?? ?? F3 0F 5C F0 44 0F 2F C6", 1);
-		/*aobBlocks[TOD_WRITE_INTERCEPT_KEY] = new AOBBlock(TOD_WRITE_INTERCEPT_KEY, "0F 2F D1 F3 0F 11 12 72 ?? F3 0F 5C D1", 1);
-		aobBlocks[RESOLUTION_SCALE_INTERCEPT_KEY] = new AOBBlock(RESOLUTION_SCALE_INTERCEPT_KEY, "48 8B 70 60 48 8B 82 48 02 00 00 48 89 B4 24 B8 00 00 00", 1);
-		aobBlocks[PAUSE_FUNCTION_LOCATION_KEY] = new AOBBlock(PAUSE_FUNCTION_LOCATION_KEY, "53 48 83 EC 20 48 89 CB 48 8D 0D ?? ?? ?? ?? E8 ?? ?? ?? ?? FF 83 6C 18 00 00 83 BB 6C 18 00 00 01", 1);
-		aobBlocks[UNPAUSE_FUNCTION_LOCATION_KEY] = new AOBBlock(UNPAUSE_FUNCTION_LOCATION_KEY, "53 48 83 EC 20 48 89 CB 48 8D 0D ?? ?? ?? ?? E8 ?? ?? ?? ?? 8B 83 ?? ?? ?? ?? 85 C0", 1);
-		aobBlocks[HUD_RENDER_INTERCEPT_KEY] = new AOBBlock(HUD_RENDER_INTERCEPT_KEY, "48 8B C4 48 89 58 08 55 56 57 41 54 41 55 41 56 41 57 48 8D 6C 24 B0 48 81 EC ?? ??  00 00 0F 29 70 B8 0F 29 78 A8 44 0F 29 40 98", 1);
-		aobBlocks[PHOTOMODE_RANGE_DISABLE_KEY] = new AOBBlock(PHOTOMODE_RANGE_DISABLE_KEY, "F3 41 0F 5D D0 0F 28 C1 0F C6 D2 00 41 0F 59 D2", 1);
-		aobBlocks[DOF_ENABLE_WRITE_LOCATION_KEY] = new AOBBlock(DOF_ENABLE_WRITE_LOCATION_KEY, "88 83 11 01 00 00 E8 ?? ?? ?? ?? 88 83 13 01 00 00 84 C0", 1);
-		aobBlocks[AR_LIMIT_LOCATION_KEY] = new AOBBlock(AR_LIMIT_LOCATION_KEY, "F3 44 0F 59 CF 41 0F 28 D0 F3 0F 5C C2 0F 28 FA 44 0F 28 F2", 1);
-		aobBlocks[FOG_READ_INTERCEPT_KEY] = new AOBBlock(FOG_READ_INTERCEPT_KEY, "F3 41 0F 10 7E 58 F3 44 0F 59 51 20 F3 45 0F 10 46 50 0F 29 44 24 70", 1);*/
+		aobBlocks[CAMERA_ADDRESS_INTERCEPT_KEY] = new AOBBlock(CAMERA_ADDRESS_INTERCEPT_KEY, "F2 0F 11 87 ?? ?? ?? ?? 8B 44 24 ?? 89 87 ?? ?? ?? ?? F2 0F 10 44 24 ??", 1);	
+		aobBlocks[TIMESTOP_READ_INTERCEPT_KEY] = new AOBBlock(TIMESTOP_READ_INTERCEPT_KEY, "F3 0F 59 83 ?? ?? ?? ?? F3 0F 59 F0 48 8B 03 0F 28 D7", 1);
+		aobBlocks[RESOLUTION_SCALE_INTERCEPT_KEY] = new AOBBlock(RESOLUTION_SCALE_INTERCEPT_KEY, "F3 0F 10 00 0F 57 F6 F3 44 0F 10 0D ?? ?? ?? ??", 1);
+		aobBlocks[RESOLUTION_ABSADD_INTERCEPT_KEY] = new AOBBlock(RESOLUTION_ABSADD_INTERCEPT_KEY, "F3 44 0F 10 0D | ?? ?? ?? ?? 0F2F C6", 1);
+		aobBlocks[HUD_RENDER_INTERCEPT_KEY] = new AOBBlock(HUD_RENDER_INTERCEPT_KEY, "0F 10 05 | ?? ?? ?? ?? 33 C0 48 89 41 ?? 48 89 41 ?? 48 89 41 ?? 0F 11 01", 1);
 
 		map<string, AOBBlock*>::iterator it;
 		bool result = true;
@@ -97,50 +80,26 @@ namespace IGCS::GameSpecific::InterceptorHelper
 		}
 	}
 
-	///attempt to find aobs memorywide
-	/*void MemWideScan(map<string, AOBBlock*> &aobBlocks2)
-	{
-		LPBYTE memstart = 0x0000000000000000;
-		DWORD memend = 0x7fffffffffffffff;
-
-		aobBlocks2[TESTNAME] = new AOBBlock(TESTNAME, "8B EC 48 83 EC 20 48 89 4D E8 48 8B C1 48 8B 40 70 48 8B C8 48 83 EC 10 48 8B 55 30 48 89 14 24 48 63 55 38 89 54 24 08 48 83 EC 20 83 38 00 49 BB x x x x x x x x 41 FF D3 48 83 C4 30 C9 C3", 1);
-		map<string, AOBBlock*>::iterator it;
-		bool result = true;
-		for (it = aobBlocks2.begin(); it != aobBlocks2.end(); it++)
-		{
-			result &= it->second->scan(memstart, memend);
-		}
-		if (result)
-		{
-			OverlayConsole::instance().logLine("All interception offsets found.");
-		}
-		else
-		{
-			OverlayConsole::instance().logError("One or more interception offsets weren't found: tools aren't compatible with this game's version.");
-		}
-	}*/
 
 	void setCameraStructInterceptorHook(map<string, AOBBlock*> &aobBlocks)
 	{
-		GameImageHooker::setHook(aobBlocks[CAMERA_ADDRESS_INTERCEPT_KEY], 0x13, &_cameraStructInterceptionContinue, &cameraStructInterceptor);
+		GameImageHooker::setHook(aobBlocks[CAMERA_ADDRESS_INTERCEPT_KEY], 0x36, &_cameraStructInterceptionContinue, &cameraStructInterceptor);
 	}
 
 	void getAbsoluteAddresses(map<string, AOBBlock*> &aobBlocks)
 	{
-		_divssAbsoluteAdd = Utils::calculateAbsoluteAddress(aobBlocks[DIVSS_ABSOLUTE_ADD_KEY], 4);
-		OverlayConsole::instance().logDebug("Absolute Address of DIVSS: %p", (void*)_divssAbsoluteAdd);
+		_resolutionHookABSADD = Utils::calculateAbsoluteAddress(aobBlocks[RESOLUTION_ABSADD_INTERCEPT_KEY], 4);
+		_HUDAddress = Utils::calculateAbsoluteAddress(aobBlocks[HUD_RENDER_INTERCEPT_KEY], 4);
+
+		OverlayConsole::instance().logDebug("Absolute Address for Res Scale Injection: %p", (void*)_resolutionHookABSADD);
+		OverlayConsole::instance().logDebug("Absolute Address for HUD: %p", (void*)_HUDAddress);
 	}
 
 
 	void setPostCameraStructHooks(map<string, AOBBlock*> &aobBlocks)
 	{
-		
-		/*GameImageHooker::setHook(aobBlocks[CAMERA_WRITE1_INTERCEPT_KEY], 0x13, &_cameraWrite1InterceptionContinue, &cameraWrite1Interceptor);
-		GameImageHooker::setHook(aobBlocks[CAMERA_WRITE2_INTERCEPT_KEY], 0x17, &_cameraWrite2InterceptionContinue, &cameraWrite2Interceptor);
-		GameImageHooker::setHook(aobBlocks[TOD_WRITE_INTERCEPT_KEY], 0x1C, &_todWriteInterceptionContinue, &todWriteInterceptor);
-		GameImageHooker::setHook(aobBlocks[TIMESTOP_READ_INTERCEPT_KEY], 0x14, &_timestopReadInterceptionContinue, &timestopReadInterceptor);
-		GameImageHooker::setHook(aobBlocks[RESOLUTION_SCALE_INTERCEPT_KEY], 0x17, &_resolutionScaleReadInterceptionContinue, &resolutionScaleReadInterceptor);
-		GameImageHooker::setHook(aobBlocks[FOG_READ_INTERCEPT_KEY], 0x12, &_fogReadInterceptionContinue, &fogReadInterceptor);*/
+		GameImageHooker::setHook(aobBlocks[TIMESTOP_READ_INTERCEPT_KEY], 0x0F, &_timestopReadInterceptionContinue, &timestopReadInterceptor);
+		GameImageHooker::setHook(aobBlocks[RESOLUTION_SCALE_INTERCEPT_KEY], 0x10, &_resolutionScaleReadInterceptionContinue, &resolutionScaleReadInterceptor);
 
 		//CameraManipulator::setPauseUnpauseGameFunctionPointers(aobBlocks[PAUSE_FUNCTION_LOCATION_KEY]->absoluteAddress(), aobBlocks[UNPAUSE_FUNCTION_LOCATION_KEY]->absoluteAddress());
 		//disablePhotomodeRangeLimit(aobBlocks);
@@ -178,6 +137,15 @@ namespace IGCS::GameSpecific::InterceptorHelper
 				OverlayConsole::instance().logLine("Already Disabled - this shouldnt be showing. Something isnt working right");
 			}
 		}
+	}
+
+	void hudToggle()
+	{
+		float* hudInMemory = reinterpret_cast<float*>(_HUDAddress + 0x0C);
+		OverlayConsole::instance().logDebug("HUD Toggle 1 Address: %p", (void*)hudInMemory);
+		//OverlayConsole::instance().logDebug("HUD Toggle 1 value: %f", (float)*hudInMemory);
+		*hudInMemory = *hudInMemory > 0.1f ? 0.0f : 1.0f;
+		//OverlayConsole::instance().logDebug("HUD Toggle 1 value: %f", (float)*hudInMemory);
 	}
 	// if enabled is true, we'll place a 'ret' at the start of the code block, making the game skip rendering any hud element. If false, we'll reset
 	// the original first statement so code will proceed as normal. 

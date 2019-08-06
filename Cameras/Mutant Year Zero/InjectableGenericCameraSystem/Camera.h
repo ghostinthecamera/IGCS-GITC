@@ -28,20 +28,41 @@
 #pragma once
 #include "stdafx.h"
 
-namespace IGCS::GameSpecific::CameraManipulator
+namespace IGCS
 {
-	void writeNewCameraValuesToGameData(DirectX::XMFLOAT3 newCoords, DirectX::XMVECTOR newLookQuaternion);
-	void restoreOriginalValuesAfterCameraDisable();
-	void cacheOriginalValuesBeforeCameraEnable();
-	bool setTimeStopValue(BYTE newValue);
-	DirectX::XMFLOAT3 getCurrentCameraCoords();
-	void resetFoV();
-	void changeFoV(float amount);
-	bool isCameraFound();
-	void displayCameraStructAddress();
-	void getSettingsFromGameState();
-	void applySettingsToGameState();
-	void killInGameDofIfNeeded();
-	void setPauseUnpauseGameFunctionPointers(LPBYTE pauseFunctionAddress, LPBYTE unpauseFunctionAddress);
-	void writeEnableBytes();
+	class Camera
+	{
+	public:
+		Camera();
+		~Camera(void);
+
+		DirectX::XMVECTOR calculateLookQuaternion();
+		DirectX::XMFLOAT3 calculateNewCoords(const DirectX::XMFLOAT3 currentCoords, const DirectX::XMVECTOR lookQ);
+		void resetMovement();
+		void resetAngles();
+		void moveForward(float amount);
+		void moveRight(float amount);
+		void moveUp(float amount);
+		void yaw(float amount);
+		void pitch(float amount);
+		void roll(float amount);
+		void setPitch(float angle);
+		void setYaw(float angle);
+		void setRoll(float angle);
+		float getPitch() { return _pitch; }
+		float getYaw() { return _yaw; }
+		float getRoll() { return _roll; }
+		float lookDirectionInverter() { return _lookDirectionInverter; }
+		void toggleLookDirectionInverter() { _lookDirectionInverter = -_lookDirectionInverter; }
+
+	private:
+		float clampAngle(float angle) const;
+
+		DirectX::XMFLOAT3 _direction;
+		float _yaw;
+		float _pitch;
+		float _roll;
+		bool _movementOccurred;
+		float _lookDirectionInverter;
+	};
 }

@@ -27,21 +27,15 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma once
 #include "stdafx.h"
+#include <map>
+#include "Utils.h"
 
-namespace IGCS::GameSpecific::CameraManipulator
+namespace IGCS::GameSpecific::InterceptorHelper
 {
-	void writeNewCameraValuesToGameData(DirectX::XMFLOAT3 newCoords, DirectX::XMVECTOR newLookQuaternion);
-	void restoreOriginalValuesAfterCameraDisable();
-	void cacheOriginalValuesBeforeCameraEnable();
-	bool setTimeStopValue(BYTE newValue);
-	DirectX::XMFLOAT3 getCurrentCameraCoords();
-	void resetFoV();
-	void changeFoV(float amount);
-	bool isCameraFound();
-	void displayCameraStructAddress();
-	void getSettingsFromGameState();
-	void applySettingsToGameState();
-	void killInGameDofIfNeeded();
-	void setPauseUnpauseGameFunctionPointers(LPBYTE pauseFunctionAddress, LPBYTE unpauseFunctionAddress);
-	void writeEnableBytes();
+	void initializeAOBBlocks(LPBYTE hostImageAddress, DWORD hostImageSize, std::map<std::string, AOBBlock*> &aobBlocks);
+	void setCameraStructInterceptorHook(std::map<std::string, AOBBlock*> &aobBlocks);
+	void setPostCameraStructHooks(std::map<std::string, AOBBlock*> &aobBlocks);
+	void SaveNOPReplace(AOBBlock* hookData, int numberOfBytes, bool enabled);
+	void getAbsoluteAddresses(std::map<std::string, AOBBlock*> &aobBlocks);
+	void hudToggle();
 }

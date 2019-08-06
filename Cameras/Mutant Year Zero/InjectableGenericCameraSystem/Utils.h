@@ -27,21 +27,44 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma once
 #include "stdafx.h"
+#include "ScanPattern.h"
 
-namespace IGCS::GameSpecific::CameraManipulator
+namespace IGCS
 {
-	void writeNewCameraValuesToGameData(DirectX::XMFLOAT3 newCoords, DirectX::XMVECTOR newLookQuaternion);
-	void restoreOriginalValuesAfterCameraDisable();
-	void cacheOriginalValuesBeforeCameraEnable();
-	bool setTimeStopValue(BYTE newValue);
-	DirectX::XMFLOAT3 getCurrentCameraCoords();
-	void resetFoV();
-	void changeFoV(float amount);
-	bool isCameraFound();
-	void displayCameraStructAddress();
-	void getSettingsFromGameState();
-	void applySettingsToGameState();
-	void killInGameDofIfNeeded();
-	void setPauseUnpauseGameFunctionPointers(LPBYTE pauseFunctionAddress, LPBYTE unpauseFunctionAddress);
-	void writeEnableBytes();
+	// forward declaration to avoid cyclic dependency.
+	class AOBBlock;
+}
+
+namespace IGCS::Utils
+{
+	struct handle_data {
+		unsigned long process_id;
+		HWND best_handle;
+	};
+
+	template <typename T>
+	T clamp(T value, T min, T max, T default)
+	{
+		return value < min ? default
+			: value > max ? default: value;
+	}
+	
+	template <typename T>
+	T clamp(T value, T min, T default)
+	{
+		return value < min ? default : value;
+	}
+	
+
+	HWND findMainWindow(unsigned long process_id);
+	MODULEINFO getModuleInfoOfContainingProcess();
+	MODULEINFO getModuleInfoOfDll(LPCWSTR libraryName);
+	LPBYTE findAOBPattern(LPBYTE imageAddress, DWORD imageSize, ScanPattern pattern);
+	BYTE CharToByte(char c);
+	LPBYTE calculateAbsoluteAddress(AOBBlock* locationData, int nextOpCodeOffset);
+	std::string formatString(const char *fmt, va_list args);
+	bool stringStartsWith(const char *a, const char *b);
+	bool keyDown(int virtualKeyCode);
+	bool altPressed();
+	std::string vkCodeToString(int vkCode);
 }

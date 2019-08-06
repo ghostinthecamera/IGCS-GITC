@@ -26,22 +26,16 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma once
-#include "stdafx.h"
+#include "AOBBlock.h"
 
-namespace IGCS::GameSpecific::CameraManipulator
+namespace IGCS::GameImageHooker
 {
-	void writeNewCameraValuesToGameData(DirectX::XMFLOAT3 newCoords, DirectX::XMVECTOR newLookQuaternion);
-	void restoreOriginalValuesAfterCameraDisable();
-	void cacheOriginalValuesBeforeCameraEnable();
-	bool setTimeStopValue(BYTE newValue);
-	DirectX::XMFLOAT3 getCurrentCameraCoords();
-	void resetFoV();
-	void changeFoV(float amount);
-	bool isCameraFound();
-	void displayCameraStructAddress();
-	void getSettingsFromGameState();
-	void applySettingsToGameState();
-	void killInGameDofIfNeeded();
-	void setPauseUnpauseGameFunctionPointers(LPBYTE pauseFunctionAddress, LPBYTE unpauseFunctionAddress);
-	void writeEnableBytes();
+	void nopRange(LPBYTE startAddress, int length);
+	void nopRange(AOBBlock* hookData, int length);
+	void setHook(LPBYTE hostImageAddress, DWORD startOffset, DWORD continueOffset, LPBYTE* interceptionContinue, void* asmFunction);
+	void setHook(AOBBlock* hookData, DWORD continueOffset, LPBYTE* interceptionContinue, void* asmFunction);
+	void writeRange(LPBYTE startAddress, BYTE* bufferToWrite, int length);
+	void writeRange(AOBBlock* hookData, BYTE* bufferToWrite, int length);
+	void readRange(LPBYTE startAddress, BYTE* bufferToRead, int length);
+	void readRange(AOBBlock* hookData, BYTE* bufferToRead, int length);
 }

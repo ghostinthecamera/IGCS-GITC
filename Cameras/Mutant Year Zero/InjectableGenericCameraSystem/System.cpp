@@ -98,11 +98,13 @@ namespace IGCS
 		DirectX::XMVECTOR newLookQuaternion = _camera.calculateLookQuaternion();
 		DirectX::XMFLOAT3 currentCoords;
 		DirectX::XMFLOAT3 newCoords;
+		float convertFactor = 180.0f / 3.141592654f;
 		if (GameSpecific::CameraManipulator::isCameraFound())
 		{
 			currentCoords = GameSpecific::CameraManipulator::getCurrentCameraCoords();
 			newCoords = _camera.calculateNewCoords(currentCoords, newLookQuaternion);
-			GameSpecific::CameraManipulator::writeNewCameraValuesToGameData(newCoords, newLookQuaternion);
+			GameSpecific::CameraManipulator::writeNewCameraValuesToGameData(newCoords, (_camera.getPitch() * convertFactor), (_camera.getYaw() * convertFactor),
+																							(_camera.getRoll() * convertFactor));
 		}
 	}
 
@@ -138,8 +140,6 @@ namespace IGCS
 			if (g_cameraEnabled)
 			{
 				// it's going to be disabled, make sure things are alright when we give it back to the host
-				//InterceptorHelper::SaveNOPReplace(_aobBlocks[CAMERA_WRITE1_INTERCEPT_KEY], 5, false);
-				//InterceptorHelper::SaveNOPReplace(_aobBlocks[CAMERA_WRITE2_INTERCEPT_KEY], 5, false);
 				CameraManipulator::restoreOriginalValuesAfterCameraDisable();
 				toggleCameraMovementLockState(false);
 			}
@@ -147,8 +147,6 @@ namespace IGCS
 			{
 				// it's going to be enabled, so cache the original values before we enable it so we can restore it afterwards
 				//CameraManipulator::writeEnableBytes();
-				//InterceptorHelper::SaveNOPReplace(_aobBlocks[CAMERA_WRITE1_INTERCEPT_KEY], 5, true);
-				//InterceptorHelper::SaveNOPReplace(_aobBlocks[CAMERA_WRITE2_INTERCEPT_KEY], 5, true);
 				CameraManipulator::cacheOriginalValuesBeforeCameraEnable();
 				_camera.resetAngles();
 			}
@@ -168,17 +166,17 @@ namespace IGCS
 		{
 			CameraManipulator::changeFoV(Globals::instance().settings().fovChangeSpeed);
 		}
-		//if (Input::isActionActivated(ActionType::Timestop))
-		//{
-		//	toggleTimestopState();
-		//	_applyHammerPrevention = true;
-		//}
+		if (Input::isActionActivated(ActionType::Timestop))
+		{
+			CameraManipulator::timeStop();
+			_applyHammerPrevention = true;
+		}
 
-		//if (Input::isActionActivated(ActionType::HudToggle))
-		//{
-		//	toggleHudRenderState();
-		//	_applyHammerPrevention = true;
-		//}
+		if (Input::isActionActivated(ActionType::HudToggle))
+		{
+			InterceptorHelper::hudToggle();
+			_applyHammerPrevention = true;
+		}
 
 		if (!g_cameraEnabled)
 		{

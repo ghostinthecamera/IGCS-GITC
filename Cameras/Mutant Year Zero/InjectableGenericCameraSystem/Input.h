@@ -27,21 +27,20 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma once
 #include "stdafx.h"
+#include "ActionData.h"
 
-namespace IGCS::GameSpecific::CameraManipulator
+namespace IGCS::Input
 {
-	void writeNewCameraValuesToGameData(DirectX::XMFLOAT3 newCoords, DirectX::XMVECTOR newLookQuaternion);
-	void restoreOriginalValuesAfterCameraDisable();
-	void cacheOriginalValuesBeforeCameraEnable();
-	bool setTimeStopValue(BYTE newValue);
-	DirectX::XMFLOAT3 getCurrentCameraCoords();
-	void resetFoV();
-	void changeFoV(float amount);
-	bool isCameraFound();
-	void displayCameraStructAddress();
-	void getSettingsFromGameState();
-	void applySettingsToGameState();
-	void killInGameDofIfNeeded();
-	void setPauseUnpauseGameFunctionPointers(LPBYTE pauseFunctionAddress, LPBYTE unpauseFunctionAddress);
-	void writeEnableBytes();
+	long getMouseDeltaX();
+	long getMouseDeltaY();
+	void processRawMouseData(const RAWMOUSE *rmouse);
+	void resetMouseDeltas();
+	bool handleMessage(LPMSG lpMsg);
+	void registerRawInput();
+	void resetKeyStates();
+	void resetMouseState();
+	void setKeyboardMouseStateInImGuiIO();
+	bool isActionActivated(ActionType type);
+	bool isActionActivated(ActionType type, bool altCtrlShiftOptional);
+	void collectPressedKeysCumulatively();
 }

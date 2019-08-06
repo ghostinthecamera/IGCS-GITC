@@ -27,21 +27,45 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma once
 #include "stdafx.h"
+#include "Camera.h"
+#include "Gamepad.h"
+#include <map>
+#include "AOBBlock.h"
 
-namespace IGCS::GameSpecific::CameraManipulator
+namespace IGCS
 {
-	void writeNewCameraValuesToGameData(DirectX::XMFLOAT3 newCoords, DirectX::XMVECTOR newLookQuaternion);
-	void restoreOriginalValuesAfterCameraDisable();
-	void cacheOriginalValuesBeforeCameraEnable();
-	bool setTimeStopValue(BYTE newValue);
-	DirectX::XMFLOAT3 getCurrentCameraCoords();
-	void resetFoV();
-	void changeFoV(float amount);
-	bool isCameraFound();
-	void displayCameraStructAddress();
-	void getSettingsFromGameState();
-	void applySettingsToGameState();
-	void killInGameDofIfNeeded();
-	void setPauseUnpauseGameFunctionPointers(LPBYTE pauseFunctionAddress, LPBYTE unpauseFunctionAddress);
-	void writeEnableBytes();
+	class System
+	{
+	public:
+		System();
+		~System();
+		void start(LPBYTE hostBaseAddress, DWORD hostImageSize);
+
+	private:
+		void mainLoop();
+		void initialize();
+		void updateFrame();
+		void handleUserInput();
+		void writeNewCameraValuesToCameraStructs();
+		void displayCameraState();
+		void toggleCameraMovementLockState(bool newValue);
+		void handleKeyboardCameraMovement(float multiplier);
+		void handleMouseCameraMovement(float multiplier);
+		void handleGamePadMovement(float multiplierBase);
+		void waitForCameraStructAddresses();
+		void toggleInputBlockState(bool newValue);
+		//void toggleTimestopState();
+		//void toggleHudRenderState();
+
+		Camera _camera;
+		LPBYTE _hostImageAddress;
+		DWORD _hostImageSize;
+		//bool _timeStopped = false;
+		bool _cameraMovementLocked = false;
+		bool _cameraStructFound = false;
+		//bool _hudToggled = false;
+		map<string, AOBBlock*> _aobBlocks;
+		bool _applyHammerPrevention = false;	// set to true by a keyboard action and which triggers a sleep before keyboard handling is performed.
+	};
 }
+

@@ -28,20 +28,12 @@
 #pragma once
 #include "stdafx.h"
 
-namespace IGCS::GameSpecific::CameraManipulator
+namespace IGCS::Console
 {
-	void writeNewCameraValuesToGameData(DirectX::XMFLOAT3 newCoords, DirectX::XMVECTOR newLookQuaternion);
-	void restoreOriginalValuesAfterCameraDisable();
-	void cacheOriginalValuesBeforeCameraEnable();
-	bool setTimeStopValue(BYTE newValue);
-	DirectX::XMFLOAT3 getCurrentCameraCoords();
-	void resetFoV();
-	void changeFoV(float amount);
-	bool isCameraFound();
-	void displayCameraStructAddress();
-	void getSettingsFromGameState();
-	void applySettingsToGameState();
-	void killInGameDofIfNeeded();
-	void setPauseUnpauseGameFunctionPointers(LPBYTE pauseFunctionAddress, LPBYTE unpauseFunctionAddress);
-	void writeEnableBytes();
+	void Release();
+	void WriteLine(const std::string& toWrite);
+	void WriteLine(const std::string& toWrite, int color);
+	void WriteError(const std::string& error);
+	void SetColor(int color);
 }
+

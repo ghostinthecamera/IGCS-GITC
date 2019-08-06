@@ -47,12 +47,12 @@ namespace IGCS
 
 	XMVECTOR Camera::calculateLookQuaternion()
 	{
-		XMVECTOR xQ = XMQuaternionRotationNormal(XMVectorSet(1.0f, 0.0f, 0.0f, 1.0f), _pitch);
-		XMVECTOR yQ = XMQuaternionRotationNormal(XMVectorSet(0.0f, 1.0f, 0.0f, 1.0f), _yaw);
-		XMVECTOR zQ = XMQuaternionRotationNormal(XMVectorSet(0.0f, 0.0f, 1.0f, 1.0f), _roll);
+		XMVECTOR xQ = XMQuaternionRotationNormal(XMVectorSet(1.0f, 0.0f, 0.0f, 1.0f), _roll);
+		XMVECTOR yQ = XMQuaternionRotationNormal(XMVectorSet(0.0f, 1.0f, 0.0f, 1.0f), -_pitch);
+		XMVECTOR zQ = XMQuaternionRotationNormal(XMVectorSet(0.0f, 0.0f, 1.0f, 1.0f), _yaw);
 
-		XMVECTOR tmpQ = XMQuaternionMultiply(zQ, yQ);
-		XMVECTOR qToReturn = XMQuaternionMultiply(xQ, tmpQ);
+		XMVECTOR tmpQ = XMQuaternionMultiply(xQ, zQ);
+		XMVECTOR qToReturn = XMQuaternionMultiply(yQ, tmpQ);
 		XMQuaternionNormalize(qToReturn);
 		return qToReturn;
 	}
@@ -95,19 +95,19 @@ namespace IGCS
 
 	void Camera::moveForward(float amount)
 	{
-		_direction.z += (Globals::instance().settings().movementSpeed * amount);		// y out of the screen, z up
+		_direction.x += (Globals::instance().settings().movementSpeed * amount);		// y out of the screen, z up
 		_movementOccurred = true;
 	}
 
 	void Camera::moveRight(float amount)
 	{
-		_direction.x += (Globals::instance().settings().movementSpeed * amount);		// x is right
+		_direction.y += (Globals::instance().settings().movementSpeed * amount);		// x is right
 		_movementOccurred = true;
 	}
 
 	void Camera::moveUp(float amount)
 	{
-		_direction.y -= (Globals::instance().settings().movementSpeed * amount * Globals::instance().settings().movementUpMultiplier);		// z is up
+		_direction.z -= (Globals::instance().settings().movementSpeed * amount * Globals::instance().settings().movementUpMultiplier);		// z is up
 		_movementOccurred = true;
 	}
 
@@ -124,13 +124,13 @@ namespace IGCS
 		{
 			lookDirectionInverter = -lookDirectionInverter;
 		}
-		_pitch -= (Globals::instance().settings().rotationSpeed * amount * lookDirectionInverter);			// y is left, so inversed
+		_pitch += (Globals::instance().settings().rotationSpeed * amount * lookDirectionInverter);			// y is left, so inversed
 		_pitch = clampAngle(_pitch);
 	}
 
 	void Camera::roll(float amount)
 	{
-		_roll += (Globals::instance().settings().rotationSpeed * amount);
+		_roll -= (Globals::instance().settings().rotationSpeed * amount);
 		_roll = clampAngle(_roll);
 	}
 

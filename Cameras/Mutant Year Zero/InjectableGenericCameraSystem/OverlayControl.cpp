@@ -296,9 +296,9 @@ Special thanks to:
 		}
 		if (ImGui::CollapsingHeader("Misc. camera options", ImGuiTreeNodeFlags_DefaultOpen))
 		{
-			settingsChanged |= ImGui::SliderFloat("Field of View (FoV) zoom speed", &currentSettings.fovChangeSpeed, 0.001f, 0.03f, "%.3f");
-			//ImGui::SliderFloat("Resolution scale factor", &currentSettings.resolutionScale, 0.5f, 2.0f, "%.1f");
-			//ImGui::SameLine(); showHelpMarker("Be careful with values bigger than 2 as it could make\nthe game crash due to too much overhead.\nYou can specify values bigger than 2 by using\nCtrl-click and then type the value.\nMax is 4.0.");
+			settingsChanged |= ImGui::SliderFloat("Field of View (FoV) zoom speed", &currentSettings.fovChangeSpeed, 0.01f, 1.00f, "%.2f");
+			ImGui::SliderFloat("Resolution scale factor", &currentSettings.resolutionScale, 25.0f, RESOLUTION_SCALE_MAX, "%.0f");
+			ImGui::SameLine(); showHelpMarker("Be careful with values bigger than 2 as it could make\nthe game crash due to too much overhead.\nYou can specify values bigger than 2 by using\nCtrl-click and then type the value.\nMax is 4.0.");
 
 			//// Time of Day
 			//ImGui::SliderInt("Time of Day (Hour)", &currentSettings.todHour, 0, 23);

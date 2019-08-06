@@ -26,22 +26,30 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma once
-#include "stdafx.h"
 
-namespace IGCS::GameSpecific::CameraManipulator
+namespace IGCS
 {
-	void writeNewCameraValuesToGameData(DirectX::XMFLOAT3 newCoords, DirectX::XMVECTOR newLookQuaternion);
-	void restoreOriginalValuesAfterCameraDisable();
-	void cacheOriginalValuesBeforeCameraEnable();
-	bool setTimeStopValue(BYTE newValue);
-	DirectX::XMFLOAT3 getCurrentCameraCoords();
-	void resetFoV();
-	void changeFoV(float amount);
-	bool isCameraFound();
-	void displayCameraStructAddress();
-	void getSettingsFromGameState();
-	void applySettingsToGameState();
-	void killInGameDofIfNeeded();
-	void setPauseUnpauseGameFunctionPointers(LPBYTE pauseFunctionAddress, LPBYTE unpauseFunctionAddress);
-	void writeEnableBytes();
+	class ScanPattern
+	{
+	public:
+		ScanPattern(std::string bytePatternAsString, int occurrence);
+		~ScanPattern();
+
+		int occurrence() { return _occurrence; }
+		LPBYTE bytePattern() { return _bytePattern; }
+		char* patternMask() { return _patternMask; }
+		int customOffset() { return _customOffset; }
+		int patternSize() { return _patternSize; }
+
+	private:
+		void createAOBPatternFromStringPattern();
+		BYTE CharToByte(char c);
+
+		std::string _bytePatternAsString;
+		int _occurrence = -1;
+		LPBYTE _bytePattern = nullptr;
+		char* _patternMask = nullptr;
+		int _patternSize = -1;
+		int _customOffset = 0;
+	};
 }

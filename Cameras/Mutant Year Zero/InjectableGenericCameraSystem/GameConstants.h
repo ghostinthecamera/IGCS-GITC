@@ -30,10 +30,10 @@
 namespace IGCS::GameSpecific
 {
 	// Mandatory constants to define for a game
-	#define GAME_NAME									"Deserts of Kharak - WIP"
+	#define GAME_NAME									"Mutant Year Zero"
 	#define CAMERA_VERSION								"1.0"
-	#define CAMERA_CREDITS								"GHOSTINTHECAMERA & IDK31"
-	#define GAME_WINDOW_TITLE							"DESERTS OF KHARAK"
+	#define CAMERA_CREDITS								"GHOSTINTHECAMERA & One3rd"
+	#define GAME_WINDOW_TITLE							"Mutant Year Zero: Road to Eden "
 	#define INITIAL_PITCH_RADIANS						0.0f	// around X axis	(right)
 	#define INITIAL_YAW_RADIANS							0.0f	// around Y axis	(out of the screen)
 	#define INITIAL_ROLL_RADIANS						0.0f	// around Z axis	(up)
@@ -41,41 +41,26 @@ namespace IGCS::GameSpecific
 	#define FASTER_MULTIPLIER							5.0f
 	#define SLOWER_MULTIPLIER							0.1f
 	#define MOUSE_SPEED_CORRECTION						0.2f	// to correct for the mouse-deltas related to normal rotation.
-	#define DEFAULT_MOVEMENT_SPEED						10.00f
-	#define DEFAULT_ROTATION_SPEED						0.01f
-	#define DEFAULT_FOV_SPEED							0.10f
+	#define DEFAULT_MOVEMENT_SPEED						6.0f
+	#define DEFAULT_ROTATION_SPEED						0.04f
+	#define DEFAULT_FOV_SPEED							1.00f
 	#define DEFAULT_UP_MOVEMENT_MULTIPLIER				0.7f
-	#define RESOLUTION_SCALE_MAX						4.0f
-	#define RESOLUTION_SCALE_MIN						0.5f
+	#define RESOLUTION_SCALE_MAX						200.0f
+	#define RESOLUTION_SCALE_MIN						25.0f
 	// End Mandatory constants
 
 	// AOB Keys for interceptor's AOB scanner
 	#define CAMERA_ADDRESS_INTERCEPT_KEY				"AOB_CAMERA_ADDRESS_INTERCEPT"
-	#define CAMERA_WRITE1_INTERCEPT_KEY					"AOB_CAMERA_WRITE1_INTERCEPT"
-	#define CAMERA_WRITE2_INTERCEPT_KEY					"AOB_CAMERA_WRITE2_INTERCEPT"
-	#define DIVSS_ABSOLUTE_ADD_KEY						"AOB_DIVSS_INTERCEPT"
-	#define TESTNAME									"AOB_TESTNAME"
-	/*#define RESOLUTION_SCALE_INTERCEPT_KEY				"AOB_RESOLUTION_SCALE_INTERCEPT"
-	#define TOD_WRITE_INTERCEPT_KEY						"AOB_TOD_WRITE_INTERCEPT"
+	#define RESOLUTION_SCALE_INTERCEPT_KEY				"AOB_RESOLUTION_SCALE_INTERCEPT"
 	#define TIMESTOP_READ_INTERCEPT_KEY					"AOB_TIMESTOP_READ_INTERCEPT"
 	#define HUD_RENDER_INTERCEPT_KEY					"AOB_HUD_RENDER_INTERCEPT"
-	#define PAUSE_FUNCTION_LOCATION_KEY					"AOB_PAUSE_FUNCTION"
-	#define UNPAUSE_FUNCTION_LOCATION_KEY				"AOB_UNPAUSE_FUNCTION"
-	#define DOF_ENABLE_WRITE_LOCATION_KEY				"AOB_DOF_WRITE_LOCATION"
-	#define AR_LIMIT_LOCATION_KEY						"AOB_AR_LIMIT_LOCATION"
-	#define FOG_READ_INTERCEPT_KEY						"AOB_FOG_READ_INTERCEPT"*/
+	#define RESOLUTION_ABSADD_INTERCEPT_KEY				"AOB_RESOLUTION_ABSADD_INTERCEPT_KEY"
 	
 
 	// Indices in the structures read by interceptors 
-	#define COORDS_IN_STRUCT_OFFSET						-0xC20
-	#define QUATERNION_IN_STRUCT_OFFSET					-0xC30
-	#define FOV_IN_STRUCT_OFFSET						0x284
-	//#define RESOLUTION_SCALE_IN_STRUCT_OFFSET			0xA4
-	//#define TIMESTOP_BYTE_ONE_OFFSET					0x1790		// set byte one to 1, then byte two to 1 => stop. Set byte three to 0 and byte two to FF and things proceed again.
-	//#define TIMESTOP_BYTE_TWO_OFFSET					0x1868
-	//#define TIMESTOP_BYTE_THREE_OFFSET					0x1788
-	//#define DOF_ENABLE1_IN_STRUCT_OFFSET				0x111		// in camera struct. 1 is enable dof, 0 is disable dof. Writes have to be disabled first. See notes for dof parameters (pretty low-quality, not added to menu).
-	//#define DOF_ENABLE2_IN_STRUCT_OFFSET				0x111		// in camera struct. 1 is enable dof, 0 is disable dof. Writes have to be disabled first. See notes for dof parameters (pretty low-quality, not added to menu).
-	//#define FOG_STRENGTH_IN_STRUCT_OFFSET				0x20
-	//#define FOG_START_CURVE_IN_STRUCT_OFFSET			0x60
+	#define COORDS_IN_STRUCT_OFFSET						0x410
+	#define QUATERNION_IN_STRUCT_OFFSET					0x41C
+	#define FOV_IN_STRUCT_OFFSET						0x428
+	#define TIMESTOP_IN_STRUCT_OFFSET					0x4E8
+	
 }

@@ -25,23 +25,51 @@
 // OR TORT(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
-#pragma once
 #include "stdafx.h"
+#include "Console.h"
+#include "Globals.h"
+#include "System.h"
+#include "Utils.h"
 
-namespace IGCS::GameSpecific::CameraManipulator
+using namespace std;
+using namespace IGCS;
+
+DWORD WINAPI MainThread(LPVOID lpParam);
+
+BOOL APIENTRY DllMain(HMODULE hModule, DWORD  reason, LPVOID lpReserved)
 {
-	void writeNewCameraValuesToGameData(DirectX::XMFLOAT3 newCoords, DirectX::XMVECTOR newLookQuaternion);
-	void restoreOriginalValuesAfterCameraDisable();
-	void cacheOriginalValuesBeforeCameraEnable();
-	bool setTimeStopValue(BYTE newValue);
-	DirectX::XMFLOAT3 getCurrentCameraCoords();
-	void resetFoV();
-	void changeFoV(float amount);
-	bool isCameraFound();
-	void displayCameraStructAddress();
-	void getSettingsFromGameState();
-	void applySettingsToGameState();
-	void killInGameDofIfNeeded();
-	void setPauseUnpauseGameFunctionPointers(LPBYTE pauseFunctionAddress, LPBYTE unpauseFunctionAddress);
-	void writeEnableBytes();
+	DWORD threadID;
+	HANDLE threadHandle;
+
+	DisableThreadLibraryCalls(hModule);
+
+	switch (reason)
+	{
+		case DLL_PROCESS_ATTACH:
+			threadHandle = CreateThread(nullptr, 0, MainThread, hModule, 0, &threadID);
+			SetThreadPriority(threadHandle, THREAD_PRIORITY_ABOVE_NORMAL);
+			break;
+		case DLL_PROCESS_DETACH:
+			Globals::instance().systemActive(false);
+			break;
+	}
+	return TRUE;
+}
+
+
+// lpParam gets the hModule value of the DllMain process
+DWORD WINAPI MainThread(LPVOID lpParam)
+{
+	MODULEINFO hostModuleInfo = Utils::getModuleInfoOfContainingProcess();
+	if (nullptr == hostModuleInfo.lpBaseOfDll)
+	{
+		Console::WriteError("Not able to obtain parent process base address... exiting");
+	}
+	else
+	{
+		System s;
+		s.start((LPBYTE)hostModuleInfo.lpBaseOfDll, hostModuleInfo.SizeOfImage);
+	}
+	Console::Release();
+	return 0;
 }

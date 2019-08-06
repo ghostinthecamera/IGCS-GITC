@@ -27,46 +27,56 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma once
 #include "stdafx.h"
-#include "Camera.h"
 #include "Gamepad.h"
+#include "GameConstants.h"
+#include "Defaults.h"
+#include "CDataFile.h"
+#include "Utils.h"
+#include <atomic>
+#include "Settings.h"
+#include "ActionData.h"
 #include <map>
-#include "AOBBlock.h"
+
+extern "C" BYTE g_cameraEnabled;
+extern "C" BYTE g_gamePaused;
 
 namespace IGCS
 {
-	class System
+	class Globals
 	{
 	public:
-		System();
-		~System();
-		void start(LPBYTE hostBaseAddress, DWORD hostImageSize);
+		Globals();
+		~Globals();
+
+		static Globals& instance();
+
+		void saveSettingsIfRequired(float delta);
+		void markSettingsDirty();
+
+		bool inputBlocked() const { return _inputBlocked; }
+		void inputBlocked(bool value) { _inputBlocked = value; }
+		bool systemActive() const { return _systemActive; }
+		void systemActive(bool value) { _systemActive = value; }
+		HWND mainWindowHandle() const { return _mainWindowHandle; }
+		void mainWindowHandle(HWND handle) { _mainWindowHandle = handle; }
+		Gamepad& gamePad() { return _gamePad; }
+		Settings& settings() { return _settings; }
+		bool keyboardMouseControlCamera() const { return _settings.cameraControlDevice == DEVICE_ID_KEYBOARD_MOUSE || _settings.cameraControlDevice == DEVICE_ID_ALL; }
+		bool controllerControlsCamera() const { return _settings.cameraControlDevice == DEVICE_ID_GAMEPAD || _settings.cameraControlDevice == DEVICE_ID_ALL; }
+		ActionData* getActionData(ActionType type);
+		void updateActionDataForAction(ActionType type);
+		ActionData& getKeyCollector() { return _keyCollectorData; }
 
 	private:
-		void mainLoop();
-		void initialize();
-		void updateFrame();
-		void handleUserInput();
-		void writeNewCameraValuesToCameraStructs();
-		void displayCameraState();
-		void toggleCameraMovementLockState(bool newValue);
-		void handleKeyboardCameraMovement(float multiplier);
-		void handleMouseCameraMovement(float multiplier);
-		void handleGamePadMovement(float multiplierBase);
-		void waitForCameraStructAddresses();
-		void toggleInputBlockState(bool newValue);
-		//void toggleTimestopState();
-		//void toggleHudRenderState();
+		void initializeKeyBindings();
 
-		Camera _camera;
-		LPBYTE _hostImageAddress;
-		DWORD _hostImageSize;
-		//bool _timeStopped = false;
-		bool _cameraMovementLocked = false;
-		bool _cameraStructFound = false;
-		//bool _hudToggled = false;
-		map<string, AOBBlock*> _aobBlocks;
-		map<string, AOBBlock*> _aobBlocks2;
-		bool _applyHammerPrevention = false;	// set to true by a keyboard action and which triggers a sleep before keyboard handling is performed.
+		bool _inputBlocked = false;
+		atomic_bool _systemActive = false;
+		Gamepad _gamePad;
+		HWND _mainWindowHandle;
+		Settings _settings;
+		float _settingsDirtyTimer=0.0f;			// when settings are marked dirty, this is set with a value > 0 and decremented each frame. If 0, settings are saved. In seconds.
+		map<ActionType, ActionData*> _keyBindingPerActionType;
+		ActionData _keyCollectorData = ActionData("KeyCollector", "", 0, false, false, false);
 	};
 }
-

@@ -25,23 +25,88 @@
 // OR TORT(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
-#pragma once
 #include "stdafx.h"
+#include "Console.h"
+#include "GameConstants.h"
 
-namespace IGCS::GameSpecific::CameraManipulator
+using namespace std;
+
+namespace IGCS::Console
 {
-	void writeNewCameraValuesToGameData(DirectX::XMFLOAT3 newCoords, DirectX::XMVECTOR newLookQuaternion);
-	void restoreOriginalValuesAfterCameraDisable();
-	void cacheOriginalValuesBeforeCameraEnable();
-	bool setTimeStopValue(BYTE newValue);
-	DirectX::XMFLOAT3 getCurrentCameraCoords();
-	void resetFoV();
-	void changeFoV(float amount);
-	bool isCameraFound();
-	void displayCameraStructAddress();
-	void getSettingsFromGameState();
-	void applySettingsToGameState();
-	void killInGameDofIfNeeded();
-	void setPauseUnpauseGameFunctionPointers(LPBYTE pauseFunctionAddress, LPBYTE unpauseFunctionAddress);
-	void writeEnableBytes();
+	#define CONSOLE_WHITE	15
+	#define CONSOLE_NORMAL  7
+
+	static bool _consoleInitialized = false;
+	void Init();
+
+
+	void EnsureConsole()
+	{
+		if (_consoleInitialized)
+		{
+			return;
+		}
+		Init();
+	}
+
+
+	void Release()
+	{
+		if (_consoleInitialized)
+		{
+			FreeConsole();
+			_consoleInitialized = false;
+		}
+	}
+
+	void WriteLine(const string& toWrite, int color)
+	{
+		EnsureConsole();
+		SetColor(color);
+		WriteLine(toWrite);
+		SetColor(CONSOLE_NORMAL);
+	}
+
+	void WriteLine(const string& toWrite)
+	{
+		EnsureConsole();
+		cout << toWrite << endl;
+	}
+
+
+	void WriteError(const string& error)
+	{
+		EnsureConsole();
+		cerr << error << endl;
+	}
+
+
+	void Init()
+	{
+		AllocConsole();
+		AttachConsole(GetCurrentProcessId());
+
+		// Redirect the CRT standard output, and error handles to the console
+		FILE *fp;
+		freopen_s(&fp, "CONOUT$", "w", stdout);
+		freopen_s(&fp, "CONOUT$", "w", stderr);
+
+		//Clear the error state for each of the C++ standard stream objects. 
+		wcout.clear();
+		cout.clear();
+		wcerr.clear();
+		cerr.clear();
+		wcin.clear();
+		cin.clear();
+
+		SetColor(15);
+		SetConsoleTextAttribute(GetStdHandle(STD_ERROR_HANDLE), 12);
+		_consoleInitialized = true;
+	}
+
+
+	void SetColor(int color)
+	{
+		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), color);
+	}
 }

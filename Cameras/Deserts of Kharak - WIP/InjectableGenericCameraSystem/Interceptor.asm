@@ -56,7 +56,7 @@ EXTERN g_cameraStructAddress: qword
 ;---------------------------------------------------------------
 ; Own externs, defined in InterceptorHelper.cpp
 EXTERN _cameraStructInterceptionContinue: qword
-;EXTERN _cameraWrite1InterceptionContinue: qword
+EXTERN _divssAbsoluteAdd: qword
 ;EXTERN _cameraWrite2InterceptionContinue: qword
 ;EXTERN _fovReadInterceptionContinue: qword
 ;EXTERN _resolutionScaleReadInterceptionContinue: qword
@@ -74,18 +74,19 @@ cameraStructInterceptor PROC
 ; this gets the fov - but also can use RBX-offsets to get camera coords+quaternion. 
 ;DesertsOfKharak64.exe+ABFF7 - F3 0F10 83 84020000   - movss xmm0,[rbx+00000284]		<<inject here << fov+base
 ;DesertsOfKharak64.exe+ABFFF - 0F28 F7               - movaps xmm6,xmm7
-;DesertsOfKharak64.exe+AC002 - F3 0F5E 05 9E31FC00   - divss xmm0,180.00
+;DesertsOfKharak64.exe+AC002 - F3 0F5E 05 9E31FC00   - divss xmm0,[DesertsOfKharak64.exe+106F1A8] { (180.00) }
 ;DesertsOfKharak64.exe+AC00A - F3 0F5C F0            - subss xmm6,xmm0					<<return here
 	mov [g_cameraStructAddress], rbx
-	;mov dword ptr [rbx+324], 01010101
 	movss xmm0, dword ptr [rbx+284h]
+	mov [rbx+324h],byte ptr 1
+	mov [rbx+325h],byte ptr 1
+	mov [rbx+326h],byte ptr 1
+	mov [rbx+327h],byte ptr 1
 	movaps xmm6,xmm7
-	
-	push rax
-	mov qword ptr [rax], [43340000h]
-	divss xmm0,qword ptr [rax]
-	pop rax
-
+	push rbx
+	mov rax, [_divssAbsoluteAdd]
+	divss xmm0, dword ptr [rax]
+	pop rbx
 exit:
 	jmp qword ptr [_cameraStructInterceptionContinue]	; jmp back into the original game code, which is the location after the original statements above.
 cameraStructInterceptor ENDP

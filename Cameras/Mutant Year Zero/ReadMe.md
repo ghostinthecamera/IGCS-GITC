@@ -6,6 +6,10 @@ Camera version: 1.0
 Camera release binaries: https://github.com/ghostinthecamera/IGCS-GITC/releases/tag/MYZv1.0
 Credits: GHOSTINTHECAMERA & IDK31
 
+Brought to you by [FRAMED. Screenshotting community](https://framedsc.github.io). 
+
+![](https://framedsc.github.io/Images/FRAMED_LogoBigDarkTransparent800px.png)
+
 ### Features
 
 - Camera control: (Also in cut scenes and during a paused game)

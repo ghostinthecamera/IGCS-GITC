@@ -1,4 +1,4 @@
-Injectable Generic Camera System by Frams Bouma
+Injectable Generic Camera System by Frans Bouma
 ===============================================
 
 This is a generic injectable camera system which is used as a base for cameras for taking screenshots within games. 

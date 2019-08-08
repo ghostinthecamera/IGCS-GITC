@@ -1,4 +1,4 @@
-////////////////////////////////////////////////////////////////////////////////////////////////////////
+﻿////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Part of Injectable Generic Camera System
 // Copyright(c) 2019, Frans Bouma
 // All rights reserved.
@@ -100,8 +100,8 @@ namespace IGCS::GameSpecific::InterceptorHelper
 	///attempt to find aobs memorywide
 	/*void MemWideScan(map<string, AOBBlock*> &aobBlocks2)
 	{
-		LPBYTE memstart = 0x0000000000000000;
-		DWORD memend = 0x7fffffffffffffff;
+		LPBYTE memstart = (BYTE)0x0000000001000000;
+		DWORD memend = (BYTE)0x7fffffffffefffff;
 
 		aobBlocks2[TESTNAME] = new AOBBlock(TESTNAME, "8B EC 48 83 EC 20 48 89 4D E8 48 8B C1 48 8B 40 70 48 8B C8 48 83 EC 10 48 8B 55 30 48 89 14 24 48 63 55 38 89 54 24 08 48 83 EC 20 83 38 00 49 BB x x x x x x x x 41 FF D3 48 83 C4 30 C9 C3", 1);
 		map<string, AOBBlock*>::iterator it;

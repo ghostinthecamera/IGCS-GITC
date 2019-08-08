@@ -1,0 +1,74 @@
+mutantyearzero
+
+ZoneUE4-Win64-Shipping.exe+1C65F4A - F3 0F10 83 E4040000   - movss xmm0,[rbx+000004E4]
+ZoneUE4-Win64-Shipping.exe+1C65F52 - F3 0F59 83 E0040000   - mulss xmm0,[rbx+000004E0]
+ZoneUE4-Win64-Shipping.exe+1C65F5A - F3 0F59 83 E8040000   - mulss xmm0,[rbx+000004E8]		<<< timevalue
+ZoneUE4-Win64-Shipping.exe+1C65F62 - F3 0F59 F0            - mulss xmm6,xmm0
+ZoneUE4-Win64-Shipping.exe+1C65F66 - 48 8B 03              - mov rax,[rbx]
+ZoneUE4-Win64-Shipping.exe+1C65F69 - 0F28 D7               - movaps xmm2,xmm7
+ZoneUE4-Win64-Shipping.exe+1C65F6C - 0F28 CE               - movaps xmm1,xmm6
+ZoneUE4-Win64-Shipping.exe+1C65F6F - 48 8B CB              - mov rcx,rbx
+
+
+ZoneUE4-Win64-Shipping.exe+111B2DD - 4C 89 81 D0000000     - mov [rcx+000000D0],r8
+ZoneUE4-Win64-Shipping.exe+111B2E4 - 0F10 05 BD1D4103      - movups xmm0,[ZoneUE4-Win64-Shipping.exe+452D0A8] { (0.00) }
+ZoneUE4-Win64-Shipping.exe+111B2EB - 0F11 81 D8000000      - movups [rcx+000000D8],xmm0
+ZoneUE4-Win64-Shipping.exe+111B2F2 - 0F10 0D AF1D4103      - movups xmm1,[ZoneUE4-Win64-Shipping.exe+452D0A8] { (0.00) }
+ZoneUE4-Win64-Shipping.exe+111B2F9 - 0F11 89 E8000000      - movups [rcx+000000E8],xmm1
+ZoneUE4-Win64-Shipping.exe+111B300 - 0F10 05 096F3603      - movups xmm0,[ZoneUE4-Win64-Shipping.exe+4482210] { (1.00) }  <<< hud opacity
+ZoneUE4-Win64-Shipping.exe+111B307 - 0F11 81 F8000000      - movups [rcx+000000F8],xmm0
+ZoneUE4-Win64-Shipping.exe+111B30E - 44 89 81 08010000     - mov [rcx+00000108],r8d
+ZoneUE4-Win64-Shipping.exe+111B315 - C7 81 0C010000 0000C842 - mov [rcx+0000010C],42C80000 { 100.00 }
+ZoneUE4-Win64-Shipping.exe+111B31F - 48 81 C1 10010000     - add rcx,00000110 { 272 }
+ZoneUE4-Win64-Shipping.exe+111B326 - 48 89 4C 24 20        - mov [rsp+20],rcx
+ZoneUE4-Win64-Shipping.exe+111B32B - 48 89 4C 24 20        - mov [rsp+20],rcx
+
+
+ZoneUE4-Win64-Shipping.exe+C6F40D - F3 0F10 1D 032E8103   - movss xmm3,[ZoneUE4-Win64-Shipping.exe+4482218] { (1.00) }
+ZoneUE4-Win64-Shipping.exe+C6F415 - F3 0F11 5D 28         - movss [rbp+28],xmm3
+ZoneUE4-Win64-Shipping.exe+C6F41A - F3 0F10 0D FA2D8103   - movss xmm1,[ZoneUE4-Win64-Shipping.exe+448221C] { (1.00) }	<<<< 
+ZoneUE4-Win64-Shipping.exe+C6F422 - F3 0F11 4D 2C         - movss [rbp+2C],xmm1
+ZoneUE4-Win64-Shipping.exe+C6F427 - 0F10 05 E22D8103      - movups xmm0,[ZoneUE4-Win64-Shipping.exe+4482210] { (1.00) }
+ZoneUE4-Win64-Shipping.exe+C6F42E - 0F11 45 30            - movups [rbp+30],xmm0
+ZoneUE4-Win64-Shipping.exe+C6F432 - F3 0F10 25 72166E02   - movss xmm4,[ZoneUE4-Win64-Shipping.exe+3350AAC] { (0.60) }
+
+
+ZoneUE4-Win64-Shipping.exe+1DB9544 - 48 8B 07              - mov rax,[rdi]
+ZoneUE4-Win64-Shipping.exe+1DB9547 - 48 8B CF              - mov rcx,rdi
+ZoneUE4-Win64-Shipping.exe+1DB954A - FF 90 38010000        - call qword ptr [rax+00000138]
+ZoneUE4-Win64-Shipping.exe+1DB9550 - 8B 88 00090000        - mov ecx,[rax+00000900]
+ZoneUE4-Win64-Shipping.exe+1DB9556 - 89 8F 00040000        - mov [rdi+00000400],ecx
+ZoneUE4-Win64-Shipping.exe+1DB955C - F2 0F10 44 24 40      - movsd xmm0,[rsp+40]
+ZoneUE4-Win64-Shipping.exe+1DB9562 - F2 0F11 87 10040000   - movsd [rdi+00000410],xmm0		<<<<x, y
+ZoneUE4-Win64-Shipping.exe+1DB956A - 8B 44 24 48           - mov eax,[rsp+48]
+ZoneUE4-Win64-Shipping.exe+1DB956E - 89 87 18040000        - mov [rdi+00000418],eax			<<<<z
+ZoneUE4-Win64-Shipping.exe+1DB9574 - F2 0F10 44 24 4C      - movsd xmm0,[rsp+4C]
+ZoneUE4-Win64-Shipping.exe+1DB957A - F2 0F11 87 1C040000   - movsd [rdi+0000041C],xmm0		<<<< rx,ry
+ZoneUE4-Win64-Shipping.exe+1DB9582 - 8B 44 24 54           - mov eax,[rsp+54]
+ZoneUE4-Win64-Shipping.exe+1DB9586 - 89 87 24040000        - mov [rdi+00000424],eax			<<<< rz	
+ZoneUE4-Win64-Shipping.exe+1DB958C - 0F10 44 24 58         - movups xmm0,[rsp+58]
+ZoneUE4-Win64-Shipping.exe+1DB9591 - 0F11 87 28040000      - movups [rdi+00000428],xmm0		<<<< fov
+ZoneUE4-Win64-Shipping.exe+1DB9598 - F3 0F10 44 24 68      - movss xmm0,[rsp+68]
+ZoneUE4-Win64-Shipping.exe+1DB959E - F3 0F11 87 38040000   - movss [rdi+00000438],xmm0
+ZoneUE4-Win64-Shipping.exe+1DB95A6 - 83 A7 3C040000 FC     - and dword ptr [rdi+0000043C],-04 { 252 }
+ZoneUE4-Win64-Shipping.exe+1DB95AD - 8B 44 24 6C           - mov eax,[rsp+6C]
+ZoneUE4-Win64-Shipping.exe+1DB95B1 - 83 E0 03              - and eax,03 { 3 }
+ZoneUE4-Win64-Shipping.exe+1DB95B4 - 09 87 3C040000        - or [rdi+0000043C],eax
+
+
+ZoneUE4-Win64-Shipping.exe+1DF2D93 - FF 52 40              - call qword ptr [rdx+40]
+ZoneUE4-Win64-Shipping.exe+1DF2D96 - 48 89 05 23689702     - mov [ZoneUE4-Win64-Shipping.exe+47695C0],rax { (2C9417917A8) }
+ZoneUE4-Win64-Shipping.exe+1DF2D9D - EB 07                 - jmp ZoneUE4-Win64-Shipping.exe+1DF2DA6
+ZoneUE4-Win64-Shipping.exe+1DF2D9F - 48 89 3D 1A689702     - mov [ZoneUE4-Win64-Shipping.exe+47695C0],rdi { (2C9417917A8) }
+ZoneUE4-Win64-Shipping.exe+1DF2DA6 - 48 8D 0D 1B689702     - lea rcx,[ZoneUE4-Win64-Shipping.exe+47695C8] { (-2147479170) }
+ZoneUE4-Win64-Shipping.exe+1DF2DAD - E8 D67EFB00           - call ZoneUE4-Win64-Shipping.exe+2DAAC88
+ZoneUE4-Win64-Shipping.exe+1DF2DB2 - 48 8B 05 07689702     - mov rax,[ZoneUE4-Win64-Shipping.exe+47695C0] { (2C9417917A8) }
+ZoneUE4-Win64-Shipping.exe+1DF2DB9 - F3 0F10 00            - movss xmm0,[rax]									<<<resolution scale
+ZoneUE4-Win64-Shipping.exe+1DF2DBD - 0F57 F6               - xorps xmm6,xmm6
+ZoneUE4-Win64-Shipping.exe+1DF2DC0 - F3 44 0F10 0D 5BD12801- movss xmm9,[ZoneUE4-Win64-Shipping.exe+307FF24] { (0.01) }
+ZoneUE4-Win64-Shipping.exe+1DF2DC9 - 0F2F C6               - comiss xmm0,xmm6
+ZoneUE4-Win64-Shipping.exe+1DF2DCC - 72 15                 - jb ZoneUE4-Win64-Shipping.exe+1DF2DE3
+ZoneUE4-Win64-Shipping.exe+1DF2DCE - F3 41 0F59 C1         - mulss xmm0,xmm9
+ZoneUE4-Win64-Shipping.exe+1DF2DD3 - F3 0F59 83 F00F0000   - mulss xmm0,[rbx+00000FF0]
+ZoneUE4-Win64-Shipping.exe+1DF2DDB - F3 0F11 83 F00F0000   - movss [rbx+00000FF0],xmm0
+ZoneUE4-Win64-Shipping.exe+1DF2DE3 - 48 8B 05 663B9802     - mov rax,[ZoneUE4-Win64-Shipping.exe+4776950] { (2C95C5B10F0) }

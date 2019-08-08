@@ -54,10 +54,9 @@ namespace IGCS::GameSpecific
 	#define CAMERA_WRITE1_INTERCEPT_KEY					"AOB_CAMERA_WRITE1_INTERCEPT"
 	#define CAMERA_WRITE2_INTERCEPT_KEY					"AOB_CAMERA_WRITE2_INTERCEPT"
 	#define DIVSS_ABSOLUTE_ADD_KEY						"AOB_DIVSS_INTERCEPT"
-	#define TESTNAME									"AOB_TESTNAME"
-	/*#define RESOLUTION_SCALE_INTERCEPT_KEY				"AOB_RESOLUTION_SCALE_INTERCEPT"
-	#define TOD_WRITE_INTERCEPT_KEY						"AOB_TOD_WRITE_INTERCEPT"
-	#define TIMESTOP_READ_INTERCEPT_KEY					"AOB_TIMESTOP_READ_INTERCEPT"
+	#define TIMESTOP_KEY								"AOB_TIMESTOP_KEY"
+	//#define ROTATION_JMP_NOP_KEY						"AOB_ROTATION_JMP_NOP_KEY"
+	/*#define TIMESTOP_READ_INTERCEPT_KEY					"AOB_TIMESTOP_READ_INTERCEPT"
 	#define HUD_RENDER_INTERCEPT_KEY					"AOB_HUD_RENDER_INTERCEPT"
 	#define PAUSE_FUNCTION_LOCATION_KEY					"AOB_PAUSE_FUNCTION"
 	#define UNPAUSE_FUNCTION_LOCATION_KEY				"AOB_UNPAUSE_FUNCTION"
@@ -71,7 +70,7 @@ namespace IGCS::GameSpecific
 	#define QUATERNION_IN_STRUCT_OFFSET					-0xC30
 	#define FOV_IN_STRUCT_OFFSET						0x284
 	//#define RESOLUTION_SCALE_IN_STRUCT_OFFSET			0xA4
-	//#define TIMESTOP_BYTE_ONE_OFFSET					0x1790		// set byte one to 1, then byte two to 1 => stop. Set byte three to 0 and byte two to FF and things proceed again.
+	#define TIMESTOP_OFFSET								0x0CC		// set byte one to 1, then byte two to 1 => stop. Set byte three to 0 and byte two to FF and things proceed again.
 	//#define TIMESTOP_BYTE_TWO_OFFSET					0x1868
 	//#define TIMESTOP_BYTE_THREE_OFFSET					0x1788
 	//#define DOF_ENABLE1_IN_STRUCT_OFFSET				0x111		// in camera struct. 1 is enable dof, 0 is disable dof. Writes have to be disabled first. See notes for dof parameters (pretty low-quality, not added to menu).

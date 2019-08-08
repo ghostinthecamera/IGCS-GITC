@@ -290,13 +290,14 @@ Special thanks to:
 		}
 		if (ImGui::CollapsingHeader("Camera rotation options", ImGuiTreeNodeFlags_DefaultOpen))
 		{
-			settingsChanged |= ImGui::SliderFloat("Rotation speed", &currentSettings.rotationSpeed, 0.001f, 0.5f, "%.3f");
+			settingsChanged |= ImGui::SliderFloat("Rotation speed", &currentSettings.rotationSpeed, 0.001f, 0.010f, "%.3f");
 			ImGui::TextUnformatted("");  ImGui::SameLine((ImGui::GetWindowWidth() * 0.3f)-11.0f);
 			settingsChanged |= ImGui::Checkbox("Invert Y look direction", &currentSettings.invertY);
 		}
 		if (ImGui::CollapsingHeader("Misc. camera options", ImGuiTreeNodeFlags_DefaultOpen))
 		{
 			settingsChanged |= ImGui::SliderFloat("Field of View (FoV) zoom speed", &currentSettings.fovChangeSpeed, 0.001f, 0.03f, "%.3f");
+			ImGui::SliderFloat("Slow Motion Multiplier", &currentSettings.slowmoMult, 0.05f, 0.95f, "%.2f");
 			//ImGui::SliderFloat("Resolution scale factor", &currentSettings.resolutionScale, 0.5f, 2.0f, "%.1f");
 			//ImGui::SameLine(); showHelpMarker("Be careful with values bigger than 2 as it could make\nthe game crash due to too much overhead.\nYou can specify values bigger than 2 by using\nCtrl-click and then type the value.\nMax is 4.0.");
 

@@ -40,8 +40,8 @@ extern "C" {
 	LPBYTE g_cameraStructAddress = nullptr;
 	//LPBYTE g_resolutionScaleAddress = nullptr;
 	//LPBYTE g_todStructAddress = nullptr;
-	//LPBYTE g_timestopStructAddress = nullptr;
-	//LPBYTE g_fogStructAddress = nullptr;
+	LPBYTE g_timestopStructAddress = nullptr;
+	bool _timeStopped;
 }
 
 namespace IGCS::GameSpecific::CameraManipulator
@@ -56,35 +56,30 @@ namespace IGCS::GameSpecific::CameraManipulator
 		BYTE statementbytes[4] = { 0x01, 0x01, 0x01, 0x01 };
 		GameImageHooker::writeRange(g_cameraStructAddress + 0x324, statementbytes, 4);
 	}
-	//// typedef of signatures of two functions we'll call from our own code to pause/unpause the game properly. 
-	//typedef void(__stdcall *PauseGameFunction) (LPVOID pWorld);
-	//typedef void(__stdcall *UnpauseGameFunction) (LPVOID pWorld);
-	//// the function pointers we'll call to pause/unpause the game. They point to AOB scanned addresses found in the host image.
-	//static PauseGameFunction _pauseGameFunc = nullptr;
-	//static UnpauseGameFunction _unpauseGameFunc = nullptr;
 
-	// newValue: 1 == time should be frozen, 0 == normal gameplay
-	// returns true if the game was stopped by this call, false if the game was either already stopped or the state didn't change.
-	//bool setTimeStopValue(BYTE newValue)
-	//{
-	//	if (nullptr == g_timestopStructAddress)
-	//	{
-	//		return false;
-	//	}
-	//	if (nullptr == _pauseGameFunc)
-	//	{
-	//		return false;
-	//	}
-	//	if (newValue)
-	//	{
-	//		_pauseGameFunc((LPVOID)g_timestopStructAddress);
-	//	}
-	//	else
-	//	{
-	//		_unpauseGameFunc((LPVOID)g_timestopStructAddress);
-	//	}
-	//	return newValue;
-	//}
+	void sloMoFunc(float amount)
+	{
+		if (nullptr == g_timestopStructAddress)
+		{
+			return;
+		}
+		if (!_timeStopped)
+		{
+			float* timescaleInMemory = reinterpret_cast<float*>(g_timestopStructAddress + TIMESTOP_OFFSET);
+			*timescaleInMemory = *timescaleInMemory > 0.96f ? amount : 1.0f;
+		}
+	}
+
+	void timeStop()
+	{
+		if (nullptr == g_timestopStructAddress)
+		{
+			return;
+		}
+
+		float* timescaleInMemory = reinterpret_cast<float*>(g_timestopStructAddress + TIMESTOP_OFFSET);
+		*timescaleInMemory = *timescaleInMemory > 0.04f ? 0.0f : 1.0f;
+	}
 
 
 	void getSettingsFromGameState()

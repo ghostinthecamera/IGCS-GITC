@@ -33,7 +33,6 @@ namespace IGCS::GameSpecific::CameraManipulator
 	void writeNewCameraValuesToGameData(DirectX::XMFLOAT3 newCoords, DirectX::XMVECTOR newLookQuaternion);
 	void restoreOriginalValuesAfterCameraDisable();
 	void cacheOriginalValuesBeforeCameraEnable();
-	bool setTimeStopValue(BYTE newValue);
 	DirectX::XMFLOAT3 getCurrentCameraCoords();
 	void resetFoV();
 	void changeFoV(float amount);
@@ -44,4 +43,6 @@ namespace IGCS::GameSpecific::CameraManipulator
 	void killInGameDofIfNeeded();
 	void setPauseUnpauseGameFunctionPointers(LPBYTE pauseFunctionAddress, LPBYTE unpauseFunctionAddress);
 	void writeEnableBytes();
+	void timeStop();
+	void sloMoFunc(float amount);
 }

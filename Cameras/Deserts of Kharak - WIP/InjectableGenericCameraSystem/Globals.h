@@ -38,7 +38,6 @@
 #include <map>
 
 extern "C" BYTE g_cameraEnabled;
-extern "C" BYTE g_gamePaused;
 
 namespace IGCS
 {

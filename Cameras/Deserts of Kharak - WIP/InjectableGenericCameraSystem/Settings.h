@@ -20,6 +20,7 @@ namespace IGCS
 		float movementSpeed;
 		float rotationSpeed;
 		float fovChangeSpeed;
+		float slowmoMult;
 		int cameraControlDevice;		// 0==keyboard/mouse, 1 == gamepad, 2 == both, see Defaults.h
 		bool allowCameraMovementWhenMenuIsUp;
 		bool disableInGameDofWhenCameraIsEnabled;
@@ -106,16 +107,13 @@ namespace IGCS
 			rotationSpeed = DEFAULT_ROTATION_SPEED;
 			fovChangeSpeed = DEFAULT_FOV_SPEED;
 			cameraControlDevice = DEVICE_ID_ALL;
+			slowmoMult = 0.05f;
 			allowCameraMovementWhenMenuIsUp = false;
 			disableInGameDofWhenCameraIsEnabled = false;
 
 			if (!persistedOnly)
 			{
 				resolutionScale = 1.0f;
-				todHour = 12;
-				todMinute = 0;
-				fogStrength = 1.0f;
-				fogStartCurve = 1.0f;
 			}
 		}
 	};

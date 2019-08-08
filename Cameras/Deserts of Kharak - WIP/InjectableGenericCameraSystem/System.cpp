@@ -116,6 +116,11 @@ namespace IGCS
 			// sleep main thread for 200ms so key repeat delay is simulated. 
 			Sleep(300);
 		}
+		if (Input::isActionActivated(ActionType::SlowMo))
+		{
+			CameraManipulator::sloMoFunc(Globals::instance().settings().slowmoMult);
+			Sleep(350);
+		}
 
 		if (Input::isActionActivated(ActionType::ToggleOverlay))
 		{
@@ -137,18 +142,13 @@ namespace IGCS
 		{
 			if (g_cameraEnabled)
 			{
-				// it's going to be disabled, make sure things are alright when we give it back to the host
-				//InterceptorHelper::SaveNOPReplace(_aobBlocks[CAMERA_WRITE1_INTERCEPT_KEY], 5, false);
-				//InterceptorHelper::SaveNOPReplace(_aobBlocks[CAMERA_WRITE2_INTERCEPT_KEY], 5, false);
+				//going to be disabled
 				CameraManipulator::restoreOriginalValuesAfterCameraDisable();
 				toggleCameraMovementLockState(false);
 			}
 			else
 			{
 				// it's going to be enabled, so cache the original values before we enable it so we can restore it afterwards
-				//CameraManipulator::writeEnableBytes();
-				//InterceptorHelper::SaveNOPReplace(_aobBlocks[CAMERA_WRITE1_INTERCEPT_KEY], 5, true);
-				//InterceptorHelper::SaveNOPReplace(_aobBlocks[CAMERA_WRITE2_INTERCEPT_KEY], 5, true);
 				CameraManipulator::cacheOriginalValuesBeforeCameraEnable();
 				_camera.resetAngles();
 			}
@@ -168,11 +168,11 @@ namespace IGCS
 		{
 			CameraManipulator::changeFoV(Globals::instance().settings().fovChangeSpeed);
 		}
-		//if (Input::isActionActivated(ActionType::Timestop))
-		//{
-		//	toggleTimestopState();
-		//	_applyHammerPrevention = true;
-		//}
+		if (Input::isActionActivated(ActionType::Timestop))
+		{
+			toggleTimestopState();
+			_applyHammerPrevention = true;
+		}
 
 		//if (Input::isActionActivated(ActionType::HudToggle))
 		//{
@@ -410,12 +410,12 @@ namespace IGCS
 	}
 
 
-	//void System::toggleTimestopState()
-	//{
-	//	_timeStopped = !_timeStopped;
-	//	OverlayControl::addNotification(_timeStopped ? "Game paused" : "Game unpaused");
-	//	CameraManipulator::setTimeStopValue(_timeStopped);
-	//}
+	void System::toggleTimestopState()
+	{
+		_timeStopped = !_timeStopped;
+		OverlayControl::addNotification(_timeStopped ? "Game paused" : "Game unpaused");
+		CameraManipulator::timeStop();
+	}
 
 	//void System::toggleHudRenderState()
 	//{

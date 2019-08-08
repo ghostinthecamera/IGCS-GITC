@@ -41,6 +41,7 @@ namespace IGCS
 		~System();
 		void start(LPBYTE hostBaseAddress, DWORD hostImageSize);
 
+
 	private:
 		void mainLoop();
 		void initialize();
@@ -54,15 +55,15 @@ namespace IGCS
 		void handleGamePadMovement(float multiplierBase);
 		void waitForCameraStructAddresses();
 		void toggleInputBlockState(bool newValue);
-		//void toggleTimestopState();
+		void toggleTimestopState();
 		//void toggleHudRenderState();
 
 		Camera _camera;
 		LPBYTE _hostImageAddress;
 		DWORD _hostImageSize;
-		//bool _timeStopped = false;
 		bool _cameraMovementLocked = false;
 		bool _cameraStructFound = false;
+		bool _timeStopped = false;
 		//bool _hudToggled = false;
 		map<string, AOBBlock*> _aobBlocks;
 		map<string, AOBBlock*> _aobBlocks2;

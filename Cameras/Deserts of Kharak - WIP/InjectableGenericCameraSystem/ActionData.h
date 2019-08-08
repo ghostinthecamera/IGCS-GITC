@@ -53,7 +53,7 @@ namespace IGCS
 		TiltRight,
 		Timestop,
 		ToggleOverlay,
-
+		SlowMo,
 		Amount,
 	};
 

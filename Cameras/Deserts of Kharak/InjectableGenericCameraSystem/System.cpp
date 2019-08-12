@@ -116,11 +116,12 @@ namespace IGCS
 			// sleep main thread for 200ms so key repeat delay is simulated. 
 			Sleep(300);
 		}
-		if (Input::isActionActivated(ActionType::SlowMo))
-		{
-			CameraManipulator::sloMoFunc(Globals::instance().settings().slowmoMult);
-			Sleep(350);
-		}
+		//not in use - not complete timestop
+		//if (Input::isActionActivated(ActionType::SlowMo))
+		//{
+		//	CameraManipulator::sloMoFunc(Globals::instance().settings().slowmoMult);
+		//	Sleep(350);
+		//}
 
 		if (Input::isActionActivated(ActionType::ToggleOverlay))
 		{
@@ -168,11 +169,12 @@ namespace IGCS
 		{
 			CameraManipulator::changeFoV(Globals::instance().settings().fovChangeSpeed);
 		}
-		if (Input::isActionActivated(ActionType::Timestop))
-		{
-			toggleTimestopState();
-			_applyHammerPrevention = true;
-		}
+		//disabled - use in game timestop
+		//if (Input::isActionActivated(ActionType::Timestop))
+		//{
+		//	toggleTimestopState();
+		//	_applyHammerPrevention = true;
+		//}
 
 		//if (Input::isActionActivated(ActionType::HudToggle))
 		//{
@@ -409,13 +411,13 @@ namespace IGCS
 		OverlayControl::addNotification(g_cameraEnabled ? "Camera enabled" : "Camera disabled");
 	}
 
-
-	void System::toggleTimestopState()
-	{
-		_timeStopped = !_timeStopped;
-		OverlayControl::addNotification(_timeStopped ? "Game paused" : "Game unpaused");
-		CameraManipulator::timeStop();
-	}
+	//not in use - in game timestop better
+	//void System::toggleTimestopState()
+	//{
+	//	_timeStopped = !_timeStopped;
+	//	OverlayControl::addNotification(_timeStopped ? "Game paused" : "Game unpaused");
+	//	CameraManipulator::timeStop();
+	//}
 
 	//void System::toggleHudRenderState()
 	//{

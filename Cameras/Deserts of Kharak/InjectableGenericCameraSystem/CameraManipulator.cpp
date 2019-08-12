@@ -56,8 +56,8 @@ namespace IGCS::GameSpecific::CameraManipulator
 		BYTE statementbytes[4] = { 0x01, 0x01, 0x01, 0x01 };
 		GameImageHooker::writeRange(g_cameraStructAddress + 0x324, statementbytes, 4);
 	}
-
-	void sloMoFunc(float amount)
+	//disabled - use ingame timestop
+	/*void sloMoFunc(float amount)
 	{
 		if (nullptr == g_timestopStructAddress)
 		{
@@ -79,7 +79,7 @@ namespace IGCS::GameSpecific::CameraManipulator
 
 		float* timescaleInMemory = reinterpret_cast<float*>(g_timestopStructAddress + TIMESTOP_OFFSET);
 		*timescaleInMemory = *timescaleInMemory > 0.04f ? 0.0f : 1.0f;
-	}
+	}*/
 
 
 	void getSettingsFromGameState()

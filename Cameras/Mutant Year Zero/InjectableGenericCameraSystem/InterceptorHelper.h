@@ -37,5 +37,6 @@ namespace IGCS::GameSpecific::InterceptorHelper
 	void setPostCameraStructHooks(std::map<std::string, AOBBlock*> &aobBlocks);
 	void SaveNOPReplace(AOBBlock* hookData, int numberOfBytes, bool enabled);
 	void getAbsoluteAddresses(std::map<std::string, AOBBlock*> &aobBlocks);
+	void SaveBytesWrite(AOBBlock* hookData, int numberOfBytes, BYTE* BytestoWrite, bool enabled);
 	void hudToggle();
 }

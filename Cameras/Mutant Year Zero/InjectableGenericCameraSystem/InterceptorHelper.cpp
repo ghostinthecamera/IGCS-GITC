@@ -62,7 +62,8 @@ namespace IGCS::GameSpecific::InterceptorHelper
 		aobBlocks[TIMESTOP_READ_INTERCEPT_KEY] = new AOBBlock(TIMESTOP_READ_INTERCEPT_KEY, "F3 0F 59 83 ?? ?? ?? ?? F3 0F 59 F0 48 8B 03 0F 28 D7", 1);
 		aobBlocks[RESOLUTION_SCALE_INTERCEPT_KEY] = new AOBBlock(RESOLUTION_SCALE_INTERCEPT_KEY, "F3 0F 10 00 0F 57 F6 F3 44 0F 10 0D ?? ?? ?? ??", 1);
 		aobBlocks[RESOLUTION_ABSADD_INTERCEPT_KEY] = new AOBBlock(RESOLUTION_ABSADD_INTERCEPT_KEY, "F3 44 0F 10 0D | ?? ?? ?? ?? 0F2F C6", 1);
-		aobBlocks[HUD_RENDER_INTERCEPT_KEY] = new AOBBlock(HUD_RENDER_INTERCEPT_KEY, "0F 10 05 | ?? ?? ?? ?? 33 C0 48 89 41 ?? 48 89 41 ?? 48 89 41 ?? 0F 11 01", 1);
+		aobBlocks[HUD_RENDER_INTERCEPT_KEY2] = new AOBBlock(HUD_RENDER_INTERCEPT_KEY2, "0F 10 05 | ?? ?? ?? ?? 33 C0 48 89 41 ?? 48 89 41 ?? 48 89 41 ?? 0F 11 01", 1);
+		aobBlocks[HUD_RENDER_INTERCEPT_KEY] = new AOBBlock(HUD_RENDER_INTERCEPT_KEY, "0F B6 44 24 ?? 88 44 24 ?? E9 ?? ?? ?? ?? CC CC 48 8B C4 57 48 81 EC", 1);
 
 		map<string, AOBBlock*>::iterator it;
 		bool result = true;
@@ -89,7 +90,7 @@ namespace IGCS::GameSpecific::InterceptorHelper
 	void getAbsoluteAddresses(map<string, AOBBlock*> &aobBlocks)
 	{
 		_resolutionHookABSADD = Utils::calculateAbsoluteAddress(aobBlocks[RESOLUTION_ABSADD_INTERCEPT_KEY], 4);
-		_HUDAddress = Utils::calculateAbsoluteAddress(aobBlocks[HUD_RENDER_INTERCEPT_KEY], 4);
+		_HUDAddress = Utils::calculateAbsoluteAddress(aobBlocks[HUD_RENDER_INTERCEPT_KEY2], 4);
 
 		OverlayConsole::instance().logDebug("Absolute Address for Res Scale Injection: %p", (void*)_resolutionHookABSADD);
 		OverlayConsole::instance().logDebug("Absolute Address for HUD: %p", (void*)_HUDAddress);
@@ -139,6 +140,39 @@ namespace IGCS::GameSpecific::InterceptorHelper
 		}
 	}
 
+	void SaveBytesWrite(AOBBlock* hookData, int numberOfBytes, BYTE* BytestoWrite, bool enabled)
+	{
+		if (hookData->byteStorage2 == nullptr)  //check if byteStorage is null - if it is this is the first access and so need to read bytes into it
+		{
+			hookData->byteStorage2 = new BYTE[numberOfBytes];
+			GameImageHooker::readRange(hookData->locationInImage() + hookData->customOffset(), hookData->byteStorage2, numberOfBytes);
+		}
+		if (enabled)
+		{
+			if (!hookData->nopState2)
+			{
+				GameImageHooker::writeRange(hookData->locationInImage() + hookData->customOffset(), BytestoWrite, numberOfBytes);
+				hookData->nopState2 = true;
+			}
+			else
+			{
+				OverlayConsole::instance().logLine("Already Nopped - this shouldnt be showing. Something isnt working right");
+			}
+		}
+		if (!enabled)
+		{
+			if (hookData->nopState2)
+			{
+				GameImageHooker::writeRange(hookData->locationInImage() + hookData->customOffset(), hookData->byteStorage2, numberOfBytes);
+				hookData->nopState2 = false;
+			}
+			else
+			{
+				OverlayConsole::instance().logLine("Already Disabled - this shouldnt be showing. Something isnt working right");
+			}
+		}
+	}
+
 	void hudToggle()
 	{
 		float* hudInMemory = reinterpret_cast<float*>(_HUDAddress + 0x0C);
@@ -147,6 +181,7 @@ namespace IGCS::GameSpecific::InterceptorHelper
 		*hudInMemory = *hudInMemory > 0.1f ? 0.0f : 1.0f;
 		//OverlayConsole::instance().logDebug("HUD Toggle 1 value: %f", (float)*hudInMemory);
 	}
+
 	// if enabled is true, we'll place a 'ret' at the start of the code block, making the game skip rendering any hud element. If false, we'll reset
 	// the original first statement so code will proceed as normal. 
 	//void toggleHudRenderState(map<string, AOBBlock*> &aobBlocks, bool enabled)

@@ -36,7 +36,9 @@ namespace IGCS
 	{
 	public:
 		BYTE* byteStorage;
+		BYTE* byteStorage2;
 		bool nopState;
+		bool nopState2;
 
 		AOBBlock(std::string blockName, std::string bytePatternAsString, int occurrence);
 		~AOBBlock();

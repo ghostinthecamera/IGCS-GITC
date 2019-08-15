@@ -174,7 +174,7 @@ namespace IGCS
 
 		if (Input::isActionActivated(ActionType::HudToggle))
 		{
-			InterceptorHelper::hudToggle();
+			toggleHudRenderState();
 			_applyHammerPrevention = true;
 		}
 
@@ -415,9 +415,11 @@ namespace IGCS
 	//	CameraManipulator::setTimeStopValue(_timeStopped);
 	//}
 
-	//void System::toggleHudRenderState()
-	//{
-	//	_hudToggled = !_hudToggled;
-	//	InterceptorHelper::toggleHudRenderState(_aobBlocks, _hudToggled);
-	//}
+	void System::toggleHudRenderState()
+	{
+		_hudToggled = !_hudToggled;
+		BYTE statementBytes[5] = { 0xC3, 0x90, 0x90, 0x90, 0x90 };
+		InterceptorHelper::SaveBytesWrite(_aobBlocks[HUD_RENDER_INTERCEPT_KEY], 5, statementBytes, _hudToggled);
+		InterceptorHelper::hudToggle();
+	}
 }

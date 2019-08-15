@@ -31,7 +31,7 @@ namespace IGCS::GameSpecific
 {
 	// Mandatory constants to define for a game
 	#define GAME_NAME									"Mutant Year Zero"
-	#define CAMERA_VERSION								"1.0"
+	#define CAMERA_VERSION								"1.1"
 	#define CAMERA_CREDITS								"GHOSTINTHECAMERA & One3rd"
 	#define GAME_WINDOW_TITLE							"Mutant Year Zero: Road to Eden "
 	#define INITIAL_PITCH_RADIANS						0.0f	// around X axis	(right)
@@ -54,6 +54,7 @@ namespace IGCS::GameSpecific
 	#define RESOLUTION_SCALE_INTERCEPT_KEY				"AOB_RESOLUTION_SCALE_INTERCEPT"
 	#define TIMESTOP_READ_INTERCEPT_KEY					"AOB_TIMESTOP_READ_INTERCEPT"
 	#define HUD_RENDER_INTERCEPT_KEY					"AOB_HUD_RENDER_INTERCEPT"
+	#define HUD_RENDER_INTERCEPT_KEY2					"AOB_HUD_RENDER_INTERCEPT2"	
 	#define RESOLUTION_ABSADD_INTERCEPT_KEY				"AOB_RESOLUTION_ABSADD_INTERCEPT_KEY"
 	
 

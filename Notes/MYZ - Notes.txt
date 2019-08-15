@@ -72,3 +72,19 @@ ZoneUE4-Win64-Shipping.exe+1DF2DCE - F3 41 0F59 C1         - mulss xmm0,xmm9
 ZoneUE4-Win64-Shipping.exe+1DF2DD3 - F3 0F59 83 F00F0000   - mulss xmm0,[rbx+00000FF0]
 ZoneUE4-Win64-Shipping.exe+1DF2DDB - F3 0F11 83 F00F0000   - movss [rbx+00000FF0],xmm0
 ZoneUE4-Win64-Shipping.exe+1DF2DE3 - 48 8B 05 663B9802     - mov rax,[ZoneUE4-Win64-Shipping.exe+4776950] { (2C95C5B10F0) }
+
+better hud toggle	
+ZoneUE4-Win64-Shipping.exe+1E989A0 - 0FB6 44 24 40         - movzx eax,byte ptr [rsp+40]		<<<<ret
+ZoneUE4-Win64-Shipping.exe+1E989A5 - 88 44 24 40           - mov [rsp+40],al
+ZoneUE4-Win64-Shipping.exe+1E989A9 - E9 5271D6FE           - jmp ZoneUE4-Win64-Shipping.exe+BFFB00
+ZoneUE4-Win64-Shipping.exe+1E989AE - CC                    - int 3 
+ZoneUE4-Win64-Shipping.exe+1E989AF - CC                    - int 3 
+ZoneUE4-Win64-Shipping.exe+1E989B0 - 48 8B C4              - mov rax,rsp
+ZoneUE4-Win64-Shipping.exe+1E989B3 - 57                    - push rdi
+ZoneUE4-Win64-Shipping.exe+1E989B4 - 48 81 EC 30050000     - sub rsp,00000530 { 1328 }
+ZoneUE4-Win64-Shipping.exe+1E989BB - 48 C7 44 24 40 FEFFFFFF - mov qword ptr [rsp+40],FFFFFFFE { -2 }
+ZoneUE4-Win64-Shipping.exe+1E989C4 - 48 89 58 10           - mov [rax+10],rbx
+ZoneUE4-Win64-Shipping.exe+1E989C8 - 48 89 70 18           - mov [rax+18],rsi
+ZoneUE4-Win64-Shipping.exe+1E989CC - 48 8B 05 BD1F6602     - mov rax,[ZoneUE4-Win64-Shipping.exe+44FA990] { (-540948930) }
+ZoneUE4-Win64-Shipping.exe+1E989D3 - 48 33 C4              - xor rax,rsp
+ZoneUE4-Win64-Shipping.exe+1E989D6 - 48 89 84 24 28050000  - mov [rsp+00000528],rax

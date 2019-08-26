@@ -2,8 +2,8 @@ Injectable camera for Mutant Year Zero
 ============================
 
 Current supported game version:
-Camera version: 1.0  
-Camera release binaries: https://github.com/ghostinthecamera/IGCS-GITC/releases/tag/MYZv1.0  
+Camera version: 1.1  
+Camera release binaries: https://github.com/ghostinthecamera/IGCS-GITC/releases/tag/MYZv1.1  
 Credits: GHOSTINTHECAMERA & IDK31
 
 Brought to you by [FRAMED. Screenshotting community](https://framedsc.github.io). 

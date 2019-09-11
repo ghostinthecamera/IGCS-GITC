@@ -1,7 +1,7 @@
 Injectable camera for Deserts of Kharak
 ============================
 
-Camera version: 1.0 
+Camera version: 1.0  
 Camera release binaries: https://github.com/ghostinthecamera/IGCS-GITC/releases/tag/DoKv1.0  
 Credits: GHOSTINTHECAMERA & IDK31
 

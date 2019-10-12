@@ -43,6 +43,6 @@ namespace IGCS::GameSpecific::CameraManipulator
 	//void toggleHud();
 	//void setSupersamplingFactor(byte newValue);
 	XMFLOAT3 getCurrentCameraCoords();
-	//void resetFoV();
-	//void changeFoV(float amount);
+	void resetFoV();
+	void changeFoV(float amount);
 }

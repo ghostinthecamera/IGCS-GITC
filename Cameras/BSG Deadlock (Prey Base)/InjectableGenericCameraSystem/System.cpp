@@ -139,18 +139,18 @@ namespace IGCS
 			displayCameraState();
 			Sleep(350);				// wait for 350ms to avoid fast keyboard hammering
 		}
-		//if (Input::keyDown(IGCS_KEY_FOV_RESET))
-		//{
-		//	CameraManipulator::resetFoV();
-		//}
-		//if (Input::keyDown(IGCS_KEY_FOV_DECREASE))
-		//{
-		//	CameraManipulator::changeFoV(-DEFAULT_FOV_SPEED);
-		//}
-		//if (Input::keyDown(IGCS_KEY_FOV_INCREASE))
-		//{
-		//	CameraManipulator::changeFoV(DEFAULT_FOV_SPEED);
-		//}
+		if (Input::keyDown(IGCS_KEY_FOV_RESET))
+		{
+			CameraManipulator::resetFoV();
+		}
+		if (Input::keyDown(IGCS_KEY_FOV_DECREASE))
+		{
+			CameraManipulator::changeFoV(-DEFAULT_FOV_SPEED);
+		}
+		if (Input::keyDown(IGCS_KEY_FOV_INCREASE))
+		{
+			CameraManipulator::changeFoV(DEFAULT_FOV_SPEED);
+		}
 		//if (Input::keyDown(IGCS_KEY_TIMESTOP))
 		//{
 		//	toggleTimestopState();
@@ -233,18 +233,18 @@ namespace IGCS
 			{
 				_camera.roll(-multiplier);
 			}
-			//if (gamePad.isButtonPressed(IGCS_BUTTON_RESET_FOV))
-			//{
-			//	CameraManipulator::resetFoV();
-			//}
-			//if (gamePad.isButtonPressed(IGCS_BUTTON_FOV_DECREASE))
-			//{
-			//	CameraManipulator::changeFoV(-DEFAULT_FOV_SPEED);
-			//}
-			//if (gamePad.isButtonPressed(IGCS_BUTTON_FOV_INCREASE))
-			//{
-			//	CameraManipulator::changeFoV(DEFAULT_FOV_SPEED);
-			//}
+			if (gamePad.isButtonPressed(IGCS_BUTTON_RESET_FOV))
+			{
+				CameraManipulator::resetFoV();
+			}
+			if (gamePad.isButtonPressed(IGCS_BUTTON_FOV_DECREASE))
+			{
+				CameraManipulator::changeFoV(-DEFAULT_FOV_SPEED);
+			}
+			if (gamePad.isButtonPressed(IGCS_BUTTON_FOV_INCREASE))
+			{
+				CameraManipulator::changeFoV(DEFAULT_FOV_SPEED);
+			}
 			if (gamePad.isButtonPressed(IGCS_BUTTON_BLOCK_INPUT))
 			{
 				toggleInputBlockState(!Globals::instance().inputBlocked());
@@ -443,11 +443,6 @@ namespace IGCS
 		Console::WriteLine("Numpad * or controller B-button       : Reset FoV");
 		Console::WriteLine("Numpad /                              : Toggle Y look direction");
 		Console::WriteLine("Numpad . or controller Right Bumper   : Toggle input to game");
-		Console::WriteLine("Numpad 0                              : Toggle game pause");
-		Console::WriteLine("END                                   : Toggle HUD");
-		Console::WriteLine("DEL                                   : Toggle supersampling w/ resize factor");
-		Console::WriteLine("[                                     : Decrease supersample resize factor");
-		Console::WriteLine("]                                     : Increase supersample resize factor");
 		Console::WriteLine("ALT+H                                 : This help");
 		Console::WriteLine("-------------------------------------------------------------------------------", CONSOLE_WHITE);
 		Console::WriteLine(" Please read the enclosed readme.txt for the answers to your questions :)");

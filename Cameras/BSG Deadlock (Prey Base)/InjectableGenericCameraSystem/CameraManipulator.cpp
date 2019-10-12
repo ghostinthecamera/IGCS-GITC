@@ -38,7 +38,7 @@ using namespace std;
 extern "C" {
 	LPBYTE g_cameraStructAddress = nullptr;
 	//LPBYTE g_secondQuaternion = nullptr;
-	//LPBYTE g_fovConstructAddress = nullptr;
+	LPBYTE g_fovConstructAddress = nullptr;
 	//LPBYTE g_timestopStructAddress = nullptr;
 	//LPBYTE g_superSamplingStructAddress = nullptr;
 }
@@ -109,28 +109,28 @@ namespace IGCS::GameSpecific::CameraManipulator
 	//	*(g_timestopStructAddress + TIMESTOP_IN_STRUCT_OFFSET) = newValue;
 	//}
 
-	//// Resets the FOV to the default
-	//void resetFoV()
-	//{
-	//	if (nullptr == g_fovConstructAddress)
-	//	{
-	//		return;
-	//	}
-	//	float* fovInMemory = reinterpret_cast<float*>(g_fovConstructAddress + FOV_IN_STRUCT_OFFSET);
-	//	*fovInMemory = DEFAULT_FOV_DEGREES;
-	//}
+	// Resets the FOV to the default
+	void resetFoV()
+	{
+		if (nullptr == g_fovConstructAddress)
+		{
+			return;
+		}
+		float* fovInMemory = reinterpret_cast<float*>(g_fovConstructAddress + FOV_IN_STRUCT_OFFSET);
+		*fovInMemory = DEFAULT_FOV_DEGREES;
+	}
 
 
-	//// changes the FoV with the specified amount
-	//void changeFoV(float amount)
-	//{
-	//	if (nullptr == g_fovConstructAddress)
-	//	{
-	//		return;
-	//	}
-	//	float* fovInMemory = reinterpret_cast<float*>(g_fovConstructAddress + FOV_IN_STRUCT_OFFSET);
-	//	*fovInMemory += amount;
-	//}
+	// changes the FoV with the specified amount
+	void changeFoV(float amount)
+	{
+		if (nullptr == g_fovConstructAddress)
+		{
+			return;
+		}
+		float* fovInMemory = reinterpret_cast<float*>(g_fovConstructAddress + FOV_IN_STRUCT_OFFSET);
+		*fovInMemory += amount;
+	}
 
 
 	XMFLOAT3 getCurrentCameraCoords()
@@ -161,7 +161,7 @@ namespace IGCS::GameSpecific::CameraManipulator
 		coordsInMemorySecond[1] = newCoords.y/100;
 		coordsInMemorySecond[2] = newCoords.z/100;*/
 
-		float* lookQInMemory = reinterpret_cast<float*>(g_cameraStructAddress + LOOK_DATA3_IN_CAMERA_STRUCT_OFFSET);
+		float* lookQInMemory = reinterpret_cast<float*>(g_cameraStructAddress + LOOK_DATA_IN_CAMERA_STRUCT_OFFSET);
 		//float* lookQInMemorySecond = reinterpret_cast<float*>(g_cameraStructAddress + LOOK_DATA2_IN_CAMERA_STRUCT_OFFSET);
 		//float* lookQInMemoryThird = reinterpret_cast<float*>(g_cameraStructAddress + LOOK_DATA_IN_CAMERA_STRUCT_OFFSET);
 		float* lookQInMemoryFourth = reinterpret_cast<float*>(g_cameraStructAddress + LOOK_DATA_SECOND_QAUTERNION);
@@ -214,7 +214,7 @@ namespace IGCS::GameSpecific::CameraManipulator
 	{
 		float* coordsInMemory = reinterpret_cast<float*>(g_cameraStructAddress + CAMERA_COORDS_IN_CAMERA_STRUCT_OFFSET);
 		memcpy(coordsInMemory, _originalCoordsData, 3 * sizeof(float));
-		float* lookQInMemory = reinterpret_cast<float*>(g_cameraStructAddress + LOOK_DATA3_IN_CAMERA_STRUCT_OFFSET);
+		float* lookQInMemory = reinterpret_cast<float*>(g_cameraStructAddress + LOOK_DATA_IN_CAMERA_STRUCT_OFFSET);
 		memcpy(lookQInMemory, _originalLookData, 4 * sizeof(float));
 		//float* lookQInMemoryFourth = reinterpret_cast<float*>(g_secondQuaternion + LOOK_DATA_SECOND_QAUTERNION);
 		//memcpy(lookQInMemoryFourth, _originalLookData, 4 * sizeof(float));
@@ -226,7 +226,7 @@ namespace IGCS::GameSpecific::CameraManipulator
 		float* coordsInMemory = reinterpret_cast<float*>(g_cameraStructAddress + CAMERA_COORDS_IN_CAMERA_STRUCT_OFFSET);
 		memcpy(_originalCoordsData, coordsInMemory, 3 * sizeof(float));
 		memcpy(_currentCameraCoords, coordsInMemory, 3 * sizeof(float));
-		float* lookQInMemory = reinterpret_cast<float*>(g_cameraStructAddress + LOOK_DATA3_IN_CAMERA_STRUCT_OFFSET);
+		float* lookQInMemory = reinterpret_cast<float*>(g_cameraStructAddress + LOOK_DATA_IN_CAMERA_STRUCT_OFFSET);
 		memcpy(_originalLookData, lookQInMemory, 4 * sizeof(float));
 	}
 }

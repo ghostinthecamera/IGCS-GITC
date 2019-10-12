@@ -31,7 +31,7 @@ namespace IGCS::GameSpecific
 {
 	// Mandatory constants to define for a game
 	#define GAME_NAME									"BSG"
-	#define CAMERA_VERSION								"1.0"
+	#define CAMERA_VERSION								"1.1"
 	#define CAMERA_CREDITS								"IGCS by Otis_Inf, adapted by ghostinthecamera"
 	#define GAME_WINDOW_TITLE							"BattlestarGalacticaDeadlock"
 	#define INITIAL_PITCH_RADIANS						0.0f	// around X axis	(right)
@@ -52,19 +52,19 @@ namespace IGCS::GameSpecific
 	// AOB Keys for interceptor's AOB scanner
 	#define CAMERA_ADDRESS_INTERCEPT_KEY				"AOB_CAMERA_ADDRESS_INTERCEPT"
 	#define CAMERA_WRITE1_INTERCEPT_KEY					"AOB_CAMERA_WRITE1_INTERCEPT"
-	#define CAMERA_WRITE2_INTERCEPT_KEY					"AOB_CAMERA_WRITE2_INTERCEPT"
+	#define REPLAY_BORDER_INTERCEPT_KEY					"AOB_REPLAY_BORDER_INTERCEPT_KEY"
 	//#define CAMERA_WRITE3_INTERCEPT_KEY					"AOB_CAMERA_WRITE3_INTERCEPT"
-	//#define FOV_INTERCEPT_KEY							"AOB_FOV_INTERCEPT"
+	#define FOV_INTERCEPT_KEY							"AOB_FOV_INTERCEPT"
 	//#define TIMESTOP_INTERCEPT_KEY						"AOB_TIMESTOP_INTERCEPT"
 	//#define SUPERSAMPLING_KEY							"AOB_SUPERSAMPLING_ADDRESS"
 	//#define HUD_TOGGLE_KEY								"AOB_HUD_TOGGLE_ADDRESS"
 
 	// Indices in the structures read by interceptors 
 	#define CAMERA_COORDS_IN_CAMERA_STRUCT_OFFSET		0x00
-	#define LOOK_DATA_IN_CAMERA_STRUCT_OFFSET			-0x60
-	#define LOOK_DATA2_IN_CAMERA_STRUCT_OFFSET			-0x80
-	#define LOOK_DATA3_IN_CAMERA_STRUCT_OFFSET			0x10
+	#define LOOK_DATA_IN_CAMERA_STRUCT_OFFSET			0x10
+	//#define LOOK_DATA2_IN_CAMERA_STRUCT_OFFSET			-0x50
+	//#define LOOK_DATA3_IN_CAMERA_STRUCT_OFFSET			0x10
 	#define LOOK_DATA_SECOND_QAUTERNION					-0x50
-	//#define FOV_IN_STRUCT_OFFSET						0x8
-	//#define TIMESTOP_IN_STRUCT_OFFSET					0x8
+	#define FOV_IN_STRUCT_OFFSET						0x13C
+	#define REPLAYBORDER_IN_STRUCT_OFFSET				0x8
 }

@@ -23,7 +23,7 @@
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>TestInjectDll</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-    <ProjectName>AC7</ProjectName>
+    <ProjectName>NNKRMTools</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -113,6 +113,7 @@
       <AdditionalIncludeDirectories>$(SolutionDir)..\..\dependencies\MinHook\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/std:c++latest %(AdditionalOptions)</AdditionalOptions>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <InlineFunctionExpansion>Default</InlineFunctionExpansion>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -140,26 +141,20 @@
     <ClCompile>
       <WarningLevel>Level4</WarningLevel>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <Optimization>MaxSpeed</Optimization>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
-      <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>NDEBUG;_WINDOWS;_USRDLL;TESTINJECTDLL_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <InlineFunctionExpansion>Default</InlineFunctionExpansion>
-      <WholeProgramOptimization>true</WholeProgramOptimization>
+      <PreprocessorDefinitions>IMGUI_DISABLE_OBSOLETE_FUNCTIONS;NDEBUG;_WINDOWS;_USRDLL;TESTINJECTDLL_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(SolutionDir)..\..\dependencies\MinHook\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/std:c++latest %(AdditionalOptions)</AdditionalOptions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
-      <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>dinput8.lib;dxguid.lib.;Xinput9_1_0.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>C:\Users\frans.SD\Documents\GitHub\InjectableGenericCameraSystem\AdditionalLibs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="ActionData.h" />
     <ClInclude Include="AOBBlock.h" />
     <ClInclude Include="CameraManipulator.h" />
     <ClInclude Include="CDataFile.h" />
@@ -178,17 +173,21 @@
     <ClInclude Include="Overlay\imconfig.h" />
     <ClInclude Include="Overlay\imgui.h" />
     <ClInclude Include="Overlay\imgui_impl_dx11.h" />
+    <ClInclude Include="Overlay\imgui_impl_win32.h" />
     <ClInclude Include="Overlay\imgui_internal.h" />
-    <ClInclude Include="Overlay\stb_rect_pack.h" />
-    <ClInclude Include="Overlay\stb_textedit.h" />
-    <ClInclude Include="Overlay\stb_truetype.h" />
+    <ClInclude Include="Overlay\imstb_rectpack.h" />
+    <ClInclude Include="Overlay\imstb_textedit.h" />
+    <ClInclude Include="Overlay\imstb_truetype.h" />
+    <ClInclude Include="ScanPattern.h" />
+    <ClInclude Include="Settings.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="System.h" />
     <ClInclude Include="targetver.h" />
-    <ClInclude Include="UniversalD3D11Hook.h" />
+    <ClInclude Include="D3D11Hooker.h" />
     <ClInclude Include="Utils.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="ActionData.cpp" />
     <ClCompile Include="AOBBlock.cpp" />
     <ClCompile Include="CameraManipulator.cpp" />
     <ClCompile Include="CDataFile.cpp" />
@@ -220,6 +219,9 @@
     <ClCompile Include="Overlay\imgui_demo.cpp" />
     <ClCompile Include="Overlay\imgui_draw.cpp" />
     <ClCompile Include="Overlay\imgui_impl_dx11.cpp" />
+    <ClCompile Include="Overlay\imgui_impl_win32.cpp" />
+    <ClCompile Include="Overlay\imgui_widgets.cpp" />
+    <ClCompile Include="ScanPattern.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -227,7 +229,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="System.cpp" />
-    <ClCompile Include="UniversalD3D11Hook.cpp" />
+    <ClCompile Include="D3D11Hooker.cpp" />
     <ClCompile Include="Utils.cpp" />
   </ItemGroup>
   <ItemGroup>

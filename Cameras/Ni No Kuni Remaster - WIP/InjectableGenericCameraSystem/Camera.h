@@ -38,6 +38,7 @@ namespace IGCS
 
 		DirectX::XMVECTOR calculateLookQuaternion();
 		DirectX::XMFLOAT3 calculateNewCoords(const DirectX::XMFLOAT3 currentCoords, const DirectX::XMVECTOR lookQ);
+		DirectX::XMVECTOR getEulerVector();
 		void resetMovement();
 		void resetAngles();
 		void moveForward(float amount);

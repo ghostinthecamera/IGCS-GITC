@@ -33,7 +33,8 @@ namespace IGCS::GameSpecific::CameraManipulator
 	void writeNewCameraValuesToGameData(DirectX::XMFLOAT3 newCoords, DirectX::XMVECTOR newLookQuaternion);
 	void restoreOriginalValuesAfterCameraDisable();
 	void cacheOriginalValuesBeforeCameraEnable();
-	DirectX::XMFLOAT3 getCurrentCameraCoords();
+	DirectX::XMFLOAT3 initialiseCamera();
+	DirectX::XMFLOAT3 calcEyePos(DirectX::XMMATRIX matrixToDecompose);
 	//void resetFoV();
 	//void changeFoV(float amount);
 	bool isCameraFound();

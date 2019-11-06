@@ -87,6 +87,7 @@ namespace IGCS
 	}
 	
 
+
 	void System::writeNewCameraValuesToCameraStructs()
 	{
 		if (!g_cameraEnabled)
@@ -94,15 +95,14 @@ namespace IGCS
 			return;
 		}
 
-		// calculate new camera values. We have two cameras, but they might not be available both, so we have to test before we do anything. 
 		DirectX::XMVECTOR newLookQuaternion = _camera.calculateLookQuaternion();
-		DirectX::XMFLOAT3 currentCoords;
 		DirectX::XMFLOAT3 newCoords;
+		DirectX::XMFLOAT3 currentCoords;
 		if (GameSpecific::CameraManipulator::isCameraFound())
 		{
-			currentCoords = GameSpecific::CameraManipulator::getCurrentCameraCoords();
-			newCoords = _camera.calculateNewCoords(currentCoords, newLookQuaternion);
-			GameSpecific::CameraManipulator::writeNewCameraValuesToGameData(newCoords, newLookQuaternion);
+		currentCoords = GameSpecific::CameraManipulator::initialiseCamera();
+		newCoords = _camera.calculateNewCoords(currentCoords, newLookQuaternion);
+		GameSpecific::CameraManipulator::writeNewCameraValuesToGameData(newCoords, newLookQuaternion);
 		}
 	}
 
@@ -146,12 +146,14 @@ namespace IGCS
 				//going to be disabled
 				CameraManipulator::restoreOriginalValuesAfterCameraDisable();
 				toggleCameraMovementLockState(false);
+				camInit = (BYTE)0;
 			}
 			else
 			{
 				// it's going to be enabled, so cache the original values before we enable it so we can restore it afterwards
 				CameraManipulator::cacheOriginalValuesBeforeCameraEnable();
 				_camera.resetAngles();
+				camInit = (BYTE)0;
 			}
 			g_cameraEnabled = g_cameraEnabled == 0 ? (BYTE)1 : (BYTE)0;
 			displayCameraState();

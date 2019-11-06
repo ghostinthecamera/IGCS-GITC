@@ -35,6 +35,7 @@
 extern "C" {
 	BYTE g_cameraEnabled = 0;
 }
+extern BYTE camInit = 0;
 
 
 namespace IGCS

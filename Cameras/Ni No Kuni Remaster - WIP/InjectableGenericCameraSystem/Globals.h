@@ -38,6 +38,7 @@
 #include <map>
 
 extern "C" BYTE g_cameraEnabled;
+extern BYTE camInit;
 
 namespace IGCS
 {

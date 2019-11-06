@@ -32,6 +32,7 @@
 #include "Globals.h"
 #include "OverlayConsole.h"
 #include "GameImageHooker.h"
+#include "Camera.h"
 
 using namespace DirectX;
 using namespace std;
@@ -90,17 +91,39 @@ namespace IGCS::GameSpecific::CameraManipulator
 	//	*fovAddress = newValue;
 	//}
 	
-
-	XMFLOAT3 getCurrentCameraCoords()
+	XMFLOAT3 initialiseCamera()
 	{
-		// we write to both cameras at once, so we just grab one of the coords, it always works. Photomode does inherit its coords from the 
-		// gameplay / current cam anyway. 
-		float* coordsInMemory = reinterpret_cast<float*>(g_cameraStructAddress + COORDS_IN_STRUCT_OFFSET);
-		XMFLOAT3 currentCoords = XMFLOAT3(coordsInMemory[0], coordsInMemory[1], coordsInMemory[2]);
-		return currentCoords;
+		float* matrixInMemory = reinterpret_cast<float*>(g_cameraStructAddress);
+		XMMATRIX viewMatrix = XMMATRIX(matrixInMemory);
+		XMFLOAT4X4 _viewMatrix;
+		XMStoreFloat4x4(&_viewMatrix, viewMatrix);
+
+		float realX = -1 * ((_viewMatrix._41 * _viewMatrix._11) + (_viewMatrix._42 * _viewMatrix._12) + (_viewMatrix._43 * _viewMatrix._13));
+		float realY = -1 * ((_viewMatrix._41 * _viewMatrix._21) + (_viewMatrix._42 * _viewMatrix._22) + (_viewMatrix._43 * _viewMatrix._23));
+		float realZ = -1 * ((_viewMatrix._41 * _viewMatrix._31) + (_viewMatrix._42 * _viewMatrix._32) + (_viewMatrix._43 * _viewMatrix._33));
+
+		XMFLOAT3 realPos(realX, realY, realZ);
+
+		camInit = (BYTE)1;
+		return realPos;
 	}
 
+	XMFLOAT3 calcEyePos(XMMATRIX matrixToDecompose)
+	{
 
+		XMFLOAT4X4 rotationmatrix;
+		XMStoreFloat4x4(&rotationmatrix, matrixToDecompose);
+
+		XMFLOAT3 initEyePosition(rotationmatrix._41, rotationmatrix._42, rotationmatrix._43);
+		return initEyePosition;
+
+	}
+
+	float calcvecdot(XMVECTOR vec1, XMVECTOR vec2)
+	{
+		float dot = ((XMVectorGetX(vec1)*XMVectorGetX(vec2)) +((XMVectorGetY(vec1)*XMVectorGetY(vec2)) + ((XMVectorGetZ(vec1)*XMVectorGetZ(vec2)))));
+		return dot;
+	}
 	// newLookQuaternion: newly calculated quaternion of camera view space. Can be used to construct a 4x4 matrix if the game uses a matrix instead of a quaternion
 	// newCoords are the new coordinates for the camera in worldspace.
 	void writeNewCameraValuesToGameData(XMFLOAT3 newCoords, XMVECTOR newLookQuaternion)
@@ -109,25 +132,34 @@ namespace IGCS::GameSpecific::CameraManipulator
 		{
 			return;
 		}
+		XMFLOAT4X4 rotationMatrix;
 
 		XMMATRIX rotationMatrixPacked = XMMatrixRotationQuaternion(newLookQuaternion);
-		XMFLOAT4X4 rotationMatrix;
-		XMStoreFloat4x4(&rotationMatrix, rotationMatrixPacked);
+		XMVECTOR newViewCoords = XMLoadFloat3(&newCoords);
+		XMStoreFloat4x4(&rotationMatrix,rotationMatrixPacked);
+
+
+		XMVECTOR xAxis = XMLoadFloat3(&XMFLOAT3(rotationMatrix._11, rotationMatrix._12, rotationMatrix._13));
+		XMVECTOR yAxis = XMLoadFloat3(&XMFLOAT3(rotationMatrix._21, rotationMatrix._22, rotationMatrix._23));
+		XMVECTOR zAxis = XMLoadFloat3(&XMFLOAT3(rotationMatrix._31, rotationMatrix._32, rotationMatrix._33));
+		XMFLOAT3 Coords(-calcvecdot(xAxis, newViewCoords), -calcvecdot(yAxis, newViewCoords), -calcvecdot(zAxis, newViewCoords));
+
 
 		float* coordsInMemory = nullptr;
 		float* matrixInMemory = nullptr;
 
 		// only the gameplay camera. Photomode coords aren't updated.
 		coordsInMemory = reinterpret_cast<float*>(g_cameraStructAddress + COORDS_IN_STRUCT_OFFSET);
-		coordsInMemory[0] = newCoords.x;
-		coordsInMemory[1] = newCoords.y;
-		coordsInMemory[2] = newCoords.z;
+		coordsInMemory[0] = Coords.x;
+		coordsInMemory[1] = Coords.y;
+		coordsInMemory[2] = Coords.z;
+		coordsInMemory[3] = 1.0f;
 
 		matrixInMemory = reinterpret_cast<float*>(g_cameraStructAddress);
 		matrixInMemory[0] = rotationMatrix._11;
 		matrixInMemory[1] = rotationMatrix._21;
 		matrixInMemory[2] = rotationMatrix._31;
-		matrixInMemory[3] = 0.0f;	//boundary has a zero rather than 1
+		matrixInMemory[3] = 0.0f;
 		matrixInMemory[4] = rotationMatrix._12;
 		matrixInMemory[5] = rotationMatrix._22;
 		matrixInMemory[6] = rotationMatrix._32;

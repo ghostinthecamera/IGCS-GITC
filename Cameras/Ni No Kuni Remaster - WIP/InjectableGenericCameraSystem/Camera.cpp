@@ -45,14 +45,22 @@ namespace IGCS
 	}
 
 
+	XMVECTOR Camera::getEulerVector()
+	{
+		XMFLOAT3 _currentEuler = XMFLOAT3(_pitch, _roll, _yaw);
+		//float convertFactor = 180.0f / XM_PI;
+		XMVECTOR currentEulerToReturn = XMLoadFloat3(&_currentEuler);
+		return currentEulerToReturn;
+	}
+
 	XMVECTOR Camera::calculateLookQuaternion()
 	{
 		XMVECTOR xQ = XMQuaternionRotationNormal(XMVectorSet(1.0f, 0.0f, 0.0f, 1.0f), _pitch);
-		XMVECTOR yQ = XMQuaternionRotationNormal(XMVectorSet(0.0f, 1.0f, 0.0f, 1.0f), _yaw);
-		XMVECTOR zQ = XMQuaternionRotationNormal(XMVectorSet(0.0f, 0.0f, 1.0f, 1.0f), _roll);
+		XMVECTOR yQ = XMQuaternionRotationNormal(XMVectorSet(0.0f, 1.0f, 0.0f, 1.0f), -_roll);
+		XMVECTOR zQ = XMQuaternionRotationNormal(XMVectorSet(0.0f, 0.0f, 1.0f, 1.0f), _yaw);
 
-		XMVECTOR tmpQ = XMQuaternionMultiply(xQ, zQ);
-		XMVECTOR qToReturn = XMQuaternionMultiply(yQ, tmpQ);
+		XMVECTOR tmpQ = XMQuaternionMultiply(xQ, yQ);
+		XMVECTOR qToReturn = XMQuaternionMultiply(zQ, tmpQ);
 		XMQuaternionNormalize(qToReturn);
 		return qToReturn;
 	}
@@ -95,26 +103,26 @@ namespace IGCS
 
 	void Camera::moveForward(float amount)
 	{
-		_direction.z += (Globals::instance().settings().movementSpeed * amount);		// y out of the screen, z up
+		_direction.z -= (Globals::instance().settings().movementSpeed * amount);		// y out of the screen, z up
 		_movementOccurred = true;
 	}
 
 	void Camera::moveRight(float amount)
 	{
-		_direction.x -= (Globals::instance().settings().movementSpeed * amount);		// x is right
+		_direction.x += (Globals::instance().settings().movementSpeed * amount);		// x is right
 		_movementOccurred = true;
 	}
 
 	void Camera::moveUp(float amount)
 	{
-		_direction.y += (Globals::instance().settings().movementSpeed * amount * Globals::instance().settings().movementUpMultiplier);		// z is up
+		_direction.y -= (Globals::instance().settings().movementSpeed * amount * Globals::instance().settings().movementUpMultiplier);		// z is up
 		_movementOccurred = true;
 	}
 
 	void Camera::yaw(float amount)
 	{
-		_yaw += (Globals::instance().settings().rotationSpeed * amount);
-		_yaw = clampAngle(_yaw);
+		_roll += (Globals::instance().settings().rotationSpeed * amount);
+		//_yaw = clampAngle(_yaw);
 	}
 
 	void Camera::pitch(float amount)
@@ -125,13 +133,13 @@ namespace IGCS
 			lookDirectionInverter = -lookDirectionInverter;
 		}
 		_pitch += (Globals::instance().settings().rotationSpeed * amount * lookDirectionInverter);			// y is left, so inversed
-		_pitch = clampAngle(_pitch);
+		//_pitch = clampAngle(_pitch);
 	}
 
 	void Camera::roll(float amount)
 	{
-		_roll += (Globals::instance().settings().rotationSpeed * amount);
-		_roll = clampAngle(_roll);
+		_yaw += (Globals::instance().settings().rotationSpeed * amount);
+		//_roll = clampAngle(_roll);
 	}
 
 	void Camera::setPitch(float angle)

@@ -109,7 +109,12 @@ cameraFOVInterceptor PROC
 ;NinoKuni_WotWW_Remastered.exe+5B5A89 - 48 83 C4 70           - add rsp,70 { 112 }
 	mov [g_fovStructAddress],rbx
 	cmp byte ptr [g_cameraEnabled],1
-	je exit
+	je camenabled
+	movdqa [rbx+50h],xmm0
+	movaps xmm1,[rax+10h]
+	movdqa [rbx+60h],xmm1
+	jmp exit
+camenabled:
 	;movdqa [rbx+50h],xmm0
 	movaps xmm1,[rax+10h]
 	;movdqa [rbx+60h],xmm1

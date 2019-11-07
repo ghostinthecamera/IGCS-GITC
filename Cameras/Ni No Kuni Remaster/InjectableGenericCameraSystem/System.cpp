@@ -370,7 +370,7 @@ namespace IGCS
 
 		// apply initial settings
 		CameraManipulator::applySettingsToGameState();
-		GameSpecific::CameraManipulator::cacheOriginalGameSpeed();
+		//GameSpecific::CameraManipulator::cacheOriginalGameSpeed();
 	}
 
 

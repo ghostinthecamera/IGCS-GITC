@@ -236,6 +236,7 @@ Special thanks to:
 			ImGui::Text("Block input to game                  : %s", Globals::instance().getActionData(ActionType::BlockInput)->toString().c_str());
 			ImGui::Text("Toggle game pause                    : %s", Globals::instance().getActionData(ActionType::Timestop)->toString().c_str());
 			ImGui::Text("Toggle SlowMo						  : %s", Globals::instance().getActionData(ActionType::SlowMo)->toString().c_str());
+			ImGui::Text("Toggle SpeedUp						  : %s", Globals::instance().getActionData(ActionType::SpeedUp)->toString().c_str());
 		}
 
 		if (ImGui::CollapsingHeader("Settings editor help"))

@@ -30,7 +30,7 @@
 namespace IGCS::GameSpecific
 {
 	// Mandatory constants to define for a game
-	#define GAME_NAME									"Ni No Kuni - WIP"
+	#define GAME_NAME									"Ni No Kuni Remastered"
 	#define CAMERA_VERSION								"1.0"
 	#define CAMERA_CREDITS								"GHOSTINTHECAMERA & Hattiwatti"
 	#define GAME_WINDOW_TITLE							"Ni no Kuni Wrath of the White Witch™ Remastered"

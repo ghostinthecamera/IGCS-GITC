@@ -53,8 +53,8 @@ namespace IGCS::GameSpecific::CameraManipulator
 	static float _originalMatrix[12];
 	static float _horiginalFoV;
 	static float _voriginalFoV;
-	static float _basespeed1;
-	static float _basespeed2;
+	static float _basespeed1 = 30.0f;
+	static float _basespeed2 = 30.0f;
 	//static LPBYTE g_resolutionScaleMenuValueAddress = nullptr;
 
 	void speedUp(int multiplier, bool toggle)

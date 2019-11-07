@@ -31,12 +31,12 @@ namespace IGCS::GameSpecific
 {
 	// Mandatory constants to define for a game
 	#define GAME_NAME									"Ni No Kuni - WIP"
-	#define CAMERA_VERSION								"0.1"
-	#define CAMERA_CREDITS								"GHOSTINTHECAMERA"
+	#define CAMERA_VERSION								"1.0"
+	#define CAMERA_CREDITS								"GHOSTINTHECAMERA & Hattiwatti"
 	#define GAME_WINDOW_TITLE							"Ni no Kuni Wrath of the White Witch™ Remastered"
 	#define INITIAL_PITCH_RADIANS						0.0f	// around X axis	(right)
-	#define INITIAL_YAW_RADIANS							0.0f	// around Y axis	(out of the screen)
-	#define INITIAL_ROLL_RADIANS						0.0f	// around Z axis	(up)
+	#define INITIAL_YAW_RADIANS							0.0f	// around Y axis	(up)
+	#define INITIAL_ROLL_RADIANS						0.0f	// around Z axis	(out of the screen)
 	#define CONTROLLER_Y_INVERT							false
 	#define FASTER_MULTIPLIER							5.0f
 	#define SLOWER_MULTIPLIER							0.1f
@@ -51,16 +51,17 @@ namespace IGCS::GameSpecific
 
 	// AOB Keys for interceptor's AOB scanner
 	#define CAMERA_ADDRESS_INTERCEPT_KEY				"AOB_CAMERA_ADDRESS_INTERCEPT"
-	//#define CAMERA_WRITE1_INTERCEPT_KEY					"AOB_CAMERA_WRITE1_INTERCEPT"
-	//#define CAMERA_WRITE2_INTERCEPT_KEY					"AOB_CAMERA_WRITE2_INTERCEPT"
-	//#define DIVSS_ABSOLUTE_ADD_KEY						"AOB_DIVSS_INTERCEPT"
+	#define HUD_RENDER_INTERCEPT_KEY					"AOB_HUD_RENDER_INTERCEPT_KEY"
+	#define FOV_INTERCEPT_KEY							"AOB_FOV_INTERCEPT_KEY"
+	#define TIMESCALE_INTERCEPT_KEY						"AOB_TIMESCALE_INTERCEPT_KEY"
 	//#define TIMESTOP_KEY								"AOB_TIMESTOP_KEY"
 	
 
 	// Indices in the structures read by interceptors 
 	#define COORDS_IN_STRUCT_OFFSET						0x030
 	#define MATRIX_IN_STRUCT_OFFSET					    0x000
-	//#define FOV_IN_STRUCT_OFFSET						0x284
-	//#define TIMESTOP_OFFSET								0x0CC
+	#define HFOV_IN_STRUCT_OFFSET						0x050
+	#define VFOV_IN_STRUCT_OFFSET						0x064
+	#define TIMESTOP_OFFSET								0x018
 
 }

@@ -35,7 +35,6 @@
 extern "C" {
 	BYTE g_cameraEnabled = 0;
 }
-extern BYTE camInit = 0;
 
 
 namespace IGCS
@@ -136,6 +135,7 @@ namespace IGCS
 		_keyBindingPerActionType[ActionType::TiltRight] = new ActionData("TiltRight", "Tilt camera right", IGCS_KEY_TILT_RIGHT, false, false, false);
 		_keyBindingPerActionType[ActionType::ToggleOverlay] = new ActionData("ToggleOverlay", "Show / hide camera tools main window", IGCS_KEY_TOGGLE_OVERLAY, false, true, false);
 		_keyBindingPerActionType[ActionType::SlowMo] = new ActionData("SlowMotion", "Reduce game speed to specified amount", IGCS_KEY_TOGGLE_SLOWMO, false, false, false);
+		_keyBindingPerActionType[ActionType::SpeedUp] = new ActionData("SpeedUp", "Multiply Game Speed by Multiplier", IGCS_KEY_TOGGLE_SPEEDUP, false, false, false);
 
 		// Bindings which are often optional. Specify 'false' for available to disable it if the binding should be hidden. 
 		_keyBindingPerActionType[ActionType::HudToggle] = new ActionData("HudToggle", "Toggle HUD", IGCS_KEY_HUD_TOGGLE, false, false, false);

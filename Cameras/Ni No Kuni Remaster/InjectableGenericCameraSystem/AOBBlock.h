@@ -26,14 +26,40 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma once
-#include "stdafx.h"
-#include <map>
+#include "AOBBlock.h"
 #include "Utils.h"
+#include "ScanPattern.h"
 
-namespace IGCS::GameSpecific::InterceptorHelper
+namespace IGCS
 {
-	void initializeAOBBlocks(LPBYTE hostImageAddress, DWORD hostImageSize, std::map<std::string, AOBBlock*> &aobBlocks);
-	void setCameraStructInterceptorHook(std::map<std::string, AOBBlock*> &aobBlocks);
-	void setPostCameraStructHooks(std::map<std::string, AOBBlock*> &aobBlocks);
-	void SaveNOPReplace(AOBBlock* hookData, int numberOfBytes, bool enabled);
+	class AOBBlock
+	{
+	public:
+		BYTE* byteStorage;
+		BYTE* byteStorage2;
+		bool nopState;
+		bool nopState2;
+
+		AOBBlock(std::string blockName, std::string bytePatternAsString, int occurrence);
+		~AOBBlock();
+
+		bool scan(LPBYTE imageAddress, DWORD imageSize);
+		LPBYTE locationInImage() { return _locationInImage; }
+		int customOffset() { return _customOffset; }
+		LPBYTE absoluteAddress() { return (LPBYTE)(_locationInImage + (DWORD)customOffset()); }
+		void addAlternative(std::string bytePatternAsString, int occurrence);
+		bool found() { return _found; }
+		void markAsNonCritical() { _isNonCritical = true; }
+		bool isNonCritical() { return _isNonCritical; }
+		int patternIndexThatMatched() { return _patternIndexThatMatched; }
+
+	private:
+		bool _found;
+		bool _isNonCritical;
+		std::string _blockName;
+		std::vector<ScanPattern> _scanPatterns;
+		int _customOffset;
+		int _patternIndexThatMatched;
+		LPBYTE _locationInImage;	// the location to use after the scan has been completed.
+	};
 }

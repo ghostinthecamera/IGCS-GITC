@@ -116,12 +116,19 @@ namespace IGCS
 			// sleep main thread for 200ms so key repeat delay is simulated. 
 			Sleep(300);
 		}
-		//not in use - not complete timestop
-		//if (Input::isActionActivated(ActionType::SlowMo))
-		//{
-		//	CameraManipulator::sloMoFunc(Globals::instance().settings().slowmoMult);
-		//	Sleep(350);
-		//}
+		if (Input::isActionActivated(ActionType::SlowMo))
+		{
+			CameraManipulator::sloMoFunc(Globals::instance().settings().slowmoMult, _timeStopped);
+			Sleep(350);
+		}
+
+		if (Input::isActionActivated(ActionType::SpeedUp))
+		{
+			_speeduptoggle = !_speeduptoggle;
+			CameraManipulator::speedUp(Globals::instance().settings().speedMult, _speeduptoggle);
+			OverlayControl::addNotification(_speeduptoggle ? "Speed Up Activated" : "Speed Up Deactivated");
+			Sleep(350);
+		}
 
 		if (Input::isActionActivated(ActionType::ToggleOverlay))
 		{
@@ -146,43 +153,40 @@ namespace IGCS
 				//going to be disabled
 				CameraManipulator::restoreOriginalValuesAfterCameraDisable();
 				toggleCameraMovementLockState(false);
-				camInit = (BYTE)0;
 			}
 			else
 			{
 				// it's going to be enabled, so cache the original values before we enable it so we can restore it afterwards
 				CameraManipulator::cacheOriginalValuesBeforeCameraEnable();
 				_camera.resetAngles();
-				camInit = (BYTE)0;
 			}
 			g_cameraEnabled = g_cameraEnabled == 0 ? (BYTE)1 : (BYTE)0;
 			displayCameraState();
 			_applyHammerPrevention = true;
 		}
-		//if (Input::isActionActivated(ActionType::FovReset) && Globals::instance().keyboardMouseControlCamera())
-		//{
-		//	CameraManipulator::resetFoV();
-		//}
-		//if (Input::isActionActivated(ActionType::FovDecrease) && Globals::instance().keyboardMouseControlCamera())
-		//{
-		//	CameraManipulator::changeFoV(-Globals::instance().settings().fovChangeSpeed);
-		//}
-		//if (Input::isActionActivated(ActionType::FovIncrease) && Globals::instance().keyboardMouseControlCamera())
-		//{
-		//	CameraManipulator::changeFoV(Globals::instance().settings().fovChangeSpeed);
-		//}
-		//disabled - use in game timestop
-		//if (Input::isActionActivated(ActionType::Timestop))
-		//{
-		//	toggleTimestopState();
-		//	_applyHammerPrevention = true;
-		//}
+		if (Input::isActionActivated(ActionType::FovReset) && Globals::instance().keyboardMouseControlCamera())
+		{
+			CameraManipulator::resetFoV();
+		}
+		if (Input::isActionActivated(ActionType::FovDecrease) && Globals::instance().keyboardMouseControlCamera())
+		{
+			CameraManipulator::changeFoV(-Globals::instance().settings().fovChangeSpeed);
+		}
+		if (Input::isActionActivated(ActionType::FovIncrease) && Globals::instance().keyboardMouseControlCamera())
+		{
+			CameraManipulator::changeFoV(Globals::instance().settings().fovChangeSpeed);
+		}
+		if (Input::isActionActivated(ActionType::Timestop))
+		{
+			toggleTimestopState();
+			_applyHammerPrevention = true;
+		}
 
-		//if (Input::isActionActivated(ActionType::HudToggle))
-		//{
-		//	toggleHudRenderState();
-		//	_applyHammerPrevention = true;
-		//}
+		if (Input::isActionActivated(ActionType::HudToggle))
+		{
+			toggleHudRenderState();
+			_applyHammerPrevention = true;
+		}
 
 		if (!g_cameraEnabled)
 		{
@@ -247,18 +251,18 @@ namespace IGCS
 			{
 				_camera.roll(-multiplier);
 			}
-			//if (gamePad.isButtonPressed(IGCS_BUTTON_RESET_FOV))
-			//{
-			//	CameraManipulator::resetFoV();
-			//}
-			//if (gamePad.isButtonPressed(IGCS_BUTTON_FOV_DECREASE))
-			//{
-			//	CameraManipulator::changeFoV(-Globals::instance().settings().fovChangeSpeed);
-			//}
-			//if (gamePad.isButtonPressed(IGCS_BUTTON_FOV_INCREASE))
-			//{
-			//	CameraManipulator::changeFoV(Globals::instance().settings().fovChangeSpeed);
-			//}
+			if (gamePad.isButtonPressed(IGCS_BUTTON_RESET_FOV))
+			{
+				CameraManipulator::resetFoV();
+			}
+			if (gamePad.isButtonPressed(IGCS_BUTTON_FOV_DECREASE))
+			{
+				CameraManipulator::changeFoV(-Globals::instance().settings().fovChangeSpeed);
+			}
+			if (gamePad.isButtonPressed(IGCS_BUTTON_FOV_INCREASE))
+			{
+				CameraManipulator::changeFoV(Globals::instance().settings().fovChangeSpeed);
+			}
 		}
 	}
 
@@ -366,6 +370,7 @@ namespace IGCS
 
 		// apply initial settings
 		CameraManipulator::applySettingsToGameState();
+		GameSpecific::CameraManipulator::cacheOriginalGameSpeed();
 	}
 
 
@@ -412,17 +417,18 @@ namespace IGCS
 		OverlayControl::addNotification(g_cameraEnabled ? "Camera enabled" : "Camera disabled");
 	}
 
-	//not in use - in game timestop better
-	//void System::toggleTimestopState()
-	//{
-	//	_timeStopped = !_timeStopped;
-	//	OverlayControl::addNotification(_timeStopped ? "Game paused" : "Game unpaused");
-	//	CameraManipulator::timeStop();
-	//}
+	void System::toggleTimestopState()
+	{
+		_timeStopped = !_timeStopped;
+		OverlayControl::addNotification(_timeStopped ? "Game paused" : "Game unpaused");
+		CameraManipulator::timeStop();
+	}
 
-	//void System::toggleHudRenderState()
-	//{
-	//	_hudToggled = !_hudToggled;
-	//	InterceptorHelper::toggleHudRenderState(_aobBlocks, _hudToggled);
-	//}
+	void System::toggleHudRenderState()
+	{
+		_hudToggled = !_hudToggled;
+		BYTE hudNOP[3] = { 0xC3, 0x90, 0x90 };
+		InterceptorHelper::SaveBytesWrite(_aobBlocks[HUD_RENDER_INTERCEPT_KEY], 3, hudNOP, _hudToggled);
+		//InterceptorHelper::toggleHudRenderState(_aobBlocks, _hudToggled);
+	}
 }

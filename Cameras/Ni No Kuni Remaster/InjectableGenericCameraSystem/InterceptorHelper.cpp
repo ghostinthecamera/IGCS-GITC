@@ -40,8 +40,8 @@ using namespace std;
 // external asm functions
 extern "C" {
 	void cameraStructInterceptor();
-	//void fovReadInterceptor();
-	//void resolutionScaleReadInterceptor();
+	void cameraFOVInterceptor();
+	void timescaleInterceptor();
 	//void todWriteInterceptor();
 	//void fogReadInterceptor();*/
 }
@@ -49,9 +49,9 @@ extern "C" {
 // external addresses used in asm.
 extern "C" {
 	LPBYTE _cameraStructInterceptionContinue = nullptr;
-	/*LPBYTE _fovReadInterceptionContinue = nullptr;
-	LPBYTE _resolutionScaleReadInterceptionContinue = nullptr;
-	LPBYTE _todWriteInterceptionContinue = nullptr;
+	LPBYTE _fovStructInterceptionContinue = nullptr;
+	LPBYTE _timescaleInterceptionContinue = nullptr;
+	/*LPBYTE _todWriteInterceptionContinue = nullptr;
 	LPBYTE _fogReadInterceptionContinue = nullptr;*/
 }
 
@@ -61,9 +61,9 @@ namespace IGCS::GameSpecific::InterceptorHelper
 	void initializeAOBBlocks(LPBYTE hostImageAddress, DWORD hostImageSize, map<string, AOBBlock*> &aobBlocks)
 	{
 		aobBlocks[CAMERA_ADDRESS_INTERCEPT_KEY] = new AOBBlock(CAMERA_ADDRESS_INTERCEPT_KEY, "66 0F 7F 12 66 0F 7F 4A ?? 66", 1);	
-		//aobBlocks[CAMERA_WRITE1_INTERCEPT_KEY] = new AOBBlock(CAMERA_WRITE1_INTERCEPT_KEY, "44 89 43 ?? 44 89 4B ?? BA 01 00 00 00 48 8B CB 89 43 ??", 1);
-		//aobBlocks[CAMERA_WRITE2_INTERCEPT_KEY] = new AOBBlock(CAMERA_WRITE2_INTERCEPT_KEY, "4C 8B D8 0F 2E 00 7A ?? 75 ?? F3 0F 10 43 ?? 0F 2E 40 ?? 7A ?? 75 ?? F3 0F 10 43 ?? 0F 2E 40 ?? 7A ?? 75 ?? F3 0F 10 43 ?? 0F 2E 40 ?? 7A ?? ?? ?? 8B 00 BA 02 00 00 00 48 8B CB | 89 43 ?? 41 8B 43 ?? 89 43 ?? 41 8B 43 ?? 89 43 ?? 41 8B 43 ?? 89 43 ?? E8 ?? ?? ?? ?? 48 83 C4 ?? 5B C3 CC", 1);
-		//aobBlocks[DIVSS_ABSOLUTE_ADD_KEY] = new AOBBlock(DIVSS_ABSOLUTE_ADD_KEY, "F3 0F 5E 05 | ?? ?? ?? ?? F3 0F 5C F0 44 0F 2F C6", 1);
+		aobBlocks[HUD_RENDER_INTERCEPT_KEY] = new AOBBlock(HUD_RENDER_INTERCEPT_KEY, "48 85 D2 0F 84 ?? ?? ?? ?? 4C 8B DC 55 41 55 41 56", 1);
+		aobBlocks[FOV_INTERCEPT_KEY] = new AOBBlock(FOV_INTERCEPT_KEY, "66 0F 7F 43 ?? 0F 28 48 ?? 66 0F 7F 4B ?? 0F 28 40 ?? 66 0F 7F 43 ?? 0F 28 48 ?? 48 8D 43 ??", 1);
+		aobBlocks[TIMESCALE_INTERCEPT_KEY] = new AOBBlock(TIMESCALE_INTERCEPT_KEY, "F3 44 0F10 48 ?? F3 44 0F5C 48 ??", 1);
 		//aobBlocks[TIMESTOP_KEY] = new AOBBlock(TIMESTOP_KEY, "8B 90 ?? ?? ?? ?? 0F 14 F6 4C 8D 44 24 ??", 1);
 
 
@@ -92,8 +92,8 @@ namespace IGCS::GameSpecific::InterceptorHelper
 	void setPostCameraStructHooks(map<string, AOBBlock*> &aobBlocks)
 	{
 		
-		//GameImageHooker::setHook(aobBlocks[CAMERA_WRITE1_INTERCEPT_KEY], 0x13, &_cameraWrite1InterceptionContinue, &cameraWrite1Interceptor);
-		//GameImageHooker::setHook(aobBlocks[CAMERA_WRITE2_INTERCEPT_KEY], 0x18, &_cameraWrite2InterceptionContinue, &cameraWrite2Interceptor);
+		GameImageHooker::setHook(aobBlocks[FOV_INTERCEPT_KEY], 0x0E, &_fovStructInterceptionContinue, &cameraFOVInterceptor);
+		GameImageHooker::setHook(aobBlocks[TIMESCALE_INTERCEPT_KEY], 0x12, &_timescaleInterceptionContinue, &timescaleInterceptor);
 		//GameImageHooker::setHook(aobBlocks[TIMESTOP_KEY], 0x0E, &_timestopReadInterceptionContinue, &timestopReadInterceptor);
 	}
 
@@ -130,4 +130,36 @@ namespace IGCS::GameSpecific::InterceptorHelper
 		}
 	}
 	
+	void SaveBytesWrite(AOBBlock* hookData, int numberOfBytes, BYTE* BytestoWrite, bool enabled)
+	{
+		if (hookData->byteStorage2 == nullptr)  //check if byteStorage is null - if it is this is the first access and so need to read bytes into it
+		{
+			hookData->byteStorage2 = new BYTE[numberOfBytes];
+			GameImageHooker::readRange(hookData->locationInImage() + hookData->customOffset(), hookData->byteStorage2, numberOfBytes);
+		}
+		if (enabled)
+		{
+			if (!hookData->nopState2)
+			{
+				GameImageHooker::writeRange(hookData->locationInImage() + hookData->customOffset(), BytestoWrite, numberOfBytes);
+				hookData->nopState2 = true;
+			}
+			else
+			{
+				OverlayConsole::instance().logLine("Already Nopped - this shouldnt be showing. Something isnt working right");
+			}
+		}
+		if (!enabled)
+		{
+			if (hookData->nopState2)
+			{
+				GameImageHooker::writeRange(hookData->locationInImage() + hookData->customOffset(), hookData->byteStorage2, numberOfBytes);
+				hookData->nopState2 = false;
+			}
+			else
+			{
+				OverlayConsole::instance().logLine("Already Disabled - this shouldnt be showing. Something isnt working right");
+			}
+		}
+	}
 }

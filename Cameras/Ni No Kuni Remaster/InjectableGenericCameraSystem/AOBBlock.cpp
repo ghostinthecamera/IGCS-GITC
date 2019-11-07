@@ -38,7 +38,7 @@ namespace IGCS
 {
 	AOBBlock::AOBBlock(string blockName, string bytePatternAsString, int occurrence)
 		: _blockName{ blockName }, _customOffset{ 0 }, _locationInImage{ nullptr }, _found{ false },
-		_isNonCritical{ false }, _patternIndexThatMatched { 0 }, byteStorage{ nullptr }, nopState{ false }
+		_isNonCritical{ false }, _patternIndexThatMatched { 0 }, byteStorage{ nullptr }, nopState{ false }, byteStorage2{ nullptr }, nopState2{ false }
 	{
 		addAlternative(bytePatternAsString, occurrence);
 	}

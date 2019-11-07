@@ -39,16 +39,72 @@ using namespace std;
 
 extern "C" {
 	LPBYTE g_cameraStructAddress = nullptr;
-	//LPBYTE g_resolutionScaleAddress = nullptr;
-	//LPBYTE g_todStructAddress = nullptr;
+	LPBYTE g_fovStructAddress = nullptr;
+	LPBYTE g_timescaleAddress = nullptr;
+	bool _timeStopped;
+	bool _speeduptoggle;
 }
+
+
 
 namespace IGCS::GameSpecific::CameraManipulator
 {
 	static float _originalCoords[3];
 	static float _originalMatrix[12];
-	static float _originalFoV;
+	static float _horiginalFoV;
+	static float _voriginalFoV;
+	static float _basespeed1;
+	static float _basespeed2;
 	//static LPBYTE g_resolutionScaleMenuValueAddress = nullptr;
+
+	void speedUp(int multiplier, bool toggle)
+	{
+		if (nullptr == g_timescaleAddress)
+		{
+			return;
+		}
+		if (toggle == false)
+		{
+			float* basespeed = reinterpret_cast<float*>(g_timescaleAddress);
+			*basespeed = _basespeed1;
+			float* basespeed2 = reinterpret_cast<float*>(g_timescaleAddress + 0x04);
+			*basespeed2 = _basespeed2;
+		} 
+		if (toggle == true)
+		{
+			float* basespeed = reinterpret_cast<float*>(g_timescaleAddress);
+			*basespeed = _basespeed1 * multiplier;
+			float* basespeed2 = reinterpret_cast<float*>(g_timescaleAddress + 0x04);
+			*basespeed2 = _basespeed2 * multiplier;
+		}
+
+	}
+
+
+    void sloMoFunc(float amount, bool timestop)
+	{
+		if (nullptr == g_timescaleAddress)
+		{
+			return;
+		}
+		if (timestop == false)
+		{
+			float* timescaleInMemory = reinterpret_cast<float*>(g_timescaleAddress + TIMESTOP_OFFSET);
+			*timescaleInMemory = *timescaleInMemory > 0.96f ? amount : 1.0f;
+		}
+	}
+
+
+	void timeStop()
+	{
+		if (nullptr == g_timescaleAddress)
+		{
+			return;
+		}
+
+		float* timescaleInMemory = reinterpret_cast<float*>(g_timescaleAddress + TIMESTOP_OFFSET);
+		*timescaleInMemory = *timescaleInMemory > 0.04f ? 0.0f : 1.0f;
+	}
 
 	void getSettingsFromGameState()
 	{
@@ -62,34 +118,49 @@ namespace IGCS::GameSpecific::CameraManipulator
 	}
 
 
-	//// Resets the FOV to the one it got when we enabled the camera
-	//void resetFoV()
-	//{
-	//	if (g_cameraStructAddress == nullptr)
-	//	{
-	//		return;
-	//	}
-	//	float* fovAddress = reinterpret_cast<float*>(g_cameraStructAddress + FOV_IN_STRUCT_OFFSET);
-	//	*fovAddress = _originalFoV;
-	//}
+	// Resets the FOV to the one it got when we enabled the camera
+	void resetFoV()
+	{
+		if (g_fovStructAddress == nullptr)
+		{
+			return;
+		}
+		float* fovAddress = reinterpret_cast<float*>(g_fovStructAddress + HFOV_IN_STRUCT_OFFSET);
+		*fovAddress = _horiginalFoV;
+	}
 
 
-	//// changes the FoV with the specified amount
-	//void changeFoV(float amount)
-	//{
-	//	if (g_cameraStructAddress == nullptr)
-	//	{
-	//		return;
-	//	}
-	//	float* fovAddress = reinterpret_cast<float*>(g_cameraStructAddress + FOV_IN_STRUCT_OFFSET);
-	//	float newValue = *fovAddress + amount;
-	//	if (newValue < 0.001f)
-	//	{
-	//		// clamp. Game will crash with negative fov
-	//		newValue = 0.001f;
-	//	}
-	//	*fovAddress = newValue;
-	//}
+	// changes the FoV with the specified amount
+	void changeFoV(float amount)
+	{
+		float fovRatio = 1.778;
+		if (g_fovStructAddress == nullptr)
+		{
+			return;
+		}
+		float* hfovAddress = reinterpret_cast<float*>(g_fovStructAddress + HFOV_IN_STRUCT_OFFSET);
+		float* vfovAddress = reinterpret_cast<float*>(g_fovStructAddress + VFOV_IN_STRUCT_OFFSET);
+		float hnewValue = *hfovAddress;
+		if (hnewValue < 0.9f)
+		{
+			hnewValue = *hfovAddress - (amount / 4);
+		}
+		if (hnewValue > 3.0f)
+		{
+			hnewValue = *hfovAddress - (amount * 4);
+		}
+		hnewValue = *hfovAddress - amount;
+
+		float vnewValue = hnewValue*fovRatio;
+
+		if (hnewValue < 0.001f)
+		{
+			// clamp. Game will crash with negative fov
+			hnewValue = 0.001f;
+		}
+		*hfovAddress = hnewValue;
+		*vfovAddress = vnewValue;
+	}
 	
 	XMFLOAT3 initialiseCamera()
 	{
@@ -104,19 +175,7 @@ namespace IGCS::GameSpecific::CameraManipulator
 
 		XMFLOAT3 realPos(realX, realY, realZ);
 
-		camInit = (BYTE)1;
 		return realPos;
-	}
-
-	XMFLOAT3 calcEyePos(XMMATRIX matrixToDecompose)
-	{
-
-		XMFLOAT4X4 rotationmatrix;
-		XMStoreFloat4x4(&rotationmatrix, matrixToDecompose);
-
-		XMFLOAT3 initEyePosition(rotationmatrix._41, rotationmatrix._42, rotationmatrix._43);
-		return initEyePosition;
-
 	}
 
 	float calcvecdot(XMVECTOR vec1, XMVECTOR vec2)
@@ -124,8 +183,7 @@ namespace IGCS::GameSpecific::CameraManipulator
 		float dot = ((XMVectorGetX(vec1)*XMVectorGetX(vec2)) +((XMVectorGetY(vec1)*XMVectorGetY(vec2)) + ((XMVectorGetZ(vec1)*XMVectorGetZ(vec2)))));
 		return dot;
 	}
-	// newLookQuaternion: newly calculated quaternion of camera view space. Can be used to construct a 4x4 matrix if the game uses a matrix instead of a quaternion
-	// newCoords are the new coordinates for the camera in worldspace.
+
 	void writeNewCameraValuesToGameData(XMFLOAT3 newCoords, XMVECTOR newLookQuaternion)
 	{
 		if (!isCameraFound())
@@ -148,7 +206,6 @@ namespace IGCS::GameSpecific::CameraManipulator
 		float* coordsInMemory = nullptr;
 		float* matrixInMemory = nullptr;
 
-		// only the gameplay camera. Photomode coords aren't updated.
 		coordsInMemory = reinterpret_cast<float*>(g_cameraStructAddress + COORDS_IN_STRUCT_OFFSET);
 		coordsInMemory[0] = Coords.x;
 		coordsInMemory[1] = Coords.y;
@@ -188,7 +245,15 @@ namespace IGCS::GameSpecific::CameraManipulator
 	{
 		float* matrixInMemory = nullptr;
 		float* coordsInMemory = nullptr;
-		//float *fovInMemory = nullptr;
+		float *hfovInMemory = nullptr;
+		float* vfovInMemory = nullptr;
+		float* speedInMemory1 = nullptr;
+		float* speedInMemory2 = nullptr;
+
+		speedInMemory1 = reinterpret_cast<float*>(g_timescaleAddress);
+		speedInMemory2 = reinterpret_cast<float*>(g_timescaleAddress + 0x04);
+		*speedInMemory1 = _basespeed1;
+		*speedInMemory2 = _basespeed2;
 
 		if (!isCameraFound())
 		{
@@ -200,14 +265,10 @@ namespace IGCS::GameSpecific::CameraManipulator
 		memcpy(matrixInMemory, _originalMatrix, 12 * sizeof(float));
 		memcpy(coordsInMemory, _originalCoords, 3 * sizeof(float));
 
-		//fovInMemory = reinterpret_cast<float*>(g_cameraStructAddress + FOV_IN_STRUCT_OFFSET);
-		//*fovInMemory = _originalFoV;
-	/*	if (nullptr != g_resolutionScaleMenuValueAddress && nullptr!=g_resolutionScaleAddress)
-		{
-			float* resolutionScaleInMemory = reinterpret_cast<float*>(g_resolutionScaleAddress + RESOLUTION_SCALE_IN_STRUCT_OFFSET);
-			float* resolutionScaleMenuInMemory = reinterpret_cast<float*>(g_resolutionScaleMenuValueAddress);
-			*resolutionScaleInMemory = *resolutionScaleMenuInMemory;
-		}*/
+		hfovInMemory = reinterpret_cast<float*>(g_fovStructAddress + HFOV_IN_STRUCT_OFFSET);
+		*hfovInMemory = _horiginalFoV;
+		vfovInMemory = reinterpret_cast<float*>(g_fovStructAddress + VFOV_IN_STRUCT_OFFSET);
+		*vfovInMemory = _voriginalFoV;
 	}
 
 
@@ -215,7 +276,9 @@ namespace IGCS::GameSpecific::CameraManipulator
 	{
 		float* matrixInMemory = nullptr;
 		float* coordsInMemory = nullptr;
-		//float *fovInMemory = nullptr;
+		float* hfovInMemory = nullptr;
+		float* vfovInMemory = nullptr;
+
 
 		if (!isCameraFound())
 		{
@@ -227,7 +290,22 @@ namespace IGCS::GameSpecific::CameraManipulator
 		memcpy(_originalMatrix, matrixInMemory, 12 * sizeof(float));
 		memcpy(_originalCoords, coordsInMemory, 3 * sizeof(float));
 
-		//fovInMemory = reinterpret_cast<float*>(g_cameraStructAddress + FOV_IN_STRUCT_OFFSET);
-		//_originalFoV = *fovInMemory;
+		hfovInMemory = reinterpret_cast<float*>(g_fovStructAddress + HFOV_IN_STRUCT_OFFSET);
+		_horiginalFoV = *hfovInMemory;
+		vfovInMemory = reinterpret_cast<float*>(g_fovStructAddress + VFOV_IN_STRUCT_OFFSET);
+		_voriginalFoV = *vfovInMemory;
+	}
+
+	void cacheOriginalGameSpeed()
+	{
+
+		float* speedInMemory1 = nullptr;
+		float* speedInMemory2 = nullptr;
+
+		speedInMemory1 = reinterpret_cast<float*>(g_timescaleAddress);
+		speedInMemory2 = reinterpret_cast<float*>(g_timescaleAddress + 0x04);
+		_basespeed1 = *speedInMemory1;
+		_basespeed2 = *speedInMemory2;
+
 	}
 }

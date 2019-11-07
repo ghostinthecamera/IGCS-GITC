@@ -56,7 +56,7 @@ namespace IGCS
 		void waitForCameraStructAddresses();
 		void toggleInputBlockState(bool newValue);
 		void toggleTimestopState();
-		//void toggleHudRenderState();
+		void toggleHudRenderState();
 
 		Camera _camera;
 		LPBYTE _hostImageAddress;
@@ -64,7 +64,8 @@ namespace IGCS
 		bool _cameraMovementLocked = false;
 		bool _cameraStructFound = false;
 		bool _timeStopped = false;
-		//bool _hudToggled = false;
+		bool _hudToggled = false;
+		bool _speeduptoggle = false;
 		map<string, AOBBlock*> _aobBlocks;
 		map<string, AOBBlock*> _aobBlocks2;
 		bool _applyHammerPrevention = false;	// set to true by a keyboard action and which triggers a sleep before keyboard handling is performed.

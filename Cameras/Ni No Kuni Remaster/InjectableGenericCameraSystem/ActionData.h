@@ -55,6 +55,7 @@ namespace IGCS
 		ToggleOverlay,
 		SlowMo,
 		Amount,
+		SpeedUp,
 	};
 
 

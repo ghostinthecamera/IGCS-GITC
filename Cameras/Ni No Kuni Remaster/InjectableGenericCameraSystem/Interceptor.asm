@@ -32,6 +32,8 @@
 ;---------------------------------------------------------------
 ; Public definitions so the linker knows which names are present in this file
 PUBLIC cameraStructInterceptor
+PUBLIC cameraFOVInterceptor
+PUBLIC timescaleInterceptor
 
 ;---------------------------------------------------------------
 
@@ -40,12 +42,16 @@ PUBLIC cameraStructInterceptor
 ; values in asm to communicate with the system
 EXTERN g_cameraEnabled: byte
 EXTERN g_cameraStructAddress: qword
+EXTERN g_fovStructAddress: qword
+EXTERN g_timescaleAddress: qword
 
 ;---------------------------------------------------------------
 
 ;---------------------------------------------------------------
 ; Own externs, defined in InterceptorHelper.cpp
 EXTERN _cameraStructInterceptionContinue: qword
+EXTERN _fovStructInterceptionContinue: qword
+EXTERN _timescaleInterceptionContinue: qword
 
 .data
 
@@ -90,5 +96,40 @@ exit:
 	jmp qword ptr [_cameraStructInterceptionContinue]	; jmp back into the original game code, which is the location after the original statements above.
 cameraStructInterceptor ENDP
 
+cameraFOVInterceptor PROC
+;NinoKuni_WotWW_Remastered.exe+5B5A5F - 0F28 00               - movaps xmm0,[rax]
+;NinoKuni_WotWW_Remastered.exe+5B5A62 - 66 0F7F 43 50         - movdqa [rbx+50],xmm0		<<<intercept here
+;NinoKuni_WotWW_Remastered.exe+5B5A67 - 0F28 48 10            - movaps xmm1,[rax+10]
+;NinoKuni_WotWW_Remastered.exe+5B5A6B - 66 0F7F 4B 60         - movdqa [rbx+60],xmm1		
+;NinoKuni_WotWW_Remastered.exe+5B5A70 - 0F28 40 20            - movaps xmm0,[rax+20]		<<<return here
+;NinoKuni_WotWW_Remastered.exe+5B5A74 - 66 0F7F 43 70         - movdqa [rbx+70],xmm0
+;NinoKuni_WotWW_Remastered.exe+5B5A79 - 0F28 48 30            - movaps xmm1,[rax+30]
+;NinoKuni_WotWW_Remastered.exe+5B5A7D - 48 8D 43 50           - lea rax,[rbx+50]
+;NinoKuni_WotWW_Remastered.exe+5B5A81 - 66 0F7F 8B 80000000   - movdqa [rbx+00000080],xmm1
+;NinoKuni_WotWW_Remastered.exe+5B5A89 - 48 83 C4 70           - add rsp,70 { 112 }
+	mov [g_fovStructAddress],rbx
+	cmp byte ptr [g_cameraEnabled],1
+	je exit
+	;movdqa [rbx+50h],xmm0
+	movaps xmm1,[rax+10h]
+	;movdqa [rbx+60h],xmm1
+exit:
+	jmp qword ptr [_fovStructInterceptionContinue]	; jmp back into the original game code, which is the location after the original statements above.
+cameraFOVInterceptor ENDP
+
+timescaleInterceptor PROC
+;NinoKuni_WotWW_Remastered.exe+ABFEE5 - 48 8B 05 ECF65D00     - mov rax,[NinoKuni_WotWW_Remastered.exe+109F5D8] { (27420A8C080) }
+;NinoKuni_WotWW_Remastered.exe+ABFEEC - F3 44 0F10 48 18      - movss xmm9,[rax+18]		<<<intercept here
+;NinoKuni_WotWW_Remastered.exe+ABFEF2 - F3 44 0F5C 48 14      - subss xmm9,[rax+14]
+;NinoKuni_WotWW_Remastered.exe+ABFEF8 - F3 44 0F59 48 24      - mulss xmm9,[rax+24]
+;NinoKuni_WotWW_Remastered.exe+ABFEFE - F3 44 0F58 48 14      - addss xmm9,[rax+14]		<<<return here
+;NinoKuni_WotWW_Remastered.exe+ABFF04 - 66 44 3B B7 704A0000  - cmp r14w,[rdi+00004A70]
+;NinoKuni_WotWW_Remastered.exe+ABFF0C - 0F83 6A010000         - jae NinoKuni_WotWW_Remastered.exe+AC007C
+	mov [g_timescaleAddress],rax
+	movss xmm9, dword ptr [rax+18h]
+	subss xmm9, dword ptr [rax+14h]
+	mulss xmm9, dword ptr [rax+24h]
+	jmp qword ptr [_timescaleInterceptionContinue]	; jmp back into the original game code, which is the location after the original statements above.
+timescaleInterceptor ENDP
 
 END

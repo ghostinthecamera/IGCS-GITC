@@ -31,6 +31,7 @@
 #include "InterceptorHelper.h"
 #include "Globals.h"
 #include "OverlayConsole.h"
+#include "OverlayControl.h"
 #include "GameImageHooker.h"
 #include "Camera.h"
 
@@ -174,7 +175,7 @@ namespace IGCS::GameSpecific::CameraManipulator
 		float realZ = -1 * ((_viewMatrix._41 * _viewMatrix._31) + (_viewMatrix._42 * _viewMatrix._32) + (_viewMatrix._43 * _viewMatrix._33));
 
 		XMFLOAT3 realPos(realX, realY, realZ);
-
+		//IGCS::OverlayControl::addNotification(realX);
 		return realPos;
 	}
 

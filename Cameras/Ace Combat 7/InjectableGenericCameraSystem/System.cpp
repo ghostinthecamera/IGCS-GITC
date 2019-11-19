@@ -379,6 +379,9 @@ namespace IGCS
 		_camera.setPitch(INITIAL_PITCH_RADIANS);
 		_camera.setRoll(INITIAL_ROLL_RADIANS);
 		_camera.setYaw(INITIAL_YAW_RADIANS);
+
+		//enable hotsampling
+		GameSpecific::InterceptorHelper::enableHotsampling(_aobBlocks);
 	}
 
 

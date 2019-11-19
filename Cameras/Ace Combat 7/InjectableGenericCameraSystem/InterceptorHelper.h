@@ -35,4 +35,5 @@ namespace IGCS::GameSpecific::InterceptorHelper
 	void initializeAOBBlocks(LPBYTE hostImageAddress, DWORD hostImageSize, std::map<std::string, AOBBlock*> &aobBlocks);
 	void setCameraStructInterceptorHook(std::map<std::string, AOBBlock*> &aobBlocks);
 	void setPostCameraStructHooks(std::map<std::string, AOBBlock*> &aobBlocks, LPBYTE hostImageAddress);
+	void enableHotsampling(std::map<std::string, AOBBlock*>& aobBlocks);
 }

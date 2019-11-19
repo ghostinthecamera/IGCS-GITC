@@ -105,7 +105,7 @@ namespace IGCS
 			frameskip = 15;
 			slomoMult = 0.05f;
 			allowCameraMovementWhenMenuIsUp = false;
-			hudandtimestop = true;
+			hudandtimestop = false;
 		}
 	};
 

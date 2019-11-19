@@ -57,6 +57,7 @@ namespace IGCS::GameSpecific::InterceptorHelper
 		aobBlocks[CAMERA_ADDRESS_INTERCEPT_KEY] = new AOBBlock(CAMERA_ADDRESS_INTERCEPT_KEY, "F2 0F 11 87 ?? ?? ?? ?? F2 0F 10 44 24 ?? F2 0F 11 87 ?? ?? ?? ??", 1);	
 		aobBlocks[TIMESTOP_INTERCEPT_KEY] = new AOBBlock(TIMESTOP_INTERCEPT_KEY, "F3 0F 59 83 D0 04 00 00", 1);
 		aobBlocks[RESOLUTIONSCALE_INTERCEPT_KEY] = new AOBBlock(RESOLUTIONSCALE_INTERCEPT_KEY, "F3 0F 10 00 F3 41 0F 59 C1", 1);
+		aobBlocks[HOTSAMPLE_KEY] = new AOBBlock(HOTSAMPLE_KEY, "09 87 ?? ?? ?? ?? 0F B6 44 24 ?? F3 0F 11 87 ?? ?? ?? ??", 1);
 		map<string, AOBBlock*>::iterator it;
 		bool result = true;
 		for (it = aobBlocks.begin(); it != aobBlocks.end(); it++)
@@ -84,5 +85,10 @@ namespace IGCS::GameSpecific::InterceptorHelper
 	{
 		GameImageHooker::setHook(aobBlocks[TIMESTOP_INTERCEPT_KEY], 0x0F, &_timestopInterceptionContinue, &timestopInterceptor);
 		GameImageHooker::setHook(aobBlocks[RESOLUTIONSCALE_INTERCEPT_KEY], 0x11, &_resolutionscaleInterceptionContinue, &resolutionscaleInterceptor);
+	}
+
+	void enableHotsampling(map<string, AOBBlock*>& aobBlocks)
+	{
+		GameImageHooker::nopRange(aobBlocks[HOTSAMPLE_KEY], 6);
 	}
 }

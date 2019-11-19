@@ -54,13 +54,14 @@ namespace IGCS::GameSpecific
 	#define CAMERA_ADDRESS_INTERCEPT_KEY				"AOB_CAMERA_ADDRESS_INTERCEPT"
 	#define TIMESTOP_INTERCEPT_KEY						"AOB_TIMESTOP_INTERCEPT"
 	#define RESOLUTIONSCALE_INTERCEPT_KEY				"AOB_RESOLUTIONSCALE_INTERCEPT"
+	#define HOTSAMPLE_KEY								"AOB_HOTSAMPLE_KEY"
 
 	// Indices in the structures read by interceptors 
 	#define COORDS_IN_STRUCT_OFFSET						0x400
 	#define ANGLES_IN_STRUCT_OFFSET						0x40C
 	#define FOV_IN_STRUCT_OFFSET						0x418
 	#define TIMESTOP_IN_STRUCT_OFFSET					0x4D0
-    #define HUD_TOGGLE_1								0x36352EC  //float
-	#define HUD_TOGGLE_2								0x3528B00  //byte 
+    #define HUD_TOGGLE_1								0x366603C  //float
+	#define HUD_TOGGLE_2								0x3554D60  //byte 
 }
 

@@ -89,7 +89,9 @@ namespace IGCS::GameSpecific::CameraManipulator
 			return;
 		}
 		float* fovAddress = reinterpret_cast<float*>(g_fovStructAddress + HFOV_IN_STRUCT_OFFSET);
+		float* vfovAddress = reinterpret_cast<float*>(g_fovStructAddress + VFOV_IN_STRUCT_OFFSET);
 		*fovAddress = _horiginalFoV;
+		*vfovAddress = _voriginalFoV;
 	}
 
 
@@ -106,23 +108,30 @@ namespace IGCS::GameSpecific::CameraManipulator
 		float hnewValue = *hfovAddress;
 		if (hnewValue < 0.9f)
 		{
-			hnewValue = *hfovAddress - (amount / 4);
+			hnewValue = *hfovAddress - (amount / 10);
 		}
-		if (hnewValue > 3.0f)
+		else if (hnewValue > 3.0f)
 		{
-			hnewValue = *hfovAddress - (amount * 4);
+			hnewValue = *hfovAddress - (amount * 2);
 		}
-		hnewValue = *hfovAddress - amount;
+		else hnewValue = *hfovAddress - amount;
 
 		float vnewValue = hnewValue*fovRatio;
 
-		if (hnewValue < 0.001f)
+		if (hnewValue < 0.2f)
 		{
 			// clamp. Game will crash with negative fov
-			hnewValue = 0.1f;
+			hnewValue = 0.2f;
 		}
 		*hfovAddress = hnewValue;
 		*vfovAddress = vnewValue;
+	}
+
+	XMFLOAT3 currentQuatCoords()
+	{
+		float* coordsInMemory = reinterpret_cast<float*>(g_cameraStructAddress + QUATERNION_COORD_OFFSET);
+		XMFLOAT3 currentCoords = XMFLOAT3(coordsInMemory[0], coordsInMemory[1], coordsInMemory[2]);
+		return currentCoords;
 	}
 	
 	XMFLOAT3 initialiseCamera()
@@ -147,7 +156,7 @@ namespace IGCS::GameSpecific::CameraManipulator
 		return dot;
 	}
 
-	void writeNewCameraValuesToGameData(XMFLOAT3 newCoords, XMVECTOR newLookQuaternion)
+	void writeNewCameraValuesToGameData(XMFLOAT3 newCoords, XMVECTOR newLookQuaternion, XMFLOAT3 newCoords2, XMVECTOR newLookQuaternion2)
 	{
 		if (!isCameraFound())
 		{
@@ -155,6 +164,8 @@ namespace IGCS::GameSpecific::CameraManipulator
 		}
 		XMFLOAT4X4 rotationMatrix;
 		float* matrixInMemory = nullptr;
+		float* quaternionInMemory = nullptr;
+		float* quaternionCoordsInMemory = nullptr;
 
 		XMMATRIX rotationMatrixPacked = XMMatrixRotationQuaternion(newLookQuaternion);
 		XMVECTOR newViewCoords = XMLoadFloat3(&newCoords);
@@ -167,6 +178,9 @@ namespace IGCS::GameSpecific::CameraManipulator
 		XMFLOAT3 Coords(-calcvecdot(xAxis, newViewCoords), -calcvecdot(yAxis, newViewCoords), -calcvecdot(zAxis, newViewCoords));
 
 		matrixInMemory = reinterpret_cast<float*>(g_cameraStructAddress);
+		quaternionInMemory = reinterpret_cast<float*>(g_cameraStructAddress + QUATERNION_OFFSET);
+		quaternionCoordsInMemory = reinterpret_cast<float*>(g_cameraStructAddress + QUATERNION_COORD_OFFSET);
+
 		matrixInMemory[0] = rotationMatrix._11;
 		matrixInMemory[1] = rotationMatrix._12;
 		matrixInMemory[2] = rotationMatrix._13;
@@ -179,6 +193,15 @@ namespace IGCS::GameSpecific::CameraManipulator
 		matrixInMemory[9] = rotationMatrix._32;
 		matrixInMemory[10] = rotationMatrix._33;
 		matrixInMemory[11] = Coords.z;
+
+		quaternionInMemory[0] = XMVectorGetX(newLookQuaternion2);
+		quaternionInMemory[1] = XMVectorGetY(newLookQuaternion2);
+		quaternionInMemory[2] = XMVectorGetZ(newLookQuaternion2);
+		quaternionInMemory[3] = XMVectorGetW(newLookQuaternion2);
+		quaternionCoordsInMemory[0] = newCoords2.x;
+		quaternionCoordsInMemory[1] = newCoords2.y;
+		quaternionCoordsInMemory[2] = newCoords2.z;
+
 	}
 
 

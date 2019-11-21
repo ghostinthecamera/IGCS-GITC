@@ -96,13 +96,18 @@ namespace IGCS
 		}
 
 		DirectX::XMVECTOR newLookQuaternion = _camera.calculateLookQuaternion();
+		DirectX::XMVECTOR newLookQuaternion2 = _camera.calculateLookQuaternionSecond();
 		DirectX::XMFLOAT3 newCoords;
+		DirectX::XMFLOAT3 newCoords2;
 		DirectX::XMFLOAT3 currentCoords;
+		DirectX::XMFLOAT3 currentCoords2;
 		if (GameSpecific::CameraManipulator::isCameraFound())
 		{
 		currentCoords = GameSpecific::CameraManipulator::initialiseCamera();
+		currentCoords2 = GameSpecific::CameraManipulator::currentQuatCoords();
 		newCoords = _camera.calculateNewCoords(currentCoords, newLookQuaternion);
-		GameSpecific::CameraManipulator::writeNewCameraValuesToGameData(newCoords, newLookQuaternion);
+		newCoords2 = _camera.calculateNewCoordsSecond(currentCoords2, newLookQuaternion2);
+		GameSpecific::CameraManipulator::writeNewCameraValuesToGameData(newCoords, newLookQuaternion, newCoords2, newLookQuaternion2);
 		}
 	}
 
@@ -140,12 +145,18 @@ namespace IGCS
 				//going to be disabled
 				CameraManipulator::restoreOriginalValuesAfterCameraDisable();
 				toggleCameraMovementLockState(false);
+				InterceptorHelper::SaveNOPReplace(_aobBlocks[QUATERNION_WRITE], 5, false);
+				InterceptorHelper::SaveNOPReplace(_aobBlocks[QUATERNION_COORD_WRITE], 16, false);
+				InterceptorHelper::SaveNOPReplace(_aobBlocks[QUATERNION_CUTSCENE_COORD_WRITE], 18, false);
 			}
 			else
 			{
 				// it's going to be enabled, so cache the original values before we enable it so we can restore it afterwards
 				CameraManipulator::cacheOriginalValuesBeforeCameraEnable();
 				_camera.resetAngles();
+				InterceptorHelper::SaveNOPReplace(_aobBlocks[QUATERNION_WRITE], 5, true);
+				InterceptorHelper::SaveNOPReplace(_aobBlocks[QUATERNION_COORD_WRITE], 16, true);
+				InterceptorHelper::SaveNOPReplace(_aobBlocks[QUATERNION_CUTSCENE_COORD_WRITE], 18, true);
 			}
 			g_cameraEnabled = g_cameraEnabled == 0 ? (BYTE)1 : (BYTE)0;
 			displayCameraState();
@@ -244,11 +255,11 @@ namespace IGCS
 			}
 			if (gamePad.isButtonPressed(IGCS_BUTTON_FOV_DECREASE))
 			{
-				CameraManipulator::changeFoV(Globals::instance().settings().fovChangeSpeed);
+				CameraManipulator::changeFoV(-Globals::instance().settings().fovChangeSpeed);
 			}
 			if (gamePad.isButtonPressed(IGCS_BUTTON_FOV_INCREASE))
 			{
-				CameraManipulator::changeFoV(-Globals::instance().settings().fovChangeSpeed);
+				CameraManipulator::changeFoV(Globals::instance().settings().fovChangeSpeed);
 			}
 		}
 	}

@@ -30,10 +30,11 @@
 
 namespace IGCS::GameSpecific::CameraManipulator
 {
-	void writeNewCameraValuesToGameData(DirectX::XMFLOAT3 newCoords, DirectX::XMVECTOR newLookQuaternion);
+	void writeNewCameraValuesToGameData(DirectX::XMFLOAT3 newCoords, DirectX::XMVECTOR newLookQuaternion, DirectX::XMFLOAT3 newCoords2, DirectX::XMVECTOR newLookQuaternion2);
 	void restoreOriginalValuesAfterCameraDisable();
 	void cacheOriginalValuesBeforeCameraEnable();
 	DirectX::XMFLOAT3 initialiseCamera();
+	DirectX::XMFLOAT3 currentQuatCoords();
 	void sloMoFunc(float amount);
 	void resetFoV();
 	void changeFoV(float amount);

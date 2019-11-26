@@ -56,6 +56,7 @@ namespace IGCS::GameSpecific::CameraManipulator
 	static float _voriginalFoV;
 	static float _basespeed1 = 30.0f;
 	static float _basespeed2 = 30.0f;
+	const float fovRatio = 1.778;
 	//static LPBYTE g_resolutionScaleMenuValueAddress = nullptr;
 
 	void speedUp(int multiplier, bool toggle)
@@ -127,14 +128,15 @@ namespace IGCS::GameSpecific::CameraManipulator
 			return;
 		}
 		float* fovAddress = reinterpret_cast<float*>(g_fovStructAddress + HFOV_IN_STRUCT_OFFSET);
+		float* vfovAddress = reinterpret_cast<float*>(g_fovStructAddress + VFOV_IN_STRUCT_OFFSET);
 		*fovAddress = _horiginalFoV;
+		*vfovAddress = _voriginalFoV;
 	}
 
 
 	// changes the FoV with the specified amount
 	void changeFoV(float amount)
 	{
-		float fovRatio = 1.778;
 		if (g_fovStructAddress == nullptr)
 		{
 			return;
@@ -146,18 +148,18 @@ namespace IGCS::GameSpecific::CameraManipulator
 		{
 			hnewValue = *hfovAddress - (amount / 4);
 		}
-		if (hnewValue > 3.0f)
+		else if (hnewValue > 3.0f)
 		{
 			hnewValue = *hfovAddress - (amount * 4);
 		}
-		hnewValue = *hfovAddress - amount;
+		else hnewValue = *hfovAddress - amount;
 
 		float vnewValue = hnewValue*fovRatio;
 
-		if (hnewValue < 0.001f)
+		if (hnewValue < 0.2f)
 		{
 			// clamp. Game will crash with negative fov
-			hnewValue = 0.001f;
+			hnewValue = 0.2f;
 		}
 		*hfovAddress = hnewValue;
 		*vfovAddress = vnewValue;

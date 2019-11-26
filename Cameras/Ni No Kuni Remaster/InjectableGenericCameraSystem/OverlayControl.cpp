@@ -509,6 +509,7 @@ Special thanks to:
 		ImGuiIO& io = ImGui::GetIO();
 		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 		io.IniFilename = IGCS_OVERLAY_INI_FILENAME;
+		io.FontAllowUserScaling = true;
 		ImGui::StyleColorsDark();
 		initImGuiStyle();
 		ImGui_ImplWin32_Init(IGCS::Globals::instance().mainWindowHandle());

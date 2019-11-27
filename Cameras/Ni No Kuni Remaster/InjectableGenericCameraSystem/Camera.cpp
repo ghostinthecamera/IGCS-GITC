@@ -122,7 +122,7 @@ namespace IGCS
 	void Camera::yaw(float amount)
 	{
 		_roll += (Globals::instance().settings().rotationSpeed * amount);
-		//_yaw = clampAngle(_yaw);
+		_yaw = clampAngle(_yaw);
 	}
 
 	void Camera::pitch(float amount)
@@ -133,13 +133,13 @@ namespace IGCS
 			lookDirectionInverter = -lookDirectionInverter;
 		}
 		_pitch += (Globals::instance().settings().rotationSpeed * amount * lookDirectionInverter);			// y is left, so inversed
-		//_pitch = clampAngle(_pitch);
+		_pitch = clampAngle(_pitch);
 	}
 
 	void Camera::roll(float amount)
 	{
 		_yaw += (Globals::instance().settings().rotationSpeed * amount);
-		//_roll = clampAngle(_roll);
+		_roll = clampAngle(_roll);
 	}
 
 	void Camera::setPitch(float angle)

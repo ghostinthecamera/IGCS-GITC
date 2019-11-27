@@ -370,7 +370,6 @@ namespace IGCS
 
 		// apply initial settings
 		CameraManipulator::applySettingsToGameState();
-		//GameSpecific::CameraManipulator::cacheOriginalGameSpeed();
 	}
 
 
@@ -429,6 +428,5 @@ namespace IGCS
 		_hudToggled = !_hudToggled;
 		BYTE hudNOP[3] = { 0xC3, 0x90, 0x90 };
 		InterceptorHelper::SaveBytesWrite(_aobBlocks[HUD_RENDER_INTERCEPT_KEY], 3, hudNOP, _hudToggled);
-		//InterceptorHelper::toggleHudRenderState(_aobBlocks, _hudToggled);
 	}
 }

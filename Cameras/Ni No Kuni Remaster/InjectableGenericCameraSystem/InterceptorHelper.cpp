@@ -42,8 +42,6 @@ extern "C" {
 	void cameraStructInterceptor();
 	void cameraFOVInterceptor();
 	void timescaleInterceptor();
-	//void todWriteInterceptor();
-	//void fogReadInterceptor();*/
 }
 
 // external addresses used in asm.
@@ -51,8 +49,6 @@ extern "C" {
 	LPBYTE _cameraStructInterceptionContinue = nullptr;
 	LPBYTE _fovStructInterceptionContinue = nullptr;
 	LPBYTE _timescaleInterceptionContinue = nullptr;
-	/*LPBYTE _todWriteInterceptionContinue = nullptr;
-	LPBYTE _fogReadInterceptionContinue = nullptr;*/
 }
 
 
@@ -64,7 +60,6 @@ namespace IGCS::GameSpecific::InterceptorHelper
 		aobBlocks[HUD_RENDER_INTERCEPT_KEY] = new AOBBlock(HUD_RENDER_INTERCEPT_KEY, "48 85 D2 0F 84 ?? ?? ?? ?? 4C 8B DC 55 41 55 41 56", 1);
 		aobBlocks[FOV_INTERCEPT_KEY] = new AOBBlock(FOV_INTERCEPT_KEY, "66 0F 7F 43 ?? 0F 28 48 ?? 66 0F 7F 4B ?? 0F 28 40 ?? 66 0F 7F 43 ?? 0F 28 48 ?? 48 8D 43 ??", 1);
 		aobBlocks[TIMESCALE_INTERCEPT_KEY] = new AOBBlock(TIMESCALE_INTERCEPT_KEY, "F3 44 0F10 48 ?? F3 44 0F5C 48 ??", 1);
-		//aobBlocks[TIMESTOP_KEY] = new AOBBlock(TIMESTOP_KEY, "8B 90 ?? ?? ?? ?? 0F 14 F6 4C 8D 44 24 ??", 1);
 
 
 		map<string, AOBBlock*>::iterator it;
@@ -94,7 +89,6 @@ namespace IGCS::GameSpecific::InterceptorHelper
 		
 		GameImageHooker::setHook(aobBlocks[FOV_INTERCEPT_KEY], 0x0E, &_fovStructInterceptionContinue, &cameraFOVInterceptor);
 		GameImageHooker::setHook(aobBlocks[TIMESCALE_INTERCEPT_KEY], 0x12, &_timescaleInterceptionContinue, &timescaleInterceptor);
-		//GameImageHooker::setHook(aobBlocks[TIMESTOP_KEY], 0x0E, &_timestopReadInterceptionContinue, &timestopReadInterceptor);
 	}
 
 	void SaveNOPReplace(AOBBlock* hookData, int numberOfBytes, bool enabled)

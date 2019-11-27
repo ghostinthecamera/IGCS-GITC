@@ -42,8 +42,6 @@ extern "C" {
 	LPBYTE g_cameraStructAddress = nullptr;
 	LPBYTE g_fovStructAddress = nullptr;
 	LPBYTE g_timescaleAddress = nullptr;
-	bool _timeStopped;
-	bool _speeduptoggle;
 }
 
 
@@ -54,10 +52,9 @@ namespace IGCS::GameSpecific::CameraManipulator
 	static float _originalMatrix[12];
 	static float _horiginalFoV;
 	static float _voriginalFoV;
-	static float _basespeed1 = 30.0f;
-	static float _basespeed2 = 30.0f;
+	const float _basespeed1 = 30.0f;
+	const float _basespeed2 = 30.0f;
 	const float fovRatio = 1.778;
-	//static LPBYTE g_resolutionScaleMenuValueAddress = nullptr;
 
 	void speedUp(int multiplier, bool toggle)
 	{
@@ -250,19 +247,11 @@ namespace IGCS::GameSpecific::CameraManipulator
 		float* coordsInMemory = nullptr;
 		float *hfovInMemory = nullptr;
 		float* vfovInMemory = nullptr;
-		float* speedInMemory1 = nullptr;
-		float* speedInMemory2 = nullptr;
-
-		speedInMemory1 = reinterpret_cast<float*>(g_timescaleAddress);
-		speedInMemory2 = reinterpret_cast<float*>(g_timescaleAddress + 0x04);
-		*speedInMemory1 = _basespeed1;
-		*speedInMemory2 = _basespeed2;
 
 		if (!isCameraFound())
 		{
 			return;
 		}
-		// gameplay / cutscene cam
 		matrixInMemory = reinterpret_cast<float*>(g_cameraStructAddress);
 		coordsInMemory = reinterpret_cast<float*>(g_cameraStructAddress + COORDS_IN_STRUCT_OFFSET);
 		memcpy(matrixInMemory, _originalMatrix, 12 * sizeof(float));
@@ -287,7 +276,6 @@ namespace IGCS::GameSpecific::CameraManipulator
 		{
 			return;
 		}
-		// gameplay/cutscene cam
 		matrixInMemory = reinterpret_cast<float*>(g_cameraStructAddress);
 		coordsInMemory = reinterpret_cast<float*>(g_cameraStructAddress + COORDS_IN_STRUCT_OFFSET);
 		memcpy(_originalMatrix, matrixInMemory, 12 * sizeof(float));
@@ -299,16 +287,4 @@ namespace IGCS::GameSpecific::CameraManipulator
 		_voriginalFoV = *vfovInMemory;
 	}
 
-	void cacheOriginalGameSpeed()
-	{
-
-		float* speedInMemory1 = nullptr;
-		float* speedInMemory2 = nullptr;
-
-		speedInMemory1 = reinterpret_cast<float*>(g_timescaleAddress);
-		speedInMemory2 = reinterpret_cast<float*>(g_timescaleAddress + 0x04);
-		_basespeed1 = *speedInMemory1;
-		_basespeed2 = *speedInMemory2;
-
-	}
 }

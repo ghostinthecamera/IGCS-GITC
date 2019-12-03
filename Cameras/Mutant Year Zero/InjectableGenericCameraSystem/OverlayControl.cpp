@@ -298,22 +298,7 @@ Special thanks to:
 		{
 			settingsChanged |= ImGui::SliderFloat("Field of View (FoV) zoom speed", &currentSettings.fovChangeSpeed, 0.01f, 1.00f, "%.2f");
 			ImGui::SliderFloat("Resolution scale factor", &currentSettings.resolutionScale, 25.0f, RESOLUTION_SCALE_MAX, "%.0f");
-			ImGui::SameLine(); showHelpMarker("Be careful with values bigger than 2 as it could make\nthe game crash due to too much overhead.\nYou can specify values bigger than 2 by using\nCtrl-click and then type the value.\nMax is 4.0.");
-
-			//// Time of Day
-			//ImGui::SliderInt("Time of Day (Hour)", &currentSettings.todHour, 0, 23);
-			//ImGui::SliderInt("Time of Day (Minute)", &currentSettings.todMinute, 0, 59);
-
-			//// Fog
-			//ImGui::SliderFloat("Fog strength", &currentSettings.fogStrength, 0.1f, 200.0f, "%.1f");
-			//ImGui::SameLine(); showHelpMarker("The strength of the fog. The higher the value, the thicker the fog volume.\nThe game fog is normally between 1 and 10.");
-
-			//ImGui::SliderFloat("Fog start curve", &currentSettings.fogStartCurve, 0.0f, 1.0f, "%.3f");
-			//ImGui::SameLine(); showHelpMarker("The fog start curve. Lowering this value to 0 makes the fog start further away.\nDefault is 1.0.");
-
-			//// DOF enable / disable during camera
-			//ImGui::TextUnformatted("");  ImGui::SameLine((ImGui::GetWindowWidth() * 0.3f) - 11.0f);
-			//settingsChanged |= ImGui::Checkbox("Disable in-game DoF when camera is enabled", &currentSettings.disableInGameDofWhenCameraIsEnabled);
+			ImGui::SameLine(); showHelpMarker("Be careful with values bigger than 200 as it could make\nthe game crash due to too much overhead.\nYou can specify values bigger than 2 by using\nCtrl-click and then type the value.\nMax is 200.");
 		}
 		ImGui::PopItemWidth();
 		if (settingsChanged)

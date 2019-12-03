@@ -49,7 +49,6 @@ namespace IGCS::GameSpecific::CameraManipulator
 	static float _originalQuaternion[4];
 	static float _originalFoV;
 	static float _resolutionScaleCache;
-	//static LPBYTE g_resolutionScaleMenuValueAddress = nullptr;
 
 	void timeStop()
 	{
@@ -146,7 +145,6 @@ namespace IGCS::GameSpecific::CameraManipulator
 		quaternionInMemory[0] = pitch;
 		quaternionInMemory[1] = yaw;
 		quaternionInMemory[2] = roll;
-		//quaternionInMemory[3] = qAsFloat4.w;
 	}
 
 

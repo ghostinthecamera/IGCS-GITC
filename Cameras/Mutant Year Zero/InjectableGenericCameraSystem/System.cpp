@@ -407,14 +407,6 @@ namespace IGCS
 		OverlayControl::addNotification(g_cameraEnabled ? "Camera enabled" : "Camera disabled");
 	}
 
-
-	//void System::toggleTimestopState()
-	//{
-	//	_timeStopped = !_timeStopped;
-	//	OverlayControl::addNotification(_timeStopped ? "Game paused" : "Game unpaused");
-	//	CameraManipulator::setTimeStopValue(_timeStopped);
-	//}
-
 	void System::toggleHudRenderState()
 	{
 		_hudToggled = !_hudToggled;

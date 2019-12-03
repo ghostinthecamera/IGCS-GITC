@@ -101,10 +101,6 @@ namespace IGCS::GameSpecific::InterceptorHelper
 	{
 		GameImageHooker::setHook(aobBlocks[TIMESTOP_READ_INTERCEPT_KEY], 0x0F, &_timestopReadInterceptionContinue, &timestopReadInterceptor);
 		GameImageHooker::setHook(aobBlocks[RESOLUTION_SCALE_INTERCEPT_KEY], 0x10, &_resolutionScaleReadInterceptionContinue, &resolutionScaleReadInterceptor);
-
-		//CameraManipulator::setPauseUnpauseGameFunctionPointers(aobBlocks[PAUSE_FUNCTION_LOCATION_KEY]->absoluteAddress(), aobBlocks[UNPAUSE_FUNCTION_LOCATION_KEY]->absoluteAddress());
-		//disablePhotomodeRangeLimit(aobBlocks);
-		//disableARLimits(aobBlocks);
 	}
 
 	void SaveNOPReplace(AOBBlock* hookData, int numberOfBytes, bool enabled)
@@ -177,49 +173,7 @@ namespace IGCS::GameSpecific::InterceptorHelper
 	{
 		float* hudInMemory = reinterpret_cast<float*>(_HUDAddress + 0x0C);
 		OverlayConsole::instance().logDebug("HUD Toggle 1 Address: %p", (void*)hudInMemory);
-		//OverlayConsole::instance().logDebug("HUD Toggle 1 value: %f", (float)*hudInMemory);
 		*hudInMemory = *hudInMemory > 0.1f ? 0.0f : 1.0f;
-		//OverlayConsole::instance().logDebug("HUD Toggle 1 value: %f", (float)*hudInMemory);
 	}
-
-	// if enabled is true, we'll place a 'ret' at the start of the code block, making the game skip rendering any hud element. If false, we'll reset
-	// the original first statement so code will proceed as normal. 
-	//void toggleHudRenderState(map<string, AOBBlock*> &aobBlocks, bool enabled)
-	//{
-	//	// start of HUD widget render code
-	//	//ACOdyssey.exe+C0DFCC0 - 48 8B C4              - mov rax,rsp					<< Place RET here to hide hud completely. Restore-> hud is there again.
-	//	//ACOdyssey.exe+C0DFCC3 - 48 89 58 08           - mov [rax+08],rbx
-	//	//ACOdyssey.exe+C0DFCC7 - 55                    - push rbp
-	//	//ACOdyssey.exe+C0DFCC8 - 56                    - push rsi
-	//	//ACOdyssey.exe+C0DFCC9 - 57                    - push rdi
-	//	//ACOdyssey.exe+C0DFCCA - 41 54                 - push r12
-	//	//ACOdyssey.exe+C0DFCCC - 41 55                 - push r13
-	//	//ACOdyssey.exe+C0DFCCE - 41 56                 - push r14
-	//	//ACOdyssey.exe+C0DFCD0 - 41 57                 - push r15
-	//	//ACOdyssey.exe+C0DFCD2 - 48 8D 6C 24 B0        - lea rbp,[rsp-50]
-	//	//ACOdyssey.exe+C0DFCD7 - 48 81 EC 50010000     - sub rsp,00000150 { 336 }
-	//	//ACOdyssey.exe+C0DFCDE - 0F29 70 B8            - movaps [rax-48],xmm6
-	//	//ACOdyssey.exe+C0DFCE2 - 0F29 78 A8            - movaps [rax-58],xmm7
-	//	//ACOdyssey.exe+C0DFCE6 - 44 0F29 40 98         - movaps [rax-68],xmm8
-	//	//ACOdyssey.exe+C0DFCEB - 48 8B 05 2E3A1FF9     - mov rax,[ACOdyssey.exe+52D3720] { [53E4231C] }
-	//	//ACOdyssey.exe+C0DFCF2 - 48 31 E0              - xor rax,rsp
-	//	//ACOdyssey.exe+C0DFCF5 - 48 89 45 10           - mov [rbp+10],rax
-	//	//ACOdyssey.exe+C0DFCF9 - 4C 8B 62 18           - mov r12,[rdx+18]
-	//	//ACOdyssey.exe+C0DFCFD - 48 89 D3              - mov rbx,rdx
-	//	//ACOdyssey.exe+C0DFD00 - 48 8B 32              - mov rsi,[rdx]
-	//	//ACOdyssey.exe+C0DFD03 - 45 89 C6              - mov r14d,r8d
-	//	if (enabled)
-	//	{
-	//		// set ret
-	//		BYTE statementBytes[1] = { 0xC3 };						// ACOdyssey.exe+C0DFCC0 - 48 8B C4              - mov rax,rsp
-	//		GameImageHooker::writeRange(aobBlocks[HUD_RENDER_INTERCEPT_KEY], statementBytes, 1);
-	//	}
-	//	else
-	//	{
-	//		// set original statement
-	//		BYTE statementBytes[3] = { 0x48, 0x8B, 0xC4 };			// ACOdyssey.exe+C0DFCC0 - 48 8B C4              - mov rax,rsp
-	//		GameImageHooker::writeRange(aobBlocks[HUD_RENDER_INTERCEPT_KEY], statementBytes, 3);
-	//	}
-	//}
 	
 }

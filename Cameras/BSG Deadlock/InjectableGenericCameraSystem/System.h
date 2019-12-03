@@ -55,18 +55,12 @@ namespace IGCS
 		void handleKeyboardCameraMovement(float multiplier);
 		void handleMouseCameraMovement(float multiplier);
 		void handleGamePadMovement(float multiplierBase);
-		void toggleTimestopState();
-		void modifyHotsampleFactor(bool decrease);
-		void toggleHotsampling();
 
 		Camera _camera;
 		LPBYTE _hostImageAddress;
 		DWORD _hostImageSize;
 		bool _cameraMovementLocked = false;
 		bool _cameraStructFound = false;
-		//bool _timeStopped = false;
-		//bool _hotsamplingEnabled = false;
-		//BYTE _hotsamplingFactor = 1;
 		map<string, AOBBlock*> _aobBlocks;
 	};
 }

@@ -126,14 +126,12 @@ namespace IGCS
 				// it's going to be disabled, make sure things are alright when we give it back to the host
 				CameraManipulator::restoreOriginalCameraValues();
 				toggleCameraMovementLockState(false);
-				//CameraManipulator::toggleHud((byte)1);		// hud should be ON, so pass 1
 			}
 			else
 			{
 				// it's going to be enabled, so cache the original values before we enable it so we can restore it afterwards
 				CameraManipulator::cacheOriginalCameraValues();
 				_camera.resetAngles();
-				//CameraManipulator::toggleHud((byte)0);		// hud should be OFF so pass 0
 			}
 			g_cameraEnabled = g_cameraEnabled == 0 ? (BYTE)1 : (BYTE)0;
 			displayCameraState();
@@ -151,32 +149,6 @@ namespace IGCS
 		{
 			CameraManipulator::changeFoV(DEFAULT_FOV_SPEED);
 		}
-		//if (Input::keyDown(IGCS_KEY_TIMESTOP))
-		//{
-		//	toggleTimestopState();
-		//	Sleep(350);				// wait for 350ms to avoid fast keyboard hammering
-		//}
-		//if (Input::keyDown(IGCS_KEY_DECREASE_HOTSAMPLE_FACTOR))
-		//{
-		//	modifyHotsampleFactor(true);
-		//	Sleep(350);				// wait for 350ms to avoid fast keyboard hammering
-		//}
-		//if (Input::keyDown(IGCS_KEY_INCREASE_HOTSAMPLE_FACTOR))
-		//{
-		//	modifyHotsampleFactor(false);
-		//	Sleep(350);				// wait for 350ms to avoid fast keyboard hammering
-		//}
-		//if (Input::keyDown(IGCS_KEY_HOTSAMPLE_ENABLE))
-		//{
-		//	toggleHotsampling();
-		//	Sleep(350);				// wait for 350ms to avoid fast keyboard hammering
-		//}
-		//
-		//if (Input::keyDown(IGCS_KEY_TOGGLE_HUD))
-		//{
-		//	CameraManipulator::toggleHud();
-		//	Sleep(350);				// wait for 350ms to avoid fast keyboard hammering
-		//}
 
 		if (!g_cameraEnabled)
 		{
@@ -331,9 +303,6 @@ namespace IGCS
 		GameSpecific::InterceptorHelper::setCameraStructInterceptorHook(_aobBlocks);
 		GameSpecific::CameraManipulator::waitForCameraStructAddresses(_hostImageAddress);		// blocks till camera is found.
 		GameSpecific::InterceptorHelper::setPostCameraStructHooks(_aobBlocks);
-		//GameSpecific::CameraManipulator::setSupersamplingVarAddress(Utils::calculateAbsoluteAddress(_aobBlocks[SUPERSAMPLING_KEY], 4));
-		// we have to pass 4+1 as the offset to the next instruction here, as the rip relative value is followed by a 0 byte before the next op code starts
-		//GameSpecific::CameraManipulator::setHudToggleVarAddress(Utils::calculateAbsoluteAddress(_aobBlocks[HUD_TOGGLE_KEY], 4+1));
 
 		// camera struct found, init our own camera object now and hook into game code which uses camera.
 		_cameraStructFound = true;
@@ -378,48 +347,6 @@ namespace IGCS
 		_camera.toggleLookDirectionInverter();
 		Console::WriteLine(_camera.lookDirectionInverter() < 0 ? "Y look direction is inverted" : "Y look direction is normal");
 	}
-	
-
-	//void System::toggleTimestopState()
-	//{
-	//	_timeStopped = _timeStopped == 0 ? (byte)1 : (byte)0;
-	//	Console::WriteLine(_timeStopped ? "Game paused" : "Game unpaused");
-	//	CameraManipulator::setTimeStopValue(_timeStopped);
-	//}
-	//
-
-	//void System::modifyHotsampleFactor(bool decrease)
-	//{
-	//	byte currentValue = _hotsamplingFactor;
-	//	if (decrease && _hotsamplingFactor <= 1)
-	//	{
-	//		_hotsamplingFactor = 1;
-	//	}
-	//	else
-	//	{
-	//		if (!decrease && _hotsamplingFactor >= HOTSAMPLE_FACTOR_MAX)
-	//		{
-	//			_hotsamplingFactor = HOTSAMPLE_FACTOR_MAX;
-	//		}
-	//		else
-	//		{
-	//			_hotsamplingFactor = decrease ? _hotsamplingFactor - 1 : _hotsamplingFactor + 1;
-	//		}
-	//	}
-	//	Console::WriteLine("Supersampling resize factor is now: " + to_string(_hotsamplingFactor));
-	//	if (currentValue != _hotsamplingFactor)
-	//	{
-	//		CameraManipulator::setSupersamplingFactor(_hotsamplingEnabled ? _hotsamplingFactor : (byte)1);
-	//	}
-	//}
-
-
-	//void System::toggleHotsampling()
-	//{
-	//	_hotsamplingEnabled = !_hotsamplingEnabled;
-	//	Console::WriteLine(_hotsamplingEnabled ? "Supersampling using resize factor is now enabled" : "Supersampling using resize factor is now disabled");
-	//	CameraManipulator::setSupersamplingFactor(_hotsamplingEnabled ? _hotsamplingFactor : (byte)1);
-	//}
 
 
 	void System::displayHelp()

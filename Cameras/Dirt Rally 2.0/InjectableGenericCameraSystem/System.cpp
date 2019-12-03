@@ -183,17 +183,6 @@ namespace IGCS
 		{
 			CameraManipulator::changeFoV(Globals::instance().settings().fovChangeSpeed);
 		}
-		//if (Input::isActionActivated(ActionType::Timestop))
-		//{
-		//	toggleTimestopState();
-		//	_applyHammerPrevention = true;
-		//}
-
-		//if (Input::isActionActivated(ActionType::HudToggle))
-		//{
-		//	toggleHudRenderState();
-		//	_applyHammerPrevention = true;
-		//}
 
 		if (!g_cameraEnabled)
 		{
@@ -419,18 +408,4 @@ namespace IGCS
 	{
 		OverlayControl::addNotification(g_cameraEnabled ? "Camera enabled" : "Camera disabled");
 	}
-
-
-	//void System::toggleTimestopState()
-	//{
-	//	_timeStopped = !_timeStopped;
-	//	OverlayControl::addNotification(_timeStopped ? "Game paused" : "Game unpaused");
-	//	CameraManipulator::setTimeStopValue(_timeStopped);
-	//}
-
-	//void System::toggleHudRenderState()
-	//{
-	//	_hudToggled = !_hudToggled;
-	//	InterceptorHelper::toggleHud(_aobBlocks, _hudToggled);
-	//}
 }

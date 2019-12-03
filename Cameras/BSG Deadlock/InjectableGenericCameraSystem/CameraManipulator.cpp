@@ -37,77 +37,12 @@ using namespace std;
 
 extern "C" {
 	LPBYTE g_cameraStructAddress = nullptr;
-	//LPBYTE g_secondQuaternion = nullptr;
 	LPBYTE g_fovConstructAddress = nullptr;
-	//LPBYTE g_timestopStructAddress = nullptr;
-	//LPBYTE g_superSamplingStructAddress = nullptr;
 }
 
 namespace IGCS::GameSpecific::CameraManipulator
 {
-	static float _originalCoordsData[3];
-	static float _originalLookData[4];
-	static float _currentCameraCoords[3];
-	//static LPBYTE _supersamplingVarAddress = nullptr;
-	//static LPBYTE _hudToggleVarAddress = nullptr;
-
-
-//	void setSupersamplingVarAddress(LPBYTE supersamplingVarAddress)
-//	{
-//#ifdef _DEBUG
-//		cout << "Supersampling var absolute address: " << (hex) << (void*)supersamplingVarAddress << endl;
-//#endif // DEBUG
-//		_supersamplingVarAddress = supersamplingVarAddress;
-//	}
-//
-//	void setHudToggleVarAddress(LPBYTE hudToggleVarAddress)
-//	{
-//#ifdef _DEBUG
-//		cout << "hud toggle var absolute address: " << (hex) << (void*)hudToggleVarAddress << endl;
-//#endif // DEBUG
-//		_hudToggleVarAddress = hudToggleVarAddress;
-//	}
-//
-//	void toggleHud()
-//	{
-//		if (nullptr == _hudToggleVarAddress)
-//		{
-//			return;
-//		}
-//		byte currentValue = *_hudToggleVarAddress;
-//		toggleHud(currentValue == 0 ? (byte)1 : (byte)0);
-//	}
-//
-//
-//	void toggleHud(byte newValue)
-//	{
-//		if (nullptr == _hudToggleVarAddress)
-//		{
-//			return;
-//		}
-//		*_hudToggleVarAddress = newValue;
-//	}
-//
-//
-//	void setSupersamplingFactor(byte newValue)
-//	{
-//		if (nullptr == _supersamplingVarAddress)
-//		{
-//			return;
-//		}
-//		*_supersamplingVarAddress = newValue;
-//	}
-
-
-	//// newValue: 1 == time should be frozen, 0 == normal gameplay
-	//void setTimeStopValue(byte newValue)
-	//{
-	//	if (nullptr == g_timestopStructAddress)
-	//	{
-	//		return;
-	//	}
-	//	*(g_timestopStructAddress + TIMESTOP_IN_STRUCT_OFFSET) = newValue;
-	//}
+	static float _originalCoordsData[3], _originalLookData[4],_currentCameraCoords[3];
 
 	// Resets the FOV to the default
 	void resetFoV()
@@ -139,8 +74,6 @@ namespace IGCS::GameSpecific::CameraManipulator
 	}
 	
 
-	// newLookQuaternion: newly calculated quaternion of camera view space. Can be used to construct a 4x4 matrix if the game uses a matrix instead of a quaternion
-	// newCoords are the new coordinates for the camera in worldspace.
 	void writeNewCameraValuesToGameData(XMFLOAT3 newCoords, XMVECTOR newLookQuaternion)
 	{
 		if (nullptr == g_cameraStructAddress)
@@ -151,31 +84,14 @@ namespace IGCS::GameSpecific::CameraManipulator
 		XMFLOAT4 qAsFloat4;
 		XMStoreFloat4(&qAsFloat4, newLookQuaternion);
 
+		float* lookQInMemory = reinterpret_cast<float*>(g_cameraStructAddress + LOOK_DATA_IN_CAMERA_STRUCT_OFFSET);
+		float* lookQInMemoryFourth = reinterpret_cast<float*>(g_cameraStructAddress + LOOK_DATA_SECOND_QAUTERNION);
 		float* coordsInMemory = reinterpret_cast<float*>(g_cameraStructAddress + CAMERA_COORDS_IN_CAMERA_STRUCT_OFFSET);
+
 		coordsInMemory[0] = newCoords.x;
 		coordsInMemory[1] = newCoords.y;
 		coordsInMemory[2] = newCoords.z;
 
-		/*float* coordsInMemorySecond = reinterpret_cast<float*>(g_cameraStructAddress + LOOK_DATA_IN_CAMERA_STRUCT_OFFSET);
-		coordsInMemorySecond[0] = newCoords.x/100;
-		coordsInMemorySecond[1] = newCoords.y/100;
-		coordsInMemorySecond[2] = newCoords.z/100;*/
-
-		float* lookQInMemory = reinterpret_cast<float*>(g_cameraStructAddress + LOOK_DATA_IN_CAMERA_STRUCT_OFFSET);
-		//float* lookQInMemorySecond = reinterpret_cast<float*>(g_cameraStructAddress + LOOK_DATA2_IN_CAMERA_STRUCT_OFFSET);
-		//float* lookQInMemoryThird = reinterpret_cast<float*>(g_cameraStructAddress + LOOK_DATA_IN_CAMERA_STRUCT_OFFSET);
-		float* lookQInMemoryFourth = reinterpret_cast<float*>(g_cameraStructAddress + LOOK_DATA_SECOND_QAUTERNION);
-		
-		//lookQInMemorySecond[0] = qAsFloat4.x;
-		//lookQInMemorySecond[1] = qAsFloat4.y;
-		//lookQInMemorySecond[2] = qAsFloat4.z;
-		//lookQInMemorySecond[3] = qAsFloat4.w;
-
-		////lookQInMemoryThird[0] = qAsFloat4.x;
-		////lookQInMemoryThird[1] = qAsFloat4.y;
-		////lookQInMemoryThird[2] = qAsFloat4.z;
-		////lookQInMemoryThird[3] = qAsFloat4.w;
-		////
 		lookQInMemoryFourth[0] = qAsFloat4.x;
 		lookQInMemoryFourth[1] = qAsFloat4.y;
 		lookQInMemoryFourth[2] = qAsFloat4.z;
@@ -216,8 +132,6 @@ namespace IGCS::GameSpecific::CameraManipulator
 		memcpy(coordsInMemory, _originalCoordsData, 3 * sizeof(float));
 		float* lookQInMemory = reinterpret_cast<float*>(g_cameraStructAddress + LOOK_DATA_IN_CAMERA_STRUCT_OFFSET);
 		memcpy(lookQInMemory, _originalLookData, 4 * sizeof(float));
-		//float* lookQInMemoryFourth = reinterpret_cast<float*>(g_secondQuaternion + LOOK_DATA_SECOND_QAUTERNION);
-		//memcpy(lookQInMemoryFourth, _originalLookData, 4 * sizeof(float));
 	}
 
 

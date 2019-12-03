@@ -34,7 +34,6 @@ namespace IGCS::GameSpecific::CameraManipulator
 	void writeNewDustCameraValuesToGameData(DirectX::XMFLOAT3 newCoords, DirectX::XMVECTOR newLookQuaternion);
 	void restoreOriginalValuesAfterCameraDisable();
 	void cacheOriginalValuesBeforeCameraEnable();
-	//void setTimeStopValue(bool pauseGame);
 	DirectX::XMFLOAT3 getCurrentCameraCoords();
 	DirectX::XMFLOAT3 getCurrentDustCameraCoords();
 	void resetFoV();
@@ -43,5 +42,4 @@ namespace IGCS::GameSpecific::CameraManipulator
 	void displayCameraStructAddress();
 	void getSettingsFromGameState();
 	void applySettingsToGameState();
-	//void selectDoF(int dofToSelect);
 }

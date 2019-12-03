@@ -40,9 +40,7 @@ PUBLIC resolutionscaleInterceptor
 ; Externs which are used and set by the system. Read / write these
 ; values in asm to communicate with the system
 EXTERN g_cameraEnabled: byte
-;EXTERN g_gamePaused: byte
 EXTERN g_cameraStructAddress: qword
-;EXTERN g_fovValue: dword
 EXTERN g_timestopStructAddress: qword
 EXTERN g_resolutionscaleStructAddress: qword
 ;---------------------------------------------------------------

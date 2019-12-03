@@ -38,10 +38,6 @@ using namespace std;
 extern "C" {
 	LPBYTE g_cameraStructAddress = nullptr;
 	LPBYTE g_cameraStructAddress2 = nullptr;
-	//LPBYTE g_resolutionScaleAddress = nullptr;
-	//LPBYTE g_timestopStructAddress = nullptr;
-	//LPBYTE g_displayTypeStructAddress = nullptr;
-	//LPBYTE g_dofStructAddress = nullptr;
 }
 
 namespace IGCS::GameSpecific::CameraManipulator
@@ -51,61 +47,16 @@ namespace IGCS::GameSpecific::CameraManipulator
 	static float _originalMatrix[12];
 	static float _originalQuaternion[4];
 	static float _originalFoV = DEFAULT_FOV;
-	//static float _originalResolutionScale;
-
-
-	//void selectDoF(int dofToSelect)
-	//{
-	//	if (nullptr != g_dofStructAddress)
-	//	{
-	//		int* dofSelectionInMemory = reinterpret_cast<int*>(g_dofStructAddress + DOF_SELECTOR_IN_STRUCT_OFFSET);
-	//		*dofSelectionInMemory = dofToSelect;
-	//	}
-	//}
-
-	//
-	//// This timestop is based on game speed. So if the game has to be paused, we will write a 0.00001f. If the game has to be unpaused, we'll write a 1.0f.
-	//void setTimeStopValue(bool pauseGame)
-	//{
-	//	if (nullptr == g_timestopStructAddress)
-	//	{
-	//		return;
-	//	}
-
-	//	float* gameSpeedInMemory = reinterpret_cast<float*>(g_timestopStructAddress + TIMESTOP_FLOAT_OFFSET);
-	//	*gameSpeedInMemory = pauseGame ? 0.00001f : 1.0f;
-	//}
-
 
 	void getSettingsFromGameState()
 	{
 		Settings& currentSettings = Globals::instance().settings();
-		//if (nullptr != g_resolutionScaleAddress)
-		//{
-		//	float* resolutionScaleInMemory = reinterpret_cast<float*>(g_resolutionScaleAddress + RESOLUTION_SCALE_IN_STRUCT_OFFSET);
-		//	currentSettings.resolutionScale = *resolutionScaleInMemory;
-		//}
-		//if (nullptr != g_displayTypeStructAddress)
-		//{
-		//	BYTE* displayTypeInMemory = reinterpret_cast<BYTE*>(g_displayTypeStructAddress + DISPLAYTYPE_IN_STRUCT_OFFSET);
-		//	currentSettings.displayType = (int)*displayTypeInMemory;
-		//}
 	}
 
 
 	void applySettingsToGameState()
 	{
 		Settings& currentSettings = Globals::instance().settings();
-		//if (nullptr != g_resolutionScaleAddress)
-		//{
-		//	float* resolutionScaleInMemory = reinterpret_cast<float*>(g_resolutionScaleAddress + RESOLUTION_SCALE_IN_STRUCT_OFFSET);
-		//	*resolutionScaleInMemory = Utils::clamp(currentSettings.resolutionScale, RESOLUTION_SCALE_MIN, RESOLUTION_SCALE_MAX, 1.0f);
-		//}
-		//if (nullptr != g_displayTypeStructAddress)
-		//{
-		//	BYTE* displayTypeInMemory = reinterpret_cast<BYTE*>(g_displayTypeStructAddress + DISPLAYTYPE_IN_STRUCT_OFFSET);
-		//	*displayTypeInMemory = (BYTE)currentSettings.displayType;
-		//}
 	}
 
 
@@ -208,8 +159,6 @@ namespace IGCS::GameSpecific::CameraManipulator
 
 		float* coords2InMemory = nullptr;
 		float* quaternion2InMemory = nullptr;
-//		float* quaternion3InMemory = nullptr;
-//		float* quaternion4InMemory = nullptr;
 
 		coords2InMemory = reinterpret_cast<float*>(g_cameraStructAddress2 + COORDS_IN_STRUCT2_OFFSET);
 		coords2InMemory[0] = newCoords.x;
@@ -221,18 +170,6 @@ namespace IGCS::GameSpecific::CameraManipulator
 		quaternion2InMemory[1] = qAsFloat4.y;
 		quaternion2InMemory[2] = qAsFloat4.z;
 		quaternion2InMemory[3] = qAsFloat4.w;
-
-		//quaternion3InMemory = reinterpret_cast<float*>(g_cameraStructAddress2 + OTHER_QUAT1);
-		//quaternion3InMemory[0] = qAsFloat4.x;
-		//quaternion3InMemory[1] = qAsFloat4.y;
-		//quaternion3InMemory[2] = qAsFloat4.z;
-		//quaternion3InMemory[3] = qAsFloat4.w;
-
-		//quaternion4InMemory = reinterpret_cast<float*>(g_cameraStructAddress2 + OTHER_QUAT2);
-		//quaternion4InMemory[0] = qAsFloat4.x;
-		//quaternion4InMemory[1] = qAsFloat4.y;
-		//quaternion4InMemory[2] = qAsFloat4.z;
-		//quaternion4InMemory[3] = qAsFloat4.w;
 	}
 
 
@@ -252,7 +189,6 @@ namespace IGCS::GameSpecific::CameraManipulator
 	// should restore the camera values in the camera structures to the cached values. This assures the free camera is always enabled at the original camera location.
 	void restoreOriginalValuesAfterCameraDisable()
 	{
-		//float* quaternionInMemory = nullptr;
 		float* matrixInMemory = nullptr;
 		float* coordsInMemory = nullptr;
 		float *fovInMemory = nullptr;
@@ -268,11 +204,6 @@ namespace IGCS::GameSpecific::CameraManipulator
 
 		fovInMemory = reinterpret_cast<float*>(g_cameraStructAddress + FOV_IN_STRUCT_OFFSET);
 		*fovInMemory = _originalFoV;
-		//if (nullptr!=g_resolutionScaleAddress)
-		//{
-		//	float* resolutionScaleInMemory = reinterpret_cast<float*>(g_resolutionScaleAddress + RESOLUTION_SCALE_IN_STRUCT_OFFSET);
-		//	*resolutionScaleInMemory = _originalResolutionScale;
-		//}
 
 		float* quaternion2InMemory = nullptr;
 		float* coords2InMemory = nullptr;
@@ -281,7 +212,6 @@ namespace IGCS::GameSpecific::CameraManipulator
 		{
 			return;
 		}
-		// gameplay / cutscene cam
 		quaternion2InMemory = reinterpret_cast<float*>(g_cameraStructAddress2 + QUATERNION_IN_STRUCT2_OFFSET);
 		coords2InMemory = reinterpret_cast<float*>(g_cameraStructAddress2 + COORDS_IN_STRUCT2_OFFSET);
 		memcpy(quaternion2InMemory, _originalQuaternion, 4 * sizeof(float));
@@ -292,7 +222,6 @@ namespace IGCS::GameSpecific::CameraManipulator
 
 	void cacheOriginalValuesBeforeCameraEnable()
 	{
-		//float* quaternionInMemory = nullptr;
 		float* matrixInMemory = nullptr;
 		float* coordsInMemory = nullptr;
 		float *fovInMemory = nullptr;
@@ -308,11 +237,6 @@ namespace IGCS::GameSpecific::CameraManipulator
 
 		fovInMemory = reinterpret_cast<float*>(g_cameraStructAddress + FOV_IN_STRUCT_OFFSET);
 		_originalFoV = *fovInMemory;
-		//if (nullptr != g_resolutionScaleAddress)
-		//{
-		//	float* resolutionScaleInMemory = reinterpret_cast<float*>(g_resolutionScaleAddress + RESOLUTION_SCALE_IN_STRUCT_OFFSET);
-		//	_originalResolutionScale = *resolutionScaleInMemory;
-		//}
 
 		float* quaternion2InMemory = nullptr;
 		float* coords2InMemory = nullptr;
@@ -321,7 +245,6 @@ namespace IGCS::GameSpecific::CameraManipulator
 		{
 			return;
 		}
-		// gameplay/cutscene cam
 		quaternion2InMemory = reinterpret_cast<float*>(g_cameraStructAddress2 + QUATERNION_IN_STRUCT2_OFFSET);
 		coords2InMemory = reinterpret_cast<float*>(g_cameraStructAddress2 + COORDS_IN_STRUCT2_OFFSET);
 		memcpy(_originalQuaternion, quaternion2InMemory, 4 * sizeof(float));

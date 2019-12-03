@@ -43,9 +43,7 @@ PUBLIC fovReadInterceptor
 ; values in asm to communicate with the system
 EXTERN g_cameraEnabled: byte
 EXTERN g_cameraStructAddress: dword
-;EXTERN g_secondQuaternion: dword
 EXTERN g_fovConstructAddress: dword
-;EXTERN g_timestopStructAddress: dword
 ;---------------------------------------------------------------
 
 ;---------------------------------------------------------------

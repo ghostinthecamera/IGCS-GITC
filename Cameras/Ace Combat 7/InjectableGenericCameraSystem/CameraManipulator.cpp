@@ -123,36 +123,11 @@ namespace IGCS::GameSpecific::CameraManipulator
 	void hudToggle()
 	{
 		float* hud1InMemory = reinterpret_cast<float*>(_hostImageAddress + HUD_TOGGLE_1);
-		//OverlayConsole::instance().logDebug("HUD Toggle 1 Address: %p", (void*)hud1InMemory);
-		//OverlayConsole::instance().logDebug("HUD Toggle 1 value: %f", (float)*hud1InMemory);
 		*hud1InMemory = *hud1InMemory > 0.1f ? 0.0f : 1.0f;
-		//OverlayConsole::instance().logDebug("HUD Toggle 1 value: %f", (float)*hud1InMemory);
 
 		BYTE* hud2InMemory = reinterpret_cast<BYTE*>(_hostImageAddress + HUD_TOGGLE_2);
-		//OverlayConsole::instance().logDebug("HUD Toggle 2 Address: %p", (void*)hud2InMemory);
-		//OverlayConsole::instance().logDebug("HUD Toggle 2 Value: %x", (BYTE)*hud2InMemory);
 		*hud2InMemory = *hud2InMemory == (BYTE)1 ? (BYTE)0 : (BYTE)1;
-		//OverlayConsole::instance().logDebug("HUD Toggle 1 value: %f", (float)*hud1InMemory);
 	}
-
-	void hudOn()
-	{
-		float* hud1InMemory = reinterpret_cast<float*>(_hostImageAddress + HUD_TOGGLE_1);
-		*hud1InMemory = 1.0f;
-
-		BYTE* hud2InMemory = reinterpret_cast<BYTE*>(_hostImageAddress + HUD_TOGGLE_2);
-		*hud2InMemory = (BYTE)1;
-	}
-
-	void hudOff()
-	{
-		float* hud1InMemory = reinterpret_cast<float*>(_hostImageAddress + HUD_TOGGLE_1);
-		*hud1InMemory = 0.0f;
-
-		BYTE* hud2InMemory = reinterpret_cast<BYTE*>(_hostImageAddress + HUD_TOGGLE_2);
-		*hud2InMemory = (BYTE)0;
-	}
-
 
 	void getSettingsFromGameState()
 	{

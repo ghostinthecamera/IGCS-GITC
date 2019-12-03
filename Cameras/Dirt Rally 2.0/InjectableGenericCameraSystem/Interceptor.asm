@@ -35,10 +35,6 @@ PUBLIC cameraStructInterceptor
 PUBLIC cameraStructInterceptor2
 PUBLIC cameraWrite1Interceptor
 PUBLIC cameraWrite2Interceptor
-;PUBLIC timestopReadInterceptor
-;PUBLIC resolutionScaleReadInterceptor
-;PUBLIC displayTypeInterceptor
-;PUBLIC dofSelectorWriteInterceptor
 
 ;---------------------------------------------------------------
 
@@ -48,10 +44,6 @@ PUBLIC cameraWrite2Interceptor
 EXTERN g_cameraEnabled: byte
 EXTERN g_cameraStructAddress: qword
 EXTERN g_cameraStructAddress2: qword
-;EXTERN g_resolutionScaleAddress: qword
-;EXTERN g_timestopStructAddress: qword
-;EXTERN g_displayTypeStructAddress: qword
-;EXTERN g_dofStructAddress: qword
 
 ;---------------------------------------------------------------
 
@@ -61,10 +53,6 @@ EXTERN _cameraStructInterceptionContinue: qword
 EXTERN _cameraStructInterception2Continue: qword
 EXTERN _cameraWrite1InterceptionContinue: qword
 EXTERN _cameraWrite2InterceptionContinue: qword
-;EXTERN _timestopReadInterceptionContinue: qword
-;EXTERN _resolutionScaleReadInterceptionContinue: qword
-;EXTERN _displayTypeInterceptionContinue: qword
-;EXTERN _dofSelectorWriteInterceptionContinue: qword
 
 .data
 

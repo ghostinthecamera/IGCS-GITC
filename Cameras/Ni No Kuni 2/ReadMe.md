@@ -5,6 +5,10 @@ Camera version: 0.1
 Camera release binaries: WIP  
 Credits: GHOSTINTHECAMERA/Skall/Hattiwatti  
 
+Brought to you by [FRAMED. Screenshotting community](https://framedsc.github.io). 
+
+![](https://framedsc.github.io/Images/FRAMED_LogoBigDarkTransparent800px.png)
+
 ### Features
 
 - Camera control:

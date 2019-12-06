@@ -1,9 +1,9 @@
 Injectable camera for Ni No Kuni II: Revenant Kingdom
 ======================================================
 
-Camera version: 0.1 
-Camera release binaries: WIP
-Credits: GHOSTINTHECAMERA/Skall/Hattiwatti
+Camera version: 0.1  
+Camera release binaries: WIP  
+Credits: GHOSTINTHECAMERA/Skall/Hattiwatti  
 
 ### Features
 

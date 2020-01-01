@@ -1,21 +1,24 @@
-Injectable camera for Deserts of Kharak
-============================
+Injectable camera for Ni No Kuni II: Revenant Kingdom
+======================================================
 
-Camera version: 1.0  
-Camera release binaries: https://github.com/ghostinthecamera/IGCS-GITC/releases/tag/DoKv1.0  
-Credits: GHOSTINTHECAMERA & IDK31
+Camera version: 0.1  
+Camera release binaries: WIP  
+Credits: GHOSTINTHECAMERA/Skall/Hattiwatti  
+
+Brought to you by [FRAMED. Screenshotting community](https://framedsc.github.io). 
+
+![](https://framedsc.github.io/Images/FRAMED_LogoBigDarkTransparent800px.png)
 
 ### Features
 
 - Camera control:
 	- FoV control
-	- Free unlimited camera movement and rotation 
+	- Free unlimited camera movement and rotation (including cutscenes)
+	- Timestop
+	- HUD Toggle
 
 ### How to use
 Read the enclosed readme.txt for details, really! Run the game as **administrator** otherwise it won't work.
-
-### Pause and HUD Removal  
-Use the hotkey "P" to pause the game and "CTRL+H" to toggle the HUD.
 
 ### EULA
 To use these camera tools, you have to comply to the following:

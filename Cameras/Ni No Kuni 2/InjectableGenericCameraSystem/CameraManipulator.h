@@ -30,7 +30,7 @@
 
 namespace IGCS::GameSpecific::CameraManipulator
 {
-	void writeNewCameraValuesToGameData(DirectX::XMFLOAT3 newCoords, DirectX::XMVECTOR newLookQuaternion, DirectX::XMFLOAT3 newCoords2, DirectX::XMVECTOR newLookQuaternion2);
+	void writeNewCameraValuesToGameData(DirectX::XMFLOAT3 newCoords, DirectX::XMVECTOR newLookQuaternion);
 	void restoreOriginalValuesAfterCameraDisable();
 	void cacheOriginalValuesBeforeCameraEnable();
 	DirectX::XMFLOAT3 initialiseCamera();
@@ -47,4 +47,5 @@ namespace IGCS::GameSpecific::CameraManipulator
 	void timeStop();
 	void speedUp(int multiplier, bool toggle);
 	void toggleHUD();
+	void writeNewCameraValuesToGameDataQuaternion(DirectX::XMFLOAT3 newCoords, DirectX::XMVECTOR newLookQuaternion);
 }

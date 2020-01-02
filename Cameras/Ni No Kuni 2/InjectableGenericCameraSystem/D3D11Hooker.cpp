@@ -15,6 +15,8 @@
 
 #pragma comment(lib, "d3d11.lib")
 
+ID3D11ShaderResourceView* my_texture = NULL;
+
 namespace IGCS::D3D11Hooker
 {
 	#define DXGI_PRESENT_INDEX			8

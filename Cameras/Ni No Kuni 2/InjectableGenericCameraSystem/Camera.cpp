@@ -123,7 +123,7 @@ namespace IGCS
 			XMVECTOR directionAsQ = XMVectorSet(_direction.x, _direction.y, _direction.z, 0.0f);
 			XMVECTOR newDirection = XMVector3Rotate(directionAsQ, lookQ);
 			toReturn.x -= XMVectorGetX(newDirection);
-			toReturn.y += XMVectorGetY(newDirection);
+			toReturn.y -= XMVectorGetY(newDirection);
 			toReturn.z -= XMVectorGetZ(newDirection);
 		}
 		return toReturn;

@@ -31,8 +31,8 @@ namespace IGCS::GameSpecific
 {
 	// Mandatory constants to define for a game
 	#define GAME_NAME									"Ni No Kuni 2"
-	#define CAMERA_VERSION								"0.1"
-	#define CAMERA_CREDITS								"GHOSTINTHECAMERA & Hattiwatti"
+	#define CAMERA_VERSION								"1.0"
+	#define CAMERA_CREDITS								"GHOSTINTHECAMERA/Hattiwatti/SkallEdit"
 	#define GAME_WINDOW_TITLE							"Ni no Kuni II: Revenant Kingdom"
 	#define INITIAL_PITCH_RADIANS						0.0f	// around X axis	(right)
 	#define INITIAL_YAW_RADIANS							0.0f	// around Y axis	(up)

@@ -156,7 +156,7 @@ namespace IGCS::GameSpecific::CameraManipulator
 		return dot;
 	}
 
-	void writeNewCameraValuesToGameData(XMFLOAT3 newCoords, XMVECTOR newLookQuaternion, XMFLOAT3 newCoords2, XMVECTOR newLookQuaternion2)
+	void writeNewCameraValuesToGameData(XMFLOAT3 newCoords, XMVECTOR newLookQuaternion)
 	{
 		if (!isCameraFound())
 		{
@@ -164,8 +164,6 @@ namespace IGCS::GameSpecific::CameraManipulator
 		}
 		XMFLOAT4X4 rotationMatrix;
 		float* matrixInMemory = nullptr;
-		float* quaternionInMemory = nullptr;
-		float* quaternionCoordsInMemory = nullptr;
 
 		XMMATRIX rotationMatrixPacked = XMMatrixRotationQuaternion(newLookQuaternion);
 		XMVECTOR newViewCoords = XMLoadFloat3(&newCoords);
@@ -178,8 +176,6 @@ namespace IGCS::GameSpecific::CameraManipulator
 		XMFLOAT3 Coords(-calcvecdot(xAxis, newViewCoords), -calcvecdot(yAxis, newViewCoords), -calcvecdot(zAxis, newViewCoords));
 
 		matrixInMemory = reinterpret_cast<float*>(g_cameraStructAddress);
-		quaternionInMemory = reinterpret_cast<float*>(g_cameraStructAddress + QUATERNION_OFFSET);
-		quaternionCoordsInMemory = reinterpret_cast<float*>(g_cameraStructAddress + QUATERNION_COORD_OFFSET);
 
 		matrixInMemory[0] = rotationMatrix._11;
 		matrixInMemory[1] = rotationMatrix._12;
@@ -193,14 +189,27 @@ namespace IGCS::GameSpecific::CameraManipulator
 		matrixInMemory[9] = rotationMatrix._32;
 		matrixInMemory[10] = rotationMatrix._33;
 		matrixInMemory[11] = Coords.z;
+	}
 
-		quaternionInMemory[0] = XMVectorGetX(newLookQuaternion2);
-		quaternionInMemory[1] = XMVectorGetY(newLookQuaternion2);
-		quaternionInMemory[2] = XMVectorGetZ(newLookQuaternion2);
-		quaternionInMemory[3] = XMVectorGetW(newLookQuaternion2);
-		quaternionCoordsInMemory[0] = newCoords2.x;
-		quaternionCoordsInMemory[1] = newCoords2.y;
-		quaternionCoordsInMemory[2] = newCoords2.z;
+	void writeNewCameraValuesToGameDataQuaternion(XMFLOAT3 newCoords, XMVECTOR newLookQuaternion)
+	{
+		if (!isCameraFound())
+		{
+			return;
+		}
+		float* quaternionInMemory = nullptr;
+		float* quaternionCoordsInMemory = nullptr;
+
+		quaternionInMemory = reinterpret_cast<float*>(g_cameraStructAddress + QUATERNION_OFFSET);
+		quaternionCoordsInMemory = reinterpret_cast<float*>(g_cameraStructAddress + QUATERNION_COORD_OFFSET);
+
+		quaternionInMemory[0] = XMVectorGetX(newLookQuaternion);
+		quaternionInMemory[1] = XMVectorGetY(newLookQuaternion);
+		quaternionInMemory[2] = XMVectorGetZ(newLookQuaternion);
+		quaternionInMemory[3] = XMVectorGetW(newLookQuaternion);
+		quaternionCoordsInMemory[0] = newCoords.x;
+		quaternionCoordsInMemory[1] = newCoords.y;
+		quaternionCoordsInMemory[2] = newCoords.z;
 
 	}
 

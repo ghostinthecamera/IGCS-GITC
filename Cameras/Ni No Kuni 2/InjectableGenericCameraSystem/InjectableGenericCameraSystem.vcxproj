@@ -180,6 +180,7 @@
     <ClInclude Include="Overlay\imstb_truetype.h" />
     <ClInclude Include="ScanPattern.h" />
     <ClInclude Include="Settings.h" />
+    <ClInclude Include="stb_image.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="System.h" />
     <ClInclude Include="targetver.h" />

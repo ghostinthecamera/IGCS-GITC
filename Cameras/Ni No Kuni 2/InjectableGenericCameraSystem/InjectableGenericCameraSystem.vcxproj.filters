@@ -118,6 +118,9 @@
     <ClInclude Include="ScanPattern.h">
       <Filter>Hooking</Filter>
     </ClInclude>
+    <ClInclude Include="stb_image.h">
+      <Filter>Misc</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="InterceptorHelper.cpp">

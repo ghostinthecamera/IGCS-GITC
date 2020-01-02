@@ -57,6 +57,7 @@ namespace IGCS
 		void toggleInputBlockState(bool newValue);
 		void toggleTimestopState();
 		void toggleHudRenderState();
+		void displayCutsceneCameraState();
 
 		Camera _camera;
 		LPBYTE _hostImageAddress;
@@ -66,6 +67,7 @@ namespace IGCS
 		bool _timeStopped = false;
 		bool _hudToggled = false;
 		bool _speeduptoggle = false;
+		bool _cutscenecamtoggled = false;
 		map<string, AOBBlock*> _aobBlocks;
 		map<string, AOBBlock*> _aobBlocks2;
 		bool _applyHammerPrevention = false;	// set to true by a keyboard action and which triggers a sleep before keyboard handling is performed.

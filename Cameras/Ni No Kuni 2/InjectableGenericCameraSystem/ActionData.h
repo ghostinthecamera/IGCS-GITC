@@ -34,6 +34,7 @@ namespace IGCS
 	{
 		BlockInput,
 		CameraEnable,
+		CutsceneCamera,
 		CameraLock,
 		FovDecrease,
 		FovIncrease,
@@ -53,9 +54,7 @@ namespace IGCS
 		TiltRight,
 		Timestop,
 		ToggleOverlay,
-		SlowMo,
 		Amount,
-		SpeedUp,
 	};
 
 

@@ -101,13 +101,21 @@ namespace IGCS
 		DirectX::XMFLOAT3 newCoords2;
 		DirectX::XMFLOAT3 currentCoords;
 		DirectX::XMFLOAT3 currentCoords2;
+
 		if (GameSpecific::CameraManipulator::isCameraFound())
 		{
-		currentCoords = GameSpecific::CameraManipulator::initialiseCamera();
-		currentCoords2 = GameSpecific::CameraManipulator::currentQuatCoords();
-		newCoords = _camera.calculateNewCoords(currentCoords, newLookQuaternion);
-		newCoords2 = _camera.calculateNewCoordsSecond(currentCoords2, newLookQuaternion2);
-		GameSpecific::CameraManipulator::writeNewCameraValuesToGameData(newCoords, newLookQuaternion, newCoords2, newLookQuaternion2);
+			if (g_cameraEnabled && !_cutscenecamtoggled)
+			{
+				currentCoords = GameSpecific::CameraManipulator::initialiseCamera();
+				newCoords = _camera.calculateNewCoords(currentCoords, newLookQuaternion);
+				GameSpecific::CameraManipulator::writeNewCameraValuesToGameData(newCoords, newLookQuaternion);
+			}
+			if (g_cameraEnabled && _cutscenecamtoggled)
+			{
+				currentCoords2 = GameSpecific::CameraManipulator::currentQuatCoords();
+				newCoords2 = _camera.calculateNewCoordsSecond(currentCoords2, newLookQuaternion2);
+				GameSpecific::CameraManipulator::writeNewCameraValuesToGameDataQuaternion(newCoords2, newLookQuaternion2);
+			}
 		}
 	}
 
@@ -140,6 +148,10 @@ namespace IGCS
 		}
 		if (Input::isActionActivated(ActionType::CameraEnable))
 		{
+			if (_cutscenecamtoggled)
+			{
+				return;
+			}
 			if (g_cameraEnabled)
 			{
 				//going to be disabled
@@ -160,6 +172,35 @@ namespace IGCS
 			}
 			g_cameraEnabled = g_cameraEnabled == 0 ? (BYTE)1 : (BYTE)0;
 			displayCameraState();
+			_applyHammerPrevention = true;
+		}
+		if (Input::isActionActivated(ActionType::CutsceneCamera))
+		{
+			if (g_cameraEnabled && !_cutscenecamtoggled)
+			{
+				return;
+			}
+			if (g_cameraEnabled)
+			{
+				//going to be disabled
+				CameraManipulator::restoreOriginalValuesAfterCameraDisable();
+				toggleCameraMovementLockState(false);
+				InterceptorHelper::SaveNOPReplace(_aobBlocks[QUATERNION_WRITE], 5, false);
+				InterceptorHelper::SaveNOPReplace(_aobBlocks[QUATERNION_COORD_WRITE], 16, false);
+				InterceptorHelper::SaveNOPReplace(_aobBlocks[QUATERNION_CUTSCENE_COORD_WRITE], 18, false);
+			}
+			else
+			{
+				// it's going to be enabled, so cache the original values before we enable it so we can restore it afterwards
+				CameraManipulator::cacheOriginalValuesBeforeCameraEnable();
+				_camera.resetAngles();
+				InterceptorHelper::SaveNOPReplace(_aobBlocks[QUATERNION_WRITE], 5, true);
+				InterceptorHelper::SaveNOPReplace(_aobBlocks[QUATERNION_COORD_WRITE], 16, true);
+				InterceptorHelper::SaveNOPReplace(_aobBlocks[QUATERNION_CUTSCENE_COORD_WRITE], 18, true);
+			}
+			g_cameraEnabled = g_cameraEnabled == 0 ? (BYTE)1 : (BYTE)0;
+			_cutscenecamtoggled = _cutscenecamtoggled == false ? true : false;
+			displayCutsceneCameraState();
 			_applyHammerPrevention = true;
 		}
 		if (Input::isActionActivated(ActionType::FovReset) && Globals::instance().keyboardMouseControlCamera())
@@ -414,6 +455,11 @@ namespace IGCS
 	void System::displayCameraState()
 	{
 		OverlayControl::addNotification(g_cameraEnabled ? "Camera enabled" : "Camera disabled");
+	}
+
+	void System::displayCutsceneCameraState()
+	{
+		OverlayControl::addNotification(_cutscenecamtoggled ? "Cutscene/Cinematic Camera enabled" : "Cutscene/Cinematic Camera disabled");
 	}
 
 	void System::toggleTimestopState()

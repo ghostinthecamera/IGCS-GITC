@@ -99,8 +99,9 @@ namespace IGCS::Console
 		wcin.clear();
 		cin.clear();
 
-		SetColor(15);
-		SetConsoleTextAttribute(GetStdHandle(STD_ERROR_HANDLE), 12);
+		SetColor(7);
+		//SetConsoleTextAttribute(GetStdHandle(STD_ERROR_HANDLE), 15);
+		//SetConsoleTextAttribute(GetStdHandle(STD_ERROR_HANDLE), FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_INTENSITY | BACKGROUND_BLUE);
 		_consoleInitialized = true;
 	}
 

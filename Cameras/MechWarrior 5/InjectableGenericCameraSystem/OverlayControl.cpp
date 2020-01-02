@@ -297,8 +297,6 @@ Special thanks to:
 		if (ImGui::CollapsingHeader("Misc. camera options", ImGuiTreeNodeFlags_DefaultOpen))
 		{
 			settingsChanged |= ImGui::SliderFloat("Field of View (FoV) zoom speed", &currentSettings.fovChangeSpeed, 0.01f, 1.00f, "%.2f");
-			ImGui::SliderFloat("Resolution scale factor", &currentSettings.resolutionScale, 25.0f, RESOLUTION_SCALE_MAX, "%.0f");
-			ImGui::SameLine(); showHelpMarker("Be careful with values bigger than 200 as it could make\nthe game crash due to too much overhead.\nYou can specify values bigger than 2 by using\nCtrl-click and then type the value.\nMax is 200.");
 		}
 		ImGui::PopItemWidth();
 		if (settingsChanged)

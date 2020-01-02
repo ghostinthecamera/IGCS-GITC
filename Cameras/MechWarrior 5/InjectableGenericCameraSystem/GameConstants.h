@@ -31,7 +31,7 @@ namespace IGCS::GameSpecific
 {
 	// Mandatory constants to define for a game
 	#define GAME_NAME									"MechWarrior 5"
-	#define CAMERA_VERSION								"0.1"
+	#define CAMERA_VERSION								"1.0"
 	#define CAMERA_CREDITS								"GHOSTINTHECAMERA"
 	#define GAME_WINDOW_TITLE							"MW5Mercs"
 	#define INITIAL_PITCH_RADIANS						0.0f	// around X axis	(right)
@@ -41,12 +41,10 @@ namespace IGCS::GameSpecific
 	#define FASTER_MULTIPLIER							5.0f
 	#define SLOWER_MULTIPLIER							0.1f
 	#define MOUSE_SPEED_CORRECTION						0.2f	// to correct for the mouse-deltas related to normal rotation.
-	#define DEFAULT_MOVEMENT_SPEED						6.0f
-	#define DEFAULT_ROTATION_SPEED						0.04f
-	#define DEFAULT_FOV_SPEED							1.00f
+	#define DEFAULT_MOVEMENT_SPEED						50.0f
+	#define DEFAULT_ROTATION_SPEED						0.01f
+	#define DEFAULT_FOV_SPEED							0.5f
 	#define DEFAULT_UP_MOVEMENT_MULTIPLIER				0.7f
-	#define RESOLUTION_SCALE_MAX						200.0f
-	#define RESOLUTION_SCALE_MIN						25.0f
 	// End Mandatory constants
 
 	// AOB Keys for interceptor's AOB scanner
@@ -59,7 +57,7 @@ namespace IGCS::GameSpecific
 	// Indices in the structures read by interceptors 
 	#define COORDS_IN_STRUCT_OFFSET						0x000
 	#define ROTATION_IN_STRUCT_OFFSET					0x0C
-	#define FOV_IN_STRUCT_OFFSET						0x418
-	#define TIMESTOP_IN_STRUCT_OFFSET					0x364
+	#define FOV_IN_STRUCT_OFFSET						0x18
+	#define TIMESTOP_IN_STRUCT_OFFSET					0x360
 	
 }

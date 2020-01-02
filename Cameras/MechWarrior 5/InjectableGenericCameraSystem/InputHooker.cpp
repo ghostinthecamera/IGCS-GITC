@@ -31,8 +31,7 @@
 #include "Gamepad.h"
 #include "Globals.h"
 #include "input.h"
-#include "OverlayConsole.h"
-#include "OverlayControl.h"
+#include "Console.h"
 #include <mutex>
 
 using namespace std;
@@ -155,7 +154,7 @@ namespace IGCS::InputHooker
 		if (lpMsg != nullptr && Input::handleMessage(lpMsg))
 		{
 			// message was handled by our code. This means it's a message we want to block if input blocking is enabled or the overlay / menu is shown
-			if ((Globals::instance().inputBlocked() && Globals::instance().keyboardMouseControlCamera()) || OverlayControl::isMainMenuVisible())
+			if ((Globals::instance().inputBlocked() && Globals::instance().keyboardMouseControlCamera()))
 			{
 				lpMsg->message = WM_NULL;	// reset to WM_NULL so the host will receive a dummy message instead.
 			}
@@ -170,20 +169,20 @@ namespace IGCS::InputHooker
 		{
 			return;
 		}
-		if (MH_CreateHookApiEx(L"xinput9_1_0", "XInputGetState", &detourXInputGetState, &hookedXInputGetState) != MH_OK)
+		if (MH_CreateHookApiEx(L"xinput1_3", "XInputGetState", &detourXInputGetState, &hookedXInputGetState) != MH_OK)
 		{
-			OverlayConsole::instance().logError("Hooking XINPUT failed! Try re-enabling the hook with the button on the settings tab after you've used the controller in-game.");
+			Console::WriteError("Hooking XINPUT failed! Try re-enabling the hook with the button on the settings tab after you've used the controller in-game.");
 		}
 		if (enableHook)
 		{
 			if (MH_EnableHook(MH_ALL_HOOKS) == MH_OK)
 			{
-				OverlayConsole::instance().logLine("Hook to XInputGetState enabled");
+				Console::WriteLine("Hook to XInputGetState enabled");
 			}
 		}
 		else
 		{
-			OverlayConsole::instance().logDebug("Hook set to XInputGetState");
+			Console::WriteLine("Hook set to XInputGetState");
 		}
 	}
 
@@ -197,36 +196,36 @@ namespace IGCS::InputHooker
 
 		if (MH_CreateHookApiEx(L"user32", "GetMessageA", &detourGetMessageA, &hookedGetMessageA) != MH_OK)
 		{
-			OverlayConsole::instance().logError("Hooking GetMessageA failed!");
+			Console::WriteError("Hooking GetMessageA failed!");
 		}
-		OverlayConsole::instance().logDebug("Hook set to GetMessageA");
+		Console::WriteLine("Hook set to GetMessageA");
 
 		if (MH_CreateHookApiEx(L"user32", "GetMessageW", &detourGetMessageW, &hookedGetMessageW) != MH_OK)
 		{
-			OverlayConsole::instance().logError("Hooking GetMessageW failed!");
+			Console::WriteError("Hooking GetMessageW failed!");
 		}
-		OverlayConsole::instance().logDebug("Hook set to GetMessageW");
+		Console::WriteLine("Hook set to GetMessageW");
 
 		if (MH_CreateHookApiEx(L"user32", "PeekMessageA", &detourPeekMessageA, &hookedPeekMessageA) != MH_OK)
 		{
-			OverlayConsole::instance().logError("Hooking PeekMessageA failed!");
+			Console::WriteError("Hooking PeekMessageA failed!");
 		}
-		OverlayConsole::instance().logDebug("Hook set to PeekMessageA");
+		Console::WriteLine("Hook set to PeekMessageA");
 
 		if (MH_CreateHookApiEx(L"user32", "PeekMessageW", &detourPeekMessageW, &hookedPeekMessageW) != MH_OK)
 		{
-			OverlayConsole::instance().logError("Hooking PeekMessageW failed!");
+			Console::WriteError("Hooking PeekMessageW failed!");
 		}
-		OverlayConsole::instance().logDebug("Hook set to PeekMessageW");
+		Console::WriteLine("Hook set to PeekMessageW");
 
 		// Enable all hooks
 		if (MH_EnableHook(MH_ALL_HOOKS) == MH_OK)
 		{
-			OverlayConsole::instance().logLine("All hooks enabled.");
+			Console::WriteLine("All hooks enabled.");
 		}
 		else
 		{
-			OverlayConsole::instance().logError("Enabling hooks failed.");
+			Console::WriteError("Enabling hooks failed.");
 		}
 	}
 }

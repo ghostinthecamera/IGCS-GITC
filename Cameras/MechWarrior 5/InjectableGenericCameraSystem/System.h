@@ -56,6 +56,8 @@ namespace IGCS
 		void toggleInputBlockState(bool newValue);
 		//void toggleTimestopState();
 		void toggleHudRenderState();
+		void displayHelp();
+		void ConsoleSplash();
 
 		Camera _camera;
 		LPBYTE _hostImageAddress;

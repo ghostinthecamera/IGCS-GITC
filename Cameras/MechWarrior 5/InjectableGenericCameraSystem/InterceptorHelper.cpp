@@ -32,6 +32,7 @@
 #include <map>
 #include "OverlayConsole.h"
 #include "CameraManipulator.h"
+#include "Console.h"
 
 using namespace std;
 
@@ -39,17 +40,13 @@ using namespace std;
 // external asm functions
 extern "C" {
 	void cameraStructInterceptor();
-	void resolutionScaleReadInterceptor();
 	void timestopReadInterceptor();
 }
 
 // external addresses used in asm.
 extern "C" {
 	LPBYTE _cameraStructInterceptionContinue = nullptr;
-	LPBYTE _resolutionHookABSADD = nullptr;
-	LPBYTE _resolutionScaleReadInterceptionContinue = nullptr;
 	LPBYTE _timestopReadInterceptionContinue = nullptr;
-	LPBYTE _HUDAddress = nullptr;
 }
 
 
@@ -70,18 +67,18 @@ namespace IGCS::GameSpecific::InterceptorHelper
 		}
 		if (result)
 		{
-			OverlayConsole::instance().logLine("All interception offsets found.");
+			Console::WriteLine("All interception offsets found.");
 		}
 		else
 		{
-			OverlayConsole::instance().logError("One or more interception offsets weren't found: tools aren't compatible with this game's version.");
+			Console::WriteLine("One or more interception offsets weren't found: tools aren't compatible with this game's version.");
 		}
 	}
 
 
 	void setCameraStructInterceptorHook(map<string, AOBBlock*> &aobBlocks)
 	{
-		GameImageHooker::setHook(aobBlocks[CAMERA_ADDRESS_INTERCEPT_KEY], 0x20, &_cameraStructInterceptionContinue, &cameraStructInterceptor);
+		GameImageHooker::setHook(aobBlocks[CAMERA_ADDRESS_INTERCEPT_KEY], 0x23, &_cameraStructInterceptionContinue, &cameraStructInterceptor);
 	}
 
 	void getAbsoluteAddresses(map<string, AOBBlock*> &aobBlocks)
@@ -110,7 +107,7 @@ namespace IGCS::GameSpecific::InterceptorHelper
 			}
 			else
 			{
-				OverlayConsole::instance().logLine("Already Nopped - this shouldnt be showing. Something isnt working right");
+				Console::WriteLine("Already Nopped - this shouldnt be showing. Something isnt working right");
 			}
 		}
 		if (!enabled)
@@ -122,7 +119,7 @@ namespace IGCS::GameSpecific::InterceptorHelper
 			}
 			else
 			{
-				OverlayConsole::instance().logLine("Already Disabled - this shouldnt be showing. Something isnt working right");
+				Console::WriteLine("Already Disabled - this shouldnt be showing. Something isnt working right");
 			}
 		}
 	}
@@ -143,7 +140,7 @@ namespace IGCS::GameSpecific::InterceptorHelper
 			}
 			else
 			{
-				OverlayConsole::instance().logLine("Already Nopped - this shouldnt be showing. Something isnt working right");
+				Console::WriteLine("Already Nopped - this shouldnt be showing. Something isnt working right");
 			}
 		}
 		if (!enabled)
@@ -155,7 +152,7 @@ namespace IGCS::GameSpecific::InterceptorHelper
 			}
 			else
 			{
-				OverlayConsole::instance().logLine("Already Disabled - this shouldnt be showing. Something isnt working right");
+				Console::WriteLine("Already Disabled - this shouldnt be showing. Something isnt working right");
 			}
 		}
 	}

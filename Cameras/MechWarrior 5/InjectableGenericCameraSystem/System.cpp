@@ -41,6 +41,7 @@
 #include "OverlayConsole.h"
 #include "OverlayControl.h"
 #include "MinHook.h"
+#include "Console.h"
 
 namespace IGCS
 {
@@ -119,11 +120,11 @@ namespace IGCS
 			Sleep(300);
 		}
 
-		if (Input::isActionActivated(ActionType::ToggleOverlay))
-		{
-			OverlayControl::toggleOverlay();
-			_applyHammerPrevention = true;
-		}
+		//if (Input::isActionActivated(ActionType::ToggleOverlay))
+		//{
+		//	OverlayControl::toggleOverlay();
+		//	_applyHammerPrevention = true;
+		//}
 
 		if (!_cameraStructFound)
 		{
@@ -158,11 +159,11 @@ namespace IGCS
 		{
 			CameraManipulator::resetFoV();
 		}
-		if (Input::isActionActivated(ActionType::FovDecrease) && Globals::instance().keyboardMouseControlCamera())
+		if (Input::isActionActivated(ActionType::FovIncrease) && Globals::instance().keyboardMouseControlCamera())
 		{
 			CameraManipulator::changeFoV(-Globals::instance().settings().fovChangeSpeed);
 		}
-		if (Input::isActionActivated(ActionType::FovIncrease) && Globals::instance().keyboardMouseControlCamera())
+		if (Input::isActionActivated(ActionType::FovDecrease) && Globals::instance().keyboardMouseControlCamera())
 		{
 			CameraManipulator::changeFoV(Globals::instance().settings().fovChangeSpeed);
 		}
@@ -338,14 +339,17 @@ namespace IGCS
 	void System::initialize()
 	{
 		MH_Initialize();
-		OverlayControl::init();
+		Console::WriteLine("Starting System");
+		System::ConsoleSplash();
+		System::displayHelp();
+		//OverlayControl::init();
 		// first grab the window handle
 		Globals::instance().mainWindowHandle(Utils::findMainWindow(GetCurrentProcessId()));
 		// then initialize imgui and the rest.
-		OverlayControl::initImGui();
+		//OverlayControl::initImGui();
 		InputHooker::setInputHooks();
 		Input::registerRawInput();
-		D3D11Hooker::initializeHook();
+		//D3D11Hooker::initializeHook();
 
 		GameSpecific::InterceptorHelper::initializeAOBBlocks(_hostImageAddress, _hostImageSize, _aobBlocks);
 		GameSpecific::InterceptorHelper::getAbsoluteAddresses(_aobBlocks);
@@ -367,13 +371,13 @@ namespace IGCS
 	// Waits for the interceptor to pick up the camera struct address. Should only return if address is found 
 	void System::waitForCameraStructAddresses()
 	{
-		OverlayConsole::instance().logLine("Waiting for camera struct interception...");
+		Console::WriteLine("Waiting for camera struct interception...");
 		while(!GameSpecific::CameraManipulator::isCameraFound())
 		{
 			handleUserInput();
 			Sleep(100);
 		}
-		OverlayControl::addNotification("Camera found.");
+		Console::WriteLine("Camera found.");
 		GameSpecific::CameraManipulator::displayCameraStructAddress();
 	}
 		
@@ -386,7 +390,7 @@ namespace IGCS
 			return;
 		}
 		_cameraMovementLocked = newValue;
-		OverlayControl::addNotification(_cameraMovementLocked ? "Camera movement is locked" : "Camera movement is unlocked");
+		Console::WriteLine(_cameraMovementLocked ? "Camera movement is locked" : "Camera movement is unlocked");
 	}
 
 
@@ -398,13 +402,13 @@ namespace IGCS
 			return;
 		}
 		Globals::instance().inputBlocked(newValue);
-		OverlayControl::addNotification(newValue ? "Input to game blocked" : "Input to game enabled");
+		Console::WriteLine(newValue ? "Input to game blocked" : "Input to game enabled");
 	}
 
 
 	void System::displayCameraState()
 	{
-		OverlayControl::addNotification(g_cameraEnabled ? "Camera enabled" : "Camera disabled");
+		Console::WriteLine(g_cameraEnabled ? "Camera enabled" : "Camera disabled");
 	}
 
 	void System::toggleHudRenderState()
@@ -412,5 +416,63 @@ namespace IGCS
 		_hudToggled = !_hudToggled;
 		BYTE statementBytes[5] = { 0xC3, 0x90, 0x90, 0x90, 0x90 };
 		InterceptorHelper::SaveBytesWrite(_aobBlocks[HUD_RENDER_INTERCEPT_KEY], 5, statementBytes, _hudToggled);
+	}
+
+	void System::ConsoleSplash()
+	{
+		Console::WriteLine("             #%%%%%%##(%%%%%%%#                  ");
+		Console::WriteLine("         *(%%%%#%%%#(###%%%%%(/%%##              ");
+		Console::WriteLine("       (%%/#% #%(%/##%%@%##((/%%(#%%(            ");
+		Console::WriteLine("      %%##%%%#(%%%%%%%%%%%%%%%(%#%%&%%#          ");
+		Console::WriteLine("    #%(%%#%(%%%%%# #    @%%%%%%%#%%%%#%%         ");
+		Console::WriteLine("   %%(%%%(%%%%(              (%%%%/#%#%%%        ");
+		Console::WriteLine("  %%%##%*%%%(                  (%%%#%%%%%%       ");
+		Console::WriteLine(" #% (%%(%%%                      (%%#(%%(%%      ");
+		Console::WriteLine(" %%/(% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%   ");
+		Console::WriteLine(" %##%#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%#%%%% ");
+		Console::WriteLine(" % %%#&%%    #%%%%%     &%%%%%#              %%% ");
+		Console::WriteLine(" % %%%/%%@######################## #(((((((#%%%% ");
+		Console::WriteLine(" %(%%%#%%% %%%%%%%%%%%%%%%%%%%%%%#%%%%%%%%%%%%%  ");
+		Console::WriteLine(" #% #%%#%%#(%%%%            #%%%%%%%% & *%%      ");
+		Console::WriteLine("  %%%#%%#%%%%&%%%%%@   &%%%%%#%%%#(#@%#%         ");
+		Console::WriteLine("   %%%##%/%%%%, %%%%%%%%%%%%.&%%%%##%%(%%        ");
+		Console::WriteLine("    %%/#%% &%%%%%/%/    #%(%%%%%(%%%%%%%%        ");
+		Console::WriteLine("      %% /%%%%/%%%%%%%%%%%%%%#/(%%%%#%/          ");
+		Console::WriteLine("       %%%%%%(%%(%(#(/*###%%%%%%%*%%#            ");
+		Console::WriteLine("         %%%%/  %%%%%%%%%(#%% %%%%%              ");
+		Console::WriteLine("             ,#%%%%%/#&/%%%%%%(                  ");
+		Console::WriteLine("                                                 ");
+		Console::WriteLine("               GHOSTINTHECAMERA                  ");
+	}
+
+	void System::displayHelp()
+	{
+		//0         1         2         3         4         5         6         7
+		//01234567890123456789012345678901234567890123456789012345678901234567890123456789
+		Console::WriteLine("---[IGCS Help]-----------------------------------------------------------------");
+		Console::WriteLine("INS                                   : Enable/Disable camera");
+		Console::WriteLine("HOME                                  : Lock/unlock camera movement");
+		Console::WriteLine("DEL                                   : Toggle HUD");
+		Console::WriteLine("END                                   : Pause Time");
+		Console::WriteLine("ALT + rotate/move                     : Faster rotate / move");
+		Console::WriteLine("Right-CTRL + rotate/move              : Slower rotate / move");
+		Console::WriteLine("Controller Y-button + l/r-stick       : Faster rotate / move");
+		Console::WriteLine("Controller X-button + l/r-stick       : Slower rotate / move");
+		Console::WriteLine("Arrow up/down or mouse or r-stick     : Rotate camera up/down");
+		Console::WriteLine("Arrow left/right or mouse or r-stick  : Rotate camera left/right");
+		Console::WriteLine("Numpad 8/Numpad 5 or l-stick          : Move camera forward/backward");
+		Console::WriteLine("Numpad 4/Numpad 6 or l-stick          : Move camera left / right");
+		Console::WriteLine("Numpad 7/Numpad 9 or l/r-trigger      : Move camera up / down");
+		Console::WriteLine("Numpad 1/Numpad 3 or d-pad left/right : Tilt camera left / right");
+		Console::WriteLine("Numpad +/- or d-pad up/down           : Increase / decrease FoV");
+		Console::WriteLine("Numpad * or controller B-button       : Reset FoV");
+		Console::WriteLine("Numpad /                              : Toggle Y look direction");
+		Console::WriteLine("Numpad . or controller Right Bumper   : Toggle input to game");
+		//Console::WriteLine("ALT+H                                 : This help");
+		Console::WriteLine("-------------------------------------------------------------------------------");
+		Console::WriteLine(" Please read the enclosed readme.txt for the answers to your questions :)");
+		Console::WriteLine("-------------------------------------------------------------------------------");
+		// wait for 350ms to avoid fast keyboard hammering
+		Sleep(350);
 	}
 }

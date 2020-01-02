@@ -61,12 +61,7 @@ EXTERN _timestopReadInterceptionContinue: qword
 
 
 cameraStructInterceptor PROC
-;// UE uses angles for rotation. In UE3 it uses packed 16 bit ints, in UE4 it uses floats, in degrees (0-360.0)
-;Simply skip the writes if the camera is enabled.
 ;F2 0F 11 01 48 8B DA
-;MechWarrior-Win64-Shipping.exe+2210325 - 57                    - push rdi
-;MechWarrior-Win64-Shipping.exe+2210326 - 48 83 EC 20           - sub rsp,20 { 32 }
-;MechWarrior-Win64-Shipping.exe+221032A - F2 0F10 02            - movsd xmm0,[rdx]
 ;MechWarrior-Win64-Shipping.exe+221032E - 48 8B F9              - mov rdi,rcx
 ;MechWarrior-Win64-Shipping.exe+2210331 - F2 0F11 01            - movsd [rcx],xmm0			<<<inject here	
 ;MechWarrior-Win64-Shipping.exe+2210335 - 48 8B DA              - mov rbx,rdx
@@ -79,57 +74,44 @@ cameraStructInterceptor PROC
 ;MechWarrior-Win64-Shipping.exe+221034E - 8B 42 18              - mov eax,[rdx+18]
 ;MechWarrior-Win64-Shipping.exe+2210351 - 89 41 18              - mov [rcx+18],eax			<<<return here
 ;MechWarrior-Win64-Shipping.exe+2210354 - 8B 42 1C              - mov eax,[rdx+1C]
-;MechWarrior-Win64-Shipping.exe+2210357 - 89 41 1C              - mov [rcx+1C],eax
-;MechWarrior-Win64-Shipping.exe+221035A - 8B 42 20              - mov eax,[rdx+20]
-;MechWarrior-Win64-Shipping.exe+221035D - 89 41 20              - mov [rcx+20],eax
-;MechWarrior-Win64-Shipping.exe+2210360 - 8B 42 24              - mov eax,[rdx+24]
-;MechWarrior-Win64-Shipping.exe+2210363 - 89 41 24              - mov [rcx+24],eax
-;MechWarrior-Win64-Shipping.exe+2210366 - 8B 42 28              - mov eax,[rdx+28]
-;MechWarrior-Win64-Shipping.exe+2210369 - 89 41 28              - mov [rcx+28],eax
-;MechWarrior-Win64-Shipping.exe+221036C - 8B 42 2C              - mov eax,[rdx+2C]
-	cmp r8,00		;code writes to multiple addresses so we need to do some tests to find the correct call. In the correct call, the r8,r9 and r15 registers are all 0x0, so this is what we test for
-	je test2
-originalcode:
-	movsd qword ptr [rcx],xmm0
-	mov rbx,rdx
-	mov dword ptr eax,[rdx+08]
-	mov [rcx+08h],eax
-	movsd xmm0,qword ptr [rdx+0Ch]
-	movsd qword ptr [rcx+0Ch],xmm0
-	mov dword ptr eax,[rdx+14h]
-	mov [rcx+14h],eax
-	mov dword ptr eax,[rdx+18h]
-	mov [rcx+18h],eax
-	jmp exit
-test2:
-	cmp r9,00
-	je test3
-	jne originalcode
-test3:
-	cmp r15,00
-	je correctcam
-	jne originalcode
+    push r15
+    lea r15, [rbx+1AA0h]
+	cmp rcx,r15
+	pop r15
+    je correctcam
+    jne originalcode
 correctcam:
 	mov [g_cameraStructAddress],rcx
-	cmp [g_cameraEnabled],01
-	jne originalcode			;if camera is not enabled jump back to originalcode
-	;movsd [rcx],xmm0		<< x and y position
+	cmp byte ptr [g_cameraEnabled], 0
+	je originalcode			
+	;movsd [rcx],xmm0					<< x and y position
 	mov rbx,rdx
-	;mov eax,[rdx+08h]		<< z position
-	mov [rcx+08h],eax
+	mov eax, dword ptr [rdx+08h]		
+	;mov [rcx+08h],eax					<< z
 	movsd xmm0, qword ptr [rdx+0Ch]
-	;movsd [rcx+0Ch],xmm0	<< pitch and yaw
-	mov eax,[rdx+14h]
-	;mov [rcx+14h],eax		<< roll
-	mov eax,[rdx+18h]
-	;mov [rcx+18h],eax		<< fov
+	;movsd [rcx+0Ch],xmm0				<< pitch and yaw
+	mov eax, dword ptr [rdx+14h]
+	;mov [rcx+14h],eax					<< roll
+	mov eax, dword ptr [rdx+18h]
+	;mov [rcx+18h],eax					<< fov
+	jmp exit
+originalcode:
+	movsd qword ptr [rcx], xmm0
+	mov rbx,rdx
+	mov eax,dword ptr [rdx+08h]
+	mov dword ptr [rcx+08h], eax
+	movsd xmm0, qword ptr [rdx+0Ch]
+	movsd qword ptr [rcx+0Ch],xmm0
+	mov eax, dword ptr [rdx+14h]
+	mov dword ptr [rcx+14h],eax
+	mov eax, dword ptr [rdx+18h]
+	mov dword ptr [rcx+18h],eax
 exit:
-	jmp qword ptr [_cameraStructInterceptionContinue]	; jmp back into the original game code, which is the location after the original statements above.
+	jmp qword ptr [_cameraStructInterceptionContinue]
 cameraStructInterceptor ENDP
 
 timestopReadInterceptor PROC
 ; 48 3B C2 75 ?? | F3 0F 10 81 ?? ?? ?? ?? F3 0F 59 81 ?? ?? ?? ?? F3 0F 59 81 ?? ?? ?? ?? F3 0F 59 83 ?? ?? ?? ?? 48 83 C4 ?? 5B C3 FF 90 ?? ?? ?? ??
-; AC7 has a multiplier which is used. If we set it to 0 the game speed is multiplied by 0, giving us a timestop.
 ;MechWarrior-Win64-Shipping.exe+1EBE5AC - 48 8D 15 F5CFD001     - lea rdx,[MechWarrior-Win64-Shipping.exe+3BCB5A8] { (7FF6FEC32EE0) }
 ;MechWarrior-Win64-Shipping.exe+1EBE5B3 - 48 3B C2              - cmp rax,rdx
 ;MechWarrior-Win64-Shipping.exe+1EBE5B6 - 75 26                 - jne MechWarrior-Win64-Shipping.exe+1EBE5DE

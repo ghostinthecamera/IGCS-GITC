@@ -32,6 +32,7 @@
 #include "Globals.h"
 #include "OverlayConsole.h"
 #include "GameImageHooker.h"
+#include "Console.h"
 
 using namespace DirectX;
 using namespace std;
@@ -143,7 +144,7 @@ namespace IGCS::GameSpecific::CameraManipulator
 
 	void displayCameraStructAddress()
 	{
-		OverlayConsole::instance().logDebug("Camera struct address: %p", (void*)g_cameraStructAddress);
+		cout << "Camera struct address: " << hex << (void*)g_cameraStructAddress << endl;
 	}
 	
 

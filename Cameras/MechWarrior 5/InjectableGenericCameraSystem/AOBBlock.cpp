@@ -80,11 +80,13 @@ namespace IGCS
 		if (nullptr == aobPatternLocation)
 		{
 			OverlayConsole::instance().logError("Can't find pattern for block '%s'! Hook not set.", _blockName.c_str());
+			cerr << "Can't find pattern for block '" << _blockName.c_str() << "'! Hook not set." << endl;
 			return toReturn;
 		}
 		else
 		{
 			OverlayConsole::instance().logDebug("Pattern for block '%s' found at address: %p", _blockName.c_str(), (void*)aobPatternLocation);
+			cout << "Pattern for block '" << _blockName.c_str() << "' found at address: " << hex << (void*)aobPatternLocation << endl;
 			_found = true;
 		}
 		_locationInImage = aobPatternLocation;

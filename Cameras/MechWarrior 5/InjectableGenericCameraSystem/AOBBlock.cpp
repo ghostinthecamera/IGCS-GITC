@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Part of Injectable Generic Camera System
-// Copyright(c) 2019, Frans Bouma
+// Copyright(c) 2017, Frans Bouma
 // All rights reserved.
 // https://github.com/FransBouma/InjectableGenericCameraSystem
 //
@@ -29,18 +29,14 @@
 #include "stdafx.h"
 #include "AOBBlock.h"
 #include "Utils.h"
-#include "OverlayConsole.h"
-#include "ScanPattern.h"
-
-using namespace std;
+#include "MessageHandler.h"
 
 namespace IGCS
 {
 	AOBBlock::AOBBlock(string blockName, string bytePatternAsString, int occurrence)
-		: _blockName{ blockName }, _customOffset{ 0 }, _locationInImage{ nullptr }, _found{ false },
-		_isNonCritical{ false }, _patternIndexThatMatched { 0 }, byteStorage{ nullptr }, nopState{ false }, byteStorage2{ nullptr }, nopState2{ false }
+									: _blockName{ blockName }, _bytePatternAsString{ bytePatternAsString }, _customOffset{ 0 }, _occurrence{ occurrence },
+									  _bytePattern{ nullptr }, _patternMask{ nullptr }, _locationInImage{ nullptr }, byteStorage{ nullptr }, nopState{ false }, byteStorage2{ nullptr }, nopState2{ false }
 	{
-		addAlternative(bytePatternAsString, occurrence);
 	}
 
 
@@ -49,47 +45,64 @@ namespace IGCS
 	}
 
 
-	// Adds an alternative AOB pattern + occurrence. Will be used if a previous pattern failed. 
-	void AOBBlock::addAlternative(std::string bytePatternAsString, int occurrence)
-	{
-		ScanPattern toAdd = ScanPattern(bytePatternAsString, occurrence);
-		_scanPatterns.push_back(toAdd);
-	}
-
-
 	bool AOBBlock::scan(LPBYTE imageAddress, DWORD imageSize)
 	{
-		_patternIndexThatMatched = -1;
-		bool toReturn = _isNonCritical;		// by default this is false, so we'll return false by default if something fails, otherwise we silently 'succeed'. 
-		LPBYTE aobPatternLocation = nullptr;
-		int patternIndex = -1;
-		for (auto& scanPattern : _scanPatterns)
-		{
-			patternIndex++;
-			aobPatternLocation = Utils::findAOBPattern(imageAddress, imageSize, scanPattern);
-			if (nullptr == aobPatternLocation)
-			{
-				// not found, try next
-				continue;
-			}
-			// found
-			_patternIndexThatMatched = patternIndex;
-			_customOffset = scanPattern.customOffset();
-			break;
-		}
+		createAOBPatternFromStringPattern(_bytePatternAsString);
+		LPBYTE aobPatternLocation = Utils::findAOBPattern(imageAddress, imageSize, this);
 		if (nullptr == aobPatternLocation)
 		{
-			OverlayConsole::instance().logError("Can't find pattern for block '%s'! Hook not set.", _blockName.c_str());
-			cerr << "Can't find pattern for block '" << _blockName.c_str() << "'! Hook not set." << endl;
-			return toReturn;
+			MessageHandler::logError("Can't find pattern for block '%s'! Hook not set.", _blockName.c_str());
+			return false;
 		}
 		else
 		{
-			OverlayConsole::instance().logDebug("Pattern for block '%s' found at address: %p", _blockName.c_str(), (void*)aobPatternLocation);
-			cout << "Pattern for block '" << _blockName.c_str() << "' found at address: " << hex << (void*)aobPatternLocation << endl;
-			_found = true;
+			MessageHandler::logDebug("Pattern for block '%s' found at address: %p", _blockName.c_str(), (void*)aobPatternLocation);
 		}
 		_locationInImage = aobPatternLocation;
 		return true;
 	}
+	
+
+	// Creates an aob_pattern struct which is usable with an aob scan. The pattern given is in the form of "aa bb ??" where '??' is a byte
+	// which has to be skipped in the comparison, and 'aa' and 'bb' are hexadecimal bytes which have to have that value at that position.
+	// If a '|' is specified in the pattern, the position of the byte following it is the start offset returned by the aob scanner, instead of
+	// the position of the first byte of the pattern. 
+	void AOBBlock::createAOBPatternFromStringPattern(string pattern)
+	{
+		int index = 0;
+		char* pChar = &pattern[0];
+
+		_patternSize = static_cast<int>(pattern.size());
+		_bytePattern = (LPBYTE)calloc(0x1, _patternSize);
+		_patternMask = (char*)calloc(0x1, _patternSize);
+		_customOffset = 0;
+
+		while (*pChar)
+		{
+			if (*pChar == ' ')
+			{
+				pChar++;
+				continue;
+			}
+
+			if (*pChar == '|')
+			{
+				pChar++;
+				_customOffset = index;
+				continue;
+			}
+
+			if (*pChar == '?')
+			{
+				_patternMask[index++] += '?';
+				pChar += 2;
+				continue;
+			}
+
+			_patternMask[index] = 'x';
+			_bytePattern[index++] = (Utils::CharToByte(pChar[0]) << 4) + Utils::CharToByte(pChar[1]);
+			pChar += 2;
+		}
+	}
+
 }

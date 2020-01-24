@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Part of Injectable Generic Camera System
-// Copyright(c) 2019, Frans Bouma
+// Copyright(c) 2017, Frans Bouma
 // All rights reserved.
 // https://github.com/FransBouma/InjectableGenericCameraSystem
 //
@@ -28,6 +28,7 @@
 #include "stdafx.h"
 #include "Console.h"
 #include "GameConstants.h"
+#include "NamedPipeManager.h"
 
 using namespace std;
 
@@ -40,6 +41,18 @@ namespace IGCS::Console
 	void Init();
 
 
+	void WriteHeader()
+	{
+		SetColor(CONSOLE_WHITE);
+		cout << "Injectable camera tools for " << GAME_NAME << ". Version: " << CAMERA_VERSION << endl;
+		WriteLine("Powered by Injectable Generic Camera System by Otis_Inf");
+		WriteLine("Get your copy at: https://github.com/FransBouma/InjectableGenericCameraSystem");
+		cout << "Camera credits: " << CAMERA_CREDITS << endl;
+		SetColor(9);
+		WriteLine("-----------------------------------------------------------------------------");
+		SetColor(CONSOLE_NORMAL);
+	}
+	
 	void EnsureConsole()
 	{
 		if (_consoleInitialized)
@@ -71,12 +84,14 @@ namespace IGCS::Console
 	{
 		EnsureConsole();
 		cout << toWrite << endl;
+		NamedPipeManager::instance().writeMessage(toWrite);
 	}
 
 
 	void WriteError(const string& error)
 	{
 		EnsureConsole();
+		NamedPipeManager::instance().writeMessage(error, true, false);
 		cerr << error << endl;
 	}
 
@@ -99,9 +114,8 @@ namespace IGCS::Console
 		wcin.clear();
 		cin.clear();
 
-		SetColor(7);
-		//SetConsoleTextAttribute(GetStdHandle(STD_ERROR_HANDLE), 15);
-		//SetConsoleTextAttribute(GetStdHandle(STD_ERROR_HANDLE), FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_INTENSITY | BACKGROUND_BLUE);
+		SetColor(15);
+		SetConsoleTextAttribute(GetStdHandle(STD_ERROR_HANDLE), 12);
 		_consoleInitialized = true;
 	}
 

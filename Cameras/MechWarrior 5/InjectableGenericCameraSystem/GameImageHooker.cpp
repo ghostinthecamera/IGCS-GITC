@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Part of Injectable Generic Camera System
-// Copyright(c) 2019, Frans Bouma
+// Copyright(c) 2017, Frans Bouma
 // All rights reserved.
 // https://github.com/FransBouma/InjectableGenericCameraSystem
 //
@@ -28,7 +28,7 @@
 #include "stdafx.h"
 #include "GameImageHooker.h"
 #include "Defaults.h"
-#include "OverlayConsole.h"
+#include "MessageHandler.h"
 
 namespace IGCS::GameImageHooker
 {
@@ -43,7 +43,7 @@ namespace IGCS::GameImageHooker
 		*interceptionContinue = startOfHookAddress + continueOffset;
 #ifdef _WIN64
 		// x64
-		BYTE instruction[14];	// 6 bytes of the jmp qword ptr [0] and 8 bytes for the real address which is stored right after the 6 bytes of jmp qword ptr [0] bytes 
+		uint8_t instruction[14];	// 6 bytes of the jmp qword ptr [0] and 8 bytes for the real address which is stored right after the 6 bytes of jmp qword ptr [0] bytes 
 								// write bytes of jmp qword ptr [address], which is jmp qword ptr 0 offset.
 		memcpy(instruction, jmpFarInstructionBytes, sizeof(jmpFarInstructionBytes));
 		// now write the address. Do this with a recast of the pointer to an __int64 pointer to avoid endianmess.
@@ -53,7 +53,7 @@ namespace IGCS::GameImageHooker
 		// x86
 		// we will write a jmp <relative address> as x86 doesn't have a jmp <absolute address>. 
 		// calculate this relative address by using Destination - Current, which is: &asmFunction - (<base> + startOffset + 5), as jmp <relative> is 5 bytes.
-		BYTE instruction[5];
+		uint8_t instruction[5];
 		instruction[0] = 0xE9;	// JMP relative
 		DWORD targetAddress = (DWORD)asmFunction - (((DWORD)startOfHookAddress) + 5);
 		DWORD* targetAddressLocationInInstruction = (DWORD*)&instruction[1];
@@ -63,11 +63,11 @@ namespace IGCS::GameImageHooker
 		BOOL result = WriteProcessMemory(OpenProcess(PROCESS_VM_OPERATION | PROCESS_VM_WRITE, FALSE, GetCurrentProcessId()), startOfHookAddress, instruction, sizeof(instruction), &noBytesWritten);
 		if (result)
 		{
-			OverlayConsole::instance().logDebug("Hook set to address: %p", (void*)startOfHookAddress);
+			MessageHandler::logDebug("Hook set to address: %p", (void*)startOfHookAddress);
 		}
 		else
 		{
-			OverlayConsole::instance().logError("Couldn't write to process memory, so couldn't set hook. Error code: %010x", GetLastError());
+			MessageHandler::logError("Couldn't write to process memory, so couldn't set hook. Error code: %010x", GetLastError());
 		}
 	}
 	
@@ -78,8 +78,9 @@ namespace IGCS::GameImageHooker
 		setHook(hookData->locationInImage(), hookData->customOffset(), continueOffset, interceptionContinue, asmFunction);
 	}
 
+
 	// Writes the bytes pointed at by bufferToWrite starting at address startAddress, for the length in 'length'.
-	void writeRange(LPBYTE startAddress, BYTE* bufferToWrite, int length)
+	void writeRange(LPBYTE startAddress, uint8_t* bufferToWrite, int length)
 	{
 		SIZE_T noBytesWritten;
 		WriteProcessMemory(OpenProcess(PROCESS_VM_OPERATION | PROCESS_VM_WRITE, FALSE, GetCurrentProcessId()), startAddress, bufferToWrite, length, &noBytesWritten);
@@ -87,7 +88,7 @@ namespace IGCS::GameImageHooker
 
 
 	// Writes the bytes pointed at by bufferToWrite starting at address startAddress, for the length in 'length'.
-	void writeRange(AOBBlock* hookData, BYTE* bufferToWrite, int length)
+	void writeRange(AOBBlock* hookData, uint8_t* bufferToWrite, int length)
 	{
 		writeRange(hookData->locationInImage() + hookData->customOffset(), bufferToWrite, length);
 	}
@@ -101,13 +102,13 @@ namespace IGCS::GameImageHooker
 	// Writes NOP opcodes to a range of memory.
 	void nopRange(LPBYTE startAddress, int length)
 	{
-		BYTE* nopBuffer;
+		uint8_t* nopBuffer;
 		if (length < 0 || length>1024)
 		{
 			// no can/wont do 
 			return;
 		}
-		nopBuffer = (BYTE*)malloc(length * sizeof(BYTE));
+		nopBuffer = (uint8_t*)malloc(length * sizeof(uint8_t));
 		for (int i = 0; i < length; i++)
 		{
 			nopBuffer[i] = 0x90;

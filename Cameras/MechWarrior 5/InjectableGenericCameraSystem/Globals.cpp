@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Part of Injectable Generic Camera System
-// Copyright(c) 2019, Frans Bouma
+// Copyright(c) 2017, Frans Bouma
 // All rights reserved.
 // https://github.com/FransBouma/InjectableGenericCameraSystem
 //
@@ -33,7 +33,7 @@
 // data shared with asm functions. This is allocated here, 'C' style and not in some datastructure as passing that to 
 // MASM is rather tedious. 
 extern "C" {
-	BYTE g_cameraEnabled = 0;
+	uint8_t g_cameraEnabled = 0;
 }
 
 
@@ -43,7 +43,6 @@ namespace IGCS
 	{
 		initializeKeyBindings();
 		_settings.init(false);
-		_settings.loadFromFile(_keyBindingPerActionType);
 	}
 
 
@@ -58,48 +57,33 @@ namespace IGCS
 		return theInstance;
 	}
 
-
-	void Globals::saveSettingsIfRequired(float delta)
+	
+	void Globals::handleSettingMessage(uint8_t payload[], DWORD payloadLength)
 	{
-		if (_settingsDirtyTimer <= 0.0f)
-		{
-			// nothing to do
-			return;
-		}
-		_settingsDirtyTimer -= delta;
-		if (_settingsDirtyTimer <= 0)
-		{
-			_settings.saveToFile(_keyBindingPerActionType);
-			_settingsDirtyTimer = 0.0f;
-		}
+		_settings.setValueFromMessage(payload, payloadLength);
 	}
 
-
-	void Globals::updateActionDataForAction(ActionType type)
+	
+	void Globals::handleKeybindingMessage(uint8_t payload[], DWORD payloadLength)
 	{
-		if (!_keyCollectorData.isValid())
+		if(payloadLength<6)
 		{
-			// not valid, no need to set it.
 			return;
 		}
-		ActionData* toUpdate = getActionData(type);
+		// byte 1 is the keybinding id, byte 2-5 are the keybinding data:
+		//payload[2] = _keyCode;
+		//payload[3] = _altPressed;
+		//payload[4] = _ctrlPressed;
+		//payload[5] = _shiftPressed;
+		ActionType idOfBinding = static_cast<ActionType>(payload[1]);
+		ActionData* toUpdate = getActionData(idOfBinding);
 		if (nullptr == toUpdate)
 		{
 			return;
 		}
-		toUpdate->update(_keyCollectorData);
-		// mark settings as dirty, so it's persisted, as we potentially set a new keybinding.
-		markSettingsDirty();
+		toUpdate->update(payload[2], payload[3] == 0x01, payload[4] == 0x01, payload[5] == 0x01);
 	}
 
-
-	void Globals::markSettingsDirty()
-	{
-		if (_settingsDirtyTimer <= 0)
-		{
-			_settingsDirtyTimer = IGCS_SPLASH_DURATION;
-		}
-	}
 
 	ActionData* Globals::getActionData(ActionType type)
 	{
@@ -109,8 +93,7 @@ namespace IGCS
 		}
 		return _keyBindingPerActionType.at(type);
 	}
-
-
+	
 
 	void Globals::initializeKeyBindings()
 	{
@@ -133,7 +116,6 @@ namespace IGCS
 		_keyBindingPerActionType[ActionType::RotateUp] = new ActionData("RotateUp", "Rotate camera up", IGCS_KEY_ROTATE_UP, false, false, false);
 		_keyBindingPerActionType[ActionType::TiltLeft] = new ActionData("TiltLeft", "Tilt camera left", IGCS_KEY_TILT_LEFT, false, false, false);
 		_keyBindingPerActionType[ActionType::TiltRight] = new ActionData("TiltRight", "Tilt camera right", IGCS_KEY_TILT_RIGHT, false, false, false);
-		_keyBindingPerActionType[ActionType::ToggleOverlay] = new ActionData("ToggleOverlay", "Show / hide camera tools main window", IGCS_KEY_TOGGLE_OVERLAY, false, true, false);
 
 		// Bindings which are often optional. Specify 'false' for available to disable it if the binding should be hidden. 
 		_keyBindingPerActionType[ActionType::HudToggle] = new ActionData("HudToggle", "Toggle HUD", IGCS_KEY_HUD_TOGGLE, false, false, false);

@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Part of Injectable Generic Camera System
-// Copyright(c) 2019, Frans Bouma
+// Copyright(c) 2017, Frans Bouma
 // All rights reserved.
 // https://github.com/FransBouma/InjectableGenericCameraSystem
 //
@@ -28,17 +28,14 @@
 #pragma once
 #include "stdafx.h"
 #include "Gamepad.h"
-#include "GameConstants.h"
 #include "Defaults.h"
-#include "CDataFile.h"
-#include "Utils.h"
+#include <map>
 #include <atomic>
-#include "Settings.h"
 #include "ActionData.h"
 #include <map>
+#include "Settings.h"
 
-extern "C" BYTE g_cameraEnabled;
-extern "C" BYTE g_gamePaused;
+extern "C" uint8_t g_cameraEnabled;
 
 namespace IGCS
 {
@@ -49,9 +46,6 @@ namespace IGCS
 		~Globals();
 
 		static Globals& instance();
-
-		void saveSettingsIfRequired(float delta);
-		void markSettingsDirty();
 
 		bool inputBlocked() const { return _inputBlocked; }
 		void inputBlocked(bool value) { _inputBlocked = value; }
@@ -64,8 +58,8 @@ namespace IGCS
 		bool keyboardMouseControlCamera() const { return _settings.cameraControlDevice == DEVICE_ID_KEYBOARD_MOUSE || _settings.cameraControlDevice == DEVICE_ID_ALL; }
 		bool controllerControlsCamera() const { return _settings.cameraControlDevice == DEVICE_ID_GAMEPAD || _settings.cameraControlDevice == DEVICE_ID_ALL; }
 		ActionData* getActionData(ActionType type);
-		void updateActionDataForAction(ActionType type);
-		ActionData& getKeyCollector() { return _keyCollectorData; }
+		void handleSettingMessage(uint8_t payload[], DWORD payloadLength);
+		void handleKeybindingMessage(uint8_t payload[], DWORD payloadLength);
 
 	private:
 		void initializeKeyBindings();
@@ -75,8 +69,6 @@ namespace IGCS
 		Gamepad _gamePad;
 		HWND _mainWindowHandle;
 		Settings _settings;
-		float _settingsDirtyTimer=0.0f;			// when settings are marked dirty, this is set with a value > 0 and decremented each frame. If 0, settings are saved. In seconds.
 		map<ActionType, ActionData*> _keyBindingPerActionType;
-		ActionData _keyCollectorData = ActionData("KeyCollector", "", 0, false, false, false);
 	};
 }

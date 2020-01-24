@@ -17,11 +17,8 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
     </Filter>
-    <Filter Include="Overlay">
-      <UniqueIdentifier>{33b050ad-7f49-4380-a143-158cd71fb461}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Overlay\Imgui">
-      <UniqueIdentifier>{1ce90968-aa59-4b5e-b177-50793036f663}</UniqueIdentifier>
+    <Filter Include="NamedPipeSubsystem">
+      <UniqueIdentifier>{f1f58870-e87f-4c31-a7c5-1b664f37bb1d}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -70,53 +67,23 @@
     <ClInclude Include="AOBBlock.h">
       <Filter>Hooking</Filter>
     </ClInclude>
-    <ClInclude Include="Overlay\imconfig.h">
-      <Filter>Overlay\Imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="Overlay\imgui.h">
-      <Filter>Overlay\Imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="Overlay\imgui_impl_dx11.h">
-      <Filter>Overlay\Imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="Overlay\imgui_internal.h">
-      <Filter>Overlay\Imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="OverlayConsole.h">
-      <Filter>Overlay</Filter>
-    </ClInclude>
-    <ClInclude Include="OverlayControl.h">
-      <Filter>Overlay</Filter>
-    </ClInclude>
     <ClInclude Include="Console.h">
-      <Filter>Main</Filter>
-    </ClInclude>
-    <ClInclude Include="CDataFile.h">
-      <Filter>Main</Filter>
-    </ClInclude>
-    <ClInclude Include="Settings.h">
       <Filter>Main</Filter>
     </ClInclude>
     <ClInclude Include="ActionData.h">
       <Filter>Input</Filter>
     </ClInclude>
-    <ClInclude Include="Overlay\imgui_impl_win32.h">
-      <Filter>Overlay\Imgui</Filter>
+    <ClInclude Include="Settings.h">
+      <Filter>Main</Filter>
     </ClInclude>
-    <ClInclude Include="Overlay\imstb_rectpack.h">
-      <Filter>Overlay\Imgui</Filter>
+    <ClInclude Include="GameCameraData.h">
+      <Filter>Main</Filter>
     </ClInclude>
-    <ClInclude Include="Overlay\imstb_textedit.h">
-      <Filter>Overlay\Imgui</Filter>
+    <ClInclude Include="NamedPipeManager.h">
+      <Filter>NamedPipeSubsystem</Filter>
     </ClInclude>
-    <ClInclude Include="Overlay\imstb_truetype.h">
-      <Filter>Overlay\Imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="D3D11Hooker.h">
-      <Filter>Hooking</Filter>
-    </ClInclude>
-    <ClInclude Include="ScanPattern.h">
-      <Filter>Hooking</Filter>
+    <ClInclude Include="MessageHandler.h">
+      <Filter>Main</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -159,44 +126,17 @@
     <ClCompile Include="AOBBlock.cpp">
       <Filter>Hooking</Filter>
     </ClCompile>
-    <ClCompile Include="Overlay\imgui.cpp">
-      <Filter>Overlay\Imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="Overlay\imgui_demo.cpp">
-      <Filter>Overlay\Imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="Overlay\imgui_draw.cpp">
-      <Filter>Overlay\Imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="Overlay\imgui_impl_dx11.cpp">
-      <Filter>Overlay\Imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="OverlayConsole.cpp">
-      <Filter>Overlay</Filter>
-    </ClCompile>
-    <ClCompile Include="OverlayControl.cpp">
-      <Filter>Overlay</Filter>
-    </ClCompile>
     <ClCompile Include="Console.cpp">
-      <Filter>Main</Filter>
-    </ClCompile>
-    <ClCompile Include="CDataFile.cpp">
       <Filter>Main</Filter>
     </ClCompile>
     <ClCompile Include="ActionData.cpp">
       <Filter>Input</Filter>
     </ClCompile>
-    <ClCompile Include="Overlay\imgui_impl_win32.cpp">
-      <Filter>Overlay\Imgui</Filter>
+    <ClCompile Include="NamedPipeManager.cpp">
+      <Filter>NamedPipeSubsystem</Filter>
     </ClCompile>
-    <ClCompile Include="Overlay\imgui_widgets.cpp">
-      <Filter>Overlay\Imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="D3D11Hooker.cpp">
-      <Filter>Hooking</Filter>
-    </ClCompile>
-    <ClCompile Include="ScanPattern.cpp">
-      <Filter>Hooking</Filter>
+    <ClCompile Include="MessageHandler.cpp">
+      <Filter>Main</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

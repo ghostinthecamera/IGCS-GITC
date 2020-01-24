@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Part of Injectable Generic Camera System
-// Copyright(c) 2019, Frans Bouma
+// Copyright(c) 2017, Frans Bouma
 // All rights reserved.
 // https://github.com/FransBouma/InjectableGenericCameraSystem
 //
@@ -28,6 +28,7 @@
 #pragma once
 #include "stdafx.h"
 #include "Camera.h"
+#include "InputHooker.h"
 #include "Gamepad.h"
 #include <map>
 #include "AOBBlock.h"
@@ -46,7 +47,6 @@ namespace IGCS
 		void initialize();
 		void updateFrame();
 		void handleUserInput();
-		void writeNewCameraValuesToCameraStructs();
 		void displayCameraState();
 		void toggleCameraMovementLockState(bool newValue);
 		void handleKeyboardCameraMovement(float multiplier);
@@ -54,20 +54,20 @@ namespace IGCS
 		void handleGamePadMovement(float multiplierBase);
 		void waitForCameraStructAddresses();
 		void toggleInputBlockState(bool newValue);
-		//void toggleTimestopState();
+		void takeMultiShot(bool isTestRun);
+		void takeSingleScreenshot();
 		void toggleHudRenderState();
-		void displayHelp();
-		void ConsoleSplash();
 
 		Camera _camera;
 		LPBYTE _hostImageAddress;
 		DWORD _hostImageSize;
-		//bool _timeStopped = false;
 		bool _cameraMovementLocked = false;
 		bool _cameraStructFound = false;
 		bool _hudToggled = false;
 		map<string, AOBBlock*> _aobBlocks;
 		bool _applyHammerPrevention = false;	// set to true by a keyboard action and which triggers a sleep before keyboard handling is performed.
+		std::filesystem::path _hostExePath;
+		std::filesystem::path _hostExeFilename;
 	};
 }
 

@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Part of Injectable Generic Camera System
-// Copyright(c) 2019, Frans Bouma
+// Copyright(c) 2017, Frans Bouma
 // All rights reserved.
 // https://github.com/FransBouma/InjectableGenericCameraSystem
 //
@@ -35,5 +35,8 @@ namespace IGCS::Console
 	void WriteLine(const std::string& toWrite, int color);
 	void WriteError(const std::string& error);
 	void SetColor(int color);
+	void Init();
+	void Release();
+	void WriteHeader();
 }
 

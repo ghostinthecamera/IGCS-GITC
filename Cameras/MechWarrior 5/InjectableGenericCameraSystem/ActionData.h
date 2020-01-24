@@ -30,29 +30,28 @@
 
 namespace IGCS
 {
-	enum class ActionType : short
+	enum class ActionType : uint8_t
 	{
-		BlockInput,
+		BlockInput=0,
 		CameraEnable,
-		CameraLock,
 		FovDecrease,
 		FovIncrease,
 		FovReset,
-		HudToggle,
-		MoveBackward,
-		MoveDown,
-		MoveForward,
+		CameraLock,
 		MoveLeft,
 		MoveRight,
+		MoveForward,
+		MoveBackward,
 		MoveUp,
+		MoveDown,
+		RotateUp,
 		RotateDown,
 		RotateLeft,
 		RotateRight,
-		RotateUp,
 		TiltLeft,
 		TiltRight,
+		HudToggle,
 		Timestop,
-		ToggleOverlay,
 
 		Amount,
 	};
@@ -70,27 +69,24 @@ namespace IGCS
 		int getIniFileValue();
 		void setValuesFromIniFileValue(int iniFileValue);
 		void clear();
-		void update(ActionData& source);
+		void update(uint8_t newKeyCode, bool altRequired, bool ctrlRequired, bool shiftRequired);
 		void setKeyCode(int newKeyCode);
 
 		std::string getName() { return _name; }
 		std::string getDescription() { return _description; }
-		std::string toString() { return _stringVariant; }
 		// If false, the action is ignored to be edited / in help. Code isn't anticipating on it either, as it's not supported in this particular camera. 
 		bool getAvailable() { return _available; }
 		bool isValid() { return _keyCode > 0; }
-		void setAltRequired() { _altRequired = true; fillStringVariant(); }
-		void setCtrlRequired() { _ctrlRequired = true; fillStringVariant(); }
-		void setShiftRequired() { _shiftRequired = true; fillStringVariant(); }
+		void setAltRequired() { _altRequired = true; }
+		void setCtrlRequired() { _ctrlRequired = true; }
+		void setShiftRequired() { _shiftRequired = true; }
 
 	private:
 		bool ctrlPressed();
 		bool shiftPressed();
-		void fillStringVariant();
 
 		std::string _name;
 		std::string _description;
-		std::string _stringVariant;
 		int _keyCode;
 		bool _altRequired;
 		bool _ctrlRequired;

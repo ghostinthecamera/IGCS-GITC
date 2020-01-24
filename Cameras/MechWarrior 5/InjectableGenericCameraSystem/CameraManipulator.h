@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Part of Injectable Generic Camera System
-// Copyright(c) 2019, Frans Bouma
+// Copyright(c) 2017, Frans Bouma
 // All rights reserved.
 // https://github.com/FransBouma/InjectableGenericCameraSystem
 //
@@ -27,18 +27,24 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma once
 #include "stdafx.h"
+#include "Camera.h"
+#include "GameCameraData.h"
 
 namespace IGCS::GameSpecific::CameraManipulator
 {
+	void updateCameraDataInGameData(Camera& camera);
 	void writeNewCameraValuesToGameData(DirectX::XMFLOAT3 newCoords, float pitch, float yaw, float roll);
 	void restoreOriginalValuesAfterCameraDisable();
 	void cacheOriginalValuesBeforeCameraEnable();
 	DirectX::XMFLOAT3 getCurrentCameraCoords();
 	void resetFoV();
 	void changeFoV(float amount);
+	float getCurrentFoV();
 	bool isCameraFound();
 	void displayCameraStructAddress();
 	void getSettingsFromGameState();
 	void applySettingsToGameState();
+	void restoreGameCameraDataWithCachedData(GameCameraData& source);
+	void cacheGameCameraDataInCache(GameCameraData& destination);
 	void timeStop();
 }

@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Part of Injectable Generic Camera System
-// Copyright(c) 2019, Frans Bouma
+// Copyright(c) 2017, Frans Bouma
 // All rights reserved.
 // https://github.com/FransBouma/InjectableGenericCameraSystem
 //
@@ -34,8 +34,7 @@ namespace IGCS::GameImageHooker
 	void nopRange(AOBBlock* hookData, int length);
 	void setHook(LPBYTE hostImageAddress, DWORD startOffset, DWORD continueOffset, LPBYTE* interceptionContinue, void* asmFunction);
 	void setHook(AOBBlock* hookData, DWORD continueOffset, LPBYTE* interceptionContinue, void* asmFunction);
-	void writeRange(LPBYTE startAddress, BYTE* bufferToWrite, int length);
-	void writeRange(AOBBlock* hookData, BYTE* bufferToWrite, int length);
+	void writeRange(LPBYTE startAddress, uint8_t* bufferToWrite, int length);
+	void writeRange(AOBBlock* hookData, uint8_t* bufferToWrite, int length);
 	void readRange(LPBYTE startAddress, BYTE* bufferToRead, int length);
-	void readRange(AOBBlock* hookData, BYTE* bufferToRead, int length);
 }

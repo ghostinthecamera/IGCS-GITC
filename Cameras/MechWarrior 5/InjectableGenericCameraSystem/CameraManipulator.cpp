@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Part of Injectable Generic Camera System
-// Copyright(c) 2019, Frans Bouma
+// Copyright(c) 2017, Frans Bouma
 // All rights reserved.
 // https://github.com/FransBouma/InjectableGenericCameraSystem
 //
@@ -28,11 +28,10 @@
 #include "stdafx.h"
 #include "CameraManipulator.h"
 #include "GameConstants.h"
-#include "InterceptorHelper.h"
 #include "Globals.h"
-#include "OverlayConsole.h"
-#include "GameImageHooker.h"
-#include "Console.h"
+#include "Camera.h"
+#include "GameCameraData.h"
+#include "MessageHandler.h"
 
 using namespace DirectX;
 using namespace std;
@@ -44,9 +43,28 @@ extern "C" {
 
 namespace IGCS::GameSpecific::CameraManipulator
 {
-	static float _originalCoords[3];
-	static float _originalRotation[3];
-	static float _originalFoV;
+	static GameCameraData _originalData;
+
+	void updateCameraDataInGameData(Camera& camera)
+	{
+		if (!g_cameraEnabled)
+		{
+			return;
+		}
+
+		// calculate new camera values. We have two cameras, but they might not be available both, so we have to test before we do anything. 
+		DirectX::XMVECTOR newLookQuaternion = camera.calculateLookQuaternion();
+		DirectX::XMFLOAT3 currentCoords;
+		DirectX::XMFLOAT3 newCoords;
+		float convertFactor = 180.0f / 3.141592654f;
+		if (isCameraFound())
+		{
+			currentCoords = getCurrentCameraCoords();
+			newCoords = camera.calculateNewCoords(currentCoords, newLookQuaternion);
+			writeNewCameraValuesToGameData(newCoords, (camera.getPitch() * convertFactor),(camera.getYaw() * convertFactor), 
+												(camera.getRoll() * convertFactor));
+		}
+	}
 
 	void timeStop()
 	{
@@ -59,35 +77,36 @@ namespace IGCS::GameSpecific::CameraManipulator
 		*timescaleInMemory = *timescaleInMemory > 0.04f ? 0.0f : 1.0f;
 	}
 
-
 	void getSettingsFromGameState()
 	{
 		Settings& currentSettings = Globals::instance().settings();
+		// nop
 	}
 
 
 	void applySettingsToGameState()
 	{
 		Settings& currentSettings = Globals::instance().settings();
+		// nop
 	}
 
 
 	// Resets the FOV to the one it got when we enabled the camera
 	void resetFoV()
 	{
-		if (g_cameraStructAddress == nullptr)
+		if (nullptr == g_cameraStructAddress)
 		{
 			return;
 		}
 		float* fovAddress = reinterpret_cast<float*>(g_cameraStructAddress + FOV_IN_STRUCT_OFFSET);
-		*fovAddress = _originalFoV;
+		*fovAddress = _originalData._fov;
 	}
 
 
 	// changes the FoV with the specified amount
 	void changeFoV(float amount)
 	{
-		if (g_cameraStructAddress == nullptr)
+		if (nullptr == g_cameraStructAddress)
 		{
 			return;
 		}
@@ -95,20 +114,29 @@ namespace IGCS::GameSpecific::CameraManipulator
 		float newValue = *fovAddress + amount;
 		if (newValue < 0.001f)
 		{
-			// clamp. Game will crash with negative fov
+			// clamp. 
 			newValue = 0.001f;
 		}
 		*fovAddress = newValue;
+	}
+
+
+	float getCurrentFoV()
+	{
+		if (nullptr == g_cameraStructAddress)
+		{
+			return 1.2f;
+		}
+		float* fovAddress = reinterpret_cast<float*>(g_cameraStructAddress + FOV_IN_STRUCT_OFFSET);
+		return *fovAddress;
 	}
 	
 
 	XMFLOAT3 getCurrentCameraCoords()
 	{
-		// we write to both cameras at once, so we just grab one of the coords, it always works. Photomode does inherit its coords from the 
-		// gameplay / current cam anyway. 
+
 		float* coordsInMemory = reinterpret_cast<float*>(g_cameraStructAddress + COORDS_IN_STRUCT_OFFSET);
-		XMFLOAT3 currentCoords = XMFLOAT3(coordsInMemory[0], coordsInMemory[1], coordsInMemory[2]);
-		return currentCoords;
+		return XMFLOAT3(coordsInMemory[0], coordsInMemory[1], coordsInMemory[2]);
 	}
 
 
@@ -121,15 +149,14 @@ namespace IGCS::GameSpecific::CameraManipulator
 			return;
 		}
 
-		float* coordsInMemory = nullptr;
-		float* quaternionInMemory = nullptr;
+		float* coordsInMemory = reinterpret_cast<float*>(g_cameraStructAddress + COORDS_IN_STRUCT_OFFSET);
+		float* quaternionInMemory = reinterpret_cast<float*>(g_cameraStructAddress + ROTATION_IN_STRUCT_OFFSET);
 
-		coordsInMemory = reinterpret_cast<float*>(g_cameraStructAddress + COORDS_IN_STRUCT_OFFSET);
+
 		coordsInMemory[0] = newCoords.x;
 		coordsInMemory[1] = newCoords.y;
 		coordsInMemory[2] = newCoords.z;
 
-		quaternionInMemory = reinterpret_cast<float*>(g_cameraStructAddress + ROTATION_IN_STRUCT_OFFSET);
 		quaternionInMemory[0] = pitch;
 		quaternionInMemory[1] = yaw;
 		quaternionInMemory[2] = roll;
@@ -144,49 +171,40 @@ namespace IGCS::GameSpecific::CameraManipulator
 
 	void displayCameraStructAddress()
 	{
-		cout << "Camera struct address: " << hex << (void*)g_cameraStructAddress << endl;
+		MessageHandler::logDebug("Camera struct address: %p", (void*)g_cameraStructAddress);
 	}
-	
 
-	// should restore the camera values in the camera structures to the cached values. This assures the free camera is always enabled at the original camera location.
-	void restoreOriginalValuesAfterCameraDisable()
+
+	void restoreGameCameraDataWithCachedData(GameCameraData& source)
 	{
-		float* rotationInMemory = nullptr;
-		float* coordsInMemory = nullptr;
-		float *fovInMemory = nullptr;
-
 		if (!isCameraFound())
 		{
 			return;
 		}
-		// gameplay / cutscene cam
-		rotationInMemory = reinterpret_cast<float*>(g_cameraStructAddress + ROTATION_IN_STRUCT_OFFSET);
-		coordsInMemory = reinterpret_cast<float*>(g_cameraStructAddress + COORDS_IN_STRUCT_OFFSET);
-		memcpy(rotationInMemory, _originalRotation, 3 * sizeof(float));
-		memcpy(coordsInMemory, _originalCoords, 3 * sizeof(float));
+		source.RestoreData(reinterpret_cast<float*>(g_cameraStructAddress + ROTATION_IN_STRUCT_OFFSET), reinterpret_cast<float*>(g_cameraStructAddress + COORDS_IN_STRUCT_OFFSET), 
+						   reinterpret_cast<float*>(g_cameraStructAddress + FOV_IN_STRUCT_OFFSET));
+	}
 
-		fovInMemory = reinterpret_cast<float*>(g_cameraStructAddress + FOV_IN_STRUCT_OFFSET);
-		*fovInMemory = _originalFoV;
+
+	void cacheGameCameraDataInCache(GameCameraData& destination)
+	{
+		if (!isCameraFound())
+		{
+			return;
+		}
+		destination.CacheData(reinterpret_cast<float*>(g_cameraStructAddress + ROTATION_IN_STRUCT_OFFSET), reinterpret_cast<float*>(g_cameraStructAddress + COORDS_IN_STRUCT_OFFSET),
+							  reinterpret_cast<float*>(g_cameraStructAddress + FOV_IN_STRUCT_OFFSET));
+	}
+
+
+	void restoreOriginalValuesAfterCameraDisable()
+	{
+		restoreGameCameraDataWithCachedData(_originalData);
 	}
 
 
 	void cacheOriginalValuesBeforeCameraEnable()
 	{
-		float* rotationInMemory = nullptr;
-		float* coordsInMemory = nullptr;
-		float *fovInMemory = nullptr;
-
-		if (!isCameraFound())
-		{
-			return;
-		}
-		// gameplay/cutscene cam
-		rotationInMemory = reinterpret_cast<float*>(g_cameraStructAddress + ROTATION_IN_STRUCT_OFFSET);
-		coordsInMemory = reinterpret_cast<float*>(g_cameraStructAddress + COORDS_IN_STRUCT_OFFSET);
-		memcpy(_originalRotation, rotationInMemory, 3 * sizeof(float));
-		memcpy(_originalCoords, coordsInMemory, 3 * sizeof(float));
-
-		fovInMemory = reinterpret_cast<float*>(g_cameraStructAddress + FOV_IN_STRUCT_OFFSET);
-		_originalFoV = *fovInMemory;
+		cacheGameCameraDataInCache(_originalData);
 	}
 }

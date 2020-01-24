@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Part of Injectable Generic Camera System
-// Copyright(c) 2019, Frans Bouma
+// Copyright(c) 2017, Frans Bouma
 // All rights reserved.
 // https://github.com/FransBouma/InjectableGenericCameraSystem
 //
@@ -28,38 +28,41 @@
 #pragma once
 #include "AOBBlock.h"
 #include "Utils.h"
-#include "ScanPattern.h"
+
+using namespace std;
 
 namespace IGCS
 {
 	class AOBBlock
 	{
 	public:
+		AOBBlock(string blockName, string bytePatternAsString, int occurrence);
+		~AOBBlock();
+
+		bool scan(LPBYTE imageAddress, DWORD imageSize);
+		LPBYTE locationInImage() { return _locationInImage; }
+		LPBYTE bytePattern() { return _bytePattern; }
+		int occurrence() { return _occurrence; }
+		int patternSize() { return _patternSize; }
+		char* patternMask() { return _patternMask; }
+		int customOffset() { return _customOffset; }
+		LPBYTE absoluteAddress() { return (LPBYTE)(_locationInImage + (DWORD)customOffset()); }
 		BYTE* byteStorage;
 		BYTE* byteStorage2;
 		bool nopState;
 		bool nopState2;
 
-		AOBBlock(std::string blockName, std::string bytePatternAsString, int occurrence);
-		~AOBBlock();
-
-		bool scan(LPBYTE imageAddress, DWORD imageSize);
-		LPBYTE locationInImage() { return _locationInImage; }
-		int customOffset() { return _customOffset; }
-		LPBYTE absoluteAddress() { return (LPBYTE)(_locationInImage + (DWORD)customOffset()); }
-		void addAlternative(std::string bytePatternAsString, int occurrence);
-		bool found() { return _found; }
-		void markAsNonCritical() { _isNonCritical = true; }
-		bool isNonCritical() { return _isNonCritical; }
-		int patternIndexThatMatched() { return _patternIndexThatMatched; }
-
 	private:
-		bool _found;
-		bool _isNonCritical;
-		std::string _blockName;
-		std::vector<ScanPattern> _scanPatterns;
+		void createAOBPatternFromStringPattern(string pattern);
+
+		string _blockName;
+		string _bytePatternAsString;
+		LPBYTE _bytePattern;
+		char* _patternMask;
+		int _patternSize;
 		int _customOffset;
-		int _patternIndexThatMatched;
+		int _occurrence;		// starts at 1: if there are more occurrences, and e.g. the 3rd has to be picked, set this to 3.
 		LPBYTE _locationInImage;	// the location to use after the scan has been completed.
 	};
+
 }

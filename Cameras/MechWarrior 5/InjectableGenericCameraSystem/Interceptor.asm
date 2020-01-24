@@ -1,6 +1,6 @@
 ;////////////////////////////////////////////////////////////////////////////////////////////////////////
 ;// Part of Injectable Generic Camera System
-;// Copyright(c) 2019, Frans Bouma
+;// Copyright(c) 2017, Frans Bouma
 ;// All rights reserved.
 ;// https://github.com/FransBouma/InjectableGenericCameraSystem
 ;//
@@ -52,7 +52,6 @@ EXTERN g_timestopStructAddress: qword
 EXTERN _cameraStructInterceptionContinue: qword
 ;EXTERN _resolutionScaleReadInterceptionContinue: qword
 EXTERN _timestopReadInterceptionContinue: qword
-;EXTERN _resolutionHookABSADD: qword
 
 .data
 

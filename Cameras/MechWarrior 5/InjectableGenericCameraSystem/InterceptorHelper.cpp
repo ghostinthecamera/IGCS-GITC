@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Part of Injectable Generic Camera System
-// Copyright(c) 2019, Frans Bouma
+// Copyright(c) 2017, Frans Bouma
 // All rights reserved.
 // https://github.com/FransBouma/InjectableGenericCameraSystem
 //
@@ -30,9 +30,7 @@
 #include "GameConstants.h"
 #include "GameImageHooker.h"
 #include <map>
-#include "OverlayConsole.h"
-#include "CameraManipulator.h"
-#include "Console.h"
+#include "MessageHandler.h"
 
 using namespace std;
 
@@ -50,12 +48,11 @@ extern "C" {
 }
 
 
-
 namespace IGCS::GameSpecific::InterceptorHelper
 {
 	void initializeAOBBlocks(LPBYTE hostImageAddress, DWORD hostImageSize, map<string, AOBBlock*> &aobBlocks)
 	{
-		aobBlocks[CAMERA_ADDRESS_INTERCEPT_KEY] = new AOBBlock(CAMERA_ADDRESS_INTERCEPT_KEY, "F2 0F 11 01 48 8B DA", 1);	
+		aobBlocks[CAMERA_ADDRESS_INTERCEPT_KEY] = new AOBBlock(CAMERA_ADDRESS_INTERCEPT_KEY, "F2 0F 11 01 48 8B DA", 1);
 		aobBlocks[TIMESTOP_READ_INTERCEPT_KEY] = new AOBBlock(TIMESTOP_READ_INTERCEPT_KEY, "48 3B C2 75 ?? | F3 0F 10 81 ?? ?? ?? ?? F3 0F 59 81 ?? ?? ?? ?? F3 0F 59 81 ?? ?? ?? ?? F3 0F 59 83 ?? ?? ?? ?? 48 83 C4 ?? 5B C3 FF 90 ?? ?? ?? ??", 1);
 		aobBlocks[HUD_RENDER_INTERCEPT_KEY] = new AOBBlock(HUD_RENDER_INTERCEPT_KEY, "0F B6 44 24 ?? 88 44 24 ?? E9 ?? ?? ?? ?? CC CC 48 83 EC ??", 1);
 
@@ -67,11 +64,11 @@ namespace IGCS::GameSpecific::InterceptorHelper
 		}
 		if (result)
 		{
-			Console::WriteLine("All interception offsets found.");
+			MessageHandler::logLine("All interception offsets found.");
 		}
 		else
 		{
-			Console::WriteLine("One or more interception offsets weren't found: tools aren't compatible with this game's version.");
+			MessageHandler::logError("One or more interception offsets weren't found: tools aren't compatible with this game's version.");
 		}
 	}
 
@@ -79,10 +76,6 @@ namespace IGCS::GameSpecific::InterceptorHelper
 	void setCameraStructInterceptorHook(map<string, AOBBlock*> &aobBlocks)
 	{
 		GameImageHooker::setHook(aobBlocks[CAMERA_ADDRESS_INTERCEPT_KEY], 0x23, &_cameraStructInterceptionContinue, &cameraStructInterceptor);
-	}
-
-	void getAbsoluteAddresses(map<string, AOBBlock*> &aobBlocks)
-	{
 	}
 
 
@@ -107,7 +100,7 @@ namespace IGCS::GameSpecific::InterceptorHelper
 			}
 			else
 			{
-				Console::WriteLine("Already Nopped - this shouldnt be showing. Something isnt working right");
+				MessageHandler::logError("Already Nopped - this shouldnt be showing. Something isnt working right");
 			}
 		}
 		if (!enabled)
@@ -119,7 +112,7 @@ namespace IGCS::GameSpecific::InterceptorHelper
 			}
 			else
 			{
-				Console::WriteLine("Already Disabled - this shouldnt be showing. Something isnt working right");
+				MessageHandler::logError("Already Disabled - this shouldnt be showing. Something isnt working right");
 			}
 		}
 	}
@@ -140,7 +133,7 @@ namespace IGCS::GameSpecific::InterceptorHelper
 			}
 			else
 			{
-				Console::WriteLine("Already Nopped - this shouldnt be showing. Something isnt working right");
+				MessageHandler::logError("Already Nopped - this shouldnt be showing. Something isnt working right");
 			}
 		}
 		if (!enabled)
@@ -152,10 +145,8 @@ namespace IGCS::GameSpecific::InterceptorHelper
 			}
 			else
 			{
-				Console::WriteLine("Already Disabled - this shouldnt be showing. Something isnt working right");
+				MessageHandler::logError("Already Disabled - this shouldnt be showing. Something isnt working right");
 			}
 		}
 	}
-
-	
 }

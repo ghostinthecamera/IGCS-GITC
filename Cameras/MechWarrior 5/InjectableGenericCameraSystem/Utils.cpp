@@ -29,31 +29,40 @@
 #include "Utils.h"
 #include "GameConstants.h"
 #include "AOBBlock.h"
-#include "OverlayConsole.h"
 #include <comdef.h>
 #include <codecvt>
+#include <filesystem>
+#include "MessageHandler.h"
 
 using namespace std;
 
 namespace IGCS::Utils
 {
 	// This table is from Reshade.
-	static const char vkCodeToStringLookup[256][16] = 
+	static const char vkCodeToStringLookup[256][16] =
 	{
 		"", "", "", "Cancel", "", "", "", "", "Backspace", "Tab", "", "", "Clear", "Enter", "", "",
 		"Shift", "Control", "Alt", "Pause", "Caps Lock", "", "", "", "", "", "", "Escape", "", "", "", "",
-		"Space", "Page Up", "Page Down", "End", "Home", "Left Arrow", "Up Arrow", "Right Arrow", "Down Arrow", 
+		"Space", "Page Up", "Page Down", "End", "Home", "Left Arrow", "Up Arrow", "Right Arrow", "Down Arrow",
 		"Select", "", "", "Print Screen", "Insert", "Delete", "Help",
 		"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "", "", "", "", "", "",
 		"", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O",
 		"P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "Left Windows", "Right Windows", "", "", "Sleep",
-		"Numpad 0", "Numpad 1", "Numpad 2", "Numpad 3", "Numpad 4", "Numpad 5", "Numpad 6", "Numpad 7", "Numpad 8", "Numpad 9", 
+		"Numpad 0", "Numpad 1", "Numpad 2", "Numpad 3", "Numpad 4", "Numpad 5", "Numpad 6", "Numpad 7", "Numpad 8", "Numpad 9",
 		"Numpad *", "Numpad +", "", "Numpad -", "Numpad Decimal", "Numpad /",
 		"F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "F10", "F11", "F12", "F13", "F14", "F15", "F16",
 		"F17", "F18", "F19", "F20", "F21", "F22", "F23", "F24", "", "", "", "", "", "", "", "",
 		"Num Lock", "Scroll Lock",
 	};
 
+	// Obtains the exe's filename + path and returns that as a path object.
+	std::filesystem::path obtainHostExeAndPath()
+	{
+		char lpBuffer[MAX_PATH];
+		GetModuleFileNameA(NULL, lpBuffer, MAX_PATH);
+		return filesystem::path(lpBuffer);
+	}
+	
 
 	BOOL isMainWindow(HWND handle)
 	{
@@ -64,11 +73,12 @@ namespace IGCS::Utils
 			int bufsize = GetWindowTextLength(handle) + 1;
 			LPWSTR title = new WCHAR[bufsize];
 			GetWindowText(handle, title, bufsize);
-			toReturn &= (_wcsicmp(title, TEXT(GAME_WINDOW_TITLE)) == 0);
+			// trick to do a 'startswith' compare. Will only return 0 if the string actually starts with the fragment we want to compare with
+			toReturn &= (wcsncmp(title, TEXT(GAME_WINDOW_TITLE), strlen(GAME_WINDOW_TITLE)) == 0);
 			// convert title to char* so we can display it
 			_bstr_t titleAsBstr(title);
 			const char* titleAsChar = titleAsBstr;		// char conversion copy
-			OverlayConsole::instance().logDebug("Window found with title: '%s'", titleAsChar);
+			MessageHandler::logDebug("Window found with title: '%s'", titleAsChar);
 		}
 		return toReturn;
 	}
@@ -86,7 +96,7 @@ namespace IGCS::Utils
 		data.best_handle = handle;
 		return FALSE;
 	}
-	
+
 
 	MODULEINFO getModuleInfoOfContainingProcess()
 	{
@@ -95,7 +105,7 @@ namespace IGCS::Utils
 		if (nullptr != processHandle)
 		{
 			DWORD cbNeeded;
-			if(!EnumProcessModulesEx(processHandle, &processModule, sizeof(processModule), &cbNeeded, LIST_MODULES_32BIT | LIST_MODULES_64BIT))
+			if (!EnumProcessModulesEx(processHandle, &processModule, sizeof(processModule), &cbNeeded, LIST_MODULES_32BIT | LIST_MODULES_64BIT))
 			{
 				processModule = nullptr;
 			}
@@ -112,11 +122,14 @@ namespace IGCS::Utils
 				toReturn.lpBaseOfDll = nullptr;
 			}
 		}
-		CloseHandle(processHandle);
+		if (processHandle != nullptr)
+		{
+			CloseHandle(processHandle);
+		}
 		return toReturn;
 	}
 
-	
+
 	MODULEINFO getModuleInfoOfDll(LPCWSTR libraryName)
 	{
 		HANDLE processHandle = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, GetCurrentProcessId());
@@ -148,9 +161,9 @@ namespace IGCS::Utils
 	}
 
 
-	BYTE CharToByte(char c)
+	uint8_t CharToByte(char c)
 	{
-		BYTE b;
+		uint8_t b;
 		sscanf_s(&c, "%hhx", &b);
 		return b;
 	}
@@ -169,14 +182,14 @@ namespace IGCS::Utils
 	}
 
 
-	LPBYTE findAOBPattern(LPBYTE imageAddress, DWORD imageSize, ScanPattern pattern)
+	LPBYTE findAOBPattern(LPBYTE imageAddress, DWORD imageSize, AOBBlock* const toScanFor)
 	{
-		BYTE firstByte = pattern.bytePattern()[0];
-		__int64 length = (__int64)imageAddress + imageSize - pattern.patternSize();
+		uint8_t firstByte = *(toScanFor->bytePattern());
+		__int64 length = (__int64)imageAddress + imageSize - toScanFor->patternSize();
 
 		LPBYTE toReturn = nullptr;
 		LPBYTE startOfScan = imageAddress;
-		for (int occurrence = 0; occurrence < pattern.occurrence(); occurrence++)
+		for (int occurrence = 0; occurrence < toScanFor->occurrence(); occurrence++)
 		{
 			// reset the pointer found, as we're not interested in this occurrence, we need a following occurrence.
 			toReturn = nullptr;
@@ -186,33 +199,33 @@ namespace IGCS::Utils
 
 				if ((x & 0xFF) == firstByte)
 				{
-					if (DataCompare(reinterpret_cast<BYTE*>(i), pattern.bytePattern(), pattern.patternMask()))
+					if (DataCompare(reinterpret_cast<uint8_t*>(i), toScanFor->bytePattern(), toScanFor->patternMask()))
 					{
-						toReturn = reinterpret_cast<BYTE*>(i);
+						toReturn = reinterpret_cast<uint8_t*>(i);
 						break;
 					}
 				}
 				if ((x & 0xFF00) >> 8 == firstByte)
 				{
-					if (DataCompare(reinterpret_cast<BYTE*>(i + 1), pattern.bytePattern(), pattern.patternMask()))
+					if (DataCompare(reinterpret_cast<uint8_t*>(i + 1), toScanFor->bytePattern(), toScanFor->patternMask()))
 					{
-						toReturn = reinterpret_cast<BYTE*>(i + 1);
+						toReturn = reinterpret_cast<uint8_t*>(i + 1);
 						break;
 					}
 				}
 				if ((x & 0xFF0000) >> 16 == firstByte)
 				{
-					if (DataCompare(reinterpret_cast<BYTE*>(i + 2), pattern.bytePattern(), pattern.patternMask()))
+					if (DataCompare(reinterpret_cast<uint8_t*>(i + 2), toScanFor->bytePattern(), toScanFor->patternMask()))
 					{
-						toReturn = reinterpret_cast<BYTE*>(i + 2);
+						toReturn = reinterpret_cast<uint8_t*>(i + 2);
 						break;
 					}
 				}
 				if ((x & 0xFF000000) >> 24 == firstByte)
 				{
-					if (DataCompare(reinterpret_cast<BYTE*>(i + 3), pattern.bytePattern(), pattern.patternMask()))
+					if (DataCompare(reinterpret_cast<uint8_t*>(i + 3), toScanFor->bytePattern(), toScanFor->patternMask()))
 					{
-						toReturn = reinterpret_cast<BYTE*>(i + 3);
+						toReturn = reinterpret_cast<uint8_t*>(i + 3);
 						break;
 					}
 				}
@@ -240,25 +253,35 @@ namespace IGCS::Utils
 		LPBYTE ripRelativeValueAddress = locationData->locationInImage() + locationData->customOffset();
 		return  ripRelativeValueAddress + nextOpCodeOffset + *((__int32*)ripRelativeValueAddress);
 	}
+	   
+	string formatString(const char* fmt, ...)
+	{
+		va_list args;
+		va_start(args, fmt);
+		string formattedArgs = formatStringVa(fmt, args);
+		va_end(args);
+		return formattedArgs;
+	}
 
 
-	string formatString(const char *fmt, va_list args)
+	string formatStringVa(const char* fmt, va_list args)
 	{
 		va_list args_copy;
 		va_copy(args_copy, args);
 
 		int len = vsnprintf(NULL, 0, fmt, args_copy);
 		char* buffer = new char[len + 2];
-		vsnprintf(buffer, len+1, fmt, args_copy);
-		string toReturn(buffer, len+1);
+		vsnprintf(buffer, len + 1, fmt, args_copy);
+		string toReturn(buffer, len + 1);
 		return toReturn;
 	}
+
 
 	bool stringStartsWith(const char *a, const char *b)
 	{
 		return strncmp(a, b, strlen(b)) == 0 ? 1 : 0;
 	}
-	
+
 	bool keyDown(int virtualKeyCode)
 	{
 		return (GetKeyState(virtualKeyCode) & 0x8000);
@@ -276,6 +299,43 @@ namespace IGCS::Utils
 			return "";
 		}
 		string toReturn = vkCodeToStringLookup[vkCode];
+		return toReturn;
+	}
+
+	float floatFromBytes(uint8_t byteArray[], DWORD arrayLength, int startIndex)
+	{
+		if(arrayLength<startIndex+4)
+		{
+			return -1.0f;
+		}
+		float* floatInArray = reinterpret_cast<float*>(byteArray + startIndex);
+		return *floatInArray;
+	}
+
+	
+	int intFromBytes(uint8_t byteArray[], DWORD arrayLength, int startIndex)
+	{
+		if (arrayLength < startIndex + 4)
+		{
+			return -1;
+		}
+		int* intInArray = reinterpret_cast<int*>(byteArray + startIndex);
+		return *intInArray;
+	}
+
+	
+	std::string stringFromBytes(uint8_t byteArray[], DWORD arrayLength, int startIndex)
+	{
+		if (arrayLength < startIndex + 4)
+		{
+			return nullptr;
+		}
+		char* charInArray = reinterpret_cast<char*>(byteArray + startIndex);
+		// copy over the bytes in our own array which has a trailing 0
+		char* characters = new char[(arrayLength - startIndex) + 1];
+		memcpy(characters, charInArray, arrayLength - startIndex);
+		characters[(arrayLength - startIndex)] = '\0';
+		string toReturn(characters);
 		return toReturn;
 	}
 }

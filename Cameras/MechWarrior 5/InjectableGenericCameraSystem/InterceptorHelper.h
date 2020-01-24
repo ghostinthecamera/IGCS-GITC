@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Part of Injectable Generic Camera System
-// Copyright(c) 2019, Frans Bouma
+// Copyright(c) 2017, Frans Bouma
 // All rights reserved.
 // https://github.com/FransBouma/InjectableGenericCameraSystem
 //
@@ -36,6 +36,5 @@ namespace IGCS::GameSpecific::InterceptorHelper
 	void setCameraStructInterceptorHook(std::map<std::string, AOBBlock*> &aobBlocks);
 	void setPostCameraStructHooks(std::map<std::string, AOBBlock*> &aobBlocks);
 	void SaveNOPReplace(AOBBlock* hookData, int numberOfBytes, bool enabled);
-	void getAbsoluteAddresses(std::map<std::string, AOBBlock*> &aobBlocks);
 	void SaveBytesWrite(AOBBlock* hookData, int numberOfBytes, BYTE* BytestoWrite, bool enabled);
 }

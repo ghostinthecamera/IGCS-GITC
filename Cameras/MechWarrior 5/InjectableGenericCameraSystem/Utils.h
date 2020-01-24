@@ -27,7 +27,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma once
 #include "stdafx.h"
-#include "ScanPattern.h"
+#include <filesystem>
 
 namespace IGCS
 {
@@ -48,23 +48,28 @@ namespace IGCS::Utils
 		return value < min ? default
 			: value > max ? default: value;
 	}
-	
+
 	template <typename T>
 	T clamp(T value, T min, T default)
 	{
-		return value < min ? default : value;
+		return value < min ? default: value;
 	}
-	
+
 
 	HWND findMainWindow(unsigned long process_id);
 	MODULEINFO getModuleInfoOfContainingProcess();
 	MODULEINFO getModuleInfoOfDll(LPCWSTR libraryName);
-	LPBYTE findAOBPattern(LPBYTE imageAddress, DWORD imageSize, ScanPattern pattern);
-	BYTE CharToByte(char c);
+	LPBYTE findAOBPattern(LPBYTE imageAddress, DWORD imageSize, AOBBlock* const toScanFor);
+	uint8_t CharToByte(char c);
 	LPBYTE calculateAbsoluteAddress(AOBBlock* locationData, int nextOpCodeOffset);
-	std::string formatString(const char *fmt, va_list args);
+	std::string formatString(const char* fmt, ...);
+	std::string formatStringVa(const char* fmt, va_list args);
 	bool stringStartsWith(const char *a, const char *b);
 	bool keyDown(int virtualKeyCode);
 	bool altPressed();
 	std::string vkCodeToString(int vkCode);
+	float floatFromBytes(uint8_t byteArray[], DWORD arrayLength, int startIndex);
+	int intFromBytes(uint8_t byteArray[], DWORD arrayLength, int startIndex);
+	std::string stringFromBytes(uint8_t byteArray[], DWORD arrayLength, int startIndex);
+	std::filesystem::path obtainHostExeAndPath();
 }

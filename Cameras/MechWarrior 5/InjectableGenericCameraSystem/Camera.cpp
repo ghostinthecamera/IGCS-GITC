@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Part of Injectable Generic Camera System
-// Copyright(c) 2019, Frans Bouma
+// Copyright(c) 2017, Frans Bouma
 // All rights reserved.
 // https://github.com/FransBouma/InjectableGenericCameraSystem
 //
@@ -95,7 +95,7 @@ namespace IGCS
 
 	void Camera::moveForward(float amount)
 	{
-		_direction.x += (Globals::instance().settings().movementSpeed * amount);		// y out of the screen, z up
+		_direction.x += (Globals::instance().settings().movementSpeed * amount);		// z up, y into of the screen.
 		_movementOccurred = true;
 	}
 
@@ -107,7 +107,7 @@ namespace IGCS
 
 	void Camera::moveUp(float amount)
 	{
-		_direction.z -= (Globals::instance().settings().movementSpeed * amount * Globals::instance().settings().movementUpMultiplier);		// z is up
+		_direction.z += (Globals::instance().settings().movementSpeed * amount * Globals::instance().settings().movementUpMultiplier);
 		_movementOccurred = true;
 	}
 
@@ -124,13 +124,13 @@ namespace IGCS
 		{
 			lookDirectionInverter = -lookDirectionInverter;
 		}
-		_pitch += (Globals::instance().settings().rotationSpeed * amount * lookDirectionInverter);			// y is left, so inversed
+		_pitch += (Globals::instance().settings().rotationSpeed * amount * lookDirectionInverter);
 		_pitch = clampAngle(_pitch);
 	}
 
 	void Camera::roll(float amount)
 	{
-		_roll -= (Globals::instance().settings().rotationSpeed * amount);
+		_roll += (Globals::instance().settings().rotationSpeed * amount);
 		_roll = clampAngle(_roll);
 	}
 

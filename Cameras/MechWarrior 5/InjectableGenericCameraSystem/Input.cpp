@@ -27,13 +27,9 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 #include "stdafx.h"
 #include "input.h"
-#include "Utils.h"
 #include "Globals.h"
-#include "imgui_impl_win32.h"
-#include "OverlayConsole.h"
-#include "OverlayControl.h"
-#include <mutex>
 #include <atomic>
+#include "MessageHandler.h"
 
 namespace IGCS::Input
 {
@@ -41,65 +37,15 @@ namespace IGCS::Input
 
 	// The key/mouse states are unprotected for write/read. This is initially bad, but protecting it with a mutex is difficult as the present call
 	// will read it and multiple calls from that thread causes mutex problems. For now they're unprotected (not that bad, the next frame it will be corrected anyway).
-	static BYTE g_keyStates[256];		// 0x0==nothing, 0x88==key is down this frame, 0x08==key is released, 0x80==key was down previous frame.
-	static BYTE g_mouseButtonStates[3];	// 0x0==nothing, 0x88==button is down this frame, 0x08==button is released, 0x80==button was down previous frame.
+	static uint8_t g_keyStates[256];		// 0x0==nothing, 0x88==key is down this frame, 0x08==key is released, 0x80==key was down previous frame.
+	static uint8_t g_mouseButtonStates[3];	// 0x0==nothing, 0x88==button is down this frame, 0x08==button is released, 0x80==button was down previous frame.
 	static short g_mouseWheelDelta = 0;
 	static atomic_long _deltaMouseX = 0;
 	static atomic_long _deltaMouseY = 0;
 	
 	void setMouseButtonState(int button, bool down);
 
-	void setKeyboardMouseStateInImGuiIO()
-	{
-		ImGuiIO& io = ImGui::GetIO();
-		for (int i = 0; i < 256; i++)
-		{
-			if ((g_keyStates[i] & 0x88) == 0x88)
-			{
-				WORD ch = 0;
-				io.AddInputCharacter(ToAscii(i, MapVirtualKey(i, MAPVK_VK_TO_VSC), g_keyStates, &ch, 0) ? ch : 0);
-			}
-		}
-
-		for (int i = 0; i < 3; i++)
-		{
-			io.MouseDown[i] = (g_mouseButtonStates[i] & 0x80) == 0x80;
-		}
-		io.MouseWheel += g_mouseWheelDelta;
-	}
-
-
-	void collectPressedKeysCumulatively()
-	{
-		// check which keys are down. For keycode, the last one wins.
-		ActionData& toCollectInto = Globals::instance().getKeyCollector();
-
-		// keys below 7 aren't interesting.
-		for (int i = 7; i < 256; i++)
-		{
-			if ((g_keyStates[i] & 0x88) == 0x88 || (g_keyStates[i] & 0x80)==0x80)
-			{
-				// this key is down.
-				switch (i)
-				{
-				case VK_MENU:
-					toCollectInto.setAltRequired();
-					break;
-				case VK_CONTROL:
-					toCollectInto.setCtrlRequired();
-					break;
-				case VK_SHIFT:
-					toCollectInto.setShiftRequired();
-					break;
-				default:
-					toCollectInto.setKeyCode(i);
-					break;
-				}
-			}
-		}
-	}
-
-
+	
 	bool isActionActivated(ActionType type)
 	{
 		return isActionActivated(type, false);
@@ -124,11 +70,9 @@ namespace IGCS::Input
 	void resetKeyStates()
 	{
 		// clear 0x08 bit on keys in keystate array so we avoid repeat issues.
-		ImGuiIO& io = ImGui::GetIO();
 		for (int i = 0; i < 256; i++)
 		{
 			g_keyStates[i] &= ~0x08;
-			io.KeysDown[i] = 0x00;
 		}
 	}
 
@@ -146,7 +90,7 @@ namespace IGCS::Input
 
 	void setMouseButtonState(int button, bool down)
 	{
-		if (button < 0 || button > 3)
+		if (button < 0 || button >= 3)
 		{
 			return;
 		}
@@ -194,11 +138,11 @@ namespace IGCS::Input
 
 		if (RegisterRawInputDevices(rid, 1, sizeof(rid[0])) == FALSE)
 		{
-			OverlayConsole::instance().logError("Couldn't register raw input. Error code: %010x", GetLastError());
+			MessageHandler::logError("Couldn't register raw input. Error code: %010x", GetLastError());
 		}
 		else
 		{
-			OverlayConsole::instance().logDebug("Raw input registered");
+			MessageHandler::logDebug("Raw input registered");
 		}
 	}
 
@@ -212,23 +156,14 @@ namespace IGCS::Input
 		}
 
 		// simply use our main window handle.
-		HWND handleToUse = Globals::instance().mainWindowHandle();
+		const HWND handleToUse = Globals::instance().mainWindowHandle();
 		if (handleToUse == nullptr)
 		{
 			return false;
 		}
 
-		ImGuiIO& io = ImGui::GetIO();
-		// first handle the message through the Imgui handler so we get an up to date IO structure for the overlay
-		LRESULT handledByImGuiHandler = ImGui_ImplWin32_WndProcHandler(handleToUse, lpMsg->message, lpMsg->wParam, lpMsg->lParam);
-		if (!handledByImGuiHandler)
-		{
-			// grab mouse position
-			ScreenToClient(static_cast<HWND>(handleToUse), &lpMsg->pt);
-			io.MousePos.x = static_cast<float>(lpMsg->pt.x);
-			io.MousePos.y = static_cast<float>(lpMsg->pt.y);
-		}
-
+		// grab mouse position
+		ScreenToClient(static_cast<HWND>(handleToUse), &lpMsg->pt);
 		bool toReturn = false;
 		switch (lpMsg->message)
 		{
@@ -236,10 +171,10 @@ namespace IGCS::Input
 			{
 				// Determine how big the buffer should be
 				UINT bufferSize;
-				GetRawInputData((HRAWINPUT)lpMsg->lParam, RID_INPUT, NULL, &bufferSize, sizeof(RAWINPUTHEADER));
-				LPBYTE lpb = new BYTE[bufferSize];
+				GetRawInputData((HRAWINPUT)lpMsg->lParam, RID_INPUT, nullptr, &bufferSize, sizeof(RAWINPUTHEADER));
+				const LPBYTE lpb = new uint8_t[bufferSize];
 				// Get the raw input data
-				UINT readSize = GetRawInputData((HRAWINPUT)lpMsg->lParam, RID_INPUT, lpb, &bufferSize, sizeof(RAWINPUTHEADER));
+				const UINT readSize = GetRawInputData((HRAWINPUT)lpMsg->lParam, RID_INPUT, lpb, &bufferSize, sizeof(RAWINPUTHEADER));
 				if (readSize == bufferSize)
 				{
 					RAWINPUT* pRawData = (RAWINPUT*)lpb;
@@ -247,46 +182,43 @@ namespace IGCS::Input
 					if (pRawData->header.dwType == RIM_TYPEMOUSE)
 					{
 						processRawMouseData(&pRawData->data.mouse);
-						if (!handledByImGuiHandler)
+						// check mouse buttons / wheel.
+						if (pRawData->data.mouse.usButtonFlags & RI_MOUSE_LEFT_BUTTON_DOWN)
 						{
-							// check mouse buttons / wheel.
-							if (pRawData->data.mouse.usButtonFlags & RI_MOUSE_LEFT_BUTTON_DOWN)
+							setMouseButtonState(0, true);
+						}
+						else
+						{
+							if (pRawData->data.mouse.usButtonFlags & RI_MOUSE_LEFT_BUTTON_UP)
 							{
-								setMouseButtonState(0, true);
+								setMouseButtonState(0, false);
 							}
-							else
+						}
+						if (pRawData->data.mouse.usButtonFlags & RI_MOUSE_RIGHT_BUTTON_DOWN)
+						{
+							setMouseButtonState(1, true);
+						}
+						else
+						{
+							if (pRawData->data.mouse.usButtonFlags & RI_MOUSE_RIGHT_BUTTON_UP)
 							{
-								if (pRawData->data.mouse.usButtonFlags & RI_MOUSE_LEFT_BUTTON_UP)
-								{
-									setMouseButtonState(0, false);
-								}
+								setMouseButtonState(1, false);
 							}
-							if (pRawData->data.mouse.usButtonFlags & RI_MOUSE_RIGHT_BUTTON_DOWN)
+						}
+						if (pRawData->data.mouse.usButtonFlags & RI_MOUSE_MIDDLE_BUTTON_DOWN)
+						{
+							setMouseButtonState(2, true);
+						}
+						else
+						{
+							if (pRawData->data.mouse.usButtonFlags & RI_MOUSE_MIDDLE_BUTTON_UP)
 							{
-								setMouseButtonState(1, true);
+								setMouseButtonState(2, false);
 							}
-							else
-							{
-								if (pRawData->data.mouse.usButtonFlags & RI_MOUSE_RIGHT_BUTTON_UP)
-								{
-									setMouseButtonState(1, false);
-								}
-							}
-							if (pRawData->data.mouse.usButtonFlags & RI_MOUSE_MIDDLE_BUTTON_DOWN)
-							{
-								setMouseButtonState(2, true);
-							}
-							else
-							{
-								if (pRawData->data.mouse.usButtonFlags & RI_MOUSE_MIDDLE_BUTTON_UP)
-								{
-									setMouseButtonState(2, false);
-								}
-							}
-							if (pRawData->data.mouse.usButtonFlags & RI_MOUSE_WHEEL)
-							{
-								g_mouseWheelDelta += static_cast<short>(pRawData->data.mouse.usButtonData) / WHEEL_DELTA;
-							}
+						}
+						if (pRawData->data.mouse.usButtonFlags & RI_MOUSE_WHEEL)
+						{
+							g_mouseWheelDelta += static_cast<short>(pRawData->data.mouse.usButtonData) / WHEEL_DELTA;
 						}
 					}
 					if (pRawData->header.dwType == RIM_TYPEKEYBOARD && IGCS_SUPPORT_RAWKEYBOARDINPUT)
@@ -295,11 +227,10 @@ namespace IGCS::Input
 						if (pRawData->data.keyboard.VKey != 0xFF)
 						{
 							g_keyStates[pRawData->data.keyboard.VKey] = (pRawData->data.keyboard.Flags & RI_KEY_BREAK) == 0 ? 0x88 : 0x08;
-							io.KeysDown[pRawData->data.keyboard.VKey] = 0x01;
 						}
 					}
 				}
-				delete lpb;
+				delete[] lpb;
 				toReturn = true;
 			}
 			break;
@@ -376,10 +307,12 @@ namespace IGCS::Input
 				// say we handled it, so the host won't see it
 				toReturn = true;
 				break;
-			break;
+			default:
+				// nothing
+				break;
 		}
 
-		if (!g_cameraEnabled && !OverlayControl::isMainMenuVisible())
+		if (!g_cameraEnabled)
 		{
 			// let the game also handle the message
 			return false;

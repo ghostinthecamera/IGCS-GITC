@@ -81,7 +81,9 @@
 					<Thickness x:Key="ContentDialogTitleMargin">24,0,24,12</Thickness>
 				</Style.Resources>
 			</Style>
-			<SolidColorBrush x:Key="UriForecolorKey" Color="#FF0072FF"/>		
+			<SolidColorBrush x:Key="UriForecolorKey" Color="#FF0072FF"/>
+            <BitmapImage x:Key="GITClogo" >gits2small.png</BitmapImage>
+            <BitmapImage x:Key="GITSLogoSmall" CreateOptions="IgnoreImageCache" CacheOption="OnLoad" UriSource="C:\Users\Hussain\Photo Tools\IGCS-GITC\Cameras\MechWarrior 5\IGCSClient\gits2small.png"/>
         </ResourceDictionary>
 	</Application.Resources>
 </Application>

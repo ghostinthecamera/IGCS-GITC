@@ -9,6 +9,7 @@
 			 xmlns:GameSpecificControls="clr-namespace:IGCSClient.GameSpecific.Controls"
 			 xmlns:system="clr-namespace:System;assembly=mscorlib"
 			 xmlns:igcsClient="clr-namespace:IGCSClient"
+             xmlns:gif="http://wpfanimatedgif.codeplex.com"
 			 x:Class="IGCSClient.Forms.MainWindow"
 			 ui:ThemeManager.IsThemeAware="True"
 			 ui:WindowHelper.UseModernWindowStyle="True"
@@ -16,6 +17,9 @@
 
     <DockPanel>
         <StatusBar DockPanel.Dock="Bottom" Height="25">
+            <StatusBarItem Padding="3, 3, 10,3">
+                <Image Source="{DynamicResource GITSLogoSmall}" />
+            </StatusBarItem>
             <StatusBarItem Padding="3, 3, 10,3">
                 <TextBlock x:Name="_clientToDllConnectedSBLabel"><Run Text="Not connected"/></TextBlock>
             </StatusBarItem>
@@ -44,7 +48,7 @@
             </TabItem>
             <TabItem Header="Key-bindings" Name="_keybindingsTab">
                 <ScrollViewer>
-                    <GameSpecificControls:KeyBindingPage Margin="15" x:Name="_keyBindingsEditor"/>
+                    <GameSpecificControls:KeyBindingPage Margin="15" x:Name="_keyBindingsEditor" Width="Auto" Height="Auto"/>
                 </ScrollViewer>
             </TabItem>
             <TabItem Header="Theme" Name="_themeTab">

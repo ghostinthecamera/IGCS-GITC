@@ -1,10 +1,10 @@
-Injectable camera for Shadow of the Tomb Raider
+Injectable camera for MechWarrior 5
 ============================
 
 Current supported game version: v1.0+  
-Binary download: https://github.com/FransBouma/InjectableGenericCameraSystem/releases/tag/SOTTR_106  
-Camera version: 1.0.6  
-Credits: Otis_Inf.  
+Binary download:  
+Camera version: 2.0  
+Credits: GHOSTINTHECAMERA  
 
 ### Important
 This camera and its system is made by volunteers in their spare time. If you use this camera for commercial activities 

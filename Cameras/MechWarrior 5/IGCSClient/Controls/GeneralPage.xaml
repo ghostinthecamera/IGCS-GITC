@@ -29,7 +29,7 @@
 		</GroupBox>
 		<GroupBox Header="Attached process info" Height="248" DockPanel.Dock="Top" Name="_attachedProcessInfoGroupBox">
 			<DockPanel>
-				<Image VerticalAlignment="Top" Width="32" Height="32" Name="_executableIconImage" DockPanel.Dock="Left" Margin="0, 19, 0, 0">
+				<Image VerticalAlignment="Top" Width="32" Height="32" Name="_executableIconImage" DockPanel.Dock="Left" Margin="0, 19, 0, 0" RenderTransformOrigin="1,0.5">
 					<Image.Effect>
 						<DropShadowEffect RenderingBias="Quality" Opacity="0.7" ShadowDepth="1" BlurRadius="10"/>
 					</Image.Effect>

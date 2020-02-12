@@ -26,7 +26,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 #include "stdafx.h"
-#include "MinHook.h"
+#include "C:\Users\Hussain\Photo Tools\IGCS-GITC\dependencies\MinHook\include\MinHook.h"
 #include "Gamepad.h"
 #include "Globals.h"
 #include "input.h"

@@ -35,7 +35,7 @@
 #include "InterceptorHelper.h"
 #include "InputHooker.h"
 #include "input.h"
-#include "MinHook.h"
+#include "C:\Users\Hussain\Photo Tools\IGCS-GITC\dependencies\MinHook\include\MinHook.h"
 #include "NamedPipeManager.h"
 #include "MessageHandler.h"
 

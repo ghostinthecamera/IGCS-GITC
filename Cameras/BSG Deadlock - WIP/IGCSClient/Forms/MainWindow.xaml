@@ -13,7 +13,7 @@
 			 x:Class="IGCSClient.Forms.MainWindow"
 			 ui:ThemeManager.IsThemeAware="True"
 			 ui:WindowHelper.UseModernWindowStyle="True"
-             mc:Ignorable="d" Height="569.025" Width="825" Loaded="MainWindow_OnLoaded" WindowStartupLocation="CenterScreen">
+             mc:Ignorable="d" Height="569.025" Width="874" Loaded="MainWindow_OnLoaded" WindowStartupLocation="CenterScreen">
 
     <DockPanel>
         <StatusBar DockPanel.Dock="Bottom" Height="25">

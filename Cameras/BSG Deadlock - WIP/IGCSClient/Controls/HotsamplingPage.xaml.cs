@@ -235,6 +235,21 @@ namespace IGCSClient.Controls
 			_setResolutionButton.IsEnabled = (horizontalResolution >= 640 && verticalResolution >= 480);
 			_aspectRatioTextBox.Text = GeneralUtils.CalculateAspectRatio(horizontalResolution, verticalResolution).ToString(appendDescription:false);
 		}
+				
+
+		private void RepositionWindow(int newX, int newY)
+		{
+			if(_gameWindowHwnd == IntPtr.Zero)
+			{
+				return;
+			}
+			if((Win32Wrapper.IsIconic(_gameWindowHwnd) || Win32Wrapper.IsZoomed(_gameWindowHwnd)))
+			{
+				Win32Wrapper.ShowWindow(_gameWindowHwnd, Win32Wrapper.SW_SHOWNOACTIVATE);
+			}
+			uint uFlags = Win32Wrapper.SWP_NOSIZE | Win32Wrapper.SWP_NOZORDER | Win32Wrapper.SWP_NOACTIVATE | Win32Wrapper.SWP_NOOWNERZORDER | Win32Wrapper.SWP_NOSENDCHANGING | Win32Wrapper.SWP_FRAMECHANGED;
+			Win32Wrapper.SetWindowPos(_gameWindowHwnd, 0, newX, newY, 0, 0, uFlags);
+		}
 
 
 		private void _resolutionTreeView_OnSelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
@@ -316,6 +331,46 @@ namespace IGCSClient.Controls
 			PerformHotSampling();
 		}
 		
+		
+		private void _leftAlignButton_Click(object sender, RoutedEventArgs e)
+		{
+			RepositionWindow(0, _gameWindowInfo.rcWindow.top);
+		}
+
+
+		private void _rightAlignButton_Click(object sender, RoutedEventArgs e)
+		{
+			var screenWithGameWindow = Screen.FromHandle(_gameWindowHwnd);
+			RepositionWindow(screenWithGameWindow.Bounds.Width-_gameWindowInfo.rcWindow.Width, _gameWindowInfo.rcWindow.top);
+		}
+
+
+		private void _topAlignButton_Click(object sender, RoutedEventArgs e)
+		{
+			RepositionWindow(_gameWindowInfo.rcWindow.left, 0);
+		}
+
+
+		private void _bottomAlignButton_Click(object sender, RoutedEventArgs e)
+		{
+			var screenWithGameWindow = Screen.FromHandle(_gameWindowHwnd);
+			RepositionWindow(_gameWindowInfo.rcWindow.left, screenWithGameWindow.Bounds.Height-_gameWindowInfo.rcWindow.Height);
+		}
+
+
+		private void _horizontalCenterAlignButton_Click(object sender, RoutedEventArgs e)
+		{
+			var screenWithGameWindow = Screen.FromHandle(_gameWindowHwnd);
+			RepositionWindow((screenWithGameWindow.Bounds.Width-_gameWindowInfo.rcWindow.Width)/2, _gameWindowInfo.rcWindow.top);
+		}
+
+
+		private void _verticalCenterAlignButton_Click(object sender, RoutedEventArgs e)
+		{
+			var screenWithGameWindow = Screen.FromHandle(_gameWindowHwnd);
+			RepositionWindow(_gameWindowInfo.rcWindow.left, (screenWithGameWindow.Bounds.Height-_gameWindowInfo.rcWindow.Height)/2);
+		}
+
 
 		#region Properties
 		public ObservableCollection<Resolution> RecentlyUserResolutions { get; set; }

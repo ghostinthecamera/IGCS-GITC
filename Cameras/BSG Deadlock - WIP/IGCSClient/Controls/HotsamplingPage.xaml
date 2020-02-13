@@ -87,6 +87,16 @@
 							<Button Margin="10,0,0,0" VerticalAlignment="Bottom" Name="_switchToGameWindowButton" Click="_switchToGameWindowButton_OnClick">Switch to window</Button>
 						</ui:SimpleStackPanel>
 					</GroupBox>
+					<GroupBox Header="Alignment controls">
+						<ui:SimpleStackPanel Orientation="Horizontal">
+							<Button Name="_leftAlignButton" Content="Left" Click="_leftAlignButton_Click"/>
+							<Button Name="_rightAlignButton" Content="Right" Margin="10,0,0,0" Click="_rightAlignButton_Click"/>
+							<Button Name="_topAlignButton" Content="Top" Margin="10,0,0,0" Click="_topAlignButton_Click"/>
+							<Button Name="_bottomAlignButton" Content="Bottom" Margin="10,0,0,0" Click="_bottomAlignButton_Click"/>
+							<Button Name="_horizontalCenterAlignButton" Content="H. center" Margin="10,0,0,0" Click="_horizontalCenterAlignButton_Click"/>
+							<Button Name="_verticalCenterAlignButton" Content="V. center" Margin="10,0,0,0" Click="_verticalCenterAlignButton_Click"/>
+						</ui:SimpleStackPanel>
+					</GroupBox>
 				</StackPanel>
 				<Button VerticalAlignment="Bottom" Content="Refresh" Margin="10, 0" Name="_refreshButton" Click="_refreshButton_OnClick"/>
 			</DockPanel>

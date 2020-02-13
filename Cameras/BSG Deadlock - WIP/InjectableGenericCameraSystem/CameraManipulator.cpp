@@ -39,6 +39,7 @@ using namespace std;
 extern "C" {
 	LPBYTE g_cameraStructAddress = nullptr;
 	LPBYTE g_timestopStructAddress = nullptr;
+	LPBYTE g_fovConstructAddress = nullptr;
 }
 
 namespace IGCS::GameSpecific::CameraManipulator

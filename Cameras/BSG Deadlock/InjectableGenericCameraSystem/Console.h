@@ -28,19 +28,15 @@
 #pragma once
 #include "stdafx.h"
 
-using namespace std;
-
 namespace IGCS::Console
 {
-	#define CONSOLE_WHITE	15
-	#define CONSOLE_NORMAL  7
-
+	void Release();
+	void WriteLine(const std::string& toWrite);
+	void WriteLine(const std::string& toWrite, int color);
+	void WriteError(const std::string& error);
+	void SetColor(int color);
 	void Init();
 	void Release();
 	void WriteHeader();
-	void WriteLine(const string& toWrite);
-	void WriteLine(const string& toWrite, int color);
-	void WriteError(const string& error);
-	void SetColor(int color);
 }
 

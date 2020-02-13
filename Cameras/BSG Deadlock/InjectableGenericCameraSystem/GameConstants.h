@@ -30,20 +30,20 @@
 namespace IGCS::GameSpecific
 {
 	// Mandatory constants to define for a game
-	#define GAME_NAME									"BSG"
-	#define CAMERA_VERSION								"1.1"
-	#define CAMERA_CREDITS								"IGCS by Otis_Inf, adapted by ghostinthecamera"
+	#define GAME_NAME									"BSG Deadlock"
+	#define CAMERA_VERSION								"2.0"
+	#define CAMERA_CREDITS								"GHOSTINTHECAMERA"
 	#define GAME_WINDOW_TITLE							"BattlestarGalacticaDeadlock"
 	#define INITIAL_PITCH_RADIANS						0.0f	// around X axis	(right)
-	#define INITIAL_YAW_RADIANS							0.0f	// around Y axis	(into the screen)
-	#define INITIAL_ROLL_RADIANS						0.0f	// aruond Z axis	(up)
+	#define INITIAL_YAW_RADIANS							0.0f	// around Y axis	(out of the screen)
+	#define INITIAL_ROLL_RADIANS						0.0f	// around Z axis	(up)
 	#define CONTROLLER_Y_INVERT							false
-	#define FASTER_MULTIPLIER							10.0f
+	// These will be overwritten by settings sent by the client. These defines are for initial usage. 
+	#define FASTER_MULTIPLIER							5.0f
 	#define SLOWER_MULTIPLIER							0.1f
 	#define MOUSE_SPEED_CORRECTION						0.2f	// to correct for the mouse-deltas related to normal rotation.
 	#define DEFAULT_MOVEMENT_SPEED						10.0f
 	#define DEFAULT_ROTATION_SPEED						0.01f
-	#define DEFAULT_FOV_DEGREES							80.0f
 	#define DEFAULT_FOV_SPEED							0.1f
 	#define DEFAULT_UP_MOVEMENT_MULTIPLIER				0.7f
 	// End Mandatory constants
@@ -60,4 +60,5 @@ namespace IGCS::GameSpecific
 	#define LOOK_DATA_SECOND_QAUTERNION					-0x50
 	#define FOV_IN_STRUCT_OFFSET						0x13C
 	#define REPLAYBORDER_IN_STRUCT_OFFSET				0x8
+
 }

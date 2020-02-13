@@ -28,6 +28,7 @@
 #pragma once
 #include "stdafx.h"
 #include "Camera.h"
+#include "InputHooker.h"
 #include "Gamepad.h"
 #include <map>
 #include "AOBBlock.h"
@@ -46,22 +47,27 @@ namespace IGCS
 		void initialize();
 		void updateFrame();
 		void handleUserInput();
-		void writeNewCameraValuesToCameraStructs();
-		void displayHelp();
 		void displayCameraState();
-		void toggleYLookDirectionState();
 		void toggleCameraMovementLockState(bool newValue);
-		void toggleInputBlockState(bool newValue);
 		void handleKeyboardCameraMovement(float multiplier);
 		void handleMouseCameraMovement(float multiplier);
 		void handleGamePadMovement(float multiplierBase);
+		void waitForCameraStructAddresses();
+		void toggleInputBlockState(bool newValue);
+		void takeMultiShot(bool isTestRun);
+		void takeSingleScreenshot();
+		void toggleHudRenderState();
 
 		Camera _camera;
 		LPBYTE _hostImageAddress;
 		DWORD _hostImageSize;
 		bool _cameraMovementLocked = false;
 		bool _cameraStructFound = false;
+		bool _hudToggled = false;
 		map<string, AOBBlock*> _aobBlocks;
+		bool _applyHammerPrevention = false;	// set to true by a keyboard action and which triggers a sleep before keyboard handling is performed.
+		std::filesystem::path _hostExePath;
+		std::filesystem::path _hostExeFilename;
 	};
 }
 

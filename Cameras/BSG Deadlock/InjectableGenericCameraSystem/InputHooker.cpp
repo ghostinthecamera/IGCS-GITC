@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Part of Injectable Generic Camera System
-// Copyright(c) 2017, Frans Bouma
+// Copyright(c) 2019, Frans Bouma
 // All rights reserved.
 // https://github.com/FransBouma/InjectableGenericCameraSystem
 //
@@ -26,11 +26,11 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 #include "stdafx.h"
-#include "Utils.h"
 #include "MinHook.h"
 #include "Gamepad.h"
 #include "Globals.h"
 #include "input.h"
+#include "MessageHandler.h"
 
 using namespace std;
 
@@ -56,6 +56,10 @@ namespace IGCS::InputHooker
 	static PEEKMESSAGEA hookedPeekMessageA = nullptr;
 	static PEEKMESSAGEW hookedPeekMessageW = nullptr;
 
+	//-----------------------------------------------
+	// statics
+	static CRITICAL_SECTION _messageProcessCriticalSection;
+
 	//--------------------------------------------------------------------------------------------------------------------------------
 	// Implementations
 
@@ -67,11 +71,9 @@ namespace IGCS::InputHooker
 	}
 
 	template <typename T>
-	inline MH_STATUS MH_CreateHookApiEx(
-		LPCWSTR pszModule, LPCSTR pszProcName, LPVOID pDetour, T** ppOriginal)
+	inline MH_STATUS MH_CreateHookApiEx(LPCWSTR pszModule, LPCSTR pszProcName, LPVOID pDetour, T** ppOriginal)
 	{
-		return MH_CreateHookApi(
-			pszModule, pszProcName, pDetour, reinterpret_cast<LPVOID*>(ppOriginal));
+		return MH_CreateHookApi(pszModule, pszProcName, pDetour, reinterpret_cast<LPVOID*>(ppOriginal));
 	}
 
 
@@ -84,7 +86,7 @@ namespace IGCS::InputHooker
 		if (g_cameraEnabled && pState != Globals::instance().gamePad().getState())
 		{
 			// check if input is blocked. If so, zero the state, so the host will see no input data
-			if (Globals::instance().inputBlocked())
+			if (Globals::instance().inputBlocked() && Globals::instance().controllerControlsCamera())
 			{
 				ZeroMemory(pState, sizeof(XINPUT_STATE));
 			}
@@ -146,67 +148,82 @@ namespace IGCS::InputHooker
 
 	void processMessage(LPMSG lpMsg, bool removeIfRequired)
 	{
-		if (lpMsg->hwnd != nullptr /* && removeIfRequired */ && Input::handleMessage(lpMsg))
+		EnterCriticalSection(&_messageProcessCriticalSection);
+		if (lpMsg != nullptr && Input::handleMessage(lpMsg))
 		{
-			// message was handled by our code. This means it's a message we want to block if input blocking is enabled. 
-			if (Globals::instance().inputBlocked())
+			// message was handled by our code. This means it's a message we want to block if input blocking is enabled or the overlay / menu is shown
+			if (Globals::instance().inputBlocked() && Globals::instance().keyboardMouseControlCamera())
 			{
 				lpMsg->message = WM_NULL;	// reset to WM_NULL so the host will receive a dummy message instead.
 			}
 		}
+		LeaveCriticalSection(&_messageProcessCriticalSection);
+	}
+	   
+
+	void setXInputHook(bool enableHook)
+	{
+		if (nullptr != hookedXInputGetState)
+		{
+			return;
+		}
+		if (MH_CreateHookApiEx(L"xinput1_3", "XInputGetState", &detourXInputGetState, &hookedXInputGetState) != MH_OK)
+		{
+			MessageHandler::logError("Hooking XINPUT failed! Try re-enabling the hook with the button on the General tab after you've used the controller in-game.");
+		}
+		if (enableHook)
+		{
+			if (MH_EnableHook(MH_ALL_HOOKS) == MH_OK)
+			{
+				MessageHandler::logLine("Hook to XInputGetState enabled");
+			}
+		}
+		else
+		{
+			MessageHandler::logDebug("Hook set to XInputGetState");
+		}
 	}
 
 
-	// Sets the input hooks for the various input related functions we defined own wrapper functions for. After a successful hook setup
-	// they're enabled. 
+	// Sets the input hooks for the various input related functions we defined own wrapper functions for. After a successful hook setup they're enabled. 
 	void setInputHooks()
 	{
-		MH_Initialize();
-		if (MH_CreateHookApiEx(L"xinput1_3", "XInputGetState", &detourXInputGetState, &hookedXInputGetState) != MH_OK)
-		{
-			Console::WriteError("Hooking XInput1_3 failed!");
-		}
-#ifdef _DEBUG
-		Console::WriteLine("Hook set to XInputSetState");
-#endif
+		InitializeCriticalSectionAndSpinCount(&_messageProcessCriticalSection, 0x400);
+
+		setXInputHook(false);
 
 		if (MH_CreateHookApiEx(L"user32", "GetMessageA", &detourGetMessageA, &hookedGetMessageA) != MH_OK)
 		{
-			Console::WriteError("Hooking GetMessageA failed!");
+			MessageHandler::logError("Hooking GetMessageA failed!");
 		}
-#ifdef _DEBUG
-		Console::WriteLine("Hook set to GetMessageA");
-#endif
+		MessageHandler::logDebug("Hook set to GetMessageA");
+
 		if (MH_CreateHookApiEx(L"user32", "GetMessageW", &detourGetMessageW, &hookedGetMessageW) != MH_OK)
 		{
-			Console::WriteError("Hooking GetMessageW failed!");
+			MessageHandler::logError("Hooking GetMessageW failed!");
 		}
-#ifdef _DEBUG
-		Console::WriteLine("Hook set to GetMessageW");
-#endif
+		MessageHandler::logDebug("Hook set to GetMessageW");
+
 		if (MH_CreateHookApiEx(L"user32", "PeekMessageA", &detourPeekMessageA, &hookedPeekMessageA) != MH_OK)
 		{
-			Console::WriteError("Hooking PeekMessageA failed!");
+			MessageHandler::logError("Hooking PeekMessageA failed!");
 		}
-#ifdef _DEBUG
-		Console::WriteLine("Hook set to PeekMessageA");
-#endif
+		MessageHandler::logDebug("Hook set to PeekMessageA");
+
 		if (MH_CreateHookApiEx(L"user32", "PeekMessageW", &detourPeekMessageW, &hookedPeekMessageW) != MH_OK)
 		{
-			Console::WriteError("Hooking PeekMessageW failed!");
+			MessageHandler::logError("Hooking PeekMessageW failed!");
 		}
-#ifdef _DEBUG
-		Console::WriteLine("Hook set to PeekMessageW");
-#endif
+		MessageHandler::logDebug("Hook set to PeekMessageW");
 
 		// Enable all hooks
 		if (MH_EnableHook(MH_ALL_HOOKS) == MH_OK)
 		{
-			Console::WriteLine("All hooks enabled.");
+			MessageHandler::logLine("All hooks enabled.");
 		}
 		else
 		{
-			Console::WriteError("Enabling hooks failed.");
+			MessageHandler::logError("Enabling hooks failed.");
 		}
 	}
 }

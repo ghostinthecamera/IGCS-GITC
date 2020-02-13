@@ -29,14 +29,13 @@
 #include "Camera.h"
 #include "Defaults.h"
 #include "GameConstants.h"
+#include "Globals.h"
 
 using namespace DirectX;
 
 namespace IGCS
 {
-	Camera::Camera() : _yaw(0), _pitch(0), _roll(0), _movementSpeed(DEFAULT_MOVEMENT_SPEED),
-		_rotationSpeed(DEFAULT_ROTATION_SPEED), _movementOccurred(false), _lookDirectionInverter(1.0f),
-		_direction(XMFLOAT3(0.0f, 0.0f, 0.0f))
+	Camera::Camera() : _yaw(0), _pitch(0), _roll(0), _movementOccurred(false), _lookDirectionInverter(1.0f), _direction(XMFLOAT3(0.0f, 0.0f, 0.0f))
 	{
 	}
 
@@ -48,7 +47,6 @@ namespace IGCS
 
 	XMVECTOR Camera::calculateLookQuaternion()
 	{
-		// for the camera 3x3 matrix, it uses X right, Z up and Y into the screen.
 		XMVECTOR xQ = XMQuaternionRotationNormal(XMVectorSet(1.0f, 0.0f, 0.0f, 1.0f), -_pitch);
 		XMVECTOR yQ = XMQuaternionRotationNormal(XMVectorSet(0.0f, 1.0f, 0.0f, 1.0f), _yaw);
 		XMVECTOR zQ = XMQuaternionRotationNormal(XMVectorSet(0.0f, 0.0f, 1.0f, 1.0f), _roll);
@@ -90,7 +88,6 @@ namespace IGCS
 			toReturn.x += XMVectorGetX(newDirection);
 			toReturn.y += XMVectorGetY(newDirection);
 			toReturn.z += XMVectorGetZ(newDirection);
-			//toReturn.z += _direction.z;
 		}
 		return toReturn;
 	}
@@ -98,37 +95,42 @@ namespace IGCS
 
 	void Camera::moveForward(float amount)
 	{
-		_direction.z += (_movementSpeed * amount);		// y into the screen
+		_direction.z += (Globals::instance().settings().movementSpeed * amount);		// z up, y into of the screen.
 		_movementOccurred = true;
 	}
 
 	void Camera::moveRight(float amount)
 	{
-		_direction.x += (_movementSpeed * amount);		// x is right
+		_direction.x += (Globals::instance().settings().movementSpeed * amount);		// x is right
 		_movementOccurred = true;
 	}
 
 	void Camera::moveUp(float amount)
 	{
-		_direction.y += (_movementSpeed * amount * DEFAULT_UP_MOVEMENT_MULTIPLIER);		// z is up
+		_direction.y += (Globals::instance().settings().movementSpeed * amount * Globals::instance().settings().movementUpMultiplier);
 		_movementOccurred = true;
 	}
 
 	void Camera::yaw(float amount)
 	{
-		_yaw += (_rotationSpeed * amount);
+		_yaw += (Globals::instance().settings().rotationSpeed * amount);
 		_yaw = clampAngle(_yaw);
 	}
 
 	void Camera::pitch(float amount)
 	{
-		_pitch += (_rotationSpeed * amount * _lookDirectionInverter);
+		float lookDirectionInverter = _lookDirectionInverter;
+		if (Globals::instance().settings().invertY)
+		{
+			lookDirectionInverter = -lookDirectionInverter;
+		}
+		_pitch += (Globals::instance().settings().rotationSpeed * amount * lookDirectionInverter);
 		_pitch = clampAngle(_pitch);
 	}
 
 	void Camera::roll(float amount)
 	{
-		_roll += (_rotationSpeed * amount);
+		_roll += (Globals::instance().settings().rotationSpeed * amount);
 		_roll = clampAngle(_roll);
 	}
 

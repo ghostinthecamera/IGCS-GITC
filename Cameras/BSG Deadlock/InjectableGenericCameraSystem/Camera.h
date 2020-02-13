@@ -28,8 +28,6 @@
 #pragma once
 #include "stdafx.h"
 
-using namespace DirectX;
-
 namespace IGCS
 {
 	class Camera
@@ -38,8 +36,8 @@ namespace IGCS
 		Camera();
 		~Camera(void);
 
-		XMVECTOR calculateLookQuaternion();
-		XMFLOAT3 calculateNewCoords(const XMFLOAT3 currentCoords, const XMVECTOR lookQ);
+		DirectX::XMVECTOR calculateLookQuaternion();
+		DirectX::XMFLOAT3 calculateNewCoords(const DirectX::XMFLOAT3 currentCoords, const DirectX::XMVECTOR lookQ);
 		void resetMovement();
 		void resetAngles();
 		void moveForward(float amount);
@@ -60,13 +58,11 @@ namespace IGCS
 	private:
 		float clampAngle(float angle) const;
 
-		XMFLOAT3 _direction;
+		DirectX::XMFLOAT3 _direction;
 		float _yaw;
 		float _pitch;
 		float _roll;
 		bool _movementOccurred;
-		float _movementSpeed;
-		float _rotationSpeed;
 		float _lookDirectionInverter;
 	};
 }

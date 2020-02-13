@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Part of Injectable Generic Camera System
-// Copyright(c) 2017, Frans Bouma
+// Copyright(c) 2019, Frans Bouma
 // All rights reserved.
 // https://github.com/FransBouma/InjectableGenericCameraSystem
 //
@@ -27,8 +27,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma once
 #include "stdafx.h"
-
-using namespace std;
+#include <filesystem>
 
 namespace IGCS
 {
@@ -38,17 +37,39 @@ namespace IGCS
 
 namespace IGCS::Utils
 {
-
 	struct handle_data {
 		unsigned long process_id;
 		HWND best_handle;
 	};
+
+	template <typename T>
+	T clamp(T value, T min, T max, T default)
+	{
+		return value < min ? default
+			: value > max ? default: value;
+	}
+
+	template <typename T>
+	T clamp(T value, T min, T default)
+	{
+		return value < min ? default: value;
+	}
 
 
 	HWND findMainWindow(unsigned long process_id);
 	MODULEINFO getModuleInfoOfContainingProcess();
 	MODULEINFO getModuleInfoOfDll(LPCWSTR libraryName);
 	LPBYTE findAOBPattern(LPBYTE imageAddress, DWORD imageSize, AOBBlock* const toScanFor);
-	BYTE CharToByte(char c);
+	uint8_t CharToByte(char c);
 	LPBYTE calculateAbsoluteAddress(AOBBlock* locationData, int nextOpCodeOffset);
+	std::string formatString(const char* fmt, ...);
+	std::string formatStringVa(const char* fmt, va_list args);
+	bool stringStartsWith(const char *a, const char *b);
+	bool keyDown(int virtualKeyCode);
+	bool altPressed();
+	std::string vkCodeToString(int vkCode);
+	float floatFromBytes(uint8_t byteArray[], DWORD arrayLength, int startIndex);
+	int intFromBytes(uint8_t byteArray[], DWORD arrayLength, int startIndex);
+	std::string stringFromBytes(uint8_t byteArray[], DWORD arrayLength, int startIndex);
+	std::filesystem::path obtainHostExeAndPath();
 }

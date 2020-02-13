@@ -17,8 +17,9 @@
 
     <DockPanel>
         <StatusBar DockPanel.Dock="Bottom" Height="25">
-            <StatusBarItem Padding="3, 3, 10,3">
-                <Image Source="{DynamicResource GITSLogoSmall}" />
+            <StatusBarItem Padding="3, 3, 10,3" IsEnabled="False">
+                <Image Height="19" Width="19" Source="/IGCSClient;component/Resources/gits2small.png"/>
+
             </StatusBarItem>
             <StatusBarItem Padding="3, 3, 10,3">
                 <TextBlock x:Name="_clientToDllConnectedSBLabel"><Run Text="Not connected"/></TextBlock>

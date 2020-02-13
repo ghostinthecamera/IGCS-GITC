@@ -30,7 +30,7 @@
 #include "GameConstants.h"
 #include "GameImageHooker.h"
 #include <map>
-#include "Console.h"
+#include "MessageHandler.h"
 
 using namespace std;
 
@@ -60,7 +60,7 @@ namespace IGCS::GameSpecific::InterceptorHelper
 		aobBlocks[FOV_INTERCEPT_KEY] = new AOBBlock(FOV_INTERCEPT_KEY, "F3 0F 11 86 ?? ?? ?? ?? 5E 8B E5 5D C3 | F3 0F 10 86 ?? ?? ?? ?? F3 0F 11 45 ?? D9 45 ?? 5E 8B E5 5D C3", 1);
 		aobBlocks[CAMERA_WRITE1_INTERCEPT_KEY] = new AOBBlock(CAMERA_WRITE1_INTERCEPT_KEY, "0F 11 51 ?? 0F 50 C0 85 C0 74 2D", 1);
 		aobBlocks[REPLAY_BORDER_INTERCEPT_KEY] = new AOBBlock(REPLAY_BORDER_INTERCEPT_KEY, "F3 0F 10 86 A0 00 00 00 FF", 1);
-		
+
 		map<string, AOBBlock*>::iterator it;
 		bool result = true;
 		for (it = aobBlocks.begin(); it != aobBlocks.end(); it++)
@@ -69,25 +69,90 @@ namespace IGCS::GameSpecific::InterceptorHelper
 		}
 		if (result)
 		{
-			Console::WriteLine("All interception offsets found.");
+			MessageHandler::logLine("All interception offsets found.");
 		}
 		else
 		{
-			Console::WriteError("One or more interception offsets weren't found: tools aren't compatible with this game's version.");
+			MessageHandler::logError("One or more interception offsets weren't found: tools aren't compatible with this game's version.");
 		}
 	}
 
 
-	void setCameraStructInterceptorHook(map<string, AOBBlock*> &aobBlocks)
+	void setCameraStructInterceptorHook(map<string, AOBBlock*>& aobBlocks)
 	{
 		GameImageHooker::setHook(aobBlocks[CAMERA_ADDRESS_INTERCEPT_KEY], 0x06, &_cameraStructInterceptionContinue, &cameraStructInterceptor);
 	}
 
-
-	void setPostCameraStructHooks(map<string, AOBBlock*> &aobBlocks)
+	void setPostCameraStructHooks(map<string, AOBBlock*> & aobBlocks)
 	{
 		GameImageHooker::setHook(aobBlocks[FOV_INTERCEPT_KEY], 0x08, &_fovReadInterceptionContinue, &fovReadInterceptor);
 		GameImageHooker::setHook(aobBlocks[CAMERA_WRITE1_INTERCEPT_KEY], 0x07, &_cameraWrite1InterceptionContinue, &cameraWrite1Interceptor);
 		GameImageHooker::setHook(aobBlocks[REPLAY_BORDER_INTERCEPT_KEY], 0x08, &_borderInterceptionContinue, &borderInterceptor);
+	}
+
+	void SaveNOPReplace(AOBBlock * hookData, int numberOfBytes, bool enabled)
+	{
+		if (hookData->byteStorage == nullptr)  //check if byteStorage is null - if it is this is the first access and so need to read bytes into it
+		{
+			hookData->byteStorage = new BYTE[numberOfBytes];
+			GameImageHooker::readRange(hookData->locationInImage() + hookData->customOffset(), hookData->byteStorage, numberOfBytes);
+		}
+		if (enabled)
+		{
+			if (!hookData->nopState)
+			{
+				GameImageHooker::nopRange(hookData->locationInImage() + hookData->customOffset(), numberOfBytes);
+				hookData->nopState = true;
+			}
+			else
+			{
+				MessageHandler::logError("Already Nopped - this shouldnt be showing. Something isnt working right");
+			}
+		}
+		if (!enabled)
+		{
+			if (hookData->nopState)
+			{
+				GameImageHooker::writeRange(hookData->locationInImage() + hookData->customOffset(), hookData->byteStorage, numberOfBytes);
+				hookData->nopState = false;
+			}
+			else
+			{
+				MessageHandler::logError("Already Disabled - this shouldnt be showing. Something isnt working right");
+			}
+		}
+	}
+
+	void SaveBytesWrite(AOBBlock * hookData, int numberOfBytes, BYTE * BytestoWrite, bool enabled)
+	{
+		if (hookData->byteStorage2 == nullptr)  //check if byteStorage is null - if it is this is the first access and so need to read bytes into it
+		{
+			hookData->byteStorage2 = new BYTE[numberOfBytes];
+			GameImageHooker::readRange(hookData->locationInImage() + hookData->customOffset(), hookData->byteStorage2, numberOfBytes);
+		}
+		if (enabled)
+		{
+			if (!hookData->nopState2)
+			{
+				GameImageHooker::writeRange(hookData->locationInImage() + hookData->customOffset(), BytestoWrite, numberOfBytes);
+				hookData->nopState2 = true;
+			}
+			else
+			{
+				MessageHandler::logError("Already Nopped - this shouldnt be showing. Something isnt working right");
+			}
+		}
+		if (!enabled)
+		{
+			if (hookData->nopState2)
+			{
+				GameImageHooker::writeRange(hookData->locationInImage() + hookData->customOffset(), hookData->byteStorage2, numberOfBytes);
+				hookData->nopState2 = false;
+			}
+			else
+			{
+				MessageHandler::logError("Already Disabled - this shouldnt be showing. Something isnt working right");
+			}
+		}
 	}
 }

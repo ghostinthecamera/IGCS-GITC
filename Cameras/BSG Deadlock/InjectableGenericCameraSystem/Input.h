@@ -27,14 +27,18 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma once
 #include "stdafx.h"
+#include "ActionData.h"
 
 namespace IGCS::Input
 {
-	bool keyDown(int virtualKeyCode);
 	long getMouseDeltaX();
 	long getMouseDeltaY();
 	void processRawMouseData(const RAWMOUSE *rmouse);
 	void resetMouseDeltas();
 	bool handleMessage(LPMSG lpMsg);
 	void registerRawInput();
+	void resetKeyStates();
+	void resetMouseState();
+	bool isActionActivated(ActionType type);
+	bool isActionActivated(ActionType type, bool altCtrlShiftOptional);
 }

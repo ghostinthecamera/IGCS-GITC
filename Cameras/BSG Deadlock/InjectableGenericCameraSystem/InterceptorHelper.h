@@ -26,12 +26,15 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma once
+#include "stdafx.h"
 #include <map>
 #include "Utils.h"
 
 namespace IGCS::GameSpecific::InterceptorHelper
 {
-	void initializeAOBBlocks(LPBYTE hostImageAddress, DWORD hostImageSize, map<string, AOBBlock*> &aobBlocks);
-	void setCameraStructInterceptorHook(map<string, AOBBlock*> &aobBlocks);
-	void setPostCameraStructHooks(map<string, AOBBlock*> &aobBlocks);
+	void initializeAOBBlocks(LPBYTE hostImageAddress, DWORD hostImageSize, std::map<std::string, AOBBlock*> &aobBlocks);
+	void setCameraStructInterceptorHook(std::map<std::string, AOBBlock*> &aobBlocks);
+	void setPostCameraStructHooks(std::map<std::string, AOBBlock*> &aobBlocks);
+	void SaveNOPReplace(AOBBlock* hookData, int numberOfBytes, bool enabled);
+	void SaveBytesWrite(AOBBlock* hookData, int numberOfBytes, BYTE* BytestoWrite, bool enabled);
 }

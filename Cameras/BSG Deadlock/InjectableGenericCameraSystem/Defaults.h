@@ -33,9 +33,16 @@
 namespace IGCS
 {
 	// System defaults
-	#define FRAME_SLEEP				8		// in milliseconds
+	#define FRAME_SLEEP								8		// in milliseconds
+	#define IGCS_OVERLAY_INI_FILENAME				"IGCS_overlay.ini"
+	#define IGCS_SETTINGS_INI_FILENAME				"IGCS_settings.ini"
+	#define IGCS_SETTINGS_SAVE_DELAY				5.0f	// in seconds
+	#define IGCS_SPLASH_DURATION					8.0f	// in seconds
+	#define IGCS_SUPPORT_RAWKEYBOARDINPUT			true	// if set to false, raw keyboard input is ignored.
+	#define IGCS_MAX_MESSAGE_SIZE					4*1024	// in bytes
 
-	// Keyboard camera control
+	// Keyboard system control
+	#define IGCS_KEY_TOGGLE_OVERLAY					VK_INSERT		// With control
 	#define IGCS_KEY_CAMERA_ENABLE					VK_INSERT
 	#define IGCS_KEY_CAMERA_LOCK					VK_HOME
 	#define IGCS_KEY_ROTATE_RIGHT					VK_RIGHT		// yaw
@@ -53,14 +60,9 @@ namespace IGCS
 	#define IGCS_KEY_FOV_RESET						VK_MULTIPLY
 	#define IGCS_KEY_FOV_INCREASE					VK_ADD
 	#define IGCS_KEY_FOV_DECREASE					VK_SUBTRACT
-	#define IGCS_KEY_HELP							0x48			// H
-	#define IGCS_KEY_INVERT_Y_LOOK					VK_DIVIDE
 	#define IGCS_KEY_BLOCK_INPUT					VK_DECIMAL
+	#define IGCS_KEY_HUD_TOGGLE						VK_DELETE
 	#define IGCS_KEY_TIMESTOP						VK_NUMPAD0
-	#define IGCS_KEY_DECREASE_HOTSAMPLE_FACTOR		VK_OEM_4		// [{
-	#define IGCS_KEY_INCREASE_HOTSAMPLE_FACTOR		VK_OEM_6		// ]}
-	#define IGCS_KEY_HOTSAMPLE_ENABLE				VK_DELETE
-	#define IGCS_KEY_TOGGLE_HUD						VK_END
 
 	#define IGCS_BUTTON_FOV_DECREASE	Gamepad::button_t::UP
 	#define IGCS_BUTTON_FOV_INCREASE	Gamepad::button_t::DOWN
@@ -69,7 +71,46 @@ namespace IGCS
 	#define IGCS_BUTTON_TILT_RIGHT		Gamepad::button_t::RIGHT
 	#define IGCS_BUTTON_FASTER			Gamepad::button_t::Y
 	#define IGCS_BUTTON_SLOWER			Gamepad::button_t::X
-	#define IGCS_BUTTON_BLOCK_INPUT		Gamepad::button_t::RB
 
-	static const BYTE jmpFarInstructionBytes[6] = { 0xff, 0x25, 0, 0, 0, 0 };	// instruction bytes for jmp qword ptr [0000]
+	static const uint8_t jmpFarInstructionBytes[6] = { 0xff, 0x25, 0, 0, 0, 0 };	// instruction bytes for jmp qword ptr [0000]
+
+	#define DEVICE_ID_KEYBOARD_MOUSE			0
+	#define DEVICE_ID_GAMEPAD					1
+	#define DEVICE_ID_ALL						2
+
+	#define IGCS_PIPENAME_DLL_TO_CLIENT				"\\\\.\\pipe\\IgcsDllToClient"
+	#define IGCS_PIPENAME_CLIENT_TO_DLL				"\\\\.\\pipe\\IgcsClientToDll"
+
+
+
+	enum class SettingType : uint8_t
+	{
+		FastMovementMultiplier = 0,
+		SlowMovementMultiplier = 1,
+		UpMovementMultiplier = 2,
+		MovementSpeed = 3,
+		CameraControlDevice = 4,
+		RotationSpeed = 5,
+		InvertYLookDirection = 6,
+		FoVZoomSpeed = 7,
+		
+		// add more here
+	};
+
+	
+	enum class MessageType : uint8_t
+	{
+		Setting = 1,
+		KeyBinding = 2,
+		Notification = 3,
+		NormalTextMessage = 4,
+		ErrorTextMessage = 5,
+		DebugTextMessage= 6,
+		Action = 7,
+	};
+
+	enum class ActionMessageType : uint8_t
+	{
+		RehookXInput = 1,
+	};
 }

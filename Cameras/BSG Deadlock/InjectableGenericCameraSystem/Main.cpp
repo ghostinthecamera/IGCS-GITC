@@ -26,6 +26,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 #include "stdafx.h"
+#include "Console.h"
 #include "Globals.h"
 #include "System.h"
 #include "Utils.h"
@@ -59,9 +60,6 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  reason, LPVOID lpReserved)
 // lpParam gets the hModule value of the DllMain process
 DWORD WINAPI MainThread(LPVOID lpParam)
 {
-	Console::Init();
-	Console::WriteHeader();
-
 	MODULEINFO hostModuleInfo = Utils::getModuleInfoOfDll(L"UnityPlayer.dll");
 	if (nullptr == hostModuleInfo.lpBaseOfDll)
 	{

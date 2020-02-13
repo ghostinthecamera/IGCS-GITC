@@ -27,10 +27,15 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma once
 #include "stdafx.h"
-#include "Console.h"
 #include "Gamepad.h"
+#include "Defaults.h"
+#include <map>
+#include <atomic>
+#include "ActionData.h"
+#include <map>
+#include "Settings.h"
 
-extern "C" BYTE g_cameraEnabled;
+extern "C" uint8_t g_cameraEnabled;
 
 namespace IGCS
 {
@@ -46,11 +51,24 @@ namespace IGCS
 		void inputBlocked(bool value) { _inputBlocked = value; }
 		bool systemActive() const { return _systemActive; }
 		void systemActive(bool value) { _systemActive = value; }
+		HWND mainWindowHandle() const { return _mainWindowHandle; }
+		void mainWindowHandle(HWND handle) { _mainWindowHandle = handle; }
 		Gamepad& gamePad() { return _gamePad; }
+		Settings& settings() { return _settings; }
+		bool keyboardMouseControlCamera() const { return _settings.cameraControlDevice == DEVICE_ID_KEYBOARD_MOUSE || _settings.cameraControlDevice == DEVICE_ID_ALL; }
+		bool controllerControlsCamera() const { return _settings.cameraControlDevice == DEVICE_ID_GAMEPAD || _settings.cameraControlDevice == DEVICE_ID_ALL; }
+		ActionData* getActionData(ActionType type);
+		void handleSettingMessage(uint8_t payload[], DWORD payloadLength);
+		void handleKeybindingMessage(uint8_t payload[], DWORD payloadLength);
 
 	private:
+		void initializeKeyBindings();
+
 		bool _inputBlocked = false;
-		volatile bool _systemActive = false;
+		atomic_bool _systemActive = false;
 		Gamepad _gamePad;
+		HWND _mainWindowHandle;
+		Settings _settings;
+		map<ActionType, ActionData*> _keyBindingPerActionType;
 	};
 }

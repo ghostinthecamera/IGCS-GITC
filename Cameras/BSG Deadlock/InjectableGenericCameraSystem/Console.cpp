@@ -28,20 +28,23 @@
 #include "stdafx.h"
 #include "Console.h"
 #include "GameConstants.h"
+#include "NamedPipeManager.h"
 
 using namespace std;
 
 namespace IGCS::Console
 {
-	void Release()
-	{
-		FreeConsole();
-	}
+	#define CONSOLE_WHITE	15
+	#define CONSOLE_NORMAL  7
+
+	static bool _consoleInitialized = false;
+	void Init();
+
 
 	void WriteHeader()
 	{
 		SetColor(CONSOLE_WHITE);
-		cout << "Injectable camera tools v" << CAMERA_VERSION << " for " << GAME_NAME << endl;
+		cout << "Injectable camera tools for " << GAME_NAME << ". Version: " << CAMERA_VERSION << endl;
 		WriteLine("Powered by Injectable Generic Camera System by Otis_Inf");
 		WriteLine("Get your copy at: https://github.com/FransBouma/InjectableGenericCameraSystem");
 		cout << "Camera credits: " << CAMERA_CREDITS << endl;
@@ -49,23 +52,46 @@ namespace IGCS::Console
 		WriteLine("-----------------------------------------------------------------------------");
 		SetColor(CONSOLE_NORMAL);
 	}
+	
+	void EnsureConsole()
+	{
+		if (_consoleInitialized)
+		{
+			return;
+		}
+		Init();
+	}
+
+
+	void Release()
+	{
+		if (_consoleInitialized)
+		{
+			FreeConsole();
+			_consoleInitialized = false;
+		}
+	}
 
 	void WriteLine(const string& toWrite, int color)
 	{
+		EnsureConsole();
 		SetColor(color);
 		WriteLine(toWrite);
 		SetColor(CONSOLE_NORMAL);
 	}
 
-
 	void WriteLine(const string& toWrite)
 	{
+		EnsureConsole();
 		cout << toWrite << endl;
+		NamedPipeManager::instance().writeMessage(toWrite);
 	}
 
 
 	void WriteError(const string& error)
 	{
+		EnsureConsole();
+		NamedPipeManager::instance().writeMessage(error, true, false);
 		cerr << error << endl;
 	}
 
@@ -75,9 +101,8 @@ namespace IGCS::Console
 		AllocConsole();
 		AttachConsole(GetCurrentProcessId());
 
-		// Redirect the CRT standard input, output, and error handles to the console
+		// Redirect the CRT standard output, and error handles to the console
 		FILE *fp;
-		freopen_s(&fp, "CONIN$", "r", stdin);
 		freopen_s(&fp, "CONOUT$", "w", stdout);
 		freopen_s(&fp, "CONOUT$", "w", stderr);
 
@@ -91,6 +116,7 @@ namespace IGCS::Console
 
 		SetColor(15);
 		SetConsoleTextAttribute(GetStdHandle(STD_ERROR_HANDLE), 12);
+		_consoleInitialized = true;
 	}
 
 

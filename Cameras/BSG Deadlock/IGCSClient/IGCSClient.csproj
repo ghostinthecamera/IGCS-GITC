@@ -215,10 +215,8 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Forms\gits2.png" />
-    <Content Include="Forms\laughinglogoheader.gif" />
-    <Resource Include="gits2small.png" />
     <Content Include="IGCSIcon.ico" />
+    <Resource Include="Resources\gits2small.png" />
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">

@@ -128,11 +128,11 @@ namespace IGCS
 		}
 		if (Input::isActionActivated(ActionType::FovDecrease) && Globals::instance().keyboardMouseControlCamera())
 		{
-			CameraManipulator::changeFoV(-Globals::instance().settings().fovChangeSpeed);
+			CameraManipulator::changeFoV(Globals::instance().settings().fovChangeSpeed);
 		}
 		if (Input::isActionActivated(ActionType::FovIncrease) && Globals::instance().keyboardMouseControlCamera())
 		{
-			CameraManipulator::changeFoV(Globals::instance().settings().fovChangeSpeed);
+			CameraManipulator::changeFoV(-Globals::instance().settings().fovChangeSpeed);
 		}
 
 		if (Input::isActionActivated(ActionType::Timestop))

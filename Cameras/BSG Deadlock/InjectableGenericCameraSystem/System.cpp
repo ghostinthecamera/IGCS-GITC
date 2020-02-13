@@ -35,8 +35,9 @@
 #include "InterceptorHelper.h"
 #include "InputHooker.h"
 #include "input.h"
-#include "CameraManipulator.h"
-#include "GameImageHooker.h"
+#include "MinHook.h"
+#include "NamedPipeManager.h"
+#include "MessageHandler.h"
 
 namespace IGCS
 {
@@ -57,9 +58,11 @@ namespace IGCS
 		Globals::instance().systemActive(true);
 		_hostImageAddress = (LPBYTE)hostBaseAddress;
 		_hostImageSize = hostImageSize;
+		filesystem::path hostExeFilenameAndPath = Utils::obtainHostExeAndPath();
+		_hostExeFilename = hostExeFilenameAndPath.stem();
+		_hostExePath = hostExeFilenameAndPath.parent_path();
 		Globals::instance().gamePad().setInvertLStickY(CONTROLLER_Y_INVERT);
 		Globals::instance().gamePad().setInvertRStickY(CONTROLLER_Y_INVERT);
-		displayHelp();
 		initialize();		// will block till camera is found
 		mainLoop();
 	}
@@ -80,93 +83,86 @@ namespace IGCS
 	void System::updateFrame()
 	{
 		handleUserInput();
-		writeNewCameraValuesToCameraStructs();
-	}
-	
-
-	void System::writeNewCameraValuesToCameraStructs()
-	{
-		if (!g_cameraEnabled)
-		{
-			return;
-		}
-
-		// calculate new camera values.
-		XMVECTOR newLookQuaternion = _camera.calculateLookQuaternion();
-		XMFLOAT3 currentCoords = GameSpecific::CameraManipulator::getCurrentCameraCoords();
-		XMFLOAT3 newCoords = _camera.calculateNewCoords(currentCoords, newLookQuaternion);
-		GameSpecific::CameraManipulator::writeNewCameraValuesToGameData(newCoords, newLookQuaternion);
+		CameraManipulator::updateCameraDataInGameData(_camera);
 	}
 
 
 	void System::handleUserInput()
 	{
 		Globals::instance().gamePad().update();
-		bool altPressed = Input::keyDown(VK_LMENU) || Input::keyDown(VK_RMENU);
-		bool controlPressed = Input::keyDown(VK_RCONTROL);
+		if (_applyHammerPrevention)
+		{
+			_applyHammerPrevention = false;
+			// sleep main thread for 200ms so key repeat delay is simulated. 
+			Sleep(200);
+		}
 
-		if (Input::keyDown(IGCS_KEY_HELP) && altPressed)
-		{
-			displayHelp();
-		}
-		if (Input::keyDown(IGCS_KEY_INVERT_Y_LOOK))
-		{
-			toggleYLookDirectionState();
-			Sleep(350);		// wait for 350ms to avoid fast keyboard hammering
-		}
 		if (!_cameraStructFound)
 		{
 			// camera not found yet, can't proceed.
 			return;
 		}
-		if (Input::keyDown(IGCS_KEY_CAMERA_ENABLE))
+
+		if (Input::isActionActivated(ActionType::CameraEnable))
 		{
 			if (g_cameraEnabled)
 			{
 				// it's going to be disabled, make sure things are alright when we give it back to the host
-				CameraManipulator::restoreOriginalCameraValues();
+				CameraManipulator::restoreOriginalValuesAfterCameraDisable();
 				toggleCameraMovementLockState(false);
 			}
 			else
 			{
 				// it's going to be enabled, so cache the original values before we enable it so we can restore it afterwards
-				CameraManipulator::cacheOriginalCameraValues();
+				CameraManipulator::cacheOriginalValuesBeforeCameraEnable();
 				_camera.resetAngles();
+
 			}
-			g_cameraEnabled = g_cameraEnabled == 0 ? (BYTE)1 : (BYTE)0;
+			g_cameraEnabled = g_cameraEnabled == 0 ? (uint8_t)1 : (uint8_t)0;
 			displayCameraState();
-			Sleep(350);				// wait for 350ms to avoid fast keyboard hammering
+			_applyHammerPrevention = true;
 		}
-		if (Input::keyDown(IGCS_KEY_FOV_RESET))
+		if (Input::isActionActivated(ActionType::FovReset) && Globals::instance().keyboardMouseControlCamera())
 		{
 			CameraManipulator::resetFoV();
 		}
-		if (Input::keyDown(IGCS_KEY_FOV_DECREASE))
+		if (Input::isActionActivated(ActionType::FovDecrease) && Globals::instance().keyboardMouseControlCamera())
 		{
-			CameraManipulator::changeFoV(-DEFAULT_FOV_SPEED);
+			CameraManipulator::changeFoV(-Globals::instance().settings().fovChangeSpeed);
 		}
-		if (Input::keyDown(IGCS_KEY_FOV_INCREASE))
+		if (Input::isActionActivated(ActionType::FovIncrease) && Globals::instance().keyboardMouseControlCamera())
 		{
-			CameraManipulator::changeFoV(DEFAULT_FOV_SPEED);
+			CameraManipulator::changeFoV(Globals::instance().settings().fovChangeSpeed);
 		}
+
+		//if (Input::isActionActivated(ActionType::Timestop))
+		//{
+		//	CameraManipulator::timeStop();
+		//	_applyHammerPrevention = true;
+		//}
+
+		//if (Input::isActionActivated(ActionType::HudToggle))
+		//{
+		//	toggleHudRenderState();
+		//	_applyHammerPrevention = true;
+		//}
 
 		if (!g_cameraEnabled)
 		{
 			// camera is disabled. We simply disable all input to the camera movement, by returning now.
 			return;
 		}
-		if (Input::keyDown(IGCS_KEY_BLOCK_INPUT))
+		if (Input::isActionActivated(ActionType::BlockInput))
 		{
 			toggleInputBlockState(!Globals::instance().inputBlocked());
-			Sleep(350);				// wait for 350ms to avoid fast keyboard hammering
+			_applyHammerPrevention = true;
 		}
-
 		_camera.resetMovement();
-		float multiplier = altPressed ? FASTER_MULTIPLIER : controlPressed ? SLOWER_MULTIPLIER : 1.0f;
-		if (Input::keyDown(IGCS_KEY_CAMERA_LOCK))
+		Settings& settings = Globals::instance().settings();
+		if (Input::isActionActivated(ActionType::CameraLock)) 
 		{
 			toggleCameraMovementLockState(!_cameraMovementLocked);
-			Sleep(350);				// wait for 350ms to avoid fast keyboard hammering
+			_applyHammerPrevention = true;
 		}
 		if (_cameraMovementLocked)
 		{
@@ -174,6 +170,9 @@ namespace IGCS
 			return;
 		}
 
+		bool altPressed = Utils::altPressed();
+		bool rcontrolPressed = Utils::keyDown(VK_RCONTROL);
+		float multiplier = altPressed ? settings.fastMovementMultiplier : rcontrolPressed ? settings.slowMovementMultiplier : 1.0f;
 		handleKeyboardCameraMovement(multiplier);
 		handleMouseCameraMovement(multiplier);
 		handleGamePadMovement(multiplier);
@@ -182,12 +181,18 @@ namespace IGCS
 
 	void System::handleGamePadMovement(float multiplierBase)
 	{
+		if(!Globals::instance().controllerControlsCamera())
+		{
+			return;
+		}
+
 		auto gamePad = Globals::instance().gamePad();
 
 		if (gamePad.isConnected())
 		{
-			float  multiplier = gamePad.isButtonPressed(IGCS_BUTTON_FASTER) ? FASTER_MULTIPLIER : gamePad.isButtonPressed(IGCS_BUTTON_SLOWER) ? SLOWER_MULTIPLIER : multiplierBase;
-
+			Settings& settings = Globals::instance().settings();
+			float  multiplier = gamePad.isButtonPressed(IGCS_BUTTON_FASTER) ? settings.fastMovementMultiplier 
+																			: gamePad.isButtonPressed(IGCS_BUTTON_SLOWER) ? settings.slowMovementMultiplier : multiplierBase;
 			vec2 rightStickPosition = gamePad.getRStickPosition();
 			_camera.pitch(rightStickPosition.y * multiplier);
 			_camera.yaw(rightStickPosition.x * multiplier);
@@ -211,16 +216,11 @@ namespace IGCS
 			}
 			if (gamePad.isButtonPressed(IGCS_BUTTON_FOV_DECREASE))
 			{
-				CameraManipulator::changeFoV(-DEFAULT_FOV_SPEED);
+				CameraManipulator::changeFoV(Globals::instance().settings().fovChangeSpeed);
 			}
 			if (gamePad.isButtonPressed(IGCS_BUTTON_FOV_INCREASE))
 			{
-				CameraManipulator::changeFoV(DEFAULT_FOV_SPEED);
-			}
-			if (gamePad.isButtonPressed(IGCS_BUTTON_BLOCK_INPUT))
-			{
-				toggleInputBlockState(!Globals::instance().inputBlocked());
-				Sleep(350);				// wait for 350ms to avoid fast hammering
+				CameraManipulator::changeFoV(-Globals::instance().settings().fovChangeSpeed);
 			}
 		}
 	}
@@ -228,6 +228,10 @@ namespace IGCS
 
 	void System::handleMouseCameraMovement(float multiplier)
 	{
+		if (!Globals::instance().keyboardMouseControlCamera())
+		{
+			return;
+		}
 		long mouseDeltaX = Input::getMouseDeltaX();
 		long mouseDeltaY = Input::getMouseDeltaY();
 		if (abs(mouseDeltaY) > 1)
@@ -238,56 +242,61 @@ namespace IGCS
 		{
 			_camera.yaw(static_cast<float>(mouseDeltaX) * MOUSE_SPEED_CORRECTION * multiplier);
 		}
+		Input::resetMouseDeltas();
 	}
 
 
 	void System::handleKeyboardCameraMovement(float multiplier)
 	{
-		if (Input::keyDown(IGCS_KEY_MOVE_FORWARD))
+		if (!Globals::instance().keyboardMouseControlCamera())
+		{
+			return;
+		}
+		if (Input::isActionActivated(ActionType::MoveForward, true))
 		{
 			_camera.moveForward(multiplier);
 		}
-		if (Input::keyDown(IGCS_KEY_MOVE_BACKWARD))
+		if (Input::isActionActivated(ActionType::MoveBackward, true))
 		{
 			_camera.moveForward(-multiplier);
 		}
-		if (Input::keyDown(IGCS_KEY_MOVE_RIGHT))
+		if (Input::isActionActivated(ActionType::MoveRight, true))
 		{
 			_camera.moveRight(multiplier);
 		}
-		if (Input::keyDown(IGCS_KEY_MOVE_LEFT))
+		if (Input::isActionActivated(ActionType::MoveLeft, true))
 		{
 			_camera.moveRight(-multiplier);
 		}
-		if (Input::keyDown(IGCS_KEY_MOVE_UP))
+		if (Input::isActionActivated(ActionType::MoveUp, true))
 		{
 			_camera.moveUp(multiplier);
 		}
-		if (Input::keyDown(IGCS_KEY_MOVE_DOWN))
+		if (Input::isActionActivated(ActionType::MoveDown, true))
 		{
 			_camera.moveUp(-multiplier);
 		}
-		if (Input::keyDown(IGCS_KEY_ROTATE_DOWN))
+		if (Input::isActionActivated(ActionType::RotateDown, true))
 		{
 			_camera.pitch(-multiplier);
 		}
-		if (Input::keyDown(IGCS_KEY_ROTATE_UP))
+		if (Input::isActionActivated(ActionType::RotateUp, true))
 		{
 			_camera.pitch(multiplier);
 		}
-		if (Input::keyDown(IGCS_KEY_ROTATE_RIGHT))
+		if (Input::isActionActivated(ActionType::RotateRight, true))
 		{
 			_camera.yaw(multiplier);
 		}
-		if (Input::keyDown(IGCS_KEY_ROTATE_LEFT))
+		if (Input::isActionActivated(ActionType::RotateLeft, true))
 		{
 			_camera.yaw(-multiplier);
 		}
-		if (Input::keyDown(IGCS_KEY_TILT_LEFT))
+		if (Input::isActionActivated(ActionType::TiltLeft, true))
 		{
 			_camera.roll(multiplier);
 		}
-		if (Input::keyDown(IGCS_KEY_TILT_RIGHT))
+		if (Input::isActionActivated(ActionType::TiltRight, true))
 		{
 			_camera.roll(-multiplier);
 		}
@@ -297,11 +306,17 @@ namespace IGCS
 	// Initializes system. Will block till camera struct is found.
 	void System::initialize()
 	{
+		MH_Initialize();
+		// first grab the window handle
+		Globals::instance().mainWindowHandle(Utils::findMainWindow(GetCurrentProcessId()));
+		NamedPipeManager::instance().connectDllToClient();
+		NamedPipeManager::instance().startListening();
 		InputHooker::setInputHooks();
 		Input::registerRawInput();
+
 		GameSpecific::InterceptorHelper::initializeAOBBlocks(_hostImageAddress, _hostImageSize, _aobBlocks);
 		GameSpecific::InterceptorHelper::setCameraStructInterceptorHook(_aobBlocks);
-		GameSpecific::CameraManipulator::waitForCameraStructAddresses(_hostImageAddress);		// blocks till camera is found.
+		waitForCameraStructAddresses();		// blocks till camera is found.
 		GameSpecific::InterceptorHelper::setPostCameraStructHooks(_aobBlocks);
 
 		// camera struct found, init our own camera object now and hook into game code which uses camera.
@@ -310,19 +325,21 @@ namespace IGCS
 		_camera.setRoll(INITIAL_ROLL_RADIANS);
 		_camera.setYaw(INITIAL_YAW_RADIANS);
 	}
-	
 
-	void System::toggleInputBlockState(bool newValue)
+
+	// Waits for the interceptor to pick up the camera struct address. Should only return if address is found 
+	void System::waitForCameraStructAddresses()
 	{
-		if (Globals::instance().inputBlocked() == newValue)
+		MessageHandler::logLine("Waiting for camera struct interception...");
+		while(!GameSpecific::CameraManipulator::isCameraFound())
 		{
-			// already in this state. Ignore
-			return;
+			handleUserInput();
+			Sleep(100);
 		}
-		Globals::instance().inputBlocked(newValue);
-		Console::WriteLine(newValue ? "Input to game blocked" : "Input to game enabled");
+		MessageHandler::addNotification("Camera found.");
+		GameSpecific::CameraManipulator::displayCameraStructAddress();
 	}
-
+		
 
 	void System::toggleCameraMovementLockState(bool newValue)
 	{
@@ -332,49 +349,31 @@ namespace IGCS
 			return;
 		}
 		_cameraMovementLocked = newValue;
-		Console::WriteLine(_cameraMovementLocked ? "Camera movement is locked" : "Camera movement is unlocked");
+		MessageHandler::addNotification(_cameraMovementLocked ? "Camera movement is locked" : "Camera movement is unlocked");
+	}
+
+
+	void System::toggleInputBlockState(bool newValue)
+	{
+		if (Globals::instance().inputBlocked() == newValue)
+		{
+			// already in this state. Ignore
+			return;
+		}
+		Globals::instance().inputBlocked(newValue);
+		MessageHandler::addNotification(newValue ? "Input to game blocked" : "Input to game enabled");
 	}
 
 
 	void System::displayCameraState()
 	{
-		Console::WriteLine(g_cameraEnabled ? "Camera enabled" : "Camera disabled");
+		MessageHandler::addNotification(g_cameraEnabled ? "Camera enabled" : "Camera disabled");
 	}
 
-
-	void System::toggleYLookDirectionState()
-	{
-		_camera.toggleLookDirectionInverter();
-		Console::WriteLine(_camera.lookDirectionInverter() < 0 ? "Y look direction is inverted" : "Y look direction is normal");
-	}
-
-
-	void System::displayHelp()
-	{
-						  //0         1         2         3         4         5         6         7
-						  //01234567890123456789012345678901234567890123456789012345678901234567890123456789
-		Console::WriteLine("---[IGCS Help]-----------------------------------------------------------------", CONSOLE_WHITE);
-		Console::WriteLine("INS                                   : Enable/Disable camera");
-		Console::WriteLine("HOME                                  : Lock/unlock camera movement");
-		Console::WriteLine("ALT + rotate/move                     : Faster rotate / move");
-		Console::WriteLine("Right-CTRL + rotate/move              : Slower rotate / move");
-		Console::WriteLine("Controller Y-button + l/r-stick       : Faster rotate / move");
-		Console::WriteLine("Controller X-button + l/r-stick       : Slower rotate / move");
-		Console::WriteLine("Arrow up/down or mouse or r-stick     : Rotate camera up/down");
-		Console::WriteLine("Arrow left/right or mouse or r-stick  : Rotate camera left/right");
-		Console::WriteLine("Numpad 8/Numpad 5 or l-stick          : Move camera forward/backward");
-		Console::WriteLine("Numpad 4/Numpad 6 or l-stick          : Move camera left / right");
-		Console::WriteLine("Numpad 7/Numpad 9 or l/r-trigger      : Move camera up / down");
-		Console::WriteLine("Numpad 1/Numpad 3 or d-pad left/right : Tilt camera left / right");
-		Console::WriteLine("Numpad +/- or d-pad up/down           : Increase / decrease FoV");
-		Console::WriteLine("Numpad * or controller B-button       : Reset FoV");
-		Console::WriteLine("Numpad /                              : Toggle Y look direction");
-		Console::WriteLine("Numpad . or controller Right Bumper   : Toggle input to game");
-		Console::WriteLine("ALT+H                                 : This help");
-		Console::WriteLine("-------------------------------------------------------------------------------", CONSOLE_WHITE);
-		Console::WriteLine(" Please read the enclosed readme.txt for the answers to your questions :)");
-		Console::WriteLine("-------------------------------------------------------------------------------", CONSOLE_WHITE);
-		// wait for 350ms to avoid fast keyboard hammering
-		Sleep(350);
-	}
+	//void System::toggleHudRenderState()
+	//{
+	//	_hudToggled = !_hudToggled;
+	//	BYTE statementBytes[5] = { 0xC3, 0x90, 0x90, 0x90, 0x90 };
+	//	InterceptorHelper::SaveBytesWrite(_aobBlocks[HUD_RENDER_INTERCEPT_KEY], 5, statementBytes, _hudToggled);
+	//}
 }

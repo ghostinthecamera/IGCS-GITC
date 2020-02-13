@@ -29,12 +29,13 @@
 #include "stdafx.h"
 #include "AOBBlock.h"
 #include "Utils.h"
+#include "MessageHandler.h"
 
 namespace IGCS
 {
 	AOBBlock::AOBBlock(string blockName, string bytePatternAsString, int occurrence)
 									: _blockName{ blockName }, _bytePatternAsString{ bytePatternAsString }, _customOffset{ 0 }, _occurrence{ occurrence },
-									  _bytePattern{ nullptr }, _patternMask{ nullptr }, _locationInImage{ nullptr }
+									  _bytePattern{ nullptr }, _patternMask{ nullptr }, _locationInImage{ nullptr }, byteStorage{ nullptr }, nopState{ false }, byteStorage2{ nullptr }, nopState2{ false }
 	{
 	}
 
@@ -50,14 +51,12 @@ namespace IGCS
 		LPBYTE aobPatternLocation = Utils::findAOBPattern(imageAddress, imageSize, this);
 		if (nullptr == aobPatternLocation)
 		{
-			cerr << "Can't find pattern for block '" << _blockName << "'! Hook not set." << endl;
+			MessageHandler::logError("Can't find pattern for block '%s'! Hook not set.", _blockName.c_str());
 			return false;
 		}
 		else
 		{
-#ifdef _DEBUG
-			cout << "Pattern for block '" << _blockName << "' found at address: " << hex << (void*)aobPatternLocation << endl;
-#endif
+			MessageHandler::logDebug("Pattern for block '%s' found at address: %p", _blockName.c_str(), (void*)aobPatternLocation);
 		}
 		_locationInImage = aobPatternLocation;
 		return true;
@@ -73,7 +72,7 @@ namespace IGCS
 		int index = 0;
 		char* pChar = &pattern[0];
 
-		_patternSize = pattern.size();
+		_patternSize = static_cast<int>(pattern.size());
 		_bytePattern = (LPBYTE)calloc(0x1, _patternSize);
 		_patternMask = (char*)calloc(0x1, _patternSize);
 		_customOffset = 0;

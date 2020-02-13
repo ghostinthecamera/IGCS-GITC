@@ -17,6 +17,9 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
     </Filter>
+    <Filter Include="NamedPipeSubsystem">
+      <UniqueIdentifier>{f1f58870-e87f-4c31-a7c5-1b664f37bb1d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -43,9 +46,6 @@
     <ClInclude Include="Camera.h">
       <Filter>Main</Filter>
     </ClInclude>
-    <ClInclude Include="Console.h">
-      <Filter>Main</Filter>
-    </ClInclude>
     <ClInclude Include="Defaults.h">
       <Filter>Main</Filter>
     </ClInclude>
@@ -67,6 +67,24 @@
     <ClInclude Include="AOBBlock.h">
       <Filter>Hooking</Filter>
     </ClInclude>
+    <ClInclude Include="Console.h">
+      <Filter>Main</Filter>
+    </ClInclude>
+    <ClInclude Include="ActionData.h">
+      <Filter>Input</Filter>
+    </ClInclude>
+    <ClInclude Include="Settings.h">
+      <Filter>Main</Filter>
+    </ClInclude>
+    <ClInclude Include="GameCameraData.h">
+      <Filter>Main</Filter>
+    </ClInclude>
+    <ClInclude Include="NamedPipeManager.h">
+      <Filter>NamedPipeSubsystem</Filter>
+    </ClInclude>
+    <ClInclude Include="MessageHandler.h">
+      <Filter>Main</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="InterceptorHelper.cpp">
@@ -80,9 +98,6 @@
     </ClCompile>
     <ClCompile Include="Gamepad.cpp">
       <Filter>Input</Filter>
-    </ClCompile>
-    <ClCompile Include="Console.cpp">
-      <Filter>Main</Filter>
     </ClCompile>
     <ClCompile Include="Camera.cpp">
       <Filter>Main</Filter>
@@ -110,6 +125,18 @@
     </ClCompile>
     <ClCompile Include="AOBBlock.cpp">
       <Filter>Hooking</Filter>
+    </ClCompile>
+    <ClCompile Include="Console.cpp">
+      <Filter>Main</Filter>
+    </ClCompile>
+    <ClCompile Include="ActionData.cpp">
+      <Filter>Input</Filter>
+    </ClCompile>
+    <ClCompile Include="NamedPipeManager.cpp">
+      <Filter>NamedPipeSubsystem</Filter>
+    </ClCompile>
+    <ClCompile Include="MessageHandler.cpp">
+      <Filter>Main</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

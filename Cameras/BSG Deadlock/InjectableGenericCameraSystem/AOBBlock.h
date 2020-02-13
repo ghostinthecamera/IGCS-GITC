@@ -46,6 +46,11 @@ namespace IGCS
 		int patternSize() { return _patternSize; }
 		char* patternMask() { return _patternMask; }
 		int customOffset() { return _customOffset; }
+		LPBYTE absoluteAddress() { return (LPBYTE)(_locationInImage + (DWORD)customOffset()); }
+		BYTE* byteStorage;
+		BYTE* byteStorage2;
+		bool nopState;
+		bool nopState2;
 
 	private:
 		void createAOBPatternFromStringPattern(string pattern);

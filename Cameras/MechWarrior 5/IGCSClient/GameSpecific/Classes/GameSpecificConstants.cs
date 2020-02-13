@@ -33,7 +33,7 @@ namespace IGCSClient.GameSpecific.Classes
 	internal static class GameSpecificConstants
 	{
 		public const string ClientWindowTitle = "MechWarrior 5 Camera Tools";
-		public const string CameraVersion = "2.0";
+		public const string CameraVersion = "2.01";
 		public const string CameraCredits = "GHOSTINTHECAMERA";
 		public const bool HotsamplingRequiresEXITSIZEMOVE = false;
 	}

@@ -31,7 +31,7 @@ namespace IGCS::GameSpecific
 {
 	// Mandatory constants to define for a game
 	#define GAME_NAME									"MechWarrior 5"
-	#define CAMERA_VERSION								"2.0"
+	#define CAMERA_VERSION								"2.01"
 	#define CAMERA_CREDITS								"GHOSTINTHECAMERA"
 	#define GAME_WINDOW_TITLE							"MW5Mercs"
 	#define INITIAL_PITCH_RADIANS						0.0f	// around X axis	(right)

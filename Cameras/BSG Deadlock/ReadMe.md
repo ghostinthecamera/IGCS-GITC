@@ -6,6 +6,10 @@ Binary download: https://github.com/ghostinthecamera/IGCS-GITC/releases/tag/BSGD
 Camera version: 2.0  
 Credits: GHOSTINTHECAMERA  
 
+Brought to you by [FRAMED. Screenshotting community](https://framedsc.github.io). 
+
+![](https://framedsc.github.io/Images/FRAMED_LogoBigDarkTransparent800px.png)
+
 ### Important
 This camera and its system is made by volunteers in their spare time. If you use this camera for commercial activities 
 (e.g. you make money with the shots or videos you produce with this camera), consider a donation. 

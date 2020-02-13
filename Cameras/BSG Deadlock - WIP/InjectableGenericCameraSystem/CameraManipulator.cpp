@@ -93,11 +93,11 @@ namespace IGCS::GameSpecific::CameraManipulator
 	// Resets the FOV to the one it got when we enabled the camera
 	void resetFoV()
 	{
-		if (nullptr == g_cameraStructAddress)
+		if (nullptr == g_fovConstructAddress)
 		{
 			return;
 		}
-		float* fovAddress = reinterpret_cast<float*>(g_cameraStructAddress + FOV_IN_STRUCT_OFFSET);
+		float* fovAddress = reinterpret_cast<float*>(g_fovConstructAddress + FOV_IN_STRUCT_OFFSET);
 		*fovAddress = _originalData._fov;
 	}
 
@@ -105,11 +105,11 @@ namespace IGCS::GameSpecific::CameraManipulator
 	// changes the FoV with the specified amount
 	void changeFoV(float amount)
 	{
-		if (nullptr == g_cameraStructAddress)
+		if (nullptr == g_fovConstructAddress)
 		{
 			return;
 		}
-		float* fovAddress = reinterpret_cast<float*>(g_cameraStructAddress + FOV_IN_STRUCT_OFFSET);
+		float* fovAddress = reinterpret_cast<float*>(g_fovConstructAddress + FOV_IN_STRUCT_OFFSET);
 		float newValue = *fovAddress + amount;
 		if (newValue < 0.001f)
 		{
@@ -122,11 +122,11 @@ namespace IGCS::GameSpecific::CameraManipulator
 
 	float getCurrentFoV()
 	{
-		if (nullptr == g_cameraStructAddress)
+		if (nullptr == g_fovConstructAddress)
 		{
 			return 1.2f;
 		}
-		float* fovAddress = reinterpret_cast<float*>(g_cameraStructAddress + FOV_IN_STRUCT_OFFSET);
+		float* fovAddress = reinterpret_cast<float*>(g_fovConstructAddress + FOV_IN_STRUCT_OFFSET);
 		return *fovAddress;
 	}
 	
@@ -190,7 +190,7 @@ namespace IGCS::GameSpecific::CameraManipulator
 			return;
 		}
 		source.RestoreData(reinterpret_cast<float*>(g_cameraStructAddress + LOOK_DATA_IN_CAMERA_STRUCT_OFFSET), reinterpret_cast<float*>(g_cameraStructAddress + CAMERA_COORDS_IN_CAMERA_STRUCT_OFFSET),
-						   reinterpret_cast<float*>(g_cameraStructAddress + FOV_IN_STRUCT_OFFSET));
+						   reinterpret_cast<float*>(g_fovConstructAddress + FOV_IN_STRUCT_OFFSET));
 	}
 
 
@@ -201,7 +201,7 @@ namespace IGCS::GameSpecific::CameraManipulator
 			return;
 		}
 		destination.CacheData(reinterpret_cast<float*>(g_cameraStructAddress + LOOK_DATA_IN_CAMERA_STRUCT_OFFSET), reinterpret_cast<float*>(g_cameraStructAddress + CAMERA_COORDS_IN_CAMERA_STRUCT_OFFSET),
-							  reinterpret_cast<float*>(g_cameraStructAddress + FOV_IN_STRUCT_OFFSET));
+							  reinterpret_cast<float*>(g_fovConstructAddress + FOV_IN_STRUCT_OFFSET));
 	}
 
 

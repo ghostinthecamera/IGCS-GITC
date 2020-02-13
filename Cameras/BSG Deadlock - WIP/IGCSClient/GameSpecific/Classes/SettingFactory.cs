@@ -45,10 +45,10 @@ namespace IGCSClient.GameSpecific.Classes
 		public static void InitializeSettings()
 		{
 			var appState = AppStateSingleton.Instance();
-			appState.AddSetting(new FloatSetting(SettingType.FastMovementMultiplier, nameof(SettingType.FastMovementMultiplier), 0.1, 100.0, 2, 0.01, GameSpecificSettingDefaults.FastMovementMultiplier));
+			appState.AddSetting(new FloatSetting(SettingType.FastMovementMultiplier, nameof(SettingType.FastMovementMultiplier), 1, 100.0, 2, 0.5, GameSpecificSettingDefaults.FastMovementMultiplier));
 			appState.AddSetting(new FloatSetting(SettingType.SlowMovementMultiplier, nameof(SettingType.SlowMovementMultiplier), 0.001, 1.0, 3, 0.001, GameSpecificSettingDefaults.SlowMovementMultiplier));
 			appState.AddSetting(new FloatSetting(SettingType.UpMovementMultiplier, nameof(SettingType.UpMovementMultiplier), 0.1, 10.0, 2, 0.01, GameSpecificSettingDefaults.UpMovementMultiplier));
-			appState.AddSetting(new FloatSetting(SettingType.MovementSpeed, nameof(SettingType.MovementSpeed), 5.0, 100.0, 2, 1.0, GameSpecificSettingDefaults.MovementSpeed));
+			appState.AddSetting(new FloatSetting(SettingType.MovementSpeed, nameof(SettingType.MovementSpeed), 1.0, 100.0, 2, 1.0, GameSpecificSettingDefaults.MovementSpeed));
 			appState.AddSetting(new DropDownSetting(SettingType.CameraControlDevice, nameof(SettingType.CameraControlDevice),
 													new List<string>()
 													{

@@ -219,9 +219,9 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Forms\gits2.png" />
+    <Resource Include="Forms\gits2.png" />
     <Content Include="Forms\laughinglogoheader.gif" />
-    <Content Include="gits2small.png" />
+    <Resource Include="gits2small.png" />
     <Content Include="IGCSIcon.ico" />
   </ItemGroup>
   <ItemGroup>

@@ -60,7 +60,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  reason, LPVOID lpReserved)
 // lpParam gets the hModule value of the DllMain process
 DWORD WINAPI MainThread(LPVOID lpParam)
 {
-	MODULEINFO hostModuleInfo = Utils::getModuleInfoOfContainingProcess();
+	MODULEINFO hostModuleInfo = Utils::getModuleInfoOfDll(L"UnityPlayer.dll");
 	if (nullptr == hostModuleInfo.lpBaseOfDll)
 	{
 		Console::WriteError("Not able to obtain parent process base address... exiting");

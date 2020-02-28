@@ -128,11 +128,11 @@ namespace IGCS
 		}
 		if (Input::isActionActivated(ActionType::FovDecrease) && Globals::instance().keyboardMouseControlCamera())
 		{
-			CameraManipulator::changeFoV(-Globals::instance().settings().fovChangeSpeed);
+			CameraManipulator::changeFoV(Globals::instance().settings().fovChangeSpeed);
 		}
 		if (Input::isActionActivated(ActionType::FovIncrease) && Globals::instance().keyboardMouseControlCamera())
 		{
-			CameraManipulator::changeFoV(Globals::instance().settings().fovChangeSpeed);
+			CameraManipulator::changeFoV(-Globals::instance().settings().fovChangeSpeed);
 		}
 
 		//if (Input::isActionActivated(ActionType::Timestop))
@@ -216,11 +216,11 @@ namespace IGCS
 			}
 			if (gamePad.isButtonPressed(IGCS_BUTTON_FOV_DECREASE))
 			{
-				CameraManipulator::changeFoV(Globals::instance().settings().fovChangeSpeed);
+				CameraManipulator::changeFoV(-Globals::instance().settings().fovChangeSpeed);
 			}
 			if (gamePad.isButtonPressed(IGCS_BUTTON_FOV_INCREASE))
 			{
-				CameraManipulator::changeFoV(-Globals::instance().settings().fovChangeSpeed);
+				CameraManipulator::changeFoV(Globals::instance().settings().fovChangeSpeed);
 			}
 		}
 	}

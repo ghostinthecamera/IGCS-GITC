@@ -107,7 +107,7 @@ namespace IGCS
 
 	void Camera::moveUp(float amount)
 	{
-		_direction.y += (Globals::instance().settings().movementSpeed * amount * Globals::instance().settings().movementUpMultiplier);
+		_direction.y -= (Globals::instance().settings().movementSpeed * amount * Globals::instance().settings().movementUpMultiplier);
 		_movementOccurred = true;
 	}
 

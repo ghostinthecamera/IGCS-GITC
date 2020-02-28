@@ -58,8 +58,8 @@ namespace IGCS::GameSpecific::InterceptorHelper
 	{
 		aobBlocks[CAMERA_ADDRESS_INTERCEPT_KEY] = new AOBBlock(CAMERA_ADDRESS_INTERCEPT_KEY, "03 47 10 0F ?? 00 0F C2 C1 ?? | 0F 11 08 0F 50 C0 A8 ?? 74", 1);	
 		aobBlocks[FOV_INTERCEPT_KEY] = new AOBBlock(FOV_INTERCEPT_KEY, "F3 0F 11 86 ?? ?? ?? ?? 5E 8B E5 5D C3 | F3 0F 10 86 ?? ?? ?? ?? F3 0F 11 45 ?? D9 45 ?? 5E 8B E5 5D C3", 1);
-		aobBlocks[CAMERA_WRITE1_INTERCEPT_KEY] = new AOBBlock(CAMERA_WRITE1_INTERCEPT_KEY, "0F 11 51 ?? 0F 50 C0 85 C0 74 2D", 1);
-		aobBlocks[REPLAY_BORDER_INTERCEPT_KEY] = new AOBBlock(REPLAY_BORDER_INTERCEPT_KEY, "F3 0F 10 86 A0 00 00 00 FF", 1);
+		aobBlocks[CAMERA_WRITE1_INTERCEPT_KEY] = new AOBBlock(CAMERA_WRITE1_INTERCEPT_KEY, "0F 11 51 ?? 0F 50 C0 85 C0 74 ??", 1);
+		aobBlocks[REPLAY_BORDER_INTERCEPT_KEY] = new AOBBlock(REPLAY_BORDER_INTERCEPT_KEY, "F3 0F 10 86 A0 ?? ?? ?? FF", 1);
 
 		map<string, AOBBlock*>::iterator it;
 		bool result = true;

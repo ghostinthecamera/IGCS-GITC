@@ -99,7 +99,6 @@ namespace IGCSClient.Classes
 			// send a message of 2 bytes, first byte is 'Action', second byte, the id, is the action type, RehookXInput. No payload required. 
 			_pipeClient.Send(new IGCSMessage(MessageType.Action, ActionType.RehookXInput, null));
 		}
-		
 
 		private void HandleNamedPipeMessageReceived(ContainerEventArgs<byte[]> e)
 		{

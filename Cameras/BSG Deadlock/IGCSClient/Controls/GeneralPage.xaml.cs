@@ -277,5 +277,6 @@ namespace IGCSClient.Controls
 		{
 			MessageHandlerSingleton.Instance().SendRehookXInputAction();
 		}
+
 	}
 }

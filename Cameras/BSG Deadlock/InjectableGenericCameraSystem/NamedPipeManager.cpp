@@ -33,6 +33,7 @@
 #include <string>
 #include "Globals.h"
 #include "InputHooker.h"
+#include "System.h"
 
 namespace IGCS
 {

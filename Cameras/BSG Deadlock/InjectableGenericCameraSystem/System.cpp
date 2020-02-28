@@ -314,6 +314,7 @@ namespace IGCS
 		InputHooker::setInputHooks();
 		Input::registerRawInput();
 
+		Sleep(1000);
 		GameSpecific::InterceptorHelper::initializeAOBBlocks(_hostImageAddress, _hostImageSize, _aobBlocks);
 		GameSpecific::InterceptorHelper::setCameraStructInterceptorHook(_aobBlocks);
 		waitForCameraStructAddresses();		// blocks till camera is found.
@@ -325,7 +326,6 @@ namespace IGCS
 		_camera.setRoll(INITIAL_ROLL_RADIANS);
 		_camera.setYaw(INITIAL_YAW_RADIANS);
 	}
-
 
 	// Waits for the interceptor to pick up the camera struct address. Should only return if address is found 
 	void System::waitForCameraStructAddresses()

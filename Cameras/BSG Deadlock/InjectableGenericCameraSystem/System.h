@@ -58,13 +58,13 @@ namespace IGCS
 		void takeSingleScreenshot();
 		void toggleHudRenderState();
 
-		Camera _camera;
 		LPBYTE _hostImageAddress;
 		DWORD _hostImageSize;
+		map<string, AOBBlock*> _aobBlocks;
+		Camera _camera;
 		bool _cameraMovementLocked = false;
 		bool _cameraStructFound = false;
 		bool _hudToggled = false;
-		map<string, AOBBlock*> _aobBlocks;
 		bool _applyHammerPrevention = false;	// set to true by a keyboard action and which triggers a sleep before keyboard handling is performed.
 		std::filesystem::path _hostExePath;
 		std::filesystem::path _hostExeFilename;

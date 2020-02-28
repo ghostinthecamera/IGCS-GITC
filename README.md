@@ -31,10 +31,10 @@ Ace Combat 7: https://github.com/ghostinthecamera/IGCS-GITC/releases/tag/AC7v1.2
 Dirt Rally 2.0: https://github.com/ghostinthecamera/IGCS-GITC/releases/tag/DR2v2.11  
 Mutant Year Zero: Road to Eden: https://github.com/ghostinthecamera/IGCS-GITC/releases/tag/MYZv1.1  
 Deserts of Kharak: https://github.com/ghostinthecamera/IGCS-GITC/releases/tag/DoKv1.0  
-BSG Deadlock (Reserruction DLC): https://github.com/ghostinthecamera/IGCS-GITC/releases/tag/BSGDv1.1  
+BSG Deadlock (Reserruction DLC): https://github.com/ghostinthecamera/IGCS-GITC/releases/tag/BSGDv2.0  
 Ni No Kuni: Wrath of the White Witch Remastered: https://github.com/ghostinthecamera/IGCS-GITC/releases/tag/NNKRv1.0  
 Ni No Kuni 2: Revenant Kingdom: https://github.com/ghostinthecamera/IGCS-GITC/releases/tag/NNK2v1.0  
-MechWarrior 5: Mercenaries: https://github.com/ghostinthecamera/IGCS-GITC/releases/tag/MW5v2.0  
+MechWarrior 5: Mercenaries: https://github.com/ghostinthecamera/IGCS-GITC/releases/tag/MW5v2.01  
 
 ## In-depth article about IGCS and how to create camera tools
 Frans has written a long, in-depth article about how to create camera tools and how IGCS works [on his blog](https://weblogs.asp.net/fbouma/let-s-add-a-photo-mode-to-wolfenstein-ii-the-new-colossus-pc).

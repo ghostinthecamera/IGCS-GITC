@@ -153,16 +153,16 @@ HUDinterceptor PROC
 ;Nino2.exe+4F98D7 - 8B 81 D0390000        - mov eax,[rcx+000039D0]
 ;Nino2.exe+4F98DD - F3 0F11 44 24 24      - movss [rsp+24],xmm0
 ;Nino2.exe+4F98E3 - 48 C7 44 24 1C 02000000 - mov qword ptr [rsp+1C],00000002 { 2 }
-;Nino2.exe+4F98EC - 80 BA 44610000 00     - cmp byte ptr [rdx+00006144],00 { 0 }		<<<Intercept here
+;Nino2.exe+4F98EC - 80 BA 44 61 00 00 00  - cmp byte ptr [rdx+00006144],00 { 0 }		<<<Intercept here
 ;Nino2.exe+4F98F3 - 48 89 4C 24 10        - mov [rsp+10],rcx
 ;Nino2.exe+4F98F8 - 89 44 24 18           - mov [rsp+18],eax
 ;Nino2.exe+4F98FC - 74 4E                 - je Nino2.exe+4F994C							<<<return here
 ;Nino2.exe+4F98FE - 0FB7 82 40610000      - movzx eax,word ptr [rdx+00006140]
 ;Nino2.exe+4F9905 - B9 00020000           - mov ecx,00000200 { 512 }
 	mov [g_HUDaddress],rdx
-	cmp byte ptr [rdx+00006144],00
-	mov [rsp+10],rcx
-	mov [rsp+18],eax
+	cmp byte ptr [rdx+00006144h],00
+	mov [rsp+10h],rcx
+	mov dword ptr [rsp+18h],eax
 	jmp qword ptr [_HUDinterceptionContinue]	; jmp back into the original game code, which is the location after the original statements above.
 HUDinterceptor ENDP
 

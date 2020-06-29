@@ -1,0 +1,75 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29215.179
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{BA46013C-7486-4C48-945C-5D059C19F494}"
+	ProjectSection(SolutionItems) = preProject
+		ReadMe.md = ReadMe.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Dependencies", "Dependencies", "{F581F412-CDC0-46CE-829C-2EED10237BDE}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MinHook", "..\..\dependencies\MinHook.vcxproj", "{783FEDFB-5124-4F8C-87BC-70AA8490266B}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RE3CameraTools", "InjectableGenericCameraSystem\InjectableGenericCameraSystem.vcxproj", "{A27B0E55-A5C9-4DCD-9C74-2C8074757FBE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IGCSClient", "IGCSClient\IGCSClient.csproj", "{C5141188-E7FD-4EC9-9779-A2CB12AD5AEA}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|Any CPU = Release|Any CPU
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{783FEDFB-5124-4F8C-87BC-70AA8490266B}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{783FEDFB-5124-4F8C-87BC-70AA8490266B}.Debug|Any CPU.Build.0 = Debug|x64
+		{783FEDFB-5124-4F8C-87BC-70AA8490266B}.Debug|x64.ActiveCfg = Debug|x64
+		{783FEDFB-5124-4F8C-87BC-70AA8490266B}.Debug|x64.Build.0 = Debug|x64
+		{783FEDFB-5124-4F8C-87BC-70AA8490266B}.Debug|x86.ActiveCfg = Debug|Win32
+		{783FEDFB-5124-4F8C-87BC-70AA8490266B}.Debug|x86.Build.0 = Debug|Win32
+		{783FEDFB-5124-4F8C-87BC-70AA8490266B}.Release|Any CPU.ActiveCfg = Release|x64
+		{783FEDFB-5124-4F8C-87BC-70AA8490266B}.Release|Any CPU.Build.0 = Release|x64
+		{783FEDFB-5124-4F8C-87BC-70AA8490266B}.Release|x64.ActiveCfg = Release|x64
+		{783FEDFB-5124-4F8C-87BC-70AA8490266B}.Release|x64.Build.0 = Release|x64
+		{783FEDFB-5124-4F8C-87BC-70AA8490266B}.Release|x86.ActiveCfg = Release|Win32
+		{783FEDFB-5124-4F8C-87BC-70AA8490266B}.Release|x86.Build.0 = Release|Win32
+		{A27B0E55-A5C9-4DCD-9C74-2C8074757FBE}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{A27B0E55-A5C9-4DCD-9C74-2C8074757FBE}.Debug|Any CPU.Build.0 = Debug|x64
+		{A27B0E55-A5C9-4DCD-9C74-2C8074757FBE}.Debug|x64.ActiveCfg = Debug|x64
+		{A27B0E55-A5C9-4DCD-9C74-2C8074757FBE}.Debug|x64.Build.0 = Debug|x64
+		{A27B0E55-A5C9-4DCD-9C74-2C8074757FBE}.Debug|x86.ActiveCfg = Debug|Win32
+		{A27B0E55-A5C9-4DCD-9C74-2C8074757FBE}.Debug|x86.Build.0 = Debug|Win32
+		{A27B0E55-A5C9-4DCD-9C74-2C8074757FBE}.Release|Any CPU.ActiveCfg = Release|x64
+		{A27B0E55-A5C9-4DCD-9C74-2C8074757FBE}.Release|Any CPU.Build.0 = Release|x64
+		{A27B0E55-A5C9-4DCD-9C74-2C8074757FBE}.Release|x64.ActiveCfg = Release|x64
+		{A27B0E55-A5C9-4DCD-9C74-2C8074757FBE}.Release|x64.Build.0 = Release|x64
+		{A27B0E55-A5C9-4DCD-9C74-2C8074757FBE}.Release|x86.ActiveCfg = Release|Win32
+		{A27B0E55-A5C9-4DCD-9C74-2C8074757FBE}.Release|x86.Build.0 = Release|Win32
+		{C5141188-E7FD-4EC9-9779-A2CB12AD5AEA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C5141188-E7FD-4EC9-9779-A2CB12AD5AEA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C5141188-E7FD-4EC9-9779-A2CB12AD5AEA}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{C5141188-E7FD-4EC9-9779-A2CB12AD5AEA}.Debug|x64.Build.0 = Debug|Any CPU
+		{C5141188-E7FD-4EC9-9779-A2CB12AD5AEA}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{C5141188-E7FD-4EC9-9779-A2CB12AD5AEA}.Debug|x86.Build.0 = Debug|Any CPU
+		{C5141188-E7FD-4EC9-9779-A2CB12AD5AEA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C5141188-E7FD-4EC9-9779-A2CB12AD5AEA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C5141188-E7FD-4EC9-9779-A2CB12AD5AEA}.Release|x64.ActiveCfg = Release|Any CPU
+		{C5141188-E7FD-4EC9-9779-A2CB12AD5AEA}.Release|x64.Build.0 = Release|Any CPU
+		{C5141188-E7FD-4EC9-9779-A2CB12AD5AEA}.Release|x86.ActiveCfg = Release|Any CPU
+		{C5141188-E7FD-4EC9-9779-A2CB12AD5AEA}.Release|x86.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{783FEDFB-5124-4F8C-87BC-70AA8490266B} = {F581F412-CDC0-46CE-829C-2EED10237BDE}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {BF166CC9-C948-41AA-A581-EFFF1235A790}
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,87 @@
+﻿<Application x:Class="IGCSClient.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:IGCSClient"
+             xmlns:ui="http://schemas.modernwpf.com/2019"
+             xmlns:themes="clr-namespace:IGCSClient.Themes"
+             DispatcherUnhandledException="Application_DispatcherUnhandledException"
+             Startup="App_OnStartup"
+             >
+	<Application.Resources>
+		<ResourceDictionary>
+			<ResourceDictionary.MergedDictionaries>
+				<ui:XamlControlsResources />
+				<ui:ThemeResources>	<!-- Loads the theme assets -->
+					<ui:ThemeResources.ThemeDictionaries>
+						<!-- theme specific overwrites here -->
+						<ResourceDictionary x:Key="Dark">
+							<ResourceDictionary.MergedDictionaries>
+								<ui:DefaultThemeResources Key="Dark" />
+							</ResourceDictionary.MergedDictionaries>
+							<StaticResource x:Key="TextControlForegroundFocused" ResourceKey="SystemControlForegroundBaseHighBrush" />
+							<StaticResource x:Key="TextControlBackgroundFocused" ResourceKey="SystemControlBackgroundAltMediumLowBrush" />
+							<StaticResource x:Key="TextControlPlaceholderForegroundFocused" ResourceKey="SystemControlForegroundBaseMediumLowBrush" />
+							<StaticResource x:Key="TextControlButtonForeground" ResourceKey="SystemControlForegroundBaseMediumHighBrush" />
+							<StaticResource x:Key="ComboBoxFocusedDropDownBackgroundPointerOver" ResourceKey="SystemControlBackgroundBaseLowBrush" />
+							<StaticResource x:Key="ComboBoxFocusedDropDownBackgroundPointerPressed" ResourceKey="SystemControlHighlightBaseMediumLowBrush" />
+							<StaticResource x:Key="ComboBoxEditableDropDownGlyphForeground" ResourceKey="SystemControlForegroundBaseMediumHighBrush" />
+						</ResourceDictionary>
+					</ui:ThemeResources.ThemeDictionaries>
+				</ui:ThemeResources>
+				<!-- Other merged dictionaries here -->
+			</ResourceDictionary.MergedDictionaries>
+			<!-- Other app resources here -->
+			<themes:InverseAppThemeConverter x:Key="InverseAppThemeConverter" />
+			<Style TargetType="ScrollViewer" BasedOn="{StaticResource DefaultScrollViewerStyle}"/>
+			<Style x:Key="OptionsPanelStyle" TargetType="ui:SimpleStackPanel">
+				<Setter Property="Spacing" Value="12" />
+				<Style.Resources>
+					<Style TargetType="ComboBox" BasedOn="{StaticResource {x:Type ComboBox}}">
+						<Setter Property="MinWidth" Value="200" />
+					</Style>
+					<Style TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
+						<Setter Property="MinWidth" Value="200" />
+					</Style>
+					<Style TargetType="DatePicker" BasedOn="{StaticResource {x:Type DatePicker}}">
+						<Setter Property="MinWidth" Value="200" />
+					</Style>
+				</Style.Resources>
+			</Style>
+
+			<Style x:Key="OutputTextBlockStyle" BasedOn="{StaticResource BodyTextBlockStyle}" TargetType="TextBlock">
+				<Setter Property="Margin" Value="8,8,0,0" />
+			</Style>
+
+			<Thickness x:Key="ControlPageContentMargin">24,10,24,20</Thickness>
+
+			<Style x:Key="ControlPageContentPanelStyle" TargetType="ui:SimpleStackPanel">
+				<Setter Property="Margin" Value="{StaticResource ControlPageContentMargin}" />
+				<Setter Property="Spacing" Value="16" />
+			</Style>
+
+			<Style x:Key="PageStyle" TargetType="Page">
+				<Setter Property="Background" Value="{DynamicResource SystemControlPageBackgroundAltHighBrush}" />
+				<Setter Property="Foreground" Value="{DynamicResource SystemControlPageTextBaseHighBrush}" />
+				<Setter Property="FontFamily" Value="{DynamicResource ContentControlThemeFontFamily}" />
+				<Setter Property="FontSize" Value="{DynamicResource ControlContentThemeFontSize}" />
+			</Style>
+
+			<Style x:Key="ControlPageStyle" TargetType="UserControl">
+				<Setter Property="Background" Value="{DynamicResource SystemControlPageBackgroundAltHighBrush}" />
+				<Setter Property="Foreground" Value="{DynamicResource SystemControlPageTextBaseHighBrush}" />
+				<Setter Property="FontFamily" Value="{DynamicResource ContentControlThemeFontFamily}" />
+				<Setter Property="FontSize" Value="{DynamicResource ControlContentThemeFontSize}" />
+			</Style>
+
+			<Style x:Key="ScrollableContentDialogStyle" TargetType="ui:ContentDialog">
+				<Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto" />
+				<Style.Resources>
+					<Thickness x:Key="ContentDialogContentMargin">24,0,24,0</Thickness>
+					<Thickness x:Key="ContentDialogContentScrollViewerMargin">-24,0,-24,0</Thickness>
+					<Thickness x:Key="ContentDialogTitleMargin">24,0,24,12</Thickness>
+				</Style.Resources>
+			</Style>
+			<SolidColorBrush x:Key="UriForecolorKey" Color="#FF0072FF"/>		
+        </ResourceDictionary>
+	</Application.Resources>
+</Application>

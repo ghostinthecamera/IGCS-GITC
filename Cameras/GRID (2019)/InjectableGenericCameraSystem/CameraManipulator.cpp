@@ -98,8 +98,10 @@ namespace IGCS::GameSpecific::CameraManipulator
 		{
 			return;
 		}
-		float* fovAddress = reinterpret_cast<float*>(g_cameraStructAddress + FOV_IN_STRUCT_OFFSET);
-		*fovAddress = _originalData._fov;
+		float* hfovAddress = reinterpret_cast<float*>(g_cameraStructAddress + HFOV_IN_STRUCT_OFFSET);
+		float* vfovAddress = reinterpret_cast<float*>(g_cameraStructAddress + VFOV_IN_STRUCT_OFFSET);
+		*hfovAddress = _originalData._fov[0];
+		*vfovAddress = _originalData._fov[1];
 	}
 
 
@@ -110,14 +112,39 @@ namespace IGCS::GameSpecific::CameraManipulator
 		{
 			return;
 		}
-		float* fovAddress = reinterpret_cast<float*>(g_cameraStructAddress + FOV_IN_STRUCT_OFFSET);
-		float newValue = *fovAddress + amount;
-		if (newValue < 0.001f)
+		//float* fovAddress = reinterpret_cast<float*>(g_cameraStructAddress + FOV_IN_STRUCT_OFFSET);
+		//float newValue = *fovAddress + amount;
+		//if (newValue < 0.001f)
+		//{
+		//	// clamp. 
+		//	newValue = 0.001f;
+		//}
+		//*fovAddress = newValue;
+
+		float fovRatio = (float)1.7804;
+
+		float* hfovAddress = reinterpret_cast<float*>(g_cameraStructAddress + HFOV_IN_STRUCT_OFFSET);
+		float* vfovAddress = reinterpret_cast<float*>(g_cameraStructAddress + VFOV_IN_STRUCT_OFFSET);
+		float hnewValue = *hfovAddress;
+		//if (hnewValue < 0.9f)
+		//{
+		//	hnewValue = *hfovAddress - (amount / 10);
+		//}
+		//else if (hnewValue > 3.0f)
+		//{
+		//	hnewValue = *hfovAddress - (amount * 2);
+		//}
+		hnewValue = *hfovAddress + amount;
+
+		float vnewValue = hnewValue / fovRatio;
+
+		if (hnewValue < 0.05f)
 		{
-			// clamp. 
-			newValue = 0.001f;
+			// clamp. Game will crash with negative fov
+			hnewValue = 0.05f;
 		}
-		*fovAddress = newValue;
+		*hfovAddress = hnewValue;
+		*vfovAddress = vnewValue;
 	}
 
 
@@ -127,7 +154,7 @@ namespace IGCS::GameSpecific::CameraManipulator
 		{
 			return DEFAULT_FOV;
 		}
-		float* fovAddress = reinterpret_cast<float*>(g_cameraStructAddress + FOV_IN_STRUCT_OFFSET);
+		float* fovAddress = reinterpret_cast<float*>(g_cameraStructAddress + HFOV_IN_STRUCT_OFFSET);
 		return *fovAddress;
 	}
 	
@@ -183,7 +210,7 @@ namespace IGCS::GameSpecific::CameraManipulator
 			return;
 		}
 		source.RestoreData(reinterpret_cast<float*>(g_cameraStructAddress + QUATERNION_IN_STRUCT_OFFSET), reinterpret_cast<float*>(g_cameraStructAddress + COORDS_IN_STRUCT_OFFSET), 
-						   reinterpret_cast<float*>(g_cameraStructAddress + FOV_IN_STRUCT_OFFSET));
+						   reinterpret_cast<float*>(g_cameraStructAddress + HFOV_IN_STRUCT_OFFSET));
 	}
 
 
@@ -194,7 +221,7 @@ namespace IGCS::GameSpecific::CameraManipulator
 			return;
 		}
 		destination.CacheData(reinterpret_cast<float*>(g_cameraStructAddress + QUATERNION_IN_STRUCT_OFFSET), reinterpret_cast<float*>(g_cameraStructAddress + COORDS_IN_STRUCT_OFFSET),
-							  reinterpret_cast<float*>(g_cameraStructAddress + FOV_IN_STRUCT_OFFSET));
+							  reinterpret_cast<float*>(g_cameraStructAddress + HFOV_IN_STRUCT_OFFSET));
 	}
 
 

@@ -35,7 +35,7 @@ namespace IGCS
 	{
 		float _coords[3];
 		float _quaternion[4];
-		float _fov;
+		float _fov[2];
 
 
 		void CacheData(float* quaternionInMemory, float* coordsInMemory, float* fovInMemory)
@@ -50,7 +50,8 @@ namespace IGCS
 			}
 			if (nullptr != fovInMemory)
 			{
-				_fov = *fovInMemory;
+				memcpy(_fov, fovInMemory, 2 * sizeof(float));
+				//_fov = *fovInMemory;
 			}
 		}
 
@@ -66,7 +67,8 @@ namespace IGCS
 			}
 			if (nullptr != fovInMemory)
 			{
-				*fovInMemory = _fov;
+				memcpy(fovInMemory, _fov, 2 * sizeof(float));
+				//*fovInMemory = _fov;
 			}
 		}
 	};

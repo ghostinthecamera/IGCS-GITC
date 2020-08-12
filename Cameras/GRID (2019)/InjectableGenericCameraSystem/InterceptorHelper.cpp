@@ -41,13 +41,17 @@ using namespace std;
 extern "C" {
 	void cameraStructInterceptor();
 	void timestopReadInterceptor();
+	void fovReadInterceptor();
+	void lodSettingInterceptor();
 }
 
 // external addresses used in asm.
 extern "C" {
 	LPBYTE _cameraStructInterceptionContinue = nullptr;
 	LPBYTE _timestopReadInterceptionContinue = nullptr;
+	LPBYTE _fovReadInterceptionContinue = nullptr;
 	LPBYTE _timestopAbsolute = nullptr;
+	LPBYTE _lodSettingInterceptionContinue = nullptr;
 }
 
 
@@ -55,17 +59,17 @@ namespace IGCS::GameSpecific::InterceptorHelper
 {
 	void initializeAOBBlocks(LPBYTE hostImageAddress, DWORD hostImageSize, map<string, AOBBlock*> &aobBlocks)
 	{
-		aobBlocks[CAMERA_ADDRESS_INTERCEPT_KEY] = new AOBBlock(CAMERA_ADDRESS_INTERCEPT_KEY, "41 0F 28 C4 41 0F 28 CC 0F 55 44 24 ??", 1);
+		aobBlocks[CAMERA_ADDRESS_INTERCEPT_KEY] = new AOBBlock(CAMERA_ADDRESS_INTERCEPT_KEY, "41 0F 11 86 ?? ?? ?? ?? 41 0F 11 8E ?? ?? ?? ?? E8 ?? ?? ?? ?? 0F B6 84 24", 1);
 		aobBlocks[TIMESTOP_READ_INTERCEPT_KEY] = new AOBBlock(TIMESTOP_READ_INTERCEPT_KEY, "F3 0F 10 4B ?? 48 8B 4B ??", 1);
-		aobBlocks[CAMERA_WRITE1_RET_KEY] = new AOBBlock(CAMERA_WRITE1_RET_KEY, "55 56 41 56 41 57 48 8D A8 ?? ?? ?? ?? 48 81 EC ?? ?? ?? ?? 0F 29 78 B8", 1);
-		aobBlocks[CAMERA_COORD_WRITE_NOP_KEY] = new AOBBlock(CAMERA_COORD_WRITE_NOP_KEY, "F3 0F 7F 41 ?? 48 8B D1", 1);
-		aobBlocks[CAMERA_QUAT_WRITE_NOP_KEY] = new AOBBlock(CAMERA_QUAT_WRITE_NOP_KEY, "41 0F 11 06 48 8B 8E ?? ?? ?? ?? 48 8B 9C 24", 1);
+		aobBlocks[FOV1_KEY] = new AOBBlock(FOV1_KEY, "8B 02 89 01 8B 42 ?? 89 41 ?? 0F 28 42 ?? 66 0F 7F 41 ?? 8B 42 ?? 89 41 ?? 8B 42 ?? 89 41 ?? 8B 42 ?? 89 41 ?? 8B 42 ?? 89 41 ?? 8B 42 ?? | 89 41 ?? 8B 42 ?? 89 41 ?? 8B 42 ?? 89 41 ?? 8B 42 ?? 89 41 ?? 8B 42 ?? 89 41 ?? 8B 42 ?? 89 41 ?? 8B 42 ?? 89 41 ?? 8B 42 ?? 89 41 ?? 8B 42 ?? 89 41 ?? 8B 42 ?? 89 41 ?? 8B 42 ?? 89 41 ?? 8B 42 ?? 89 41 ?? 8B 42 ?? 89 41 ?? 8B 42 ?? 89 41 ?? 0F B6 42 ?? 88 41 ?? C3", 1);
+		aobBlocks[FOV2_KEY] = new AOBBlock(FOV2_KEY, "8B 02 89 01 8B 42 ?? 89 41 ?? 0F 28 42 ?? 66 0F 7F 41 ?? 8B 42 ?? 89 41 ?? 8B 42 ?? 89 41 ?? 8B 42 ?? 89 41 ?? 8B 42 ?? 89 41 ?? 8B 42 ?? 89 41 ?? 8B 42 ?? 89 41 ?? 8B 42 ?? | 89 41 ?? 8B 42 ?? 89 41 ?? 8B 42 ?? 89 41 ?? 8B 42 ?? 89 41 ?? 8B 42 ?? 89 41 ?? 8B 42 ?? 89 41 ?? 8B 42 ?? 89 41 ?? 8B 42 ?? 89 41 ?? 8B 42 ?? 89 41 ?? 8B 42 ?? 89 41 ?? 8B 42 ?? 89 41 ?? 8B 42 ?? 89 41 ?? 0F B6 42 ?? 88 41 ?? C3", 1);
+		aobBlocks[LOD_SETTING_KEY] = new AOBBlock(LOD_SETTING_KEY, "41 88 86 ?? ?? ?? ?? 41 89 96 ?? ?? ?? ?? 84 C0 0F 84 ?? ?? ?? ??", 1);
 		aobBlocks[ABS1_TIMESCALE_INTERCEPT_KEY] = new AOBBlock(ABS1_TIMESCALE_INTERCEPT_KEY, "F3 0F 10 4B ?? 48 8B 4B ?? E8 | ?? ?? ?? ??", 1);
-		aobBlocks[FOV_WRITE_NOP_KEY] = new AOBBlock(FOV_WRITE_NOP_KEY, "F3 41 0F 11 46 ?? 8B 46 ?? 41 89 46 ?? 41 C6 86 ?? ?? ?? ?? ??", 1);
-		aobBlocks[CAMERA_MOVE_WRITE_NOP_KEY] = new AOBBlock(CAMERA_MOVE_WRITE_NOP_KEY, "0F 11 47 ?? E8 ?? ?? ?? ?? 0F 57 D2", 1);
-		aobBlocks[CAMERA_MOVE_WRITE_NOP_KEY2] = new AOBBlock(CAMERA_MOVE_WRITE_NOP_KEY2, "0F 11 53 ?? E8 ?? ?? ?? ?? 66 0F 6F 1D ?? ?? ?? ?? 48 8D 4D ?? 0F 28", 1);
-		aobBlocks[CAMERA_MOVE_WRITE_NOP_KEY3] = new AOBBlock(CAMERA_MOVE_WRITE_NOP_KEY3, "F3 0F 7F 07 45 84 E4", 1);
-		aobBlocks[CAMERA_MOVE_WRITE_NOP_KEY4] = new AOBBlock(CAMERA_MOVE_WRITE_NOP_KEY4, "0F 11 07 0f 28 BC 24 ?? ?? ?? ??", 1);
+		//aobBlocks[FOV_WRITE_NOP_KEY] = new AOBBlock(FOV_WRITE_NOP_KEY, "F3 41 0F 11 46 ?? 8B 46 ?? 41 89 46 ?? 41 C6 86 ?? ?? ?? ?? ??", 1);
+		//aobBlocks[CAMERA_MOVE_WRITE_NOP_KEY] = new AOBBlock(CAMERA_MOVE_WRITE_NOP_KEY, "0F 11 47 ?? E8 ?? ?? ?? ?? 0F 57 D2", 1);
+		//aobBlocks[CAMERA_MOVE_WRITE_NOP_KEY2] = new AOBBlock(CAMERA_MOVE_WRITE_NOP_KEY2, "0F 11 53 ?? E8 ?? ?? ?? ?? 66 0F 6F 1D ?? ?? ?? ?? 48 8D 4D ?? 0F 28", 1);
+		//aobBlocks[CAMERA_MOVE_WRITE_NOP_KEY3] = new AOBBlock(CAMERA_MOVE_WRITE_NOP_KEY3, "F3 0F 7F 07 45 84 E4", 1);
+		//aobBlocks[CAMERA_MOVE_WRITE_NOP_KEY4] = new AOBBlock(CAMERA_MOVE_WRITE_NOP_KEY4, "0F 11 07 0f 28 BC 24 ?? ?? ?? ??", 1);
 
 		map<string, AOBBlock*>::iterator it;
 		bool result = true;
@@ -86,13 +90,15 @@ namespace IGCS::GameSpecific::InterceptorHelper
 
 	void setCameraStructInterceptorHook(map<string, AOBBlock*> &aobBlocks)
 	{
-		GameImageHooker::setHook(aobBlocks[CAMERA_ADDRESS_INTERCEPT_KEY], 0x11, &_cameraStructInterceptionContinue, &cameraStructInterceptor);
+		GameImageHooker::setHook(aobBlocks[CAMERA_ADDRESS_INTERCEPT_KEY], 0x10, &_cameraStructInterceptionContinue, &cameraStructInterceptor);
 	}
 
 
 	void setPostCameraStructHooks(map<string, AOBBlock*> &aobBlocks)
 	{
 		GameImageHooker::setHook(aobBlocks[TIMESTOP_READ_INTERCEPT_KEY], 0x0E, &_timestopReadInterceptionContinue, &timestopReadInterceptor);
+		GameImageHooker::setHook(aobBlocks[FOV1_KEY], 0x0F, &_fovReadInterceptionContinue, &fovReadInterceptor);
+		GameImageHooker::setHook(aobBlocks[LOD_SETTING_KEY], 0x0E, &_lodSettingInterceptionContinue, &lodSettingInterceptor);
 	}
 
 	void getAbsoluteAddresses(map<string, AOBBlock*>& aobBlocks)

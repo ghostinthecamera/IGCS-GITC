@@ -122,30 +122,35 @@ namespace IGCS
 				// it's going to be disabled, make sure things are alright when we give it back to the host
 				CameraManipulator::restoreOriginalValuesAfterCameraDisable();
 				Globals::instance().cameraMovementLocked(false);
-				BYTE retByte[1] = { 0xC3 };
-				InterceptorHelper::SaveBytesWrite(_aobBlocks[CAMERA_WRITE1_RET_KEY], 1, retByte, false);
-				InterceptorHelper::SaveNOPReplace(_aobBlocks[CAMERA_COORD_WRITE_NOP_KEY], 5, false);
-				InterceptorHelper::SaveNOPReplace(_aobBlocks[CAMERA_QUAT_WRITE_NOP_KEY], 4, false);
-				InterceptorHelper::SaveNOPReplace(_aobBlocks[FOV_WRITE_NOP_KEY], 6, false);
-				InterceptorHelper::SaveNOPReplace(_aobBlocks[CAMERA_MOVE_WRITE_NOP_KEY], 4, false);
-				InterceptorHelper::SaveNOPReplace(_aobBlocks[CAMERA_MOVE_WRITE_NOP_KEY2], 4, false);
-				InterceptorHelper::SaveNOPReplace(_aobBlocks[CAMERA_MOVE_WRITE_NOP_KEY3], 4, false);
-				InterceptorHelper::SaveNOPReplace(_aobBlocks[CAMERA_MOVE_WRITE_NOP_KEY3], 3, false);
+				/*InterceptorHelper::SaveNOPReplace(_aobBlocks[FOV1_KEY], 3, false);
+				InterceptorHelper::SaveNOPReplace(_aobBlocks[FOV2_KEY], 3, false);*/
+				//BYTE retByte[1] = { 0xC3 };
+				//InterceptorHelper::SaveBytesWrite(_aobBlocks[CAMERA_WRITE1_RET_KEY], 1, retByte, false);
+				//InterceptorHelper::SaveNOPReplace(_aobBlocks[CAMERA_COORD_WRITE_NOP_KEY], 5, false);
+				//InterceptorHelper::SaveNOPReplace(_aobBlocks[CAMERA_QUAT_WRITE_NOP_KEY], 4, false);
+				//InterceptorHelper::SaveNOPReplace(_aobBlocks[FOV_WRITE_NOP_KEY], 6, false);
+				//InterceptorHelper::SaveNOPReplace(_aobBlocks[CAMERA_MOVE_WRITE_NOP_KEY], 4, false);
+				//InterceptorHelper::SaveNOPReplace(_aobBlocks[CAMERA_MOVE_WRITE_NOP_KEY2], 4, false);
+				//InterceptorHelper::SaveNOPReplace(_aobBlocks[CAMERA_MOVE_WRITE_NOP_KEY3], 4, false);
+				//InterceptorHelper::SaveNOPReplace(_aobBlocks[CAMERA_MOVE_WRITE_NOP_KEY3], 3, false);
 			}
 			else
 			{
 				// it's going to be enabled, so cache the original values before we enable it so we can restore it afterwards
 				CameraManipulator::cacheOriginalValuesBeforeCameraEnable();
 				_camera.resetAngles();
-				BYTE retByte[1] = { 0xC3 };
-				InterceptorHelper::SaveBytesWrite(_aobBlocks[CAMERA_WRITE1_RET_KEY], 1, retByte, true);
-				InterceptorHelper::SaveNOPReplace(_aobBlocks[CAMERA_COORD_WRITE_NOP_KEY], 5, true);
-				InterceptorHelper::SaveNOPReplace(_aobBlocks[CAMERA_QUAT_WRITE_NOP_KEY], 4, true);
-				InterceptorHelper::SaveNOPReplace(_aobBlocks[FOV_WRITE_NOP_KEY], 6, true);
-				InterceptorHelper::SaveNOPReplace(_aobBlocks[CAMERA_MOVE_WRITE_NOP_KEY], 4, true);
-				InterceptorHelper::SaveNOPReplace(_aobBlocks[CAMERA_MOVE_WRITE_NOP_KEY2], 4, true);
-				InterceptorHelper::SaveNOPReplace(_aobBlocks[CAMERA_MOVE_WRITE_NOP_KEY3], 4, true);
-				InterceptorHelper::SaveNOPReplace(_aobBlocks[CAMERA_MOVE_WRITE_NOP_KEY3], 3, true);
+				CameraManipulator::displayCameraStructAddress();
+		/*		InterceptorHelper::SaveNOPReplace(_aobBlocks[FOV1_KEY], 3, true);
+				InterceptorHelper::SaveNOPReplace(_aobBlocks[FOV2_KEY], 3, true);*/
+				//BYTE retByte[1] = { 0xC3 };
+				//InterceptorHelper::SaveBytesWrite(_aobBlocks[CAMERA_WRITE1_RET_KEY], 1, retByte, true);
+				//InterceptorHelper::SaveNOPReplace(_aobBlocks[CAMERA_COORD_WRITE_NOP_KEY], 5, true);
+				//InterceptorHelper::SaveNOPReplace(_aobBlocks[CAMERA_QUAT_WRITE_NOP_KEY], 4, true);
+				//InterceptorHelper::SaveNOPReplace(_aobBlocks[FOV_WRITE_NOP_KEY], 6, true);
+				//InterceptorHelper::SaveNOPReplace(_aobBlocks[CAMERA_MOVE_WRITE_NOP_KEY], 4, true);
+				//InterceptorHelper::SaveNOPReplace(_aobBlocks[CAMERA_MOVE_WRITE_NOP_KEY2], 4, true);
+				//InterceptorHelper::SaveNOPReplace(_aobBlocks[CAMERA_MOVE_WRITE_NOP_KEY3], 4, true);
+				//InterceptorHelper::SaveNOPReplace(_aobBlocks[CAMERA_MOVE_WRITE_NOP_KEY3], 3, true);
 			}
 			g_cameraEnabled = g_cameraEnabled == 0 ? (uint8_t)1 : (uint8_t)0;
 			displayCameraState();

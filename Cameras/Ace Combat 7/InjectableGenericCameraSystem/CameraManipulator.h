@@ -47,4 +47,5 @@ namespace IGCS::GameSpecific::CameraManipulator
 	bool isCameraFound();
 	void displayCameraStructAddress();
 	void sloMoFunc(float amount);
+	void ultrawidefix();
 }

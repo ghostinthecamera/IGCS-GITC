@@ -40,6 +40,7 @@ PUBLIC resolutionscaleInterceptor
 ; Externs which are used and set by the system. Read / write these
 ; values in asm to communicate with the system
 EXTERN g_cameraEnabled: byte
+EXTERN g_ultraWidefix: byte
 EXTERN g_cameraStructAddress: qword
 EXTERN g_timestopStructAddress: qword
 EXTERN g_resolutionscaleStructAddress: qword
@@ -50,6 +51,7 @@ EXTERN g_resolutionscaleStructAddress: qword
 EXTERN _cameraStructInterceptionContinue: qword
 EXTERN _timestopInterceptionContinue: qword
 EXTERN _resolutionscaleInterceptionContinue: qword
+EXTERN _fovDelta: dword
 .data
 ;---------------------------------------------------------------
 ; Scratch pad
@@ -77,6 +79,8 @@ cameraStructInterceptor PROC
 	mov [g_cameraStructAddress],rdi
 	cmp byte ptr [g_cameraEnabled], 1					; check if the user enabled the camera. If so, just skip the write statements, otherwise just execute the original code.
 	je exit
+	cmp byte ptr [g_ultraWidefix], 1
+	je uwfix
 originalCode:
 	movsd qword ptr [rdi+00000400h],xmm0
 	movsd xmm0,qword ptr [rsp+3Ch]
@@ -86,6 +90,19 @@ originalCode:
 	mov eax,dword ptr [rsp+44h]
 	mov dword ptr [rdi+00000414h],eax
 	mov eax,dword ptr [rsp+5Ch]
+	movups xmmword ptr [rdi+00000418h],xmm0
+	jmp exit
+uwfix:
+	movsd qword ptr [rdi+00000400h],xmm0
+	movsd xmm0,qword ptr [rsp+3Ch]
+	movsd qword ptr [rdi+0000040Ch],xmm0
+	movups xmm0,xmmword ptr [rsp+48h]
+	mov dword ptr [rdi+00000408h],eax
+	mov eax,dword ptr [rsp+44h]
+	mov dword ptr [rdi+00000414h],eax
+	mov eax,dword ptr [rsp+5Ch]
+	movss xmm8, dword ptr [_fovDelta]
+	addss xmm0,xmm8
 	movups xmmword ptr [rdi+00000418h],xmm0
 exit:
 	jmp qword ptr [_cameraStructInterceptionContinue]	; jmp back into the original game code, which is the location after the original statements above.

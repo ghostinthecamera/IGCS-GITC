@@ -39,6 +39,7 @@ extern "C" {
 	LPBYTE g_cameraStructAddress = nullptr;
 	LPBYTE g_timestopStructAddress = nullptr;
 	LPBYTE g_resolutionscaleStructAddress = nullptr;
+	float _fovDelta = 0.0f;
 }
 
 namespace IGCS::GameSpecific::CameraManipulator
@@ -65,6 +66,12 @@ namespace IGCS::GameSpecific::CameraManipulator
 		*fovInMemory = DEFAULT_FOV_DEGREES;
 	}
 
+	void ultrawidefix()
+	{
+		Settings& currentSettings = Globals::instance().settings();
+		_fovDelta = currentSettings.fov;
+		g_ultraWidefix = (BYTE)1;
+	}
 
 	// changes the FoV with the specified amount
 	void changeFoV(float amount)
@@ -83,7 +90,6 @@ namespace IGCS::GameSpecific::CameraManipulator
 		*fovInMemory = newValue;
 
 	}
-
 
 	// timestop
 	void timeStop()
@@ -119,6 +125,22 @@ namespace IGCS::GameSpecific::CameraManipulator
 			*timescaleInMemory = 0.0f;
 		}
 	}
+
+	//void UltraWideFix()
+	//{
+	//	Settings& currentSettings = Globals::instance().settings();
+	//	if (nullptr != g_resolutionscaleStructAddress)
+	//	{
+	//		float* fovInMemory = reinterpret_cast<float*>(g_cameraStructAddress + FOV_IN_STRUCT_OFFSET);
+	//		float gameFov = *fovInMemory;
+	//		float fovDelta = currentSettings.fov;
+	//		float fixedFoV = gameFov + fovDelta;
+	//		if (currentSettings.ultrawidefix)
+	//		{
+	//			*fovInMemory = fixedFoV;
+	//		}
+	//	}
+	//}
 
 	void hudToggle()
 	{

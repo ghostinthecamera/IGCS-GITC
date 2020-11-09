@@ -33,8 +33,8 @@
 #include "CDataFile.h"
 
 extern "C" BYTE g_cameraEnabled;
-//extern "C" float g_fovValue;
 extern "C" BYTE g_gamePaused;
+extern "C" BYTE g_ultraWidefix;
 
 namespace IGCS
 {
@@ -43,6 +43,7 @@ namespace IGCS
 		bool invertY;
 		bool allowCameraMovementWhenMenuIsUp;
 		bool hudandtimestop;
+		bool ultrawidefix;
 		float fastMovementMultiplier;
 		float slowMovementMultiplier;
 		float movementUpMultiplier;
@@ -50,6 +51,7 @@ namespace IGCS
 		float rotationSpeed;
 		float fovChangeSpeed;
 		float resolutionScale;		//50.0-200.0
+		float fov;
 		int frameskip;
 		float slomoMult;
 		float clampFloat(float value, float min, float default)

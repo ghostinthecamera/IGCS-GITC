@@ -114,6 +114,16 @@ namespace IGCS
 		bool rcontrolPressed = Input::keyDown(VK_RCONTROL);
 		bool lcontrolPressed = Input::keyDown(VK_LCONTROL);
 
+		if (Globals::instance().settings().ultrawidefix)
+		{
+			CameraManipulator::ultrawidefix();
+		}
+
+		if (!Globals::instance().settings().ultrawidefix)
+		{
+			g_ultraWidefix = (BYTE)0;
+		}
+
 		if (Input::keyDown(IGCS_KEY_TOGGLE_OVERLAY) && (lcontrolPressed || rcontrolPressed))
 		{
 			OverlayControl::toggleOverlay();
@@ -213,6 +223,16 @@ namespace IGCS
 			CameraManipulator::changeFoV(Globals::instance().settings().fovChangeSpeed);
 		}
 
+		if (Input::keyDown(IGCS_KEY_ADVANCE))
+		{
+			if (g_gamePaused)
+			{
+				CameraManipulator::plusFrame(Globals::instance().settings().frameskip);
+				displayframeskip();
+				Sleep(350);
+			}
+		}
+
 		if (!g_cameraEnabled)
 		{
 			// camera is disabled. We simply disable all input to the camera movement, by returning now.
@@ -225,16 +245,6 @@ namespace IGCS
 			Sleep(350);				// wait for 350ms to avoid fast keyboard hammering
 		}
 		
-		if (Input::keyDown(IGCS_KEY_ADVANCE))
-		{
-			if (g_gamePaused)
-			{
-				CameraManipulator::plusFrame(Globals::instance().settings().frameskip);
-				displayframeskip();
-				Sleep(350);
-			}
-		}
-
 		_camera.resetMovement();
 		Settings& settings = Globals::instance().settings();
 		float multiplier = altPressed ? settings.fastMovementMultiplier : rcontrolPressed ? settings.slowMovementMultiplier : 1.0f;

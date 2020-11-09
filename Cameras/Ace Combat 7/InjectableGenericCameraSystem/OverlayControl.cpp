@@ -262,6 +262,8 @@ Special thanks to:
 			settingsChanged |= ImGui::SliderInt("Frame Skip in ms", &currentSettings.frameskip, 15, 300, "%.0f");
 			ImGui::SliderFloat("Slow Motion Multiplier", &currentSettings.slomoMult, 0.05f, 0.95f, "%.2f");
 			settingsChanged |= ImGui::Checkbox("Toggle HUD with Timestop?", &currentSettings.hudandtimestop);
+			ImGui::Checkbox("Ultrawide FoV Fix?", &currentSettings.ultrawidefix);
+			ImGui::SliderFloat("Ultrawide FoV Delta", &currentSettings.fov, 0.0f, 40.0f, "%.2f");
 		}
 		ImGui::PopItemWidth();
 		if (settingsChanged)

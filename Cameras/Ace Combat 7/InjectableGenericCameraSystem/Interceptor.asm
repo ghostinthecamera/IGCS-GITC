@@ -77,9 +77,9 @@ cameraStructInterceptor PROC
 ;Ace7Game.exe+EA6AECC - F3 0F10 44 24 58      - movss xmm0,[rsp+58]
 ;Ace7Game.exe+EA6AED2 - 09 87 2C040000        - or [rdi+0000042C],eax
 	mov [g_cameraStructAddress],rdi
-	cmp byte ptr [g_cameraEnabled], 1					; check if the user enabled the camera. If so, just skip the write statements, otherwise just execute the original code.
+	cmp byte ptr [g_cameraEnabled], 1					; check if the user enabled the camera. If so, just skip the ultrawide FoV fix and normal writes
 	je exit
-	cmp byte ptr [g_ultraWidefix], 1
+	cmp byte ptr [g_ultraWidefix], 1					; if camera isnt enabled, check if the ultrawide fov fix is required, if so, skip to out ultrawide assembly code
 	je uwfix
 originalCode:
 	movsd qword ptr [rdi+00000400h],xmm0
@@ -101,9 +101,9 @@ uwfix:
 	mov eax,dword ptr [rsp+44h]
 	mov dword ptr [rdi+00000414h],eax
 	mov eax,dword ptr [rsp+5Ch]
-	movss xmm8, dword ptr [_fovDelta]
-	addss xmm0,xmm8
-	movups xmmword ptr [rdi+00000418h],xmm0
+	movss xmm8, dword ptr [_fovDelta]					; move our specified fovdelta into an xmm register so we can add it to whatever FoV the game is using in the next opcode
+	addss xmm0,xmm8										; add out fovdelta tot he fov
+	movups xmmword ptr [rdi+00000418h],xmm0				; write the fov
 exit:
 	jmp qword ptr [_cameraStructInterceptionContinue]	; jmp back into the original game code, which is the location after the original statements above.
 cameraStructInterceptor ENDP

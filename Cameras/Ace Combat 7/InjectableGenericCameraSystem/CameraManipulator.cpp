@@ -66,11 +66,12 @@ namespace IGCS::GameSpecific::CameraManipulator
 		*fovInMemory = DEFAULT_FOV_DEGREES;
 	}
 
+	// fix the FoV during gameplay when using ultrawide monitors 
 	void ultrawidefix()
 	{
-		Settings& currentSettings = Globals::instance().settings();
-		_fovDelta = currentSettings.fov;
-		g_ultraWidefix = (BYTE)1;
+		Settings& currentSettings = Globals::instance().settings();  //create setting type for shorthand
+		_fovDelta = currentSettings.fov;							 //read the specified fovdelta in GUI into our variable that will be passed to ASM
+		g_ultraWidefix = (BYTE)1;									 //set flag to enable requisite detour in asm
 	}
 
 	// changes the FoV with the specified amount
@@ -125,22 +126,6 @@ namespace IGCS::GameSpecific::CameraManipulator
 			*timescaleInMemory = 0.0f;
 		}
 	}
-
-	//void UltraWideFix()
-	//{
-	//	Settings& currentSettings = Globals::instance().settings();
-	//	if (nullptr != g_resolutionscaleStructAddress)
-	//	{
-	//		float* fovInMemory = reinterpret_cast<float*>(g_cameraStructAddress + FOV_IN_STRUCT_OFFSET);
-	//		float gameFov = *fovInMemory;
-	//		float fovDelta = currentSettings.fov;
-	//		float fixedFoV = gameFov + fovDelta;
-	//		if (currentSettings.ultrawidefix)
-	//		{
-	//			*fovInMemory = fixedFoV;
-	//		}
-	//	}
-	//}
 
 	void hudToggle()
 	{

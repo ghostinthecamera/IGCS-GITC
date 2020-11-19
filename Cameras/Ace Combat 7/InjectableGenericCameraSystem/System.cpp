@@ -114,15 +114,16 @@ namespace IGCS
 		bool rcontrolPressed = Input::keyDown(VK_RCONTROL);
 		bool lcontrolPressed = Input::keyDown(VK_LCONTROL);
 
+		// check if ultrawide fix is enabled
 		if (Globals::instance().settings().ultrawidefix)
 		{
 			CameraManipulator::ultrawidefix();
 		}
-
-		if (!Globals::instance().settings().ultrawidefix)
+		else
 		{
 			g_ultraWidefix = (BYTE)0;
 		}
+
 
 		if (Input::keyDown(IGCS_KEY_TOGGLE_OVERLAY) && (lcontrolPressed || rcontrolPressed))
 		{

@@ -47,8 +47,8 @@ namespace IGCS
 
 	XMVECTOR Camera::calculateLookQuaternion()
 	{
-		XMVECTOR xQ = XMQuaternionRotationNormal(XMVectorSet(1.0f, 0.0f, 0.0f, 1.0f), -_pitch);
-		XMVECTOR yQ = XMQuaternionRotationNormal(XMVectorSet(0.0f, 1.0f, 0.0f, 1.0f), _yaw);
+		XMVECTOR xQ = XMQuaternionRotationNormal(XMVectorSet(1.0f, 0.0f, 0.0f, 1.0f), _pitch);
+		XMVECTOR yQ = XMQuaternionRotationNormal(XMVectorSet(0.0f, 1.0f, 0.0f, 1.0f), -_yaw);
 		XMVECTOR zQ = XMQuaternionRotationNormal(XMVectorSet(0.0f, 0.0f, 1.0f, 1.0f), _roll);
 
 		XMVECTOR tmpQ = XMQuaternionMultiply(xQ, yQ);
@@ -83,16 +83,11 @@ namespace IGCS
 		toReturn.z = currentCoords.z;
 		if (_movementOccurred)
 		{
-			//XMVECTOR directionAsQ = XMVectorSet(_direction.x, _direction.y, _direction.z, 0.0f);
-
-			toReturn.x += _direction.x;
-			toReturn.y += _direction.y;
-			toReturn.z += _direction.z;
-
-			//XMVECTOR newDirection = XMVector3Rotate(directionAsQ, lookQ);
-			//toReturn.x += XMVectorGetX(newDirection);
-			//toReturn.y += XMVectorGetY(newDirection);
-			//toReturn.z += XMVectorGetZ(newDirection);
+			XMVECTOR directionAsQ = XMVectorSet(_direction.x, _direction.y, _direction.z, 0.0f);
+			XMVECTOR newDirection = XMVector3Rotate(directionAsQ, lookQ);
+			toReturn.x += XMVectorGetX(newDirection);
+			toReturn.y += XMVectorGetY(newDirection);
+			toReturn.z += XMVectorGetZ(newDirection);
 		}
 		return toReturn;
 	}
@@ -100,7 +95,7 @@ namespace IGCS
 
 	void Camera::moveForward(float amount)
 	{
-		_direction.z += (Globals::instance().settings().movementSpeed * amount);		// z up, y into of the screen.
+		_direction.z -= (Globals::instance().settings().movementSpeed * amount);		// z up, y into of the screen.
 		_movementOccurred = true;
 	}
 

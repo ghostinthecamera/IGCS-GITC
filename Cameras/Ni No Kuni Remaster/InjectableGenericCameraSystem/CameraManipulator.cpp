@@ -169,9 +169,9 @@ namespace IGCS::GameSpecific::CameraManipulator
 		XMFLOAT4X4 _viewMatrix;
 		XMStoreFloat4x4(&_viewMatrix, viewMatrix);
 
-		float realX = -1 * ((_viewMatrix._41 * _viewMatrix._11) + (_viewMatrix._42 * _viewMatrix._12) + (_viewMatrix._43 * _viewMatrix._13));
-		float realY = -1 * ((_viewMatrix._41 * _viewMatrix._21) + (_viewMatrix._42 * _viewMatrix._22) + (_viewMatrix._43 * _viewMatrix._23));
-		float realZ = -1 * ((_viewMatrix._41 * _viewMatrix._31) + (_viewMatrix._42 * _viewMatrix._32) + (_viewMatrix._43 * _viewMatrix._33));
+		float realX = -1 * ((_viewMatrix._41 * _viewMatrix._11) + (_viewMatrix._42 * _viewMatrix._21) + (_viewMatrix._43 * _viewMatrix._31));
+		float realY = -1 * ((_viewMatrix._41 * _viewMatrix._12) + (_viewMatrix._42 * _viewMatrix._22) + (_viewMatrix._43 * _viewMatrix._32));
+		float realZ = -1 * ((_viewMatrix._41 * _viewMatrix._13) + (_viewMatrix._42 * _viewMatrix._23) + (_viewMatrix._43 * _viewMatrix._33));
 
 		XMFLOAT3 realPos(realX, realY, realZ);
 		//IGCS::OverlayControl::addNotification(realX);
@@ -214,15 +214,15 @@ namespace IGCS::GameSpecific::CameraManipulator
 
 		matrixInMemory = reinterpret_cast<float*>(g_cameraStructAddress);
 		matrixInMemory[0] = rotationMatrix._11;
-		matrixInMemory[1] = rotationMatrix._21;
-		matrixInMemory[2] = rotationMatrix._31;
+		matrixInMemory[1] = rotationMatrix._12;
+		matrixInMemory[2] = rotationMatrix._13;
 		matrixInMemory[3] = 0.0f;
-		matrixInMemory[4] = rotationMatrix._12;
+		matrixInMemory[4] = rotationMatrix._21;
 		matrixInMemory[5] = rotationMatrix._22;
-		matrixInMemory[6] = rotationMatrix._32;
+		matrixInMemory[6] = rotationMatrix._23;
 		matrixInMemory[7] = 0.0f;
-		matrixInMemory[8] = rotationMatrix._13;
-		matrixInMemory[9] = rotationMatrix._23;
+		matrixInMemory[8] = rotationMatrix._31;
+		matrixInMemory[9] = rotationMatrix._32;
 		matrixInMemory[10] = rotationMatrix._33;
 		matrixInMemory[11] = 0.0f;
 	}

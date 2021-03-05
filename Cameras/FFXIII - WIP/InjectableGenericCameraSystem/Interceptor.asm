@@ -35,6 +35,7 @@
 PUBLIC cameraStructInterceptor
 PUBLIC DOFinterceptor
 PUBLIC ARread
+PUBLIC BLOOMinterceptor
 ;---------------------------------------------------------------
 
 ;---------------------------------------------------------------
@@ -44,6 +45,7 @@ EXTERN g_cameraEnabled: byte
 EXTERN g_cameraStructAddress: dword
 EXTERN g_dofstructaddress: dword
 EXTERN g_ARvalueaddress: dword
+EXTERN g_bloomstructaddress: dword
 ;---------------------------------------------------------------
 
 ;---------------------------------------------------------------
@@ -51,6 +53,7 @@ EXTERN g_ARvalueaddress: dword
 EXTERN _cameraStructInterceptionContinue: dword
 EXTERN _dofstructInterceptionContinue: dword
 EXTERN _ARInterceptionContinue: dword
+EXTERN _bloomstructinterceptionContinue: dword
 
 
 
@@ -265,5 +268,25 @@ ARread PROC
 exit:
 	jmp dword ptr [_ARInterceptionContinue]
 ARread ENDP
+
+BLOOMinterceptor PROC
+;"ffxiiiimg.exe"+B67A30: 55                       -  push ebp
+;"ffxiiiimg.exe"+B67A31: 8B EC                    -  mov ebp,esp
+;"ffxiiiimg.exe"+B67A33: 81 EC 1C 01 00 00        -  sub esp,0000011C
+;"ffxiiiimg.exe"+B67A39: 89 8D E4 FE FF FF        -  mov [ebp-0000011C],ecx				<<inject here
+;"ffxiiiimg.exe"+B67A3F: 8B 85 E4 FE FF FF        -  mov eax,[ebp-0000011C]
+;"ffxiiiimg.exe"+B67A45: F3 0F 10 40 10           -  movss xmm0,[eax+10]					<<<eax has the bloom
+;"ffxiiiimg.exe"+B67A4A: F3 0F 59 05 40 0D 0A 01  -  mulss xmm0,[ffxiiiimg.exe+CA0D40]	<<<return here
+;"ffxiiiimg.exe"+B67A52: F3 0F 11 45 F8           -  movss [ebp-08],xmm0
+;"ffxiiiimg.exe"+B67A57: 8B 8D E4 FE FF FF        -  mov ecx,[ebp-0000011C]
+;"ffxiiiimg.exe"+B67A5D: 8B 91 1C 01 00 00        -  mov edx,[ecx+0000011C]
+;"ffxiiiimg.exe"+B67A63: 89 55 B0                 -  mov [ebp-50],edx
+	mov [ebp-0000011Ch],ecx
+	mov eax,[ebp-0000011Ch]
+	mov [g_bloomstructaddress],eax
+	movss xmm0,dword ptr [eax+10h]	
+exit:
+	jmp dword ptr [_bloomstructinterceptionContinue]
+BLOOMinterceptor ENDP
 
 END

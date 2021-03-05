@@ -56,6 +56,7 @@ namespace IGCS::GameSpecific
 	#define VFOV_INTERCEPT_KEY							"VFOV_INTERCEPT_KEY" //3nops
 	#define DOF_KEY										"DOF_KEY"
 	#define AR_KEY										"AR_KEY"
+	#define BLOOM_KEY									"BLOOM_KEY"
 
 
 	// Indices in the structures read by interceptors 
@@ -65,6 +66,7 @@ namespace IGCS::GameSpecific
 	#define DOF_NEAR_AMOUNT								0x4C
 	#define DOF_FAR_AMOUNT								0x50
 	#define AR_OFFSET									0x3FC
+	#define BLOOM_OFFSET								0x10
 	#define FOV_NOP1_OFFSET								0x0C  //2 nops
 	#define FOV_NOP2_OFFSET								0x39  //3 nops
 }

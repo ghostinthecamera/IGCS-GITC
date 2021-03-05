@@ -33,7 +33,7 @@ namespace IGCSClient.GameSpecific.Classes
 	internal static class GameSpecificConstants
 	{
 		public const string ClientWindowTitle = "Final Fantasy XIII";
-		public const string CameraVersion = "0.1";
+		public const string CameraVersion = "1.0";
 		public const string CameraCredits = "Skall feat. GHOSTINTHECAMERA";
 		public const bool HotsamplingRequiresEXITSIZEMOVE = false;
 	}

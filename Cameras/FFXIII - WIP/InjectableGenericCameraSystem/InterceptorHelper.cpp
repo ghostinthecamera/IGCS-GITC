@@ -40,6 +40,7 @@ extern "C" {
 	void cameraStructInterceptor();
 	void DOFinterceptor();
 	void ARread();
+	void BLOOMinterceptor();
 }
 
 // external addresses used in asm.
@@ -47,6 +48,7 @@ extern "C" {
 	LPBYTE _cameraStructInterceptionContinue = nullptr;
 	LPBYTE _dofstructInterceptionContinue = nullptr;
 	LPBYTE _ARInterceptionContinue = nullptr;
+	LPBYTE _bloomstructinterceptionContinue = nullptr;
 }
 
 
@@ -61,6 +63,7 @@ namespace IGCS::GameSpecific::InterceptorHelper
 		aobBlocks[TIMESTOP_KEY] = new AOBBlock(TIMESTOP_KEY, "E8 B9 12 00 00 83", 1);
 		aobBlocks[DOF_KEY] = new AOBBlock(DOF_KEY, "F3 0F 11 42 40 8B 45 C0", 1);
 		aobBlocks[AR_KEY] = new AOBBlock(AR_KEY, "D9 81 FC 03 00 00 D9 1C 24 F3 0F 10 84 24 8C 01 00 00", 1);
+		aobBlocks[BLOOM_KEY] = new AOBBlock(BLOOM_KEY, "89 8D E4 FE FF FF 8B 85 E4 FE FF FF F3 0F 10 40 10", 1);
 
 		map<string, AOBBlock*>::iterator it;
 		bool result = true;
@@ -84,6 +87,7 @@ namespace IGCS::GameSpecific::InterceptorHelper
 		GameImageHooker::setHook(aobBlocks[CAMERA_ADDRESS_INTERCEPT_KEY], 0x8E, &_cameraStructInterceptionContinue, &cameraStructInterceptor);
 		GameImageHooker::setHook(aobBlocks[DOF_KEY], 0x10, &_dofstructInterceptionContinue, &DOFinterceptor);
 		GameImageHooker::setHook(aobBlocks[AR_KEY], 0x12, &_ARInterceptionContinue, &ARread);
+		GameImageHooker::setHook(aobBlocks[BLOOM_KEY], 0x11, &_bloomstructinterceptionContinue, &BLOOMinterceptor);
 	}
 
 	void setPostCameraStructHooks(map<string, AOBBlock*> & aobBlocks)

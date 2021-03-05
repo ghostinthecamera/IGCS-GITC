@@ -111,6 +111,7 @@ namespace IGCS
 			{
 				// it's going to be disabled, make sure things are alright when we give it back to the host
 				CameraManipulator::restoreDOF();
+				CameraManipulator::restoreBloom();
 				InterceptorHelper::SaveNOPReplace(_aobBlocks[HFOV_INTERCEPT_KEY], 2, false);
 				InterceptorHelper::SaveNOPReplace(_aobBlocks[VFOV_INTERCEPT_KEY], 3, false);
 				CameraManipulator::restoreOriginalValuesAfterCameraDisable();
@@ -120,6 +121,7 @@ namespace IGCS
 			{
 				// it's going to be enabled, so cache the original values before we enable it so we can restore it afterwards
 				CameraManipulator::killDOF();
+				CameraManipulator::killBloom();
 				InterceptorHelper::SaveNOPReplace(_aobBlocks[HFOV_INTERCEPT_KEY], 2, true);
 				InterceptorHelper::SaveNOPReplace(_aobBlocks[VFOV_INTERCEPT_KEY], 3, true);
 				CameraManipulator::cacheOriginalValuesBeforeCameraEnable();
@@ -336,6 +338,8 @@ namespace IGCS
 		_camera.setPitch(INITIAL_PITCH_RADIANS);
 		_camera.setRoll(INITIAL_ROLL_RADIANS);
 		_camera.setYaw(INITIAL_YAW_RADIANS);
+		CameraManipulator::getAR();
+
 	}
 
 	// Waits for the interceptor to pick up the camera struct address. Should only return if address is found 

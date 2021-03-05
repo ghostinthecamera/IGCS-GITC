@@ -35,7 +35,10 @@ namespace IGCS::GameSpecific::CameraManipulator
 	void updateCameraDataInGameData(Camera& camera);
 	DirectX::XMFLOAT3 initialiseCamera();
 	void killDOF();
+	void killBloom();
+	void restoreBloom();
 	void restoreDOF();
+	void getAR();
 	//DirectX::XMFLOAT3 getCurrentCameraCoords();
 	float calcvecdot(DirectX::XMVECTOR vec1, DirectX::XMVECTOR vec2);
 	void writeNewCameraValuesToGameData(DirectX::XMFLOAT3 newCoords, DirectX::XMVECTOR newLookQuaternion);

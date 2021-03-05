@@ -40,13 +40,15 @@ extern "C" {
 	LPBYTE g_cameraStructAddress = nullptr;
 	LPBYTE g_dofstructaddress = nullptr;
 	LPBYTE g_ARvalueaddress = nullptr;
-}
+	LPBYTE g_bloomstructaddress = nullptr; }
 
 namespace IGCS::GameSpecific::CameraManipulator
 {
 	static GameCameraData _originalData;
 	static float OGfardof = 0.0f;
 	static float OGneardof = 0.0f;
+	static float* AR = nullptr;
+	static float OGBloom = 0.0f;
 	float prevYaw = 0.0f;
 	float prevPitch = 0.0f;
 	float prevRoll = 0.0f;
@@ -58,7 +60,6 @@ namespace IGCS::GameSpecific::CameraManipulator
 			return;
 		}
 		
-		// calculate new camera values. We have two cameras, but they might not be available both, so we have to test before we do anything. 
 		DirectX::XMVECTOR newLookQuaternion = camera.calculateLookQuaternion();
 		DirectX::XMFLOAT3 currentCoords;
 		DirectX::XMFLOAT3 newCoords;
@@ -101,13 +102,15 @@ namespace IGCS::GameSpecific::CameraManipulator
 	// changes the FoV with the specified amount
 	void changeFoV(float amount)
 	{
-		if (g_cameraStructAddress == nullptr || g_ARvalueaddress == nullptr)
+		if (g_cameraStructAddress == nullptr)
 		{
-			MessageHandler::logError("Camera struct or AR not found");
 			return;
 		}
+		if (g_ARvalueaddress == nullptr)
+		{
+			MessageHandler::logLine("AR not found - using default AR value of 1.78");
+		}
 
-		float* AR = reinterpret_cast<float*>(g_ARvalueaddress + AR_OFFSET);
 		float* hfovAddress = reinterpret_cast<float*>(g_cameraStructAddress + HFOV_IN_STRUCT_OFFSET);
 		float* vfovAddress = reinterpret_cast<float*>(g_cameraStructAddress + VFOV_IN_STRUCT_OFFSET);
 		float hnewValue = *hfovAddress;
@@ -133,8 +136,45 @@ namespace IGCS::GameSpecific::CameraManipulator
 		*vfovAddress = vnewValue;
 	}
 
-	void killDOF()
+	void getAR()
 	{
+		if (g_ARvalueaddress == nullptr)
+		{
+			MessageHandler::logError("AR not found - using default AR value of 1.78");
+			*AR = 1.78f;
+			MessageHandler::logLine("AR set to default: %f", *AR);
+			return;
+		}
+		AR = reinterpret_cast<float*>(g_ARvalueaddress + AR_OFFSET);
+		MessageHandler::logDebug("AR found is: %f", *AR);
+	}
+
+	void killBloom()
+	{
+		if (g_bloomstructaddress == nullptr)
+		{
+			return;
+		}
+		float* bloom = reinterpret_cast<float*>(g_bloomstructaddress + BLOOM_OFFSET);
+		OGBloom = *bloom;
+		*bloom = 0.0f;
+
+	}
+
+	void restoreBloom()
+	{
+		if (g_bloomstructaddress == nullptr)
+		{
+			return;
+		}
+		float* bloom = reinterpret_cast<float*>(g_bloomstructaddress + BLOOM_OFFSET);
+		*bloom = OGBloom;
+
+	}
+
+	void killDOF() //and bloom
+	{
+
 		if (g_dofstructaddress == nullptr)
 		{
 			return;
@@ -150,20 +190,22 @@ namespace IGCS::GameSpecific::CameraManipulator
 		
 		*fardof = 0.0f;
 		*neardof = 0.0f;
+		
 	}
 
 	void restoreDOF()
 	{
+
 		if (g_dofstructaddress == nullptr)
 		{
 			return;
 		}
-
 		float* fardof = reinterpret_cast<float*>(g_dofstructaddress + DOF_FAR_AMOUNT);
 		float* neardof = reinterpret_cast<float*>(g_dofstructaddress + DOF_NEAR_AMOUNT);
 
 		*fardof = OGfardof;
 		*neardof = OGneardof;
+		
 	}
 	
 
@@ -254,6 +296,7 @@ namespace IGCS::GameSpecific::CameraManipulator
 		MessageHandler::logDebug("Camera struct address: %p", (void*)g_cameraStructAddress);
 		MessageHandler::logDebug("AR address: %p", (void*)g_ARvalueaddress);
 		MessageHandler::logDebug("DOF address: %p", (void*)g_dofstructaddress);
+		MessageHandler::logDebug("Bloom address: %p", (void*)g_bloomstructaddress);
 	}
 
 

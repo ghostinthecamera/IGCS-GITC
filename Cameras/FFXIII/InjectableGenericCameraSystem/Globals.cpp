@@ -34,6 +34,7 @@
 // MASM is rather tedious. 
 extern "C" {
 	uint8_t g_cameraEnabled = 0;
+	uint8_t _camInit = 0;
 }
 
 

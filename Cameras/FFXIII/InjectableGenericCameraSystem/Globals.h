@@ -36,6 +36,7 @@
 #include "Settings.h"
 
 extern "C" uint8_t g_cameraEnabled;
+extern "C" uint8_t _camInit;
 
 namespace IGCS
 {

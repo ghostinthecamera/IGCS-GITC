@@ -61,13 +61,27 @@ namespace IGCS::GameSpecific::CameraManipulator
 		}
 		
 		DirectX::XMVECTOR newLookQuaternion = camera.calculateLookQuaternion();
-		DirectX::XMFLOAT3 currentCoords;
+		DirectX::XMFLOAT3 initCoords;
+		static DirectX::XMFLOAT3 currentCoords;
 		DirectX::XMFLOAT3 newCoords;
 		if (isCameraFound())
 		{
-				currentCoords = initialiseCamera();
+			if (_camInit == 1)
+			{
+			initCoords = initialiseCamera();
+			newCoords = camera.calculateNewCoords(initCoords, newLookQuaternion);
+			writeNewCameraValuesToGameData(newCoords, newLookQuaternion);
+			currentCoords = newCoords;
+			_camInit = 0;
+			}
+			
+		}
+		if (isCameraFound())
+		{
+				//currentCoords = initialiseCamera();
 				newCoords = camera.calculateNewCoords(currentCoords, newLookQuaternion);
 				writeNewCameraValuesToGameData(newCoords, newLookQuaternion);
+				currentCoords = newCoords;
 		}
 	}
 

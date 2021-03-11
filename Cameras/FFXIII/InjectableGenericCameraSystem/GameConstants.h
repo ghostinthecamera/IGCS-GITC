@@ -31,7 +31,7 @@ namespace IGCS::GameSpecific
 {
 	// Mandatory constants to define for a game
 	#define GAME_NAME									"Final Fantasy XIII"
-	#define CAMERA_VERSION								"0.1"
+	#define CAMERA_VERSION								"1.1"
 	#define CAMERA_CREDITS								"SKall feat. GHOSTINTHECAMERA"
 	#define GAME_WINDOW_TITLE							"FINAL FANTASY XIII"
 	#define INITIAL_PITCH_RADIANS						0.0f	// around X axis	(right)

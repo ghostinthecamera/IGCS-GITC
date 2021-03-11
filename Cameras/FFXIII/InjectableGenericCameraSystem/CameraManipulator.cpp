@@ -72,7 +72,7 @@ namespace IGCS::GameSpecific::CameraManipulator
 			newCoords = camera.calculateNewCoords(initCoords, newLookQuaternion);
 			writeNewCameraValuesToGameData(newCoords, newLookQuaternion);
 			currentCoords = newCoords;
-			_camInit = 0;
+			_camInit = (uint8_t)0;
 			}
 			
 		}

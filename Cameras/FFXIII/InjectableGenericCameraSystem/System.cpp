@@ -116,7 +116,7 @@ namespace IGCS
 				InterceptorHelper::SaveNOPReplace(_aobBlocks[VFOV_INTERCEPT_KEY], 3, false);
 				CameraManipulator::restoreOriginalValuesAfterCameraDisable();
 				toggleCameraMovementLockState(false);
-				_camInit = 0;
+				_camInit = (uint8_t)0;
 			}
 			else
 			{
@@ -127,7 +127,7 @@ namespace IGCS
 				InterceptorHelper::SaveNOPReplace(_aobBlocks[VFOV_INTERCEPT_KEY], 3, true);
 				CameraManipulator::cacheOriginalValuesBeforeCameraEnable();
 				_camera.resetAngles();
-				_camInit = 1;
+				_camInit = (uint8_t)1;
 			}
 			g_cameraEnabled = g_cameraEnabled == 0 ? (uint8_t)1 : (uint8_t)0;
 			displayCameraState();

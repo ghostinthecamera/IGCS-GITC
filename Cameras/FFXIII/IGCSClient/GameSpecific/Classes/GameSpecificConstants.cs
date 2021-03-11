@@ -33,7 +33,7 @@ namespace IGCSClient.GameSpecific.Classes
 	internal static class GameSpecificConstants
 	{
 		public const string ClientWindowTitle = "Final Fantasy XIII";
-		public const string CameraVersion = "1.0";
+		public const string CameraVersion = "1.1";
 		public const string CameraCredits = "Skall feat. GHOSTINTHECAMERA";
 		public const bool HotsamplingRequiresEXITSIZEMOVE = false;
 	}
@@ -44,11 +44,11 @@ namespace IGCSClient.GameSpecific.Classes
 		public const float FastMovementMultiplier = 5.0f;
 		public const float SlowMovementMultiplier = 0.1f;
 		public const float UpMovementMultiplier = 0.7f;
-		public const float MovementSpeed = 0.1f;
+		public const float MovementSpeed = 0.2f;
 		public const int CameraControlDevice = 2;
-		public const float RotationSpeed = 0.005f;
+		public const float RotationSpeed = 0.002f;
 		public const bool InvertYLookDirection = false;
-		public const float FoVZoomSpeed = 0.1f;
+		public const float FoVZoomSpeed = 0.01f;
 	}
 
 

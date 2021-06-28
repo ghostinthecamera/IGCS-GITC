@@ -136,17 +136,30 @@ namespace IGCS::GameSpecific::CameraManipulator
 	
 	XMFLOAT3 initialiseCamera()
 	{
+		//float* matrixInMemory = reinterpret_cast<float*>(g_cameraStructAddress);
+		//XMMATRIX viewMatrix = XMMATRIX(matrixInMemory);
+		//XMFLOAT4X4 _viewMatrix;
+		//XMStoreFloat4x4(&_viewMatrix, viewMatrix);
+
+		//float realX = -1 * ((_viewMatrix._14 * _viewMatrix._11) + (_viewMatrix._24 * _viewMatrix._21) + (_viewMatrix._34 * _viewMatrix._31));
+		//float realY = -1 * ((_viewMatrix._14 * _viewMatrix._12) + (_viewMatrix._24 * _viewMatrix._22) + (_viewMatrix._34 * _viewMatrix._32));
+		//float realZ = -1 * ((_viewMatrix._14 * _viewMatrix._13) + (_viewMatrix._24 * _viewMatrix._23) + (_viewMatrix._34 * _viewMatrix._33));
+
+		//XMFLOAT3 realPos(realX, realY, realZ);
+		////IGCS::OverlayControl::addNotification(realX);
+		//return realPos;
+
+		XMFLOAT4X4 _viewMatrix;
+
 		float* matrixInMemory = reinterpret_cast<float*>(g_cameraStructAddress);
 		XMMATRIX viewMatrix = XMMATRIX(matrixInMemory);
-		XMFLOAT4X4 _viewMatrix;
-		XMStoreFloat4x4(&_viewMatrix, viewMatrix);
 
-		float realX = -1 * ((_viewMatrix._14 * _viewMatrix._11) + (_viewMatrix._24 * _viewMatrix._21) + (_viewMatrix._34 * _viewMatrix._31));
-		float realY = -1 * ((_viewMatrix._14 * _viewMatrix._12) + (_viewMatrix._24 * _viewMatrix._22) + (_viewMatrix._34 * _viewMatrix._32));
-		float realZ = -1 * ((_viewMatrix._14 * _viewMatrix._13) + (_viewMatrix._24 * _viewMatrix._23) + (_viewMatrix._34 * _viewMatrix._33));
 
-		XMFLOAT3 realPos(realX, realY, realZ);
-		//IGCS::OverlayControl::addNotification(realX);
+		//don't need to transpose //XMMATRIX transposeMatrix = XMMatrixTranspose(viewMatrix); //transpose so it is in the format expected by DirectX for inversion (row major/row vectors) as the matrix is currently column major, column vectors
+		XMMATRIX invertMatrix = XMMatrixInverse(nullptr, viewMatrix); //inverse matrix to retrieve real camera position to feed towards the construction of our own quaternion
+		XMStoreFloat4x4(&_viewMatrix, invertMatrix); //convert to FLOAT 4x4 for easy access
+		XMFLOAT3 realPos(_viewMatrix._14, _viewMatrix._24, _viewMatrix._34); //extract coordinates into an XMFLOAT3 to be used to calculate our own matrix
+
 		return realPos;
 	}
 
@@ -164,16 +177,30 @@ namespace IGCS::GameSpecific::CameraManipulator
 		}
 		XMFLOAT4X4 rotationMatrix;
 		float* matrixInMemory = nullptr;
+		XMFLOAT3 Coords;
 
 		XMMATRIX rotationMatrixPacked = XMMatrixRotationQuaternion(newLookQuaternion);
 		XMVECTOR newViewCoords = XMLoadFloat3(&newCoords);
 		XMStoreFloat4x4(&rotationMatrix,rotationMatrixPacked);
 
 
-		XMVECTOR xAxis = XMLoadFloat3(&XMFLOAT3(rotationMatrix._11, rotationMatrix._12, rotationMatrix._13));
-		XMVECTOR yAxis = XMLoadFloat3(&XMFLOAT3(rotationMatrix._21, rotationMatrix._22, rotationMatrix._23));
-		XMVECTOR zAxis = XMLoadFloat3(&XMFLOAT3(rotationMatrix._31, rotationMatrix._32, rotationMatrix._33));
-		XMFLOAT3 Coords(-calcvecdot(xAxis, newViewCoords), -calcvecdot(yAxis, newViewCoords), -calcvecdot(zAxis, newViewCoords));
+		//XMVECTOR xAxis = XMLoadFloat3(&XMFLOAT3(rotationMatrix._11, rotationMatrix._12, rotationMatrix._13));
+			//XMVECTOR yAxis = XMLoadFloat3(&XMFLOAT3(rotationMatrix._21, rotationMatrix._22, rotationMatrix._23));
+		//XMVECTOR zAxis = XMLoadFloat3(&XMFLOAT3(rotationMatrix._31, rotationMatrix._32, rotationMatrix._33));
+		
+		XMFLOAT3 xAxisXF(rotationMatrix._11, rotationMatrix._12, rotationMatrix._13);
+		XMFLOAT3 yAxisXF(rotationMatrix._21, rotationMatrix._22, rotationMatrix._23);
+		XMFLOAT3 zAxisXF(rotationMatrix._31, rotationMatrix._32, rotationMatrix._33);
+
+		XMVECTOR xAxis = XMLoadFloat3(&xAxisXF);
+		XMVECTOR yAxis = XMLoadFloat3(&yAxisXF);
+		XMVECTOR zAxis = XMLoadFloat3(&zAxisXF);
+
+
+		XMStoreFloat(&Coords.x, -XMVector3Dot(xAxis, newViewCoords));
+		XMStoreFloat(&Coords.y, -XMVector3Dot(yAxis, newViewCoords));
+		XMStoreFloat(&Coords.z, -XMVector3Dot(zAxis, newViewCoords));
+		//XMFLOAT3 Coords(-calcvecdot(xAxis, newViewCoords), -calcvecdot(yAxis, newViewCoords), -calcvecdot(zAxis, newViewCoords));
 
 		matrixInMemory = reinterpret_cast<float*>(g_cameraStructAddress);
 

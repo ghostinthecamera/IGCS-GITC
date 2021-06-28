@@ -35,6 +35,7 @@
 extern "C" {
 	BYTE g_cameraEnabled = 0;
 	BYTE g_timestopEnabled = 0;
+	uint8_t _camInit = 0;
 }
 
 

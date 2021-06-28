@@ -96,19 +96,38 @@ namespace IGCS
 		}
 
 		DirectX::XMVECTOR newLookQuaternion = _camera.calculateLookQuaternion();
-		DirectX::XMVECTOR newLookQuaternion2 = _camera.calculateLookQuaternionSecond();
+		//DirectX::XMFLOAT3 newCoords;
+		//DirectX::XMFLOAT3 currentCoords;
+
+		DirectX::XMFLOAT3 initCoords;
+		static DirectX::XMFLOAT3 currentCoords;
 		DirectX::XMFLOAT3 newCoords;
+
+		DirectX::XMVECTOR newLookQuaternion2 = _camera.calculateLookQuaternionSecond();
 		DirectX::XMFLOAT3 newCoords2;
-		DirectX::XMFLOAT3 currentCoords;
 		DirectX::XMFLOAT3 currentCoords2;
 
 		if (GameSpecific::CameraManipulator::isCameraFound())
 		{
 			if (g_cameraEnabled && !_cutscenecamtoggled)
 			{
-				currentCoords = GameSpecific::CameraManipulator::initialiseCamera();
+				/*currentCoords = GameSpecific::CameraManipulator::initialiseCamera();
 				newCoords = _camera.calculateNewCoords(currentCoords, newLookQuaternion);
-				GameSpecific::CameraManipulator::writeNewCameraValuesToGameData(newCoords, newLookQuaternion);
+				GameSpecific::CameraManipulator::writeNewCameraValuesToGameData(newCoords, newLookQuaternion);*/
+				if (_camInit == 1)
+				{
+					initCoords = GameSpecific::CameraManipulator::initialiseCamera();
+					newCoords = _camera.calculateNewCoords(initCoords, newLookQuaternion);
+					GameSpecific::CameraManipulator::writeNewCameraValuesToGameData(newCoords, newLookQuaternion);
+					currentCoords = newCoords;
+					_camInit = (uint8_t)0;
+				}
+				{
+					//currentCoords = initialiseCamera();
+					newCoords = _camera.calculateNewCoords(currentCoords, newLookQuaternion);
+					GameSpecific::CameraManipulator::writeNewCameraValuesToGameData(newCoords, newLookQuaternion);
+					currentCoords = newCoords;
+				}
 			}
 			if (g_cameraEnabled && _cutscenecamtoggled)
 			{
@@ -160,6 +179,7 @@ namespace IGCS
 				InterceptorHelper::SaveNOPReplace(_aobBlocks[QUATERNION_WRITE], 5, false);
 				InterceptorHelper::SaveNOPReplace(_aobBlocks[QUATERNION_COORD_WRITE], 16, false);
 				InterceptorHelper::SaveNOPReplace(_aobBlocks[QUATERNION_CUTSCENE_COORD_WRITE], 18, false);
+				_camInit = (uint8_t)0;
 			}
 			else
 			{
@@ -169,6 +189,7 @@ namespace IGCS
 				InterceptorHelper::SaveNOPReplace(_aobBlocks[QUATERNION_WRITE], 5, true);
 				InterceptorHelper::SaveNOPReplace(_aobBlocks[QUATERNION_COORD_WRITE], 16, true);
 				InterceptorHelper::SaveNOPReplace(_aobBlocks[QUATERNION_CUTSCENE_COORD_WRITE], 18, true);
+				_camInit = (uint8_t)1;
 			}
 			g_cameraEnabled = g_cameraEnabled == 0 ? (BYTE)1 : (BYTE)0;
 			displayCameraState();

@@ -39,6 +39,7 @@
 
 extern "C" BYTE g_cameraEnabled;
 extern "C" BYTE g_timestopEnabled;
+extern "C" uint8_t _camInit;
 
 namespace IGCS
 {

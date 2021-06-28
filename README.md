@@ -34,7 +34,7 @@ Deserts of Kharak: https://github.com/ghostinthecamera/IGCS-GITC/releases/tag/Do
 BSG Deadlock (Reserruction DLC): https://github.com/ghostinthecamera/IGCS-GITC/releases/tag/BSGDv2.01  
 Ni No Kuni: Wrath of the White Witch Remastered: https://github.com/ghostinthecamera/IGCS-GITC/releases/tag/NNKRv1.0  
 Ni No Kuni 2: Revenant Kingdom: https://github.com/ghostinthecamera/IGCS-GITC/releases/tag/NNK2v1.0  
-MechWarrior 5: Mercenaries: https://github.com/ghostinthecamera/IGCS-GITC/releases/tag/MW5v2.01  
+MechWarrior 5: Mercenaries: [UUU](https://framedsc.github.io/GeneralGuides/universal_ue4_consoleunlocker.htm)  
 Final Fantasy XIII: https://github.com/ghostinthecamera/IGCS-GITC/releases/tag/FFXIII_v1.1  
 
 ## In-depth article about IGCS and how to create camera tools

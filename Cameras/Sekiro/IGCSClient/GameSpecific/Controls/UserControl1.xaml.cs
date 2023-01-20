@@ -25,61 +25,47 @@
 // OR TORT(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
-using System;
-using System.Windows;
 using System.Windows.Controls;
 using IGCSClient.Classes;
-using IGCSClient.Interfaces;
 
-namespace IGCSClient.Controls
+namespace IGCSClient.GameSpecific.Controls
 {
-	/// <summary>
-	/// Bool editor
-	/// </summary>
-	public partial class BoolInputWPF : UserControl, IInputControl<bool>
-	{
-		public event EventHandler ValueChanged;
-
-		public BoolInputWPF()
-		{
-			InitializeComponent();
-		}
-
-				
-		private void _checkboxControl_Checked(object sender, EventArgs e)
-		{
-			this.ValueChanged.RaiseEvent(this);
-		}
-
-        private void _checkboxControl_OnUnchecked(object sender, RoutedEventArgs e)
+    /// <summary>
+    /// Interaction logic for UserControl1.xaml
+    /// </summary>
+    public partial class UserControl1 : UserControl
+    {
+        public UserControl1()
         {
-            this.ValueChanged.RaiseEvent(this);
+            InitializeComponent();
         }
 
+        internal void Setup()
+        {
+            var usersettings = AppStateSingleton.Instance().Settings;
+            foreach(var usersetting in usersettings)
+            {
+                switch(usersetting.ID)
+                {
+                    case SettingType.SlowMotionFactor:
+                        usersetting.Setup(_slowmoInput);
+                        break;
+                    case SettingType.UVBool:
+                        usersetting.Setup(_uvbool);
+                        break;
+                    case SettingType.FOVDelta:
+                        usersetting.Setup(_fovDelta);
+                        break;
+                    case SettingType.FPSunlock:
+                        usersetting.Setup(_fpsunlocked);
+                        break;
+                }
+            }
+        }
 
-        public void SetValueFromString(string valueAsString, bool defaultValue)
-		{
-			if(!Boolean.TryParse(valueAsString, out var valueToSet))
-			{
-				valueToSet = defaultValue;
-			}
-			this.Value = valueToSet;
-		}
-		
+        private void _fpsunlocked_Loaded(object sender, System.Windows.RoutedEventArgs e)
+        {
 
-		#region Properties
-		/// <inheritdoc/>
-		public bool Value
-		{
-			get { return _checkboxControl.IsChecked.HasValue && _checkboxControl.IsChecked.Value; }
-			set { _checkboxControl.IsChecked = value; }
-		}
-
-		public string Header
-		{
-			get { return _headerControl.Header?.ToString() ?? string.Empty; }
-			set { _headerControl.Header = value; }
-		}
-		#endregion
-	}
+        }
+    }
 }

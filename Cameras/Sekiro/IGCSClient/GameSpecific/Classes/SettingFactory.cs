@@ -57,7 +57,7 @@ namespace IGCSClient.GameSpecific.Classes
 			appState.AddSetting(new FloatSetting(SettingType.RotationSpeed, nameof(SettingType.RotationSpeed), 0.001, 0.5, 3, 0.001, GameSpecificSettingDefaults.RotationSpeed));
 			appState.AddSetting(new BoolSetting(SettingType.InvertYLookDirection, nameof(SettingType.InvertYLookDirection), GameSpecificSettingDefaults.InvertYLookDirection));
 			appState.AddSetting(new FloatSetting(SettingType.FoVZoomSpeed, nameof(SettingType.FoVZoomSpeed), 0.01, 0.5, 2, 0.01, GameSpecificSettingDefaults.FoVZoomSpeed));
-            appState.AddSetting(new FloatSetting(SettingType.SlowMotionFactor, nameof(SettingType.SlowMotionFactor), 0.1, 0.9, 1, 0.1, GameSpecificSettingDefaults.SlowMotionFactor));
+			
         }
 
         public static void InitializeKeyBindings()
@@ -83,6 +83,16 @@ namespace IGCSClient.GameSpecific.Classes
 			appState.AddKeyBinding(new KeyBindingSetting(KeyBindingType.TiltCameraRight, nameof(KeyBindingType.TiltCameraRight), new KeyCombination(GameSpecificKeyBindingDefaults.TiltCameraRightDefault)));
 			appState.AddKeyBinding(new KeyBindingSetting(KeyBindingType.ToggleHUD, nameof(KeyBindingType.ToggleHUD), new KeyCombination(GameSpecificKeyBindingDefaults.ToggleHUDDefault)));
 			appState.AddKeyBinding(new KeyBindingSetting(KeyBindingType.PauseUnpauseGame, nameof(KeyBindingType.PauseUnpauseGame), new KeyCombination(GameSpecificKeyBindingDefaults.PauseUnpauseGameDefault)));
+            appState.AddKeyBinding(new KeyBindingSetting(KeyBindingType.SlowMoKey, nameof(KeyBindingType.SlowMoKey), new KeyCombination(GameSpecificKeyBindingDefaults.SlowMoDefault)));
+        }
+
+		public static void InitializeUserSettings()
+		{
+			var appState = AppStateSingleton.Instance();
+            appState.AddSetting(new FloatSetting(SettingType.SlowMotionFactor, nameof(SettingType.SlowMotionFactor), 0.1, 0.9, 1, 0.1, GameSpecificSettingDefaults.SlowMotionFactor));
+            appState.AddSetting(new FloatSetting(SettingType.FOVDelta, nameof(SettingType.FOVDelta), 10, 100, 0, 1.0, GameSpecificSettingDefaults.FOVDelta));
+            appState.AddSetting(new BoolSetting(SettingType.UVBool, nameof(SettingType.UVBool), GameSpecificSettingDefaults.UVbool));
+			appState.AddSetting(new BoolSetting(SettingType.FPSunlock, nameof(SettingType.FPSunlock), GameSpecificSettingDefaults.FPSunlock));
 		}
 	}
 }

@@ -39,7 +39,12 @@ using namespace std;
 extern "C" {
 	LPBYTE g_cameraStructAddress = nullptr;
 	LPBYTE g_dofstructaddress = nullptr;
-	LPBYTE g_timescaleaddress = nullptr; }
+	LPBYTE g_timescaleaddress = nullptr; 
+	LPBYTE g_hudaddress = nullptr;
+	LPBYTE g_uvfovaddress = nullptr;
+	LPBYTE g_playerpointer = nullptr;
+	float _fovdelta = 0.0f;
+}
 
 namespace IGCS::GameSpecific::CameraManipulator
 {
@@ -157,7 +162,7 @@ namespace IGCS::GameSpecific::CameraManipulator
 		}
 
 		float* timescale = reinterpret_cast<float*>(g_timescaleaddress + TIMESCALE_OFFSET);
-		*timescale = (*timescale > 0.95f ? 0.00001f : 1.0f);
+		*timescale = (*timescale > 0.05f ? 0.0001f : 1.0f);
 	}
 
 	void sloMoFunc(float amount)
@@ -167,11 +172,40 @@ namespace IGCS::GameSpecific::CameraManipulator
 			MessageHandler::logError("Timescale not Found");
 			return;
 		}
+
 		if (!g_cameraEnabled)
 		{
-			float* timescaleInMemory = reinterpret_cast<float*>(g_timescaleaddress + TIMESCALE_OFFSET);
-			*timescaleInMemory = *timescaleInMemory > 0.95f ? amount : 1.0f;
+		float* timescaleInMemory = reinterpret_cast<float*>(g_timescaleaddress + TIMESCALE_OFFSET);
+		*timescaleInMemory = *timescaleInMemory > 0.95f ? amount : 1.0f;
 		}
+	}
+
+	void ultrawidefov(float amount, bool enabled)
+	{
+		if (g_uvfovaddress == nullptr || g_cameraEnabled)
+		{
+			return;
+		}
+		float* UWfovinmemory = reinterpret_cast<float*>(g_uvfovaddress);
+
+		if (!Globals::instance().settings().UVenable && enabled)
+		{
+			*UWfovinmemory = 43.0f;
+			return;
+		}
+
+		*UWfovinmemory = amount;
+	}
+
+	void playersOnly()
+	{
+		if (g_playerpointer == nullptr )
+		{
+			MessageHandler::logError("Player Pointer not found...returning");
+			return;
+		}
+		g_playersonly = g_playersonly == 0 ? (uint8_t)1 : (uint8_t)0;
+		MessageHandler::addNotification(g_playersonly ? "PlayersOnly On" : "PlayersOnly Off");
 	}
 
 	// newLookQuaternion: newly calculated quaternion of camera view space. Can be used to construct a 4x4 matrix if the game uses a matrix instead of a quaternion
@@ -225,7 +259,7 @@ namespace IGCS::GameSpecific::CameraManipulator
 		MessageHandler::logDebug("Camera struct address: %p", (void*)g_cameraStructAddress);
 		MessageHandler::logDebug("DOF struct address: %p", (void*)g_dofstructaddress);
 		MessageHandler::logDebug("Timescale struct address: %p", (void*)g_timescaleaddress);
-		//MessageHandler::logDebug("Bloom address: %p", (void*)g_bloomstructaddress);
+		MessageHandler::logDebug("Player Pointer: %p", (void*)g_playerpointer);
 	}
 
 

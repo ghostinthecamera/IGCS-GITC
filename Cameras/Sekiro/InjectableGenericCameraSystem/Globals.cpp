@@ -34,7 +34,7 @@
 // MASM is rather tedious. 
 extern "C" {
 	uint8_t g_cameraEnabled = 0;
-	uint8_t _camInit = 0;
+	uint8_t g_playersonly = 0;
 }
 
 
@@ -121,6 +121,6 @@ namespace IGCS
 		// Bindings which are often optional. Specify 'false' for available to disable it if the binding should be hidden. 
 		_keyBindingPerActionType[ActionType::HudToggle] = new ActionData("HudToggle", "Toggle HUD", IGCS_KEY_HUD_TOGGLE, false, false, false);
 		_keyBindingPerActionType[ActionType::Timestop] = new ActionData("Timestop", "Pause / unpause the game", IGCS_KEY_TIMESTOP, false, false, false);
-		_keyBindingPerActionType[ActionType::SlowMotion] = new ActionData("SlowMotion", "Enable / Disable Slow MOtion", IGCS_KEY_SLOWMO, false, false, false);
+		_keyBindingPerActionType[ActionType::SlowMotion] = new ActionData("SlowMotion", "Enable / Disable Slow Motion", IGCS_KEY_SLOWMO, false, false, false);
 	}
 }

@@ -35,16 +35,22 @@ PUBLIC cameraStructInterceptor
 PUBLIC debugcaminterceptor
 PUBLIC dofStruct
 PUBLIC timescaleinterceptor
+PUBLIC fovintercept
+PUBLIC playerpointerinterceptor
+PUBLIC entitytimeinterceptor
 ;---------------------------------------------------------------
 
 ;---------------------------------------------------------------
 ; Externs which are used and set by the system. Read / write these
 ; values in asm to communicate with the system
 EXTERN g_cameraEnabled: byte
+EXTERN g_playersonly: byte
 EXTERN g_cameraStructAddress: qword
 EXTERN g_dofstructaddress: qword
 EXTERN g_timescaleaddress: qword
-;EXTERN g_bloomstructaddress: qword
+EXTERN g_uvfovaddress: qword
+EXTERN _fovdelta: dword
+EXTERN g_playerpointer: qword
 ;---------------------------------------------------------------
 
 ;---------------------------------------------------------------
@@ -53,12 +59,18 @@ EXTERN _cameraStructInterceptionContinue: dword
 EXTERN _debugcamInterceptionContinue: qword
 EXTERN _dofInterceptionContinue: qword
 EXTERN _timestructinterceptionContinue: qword
+EXTERN _fovinterceptContinue: qword
+EXTERN _playerpointerContinue: qword
+EXTERN _entitytimeContinue: qword
 
 
 
 .data
 
 .code
+
+timevalue dd 0.0
+
 
 cameraStructInterceptor PROC
 ;sekiro.exe+734702 - 8B 42 54              - mov eax,[rdx+54]
@@ -107,6 +119,23 @@ skipwrites:
 exit:
 	jmp qword ptr [_cameraStructInterceptionContinue]	; jmp back into the original game code, which is the location after the original statements above.
 cameraStructInterceptor ENDP
+
+fovintercept PROC
+;sekiro.exe+73C688 - F3 0F10 08            - movss xmm1,[rax]						
+;sekiro.exe+73C68C - F3 0F59 0D 04CAB402   - mulss xmm1,[sekiro.exe+3289098]
+;sekiro.exe+73C694 - F3 0F5C 4E 50         - subss xmm1,[rsi+50]
+;sekiro.exe+73C699 - F3 41 0F59 8E 34010000  - mulss xmm1,[r14+00000134]
+;sekiro.exe+73C6A2 - F3 0F58 4E 50         - addss xmm1,[rsi+50]					<<inject			
+;sekiro.exe+73C6A7 - F3 0F11 4E 50         - movss [rsi+50],xmm1					
+;sekiro.exe+73C6AC - F3 0F10 33            - movss xmm6,[rbx]						
+;sekiro.exe+73C6B0 - F3 45 0F10 86 34010000  - movss xmm8,[r14+00000134]			<<return
+;sekiro.exe+73C6B9 - E8 924A0F00           - call sekiro.exe+831150
+	mov [g_uvfovaddress],rax
+	addss xmm1, dword ptr [rsi+50h]
+	movss dword ptr [rsi+50h],xmm1
+	movss xmm6, dword ptr [rbx]
+	jmp qword ptr [_fovinterceptContinue]
+fovintercept ENDP
 
 
 debugcaminterceptor PROC
@@ -199,5 +228,56 @@ timescaleinterceptor PROC
 	mulss xmm1,dword ptr [rax+00000364h]
 	jmp qword ptr [_timestructinterceptionContinue]
 timescaleinterceptor ENDP
+
+playerpointerinterceptor PROC
+;sekiro.exe+B7D984 - 45 33 F6              - xor r14d,r14d
+;sekiro.exe+B7D987 - 41 8B FE              - mov edi,r14d
+;sekiro.exe+B7D98A - 45 8B FE              - mov r15d,r14d
+;sekiro.exe+B7D98D - 0F57 C0               - xorps xmm0,xmm0
+;sekiro.exe+B7D990 - F3 0F7F 44 24 38      - movdqu [rsp+38],xmm0
+;sekiro.exe+B7D996 - 48 8B 80 F81F0000     - mov rax,[rax+00001FF8]		<<inject here
+;sekiro.exe+B7D99D - 48 8B 48 28           - mov rcx,[rax+28]
+;sekiro.exe+B7D9A1 - 48 8B 49 10           - mov rcx,[rcx+10]			<<read player pointer
+;sekiro.exe+B7D9A5 - 48 85 C9              - test rcx,rcx				<<return
+;sekiro.exe+B7D9A8 - 74 40                 - je sekiro.exe+B7D9EA
+;sekiro.exe+B7D9AA - E8 E1054800           - call sekiro.exe+FFDF90
+;sekiro.exe+B7D9AF - 48 85 C0              - test rax,rax
+	mov rax,[rax+00001FF8h]
+	mov rcx,[rax+28h]
+	mov [g_playerpointer],rcx
+	mov rcx,[rcx+10h]
+	jmp qword ptr [_playerpointerContinue]
+playerpointerinterceptor ENDP
+
+
+entitytimeinterceptor PROC
+;sekiro.exe+B454E7 - E8 E41CFEFF           - call sekiro.exe+B271D0
+;sekiro.exe+B454EC - 48 8B 88 F81F0000     - mov rcx,[rax+00001FF8]
+;sekiro.exe+B454F3 - 48 8B 89 B8000000     - mov rcx,[rcx+000000B8]
+;sekiro.exe+B454FA - 48 85 C9              - test rcx,rcx
+;sekiro.exe+B454FD - 74 7D                 - je sekiro.exe+B4557C
+;sekiro.exe+B454FF - E8 9C60FFFF           - call sekiro.exe+B3B5A0
+;sekiro.exe+B45504 - 0F28 D0               - movaps xmm2,xmm0
+;sekiro.exe+B45507 - F3 0F10 83 000D0000   - movss xmm0,[rbx+00000D00]			<<inject - moves intended per entity timescale factor into xmm0 (writable)
+;sekiro.exe+B4550F - F3 0F59 83 60090000   - mulss xmm0,[rbx+00000960]			<< multiplies actual timescale by factor
+;sekiro.exe+B45517 - F3 0F59 D0            - mulss xmm2,xmm0					<<return
+;sekiro.exe+B4551B - 80 BB 0D0D0000 00     - cmp byte ptr [rbx+00000D0D],00 { 0 }
+;sekiro.exe+B45522 - 74 03                 - je sekiro.exe+B45527
+;sekiro.exe+B45524 - 0F57 D2               - xorps xmm2,xmm2
+;sekiro.exe+B45527 - 48 8D 8B 30090000     - lea rcx,[rbx+00000930]
+;sekiro.exe+B4552E - 48 8D 54 24 40        - lea rdx,[rsp+40]
+	cmp byte ptr [g_playersonly],0
+	je originalcode
+	cmp rbx,qword ptr [g_playerpointer]
+	je originalcode
+	movss xmm0,dword ptr [timevalue]
+	mulss xmm0,dword ptr [rbx+00000960h]
+	jmp exit
+originalcode:
+	movss xmm0,dword ptr [rbx+00000D00h]
+	mulss xmm0,dword ptr [rbx+00000960h]
+exit:
+	jmp qword ptr [_entitytimeContinue]
+entitytimeinterceptor ENDP
 
 END

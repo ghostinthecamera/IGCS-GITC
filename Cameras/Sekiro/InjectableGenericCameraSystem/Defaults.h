@@ -95,6 +95,9 @@ namespace IGCS
 		InvertYLookDirection = 6,
 		FoVZoomSpeed = 7,
 		SlowMotionFactor = 8,
+		FOVDelta = 9,
+		UVBool = 10,
+		FPSunlock = 11,
 		
 		// add more here
 	};

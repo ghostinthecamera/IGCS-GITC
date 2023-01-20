@@ -52,8 +52,9 @@ namespace IGCS
 		TiltRight,
 		HudToggle,
 		Timestop,
-		Amount,
 		SlowMotion,
+		Amount,
+		
 	};
 
 

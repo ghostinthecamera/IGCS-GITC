@@ -108,7 +108,10 @@ namespace IGCSClient.GameSpecific.Controls
 					case KeyBindingType.PauseUnpauseGame:
 						binding.Setup(_pauseUnPauseInput);
 						break;
-				}
+                    case KeyBindingType.SlowMoKey:
+                        binding.Setup(_slowmoKey);
+                        break;
+                }
 			}
 		}
 	}

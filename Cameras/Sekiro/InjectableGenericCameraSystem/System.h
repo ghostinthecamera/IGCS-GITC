@@ -54,9 +54,6 @@ namespace IGCS
 		void handleGamePadMovement(float multiplierBase);
 		void waitForCameraStructAddresses();
 		void toggleInputBlockState(bool newValue);
-		//void takeMultiShot(bool isTestRun);
-		//void takeSingleScreenshot();
-		//void toggleHudRenderState();
 
 		
 		LPBYTE _hostImageAddress;
@@ -69,6 +66,7 @@ namespace IGCS
 		bool _applyHammerPrevention = false;	// set to true by a keyboard action and which triggers a sleep before keyboard handling is performed.
 		bool _timeStopped = false;
 		bool _slowMo = false;
+		bool _uwfixinit = false;
 		std::filesystem::path _hostExePath;
 		std::filesystem::path _hostExeFilename;
 	};

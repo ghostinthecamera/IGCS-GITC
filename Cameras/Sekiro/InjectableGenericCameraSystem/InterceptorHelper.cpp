@@ -41,6 +41,9 @@ extern "C" {
 	void debugcaminterceptor();
 	void dofStruct();
 	void timescaleinterceptor();
+	void fovintercept();
+	void playerpointerinterceptor();
+	void entitytimeinterceptor();
 }
 
 // external addresses used in asm.
@@ -49,6 +52,9 @@ extern "C" {
 	LPBYTE _debugcamInterceptionContinue = nullptr;
 	LPBYTE _dofInterceptionContinue = nullptr;
 	LPBYTE _timestructinterceptionContinue = nullptr;
+	LPBYTE _fovinterceptContinue = nullptr;
+	LPBYTE _playerpointerContinue = nullptr;
+	LPBYTE _entitytimeContinue = nullptr;
 }
 
 
@@ -62,8 +68,10 @@ namespace IGCS::GameSpecific::InterceptorHelper
 		aobBlocks[FOV_INTERCEPT_DEBUG] = new AOBBlock(FOV_INTERCEPT_DEBUG, "08 8B 41 50 | 89 43 50 8B 41 54", 1);
 		aobBlocks[DOF_KEY] = new AOBBlock(DOF_KEY, "41 3B 40 28 41 8B 41 2C", 1);
 		aobBlocks[TIMESTOP_KEY] = new AOBBlock(TIMESTOP_KEY, "F3 0F 59 88 68 02 00 00 F3 0F 59 88 64 03 00 00 48 8D 3D", 1);
-		//aobBlocks[AR_KEY] = new AOBBlock(AR_KEY, "D9 81 FC 03 00 00 D9 1C 24 F3 0F 10 84 24 8C 01 00 00", 1);
-		//aobBlocks[BLOOM_KEY] = new AOBBlock(BLOOM_KEY, "89 8D E4 FE FF FF 8B 85 E4 FE FF FF F3 0F 10 40 10", 1);
+		aobBlocks[UVKEY] = new AOBBlock(UVKEY, "F3 0F 58 4E 50 F3 0F 11 4E 50", 1);
+		aobBlocks[PLAYERPOINTER_KEY] = new AOBBlock(PLAYERPOINTER_KEY, "38 | 48 8B 80 F8 1F 00 00 48 8B 48 28", 1);
+		aobBlocks[ENTITY_KEY] = new AOBBlock(ENTITY_KEY, "F3 0F 10 83 ?? ?? ?? ?? F3 0F 59 83 ?? ?? ?? ?? F3 0F 59 D0", 1);
+		aobBlocks[FPSUNLOCK] = new AOBBlock(FPSUNLOCK, "89 88 88 3C 4C 89 AB 70 02 00 00 E8 10 C9 7C FF", 1);
 
 		map<string, AOBBlock*>::iterator it;
 		bool result = true;
@@ -88,12 +96,14 @@ namespace IGCS::GameSpecific::InterceptorHelper
 		GameImageHooker::setHook(aobBlocks[CAM_BLOCK1], 0x23, &_debugcamInterceptionContinue, &debugcaminterceptor);
 		GameImageHooker::setHook(aobBlocks[DOF_KEY], 0x11, &_dofInterceptionContinue, &dofStruct);
 		GameImageHooker::setHook(aobBlocks[TIMESTOP_KEY], 0x10, &_timestructinterceptionContinue, &timescaleinterceptor);
-		//GameImageHooker::setHook(aobBlocks[BLOOM_KEY], 0x11, &_bloomstructinterceptionContinue, &BLOOMinterceptor);
+		GameImageHooker::setHook(aobBlocks[UVKEY], 0xE, &_fovinterceptContinue, &fovintercept);
+		GameImageHooker::setHook(aobBlocks[PLAYERPOINTER_KEY], 0xF, &_playerpointerContinue, &playerpointerinterceptor);
+		GameImageHooker::setHook(aobBlocks[ENTITY_KEY], 0x10, &_entitytimeContinue, &entitytimeinterceptor);
 	}
 
 	void setPostCameraStructHooks(map<string, AOBBlock*> & aobBlocks)
 	{
-
+		
 	}
 
 	void SaveNOPReplace(AOBBlock * hookData, int numberOfBytes, bool enabled)
@@ -102,12 +112,16 @@ namespace IGCS::GameSpecific::InterceptorHelper
 		{
 			hookData->byteStorage = new BYTE[numberOfBytes];
 			GameImageHooker::readRange(hookData->locationInImage() + hookData->customOffset(), hookData->byteStorage, numberOfBytes);
+			MessageHandler::logDebug("Initial Range Read %S", static_cast<string>(hookData->_blockName));
+			MessageHandler::logDebug("Initial Bytes Read %X", hookData->byteStorage);
+
 		}
 		if (enabled)
 		{
 			if (!hookData->nopState)
 			{
 				GameImageHooker::nopRange(hookData->locationInImage() + hookData->customOffset(), numberOfBytes);
+				MessageHandler::logDebug("Range Nopped %S", static_cast<string>(hookData->_blockName));
 				hookData->nopState = true;
 			}
 			else
@@ -120,6 +134,8 @@ namespace IGCS::GameSpecific::InterceptorHelper
 			if (hookData->nopState)
 			{
 				GameImageHooker::writeRange(hookData->locationInImage() + hookData->customOffset(), hookData->byteStorage, numberOfBytes);
+				MessageHandler::logDebug("Range Restored %S", static_cast<string>(hookData->_blockName));
+				MessageHandler::logDebug("Bytes Restored %X", hookData->byteStorage);
 				hookData->nopState = false;
 			}
 			else

@@ -75,9 +75,6 @@ namespace IGCSClient.GameSpecific.Controls
 					case SettingType.FoVZoomSpeed:
 						setting.Setup(_fovSpeedInput);
 						break;
-                    case SettingType.SlowMotionFactor:
-                        setting.Setup(_slowmoInput);
-                        break;
                 }
 			}
 		}

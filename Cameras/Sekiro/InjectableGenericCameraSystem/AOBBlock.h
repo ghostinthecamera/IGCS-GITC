@@ -51,11 +51,12 @@ namespace IGCS
 		BYTE* byteStorage2;
 		bool nopState;
 		bool nopState2;
+		string _blockName;
 
 	private:
 		void createAOBPatternFromStringPattern(string pattern);
 
-		string _blockName;
+		
 		string _bytePatternAsString;
 		LPBYTE _bytePattern;
 		char* _patternMask;

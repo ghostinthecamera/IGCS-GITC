@@ -7,6 +7,6 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
 	<HeaderedContentControl Header="" Name="_headerControl">
-		<CheckBox Name="_checkboxControl" Checked="_checkboxControl_Checked"/>
+        <CheckBox Name="_checkboxControl" Checked="_checkboxControl_Checked" Unchecked="_checkboxControl_OnUnchecked"/>
 	</HeaderedContentControl>
 </UserControl>

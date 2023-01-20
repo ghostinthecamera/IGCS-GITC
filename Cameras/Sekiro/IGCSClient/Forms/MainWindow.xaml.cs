@@ -57,7 +57,8 @@ namespace IGCSClient.Forms
 			TabItemHelper.SetIcon(_generalTab, new SymbolIcon(Symbol.Repair));
 			TabItemHelper.SetIcon(_hotSamplingTab, new SymbolIcon(Symbol.FullScreen));
 			TabItemHelper.SetIcon(_configurationTab, new SymbolIcon(Symbol.Setting));
-			TabItemHelper.SetIcon(_themeTab, new SymbolIcon(Symbol.Highlight));
+            TabItemHelper.SetIcon(_usertestTAB, new SymbolIcon(Symbol.Camera));
+            TabItemHelper.SetIcon(_themeTab, new SymbolIcon(Symbol.Highlight));
 			TabItemHelper.SetIcon(_keybindingsTab, new SymbolIcon(Symbol.Keyboard));
 			TabItemHelper.SetIcon(_logTab, new SymbolIcon(Symbol.OpenFile));
 			TabItemHelper.SetIcon(_aboutTab, new SymbolIcon(Symbol.People));
@@ -93,6 +94,7 @@ namespace IGCSClient.Forms
 			// First setup the controls 
 			_configurationEditor.Setup();
 			_keyBindingsEditor.Setup();
+			_usercontroltab.Setup();
 
 			// then load the values from the ini file (if any) so the controls are already there.
 			AppStateSingleton.Instance().LoadFromIni();
@@ -104,6 +106,7 @@ namespace IGCSClient.Forms
 			_hotSamplingTab.IsEnabled = false;
 			_configurationTab.IsEnabled = false;
 			_keybindingsTab.IsEnabled = false;
+			_usertestTAB.IsEnabled = false;
 
 			MessageHandlerSingleton.Instance().NotificationLogFunc = s => DisplayNotification(s);
 		}
@@ -121,8 +124,9 @@ namespace IGCSClient.Forms
 			_hotSamplingTab.IsEnabled = true;
 			_configurationTab.IsEnabled = true;
 			_keybindingsTab.IsEnabled = true;
-			// show the resolutions on the hotsampling tab
-			_hotsamplingControl.BindData();
+            _usertestTAB.IsEnabled = true;
+            // show the resolutions on the hotsampling tab
+            _hotsamplingControl.BindData();
 		}
 
 

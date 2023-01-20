@@ -19,6 +19,9 @@ namespace IGCS
 		float rotationSpeed;
 		float fovChangeSpeed;
 		float SlowMoFactor;
+		bool UVenable;
+		bool FPSunlocked;
+		float fovDelta;
 		int cameraControlDevice;		// 0==keyboard/mouse, 1 == gamepad, 2 == both, see Defaults.h
 		
 		void setValueFromMessage(uint8_t payload[], DWORD payloadLength)
@@ -56,6 +59,15 @@ namespace IGCS
 				break;
 			case SettingType::SlowMotionFactor:
 				SlowMoFactor = Utils::floatFromBytes(payload, payloadLength, 2);
+				break;
+			case SettingType::FOVDelta:
+				fovDelta = Utils::floatFromBytes(payload, payloadLength, 2);
+				break;
+			case SettingType::UVBool:
+				UVenable = payload[2] == (uint8_t)1 ? true : false;
+				break;
+			case SettingType::FPSunlock:
+				FPSunlocked = payload[2] == (uint8_t)1 ? true : false;
 				break;
 			default:
 				// nothing

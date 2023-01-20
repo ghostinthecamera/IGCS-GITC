@@ -46,6 +46,11 @@
                     <GameSpecificControls:ConfigurationPage Margin="15" x:Name="_configurationEditor" Width="Auto" Height="Auto"/>
                 </ScrollViewer>
             </TabItem>
+            <TabItem Header="Additional Variables" Name="_usertestTAB">
+                <ScrollViewer>
+                    <GameSpecificControls:UserControl1 Margin="15" x:Name="_usercontroltab" Width="Auto" Height="Auto"/>
+                </ScrollViewer>
+            </TabItem>
             <TabItem Header="Key-bindings" Name="_keybindingsTab">
                 <ScrollViewer>
                     <GameSpecificControls:KeyBindingPage Margin="15" x:Name="_keyBindingsEditor" Width="Auto" Height="Auto"/>

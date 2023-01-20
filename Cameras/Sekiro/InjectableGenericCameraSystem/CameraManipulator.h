@@ -36,13 +36,14 @@ namespace IGCS::GameSpecific::CameraManipulator
 	void timestop();
 	void toggleDOF();
 	DirectX::XMFLOAT3 getCurrentCameraCoords();
-	float calcvecdot(DirectX::XMVECTOR vec1, DirectX::XMVECTOR vec2);
 	void writeNewCameraValuesToGameData(DirectX::XMFLOAT3 newCoords, DirectX::XMVECTOR newLookQuaternion);
+	void ultrawidefov(float amount, bool enabled);
 	void restoreOriginalValuesAfterCameraDisable();
 	void cacheOriginalValuesBeforeCameraEnable();
 	void resetFoV();
 	void changeFoV(float amount);
 	bool isCameraFound();
+	void playersOnly();
 	void displayCameraStructAddress();
 	void getSettingsFromGameState();
 	void applySettingsToGameState();

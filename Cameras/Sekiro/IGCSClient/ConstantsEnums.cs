@@ -92,11 +92,19 @@ namespace IGCSClient
 		public const byte InvertYLookDirection = 6;
 		public const byte FoVZoomSpeed = 7;
 		public const byte SlowMotionFactor = 8;
+		public const byte FOVDelta = 9;
+		public const byte UVBool = 10;
+		public const byte FPSunlock = 11;
 		// to add more, derived a type of this class and define the next value one higher than the last one in this class.
 	}
 
+    public class UserSettingType
+    {
+		public const byte testsetting = 0;
+        // to add more, derived a type of this class and define the next value one higher than the last one in this class.
+    }
 
-	public class KeyBindingType
+    public class KeyBindingType
 	{
 		public const byte BlockInputToGame = 0;
 		public const byte EnableDisableCamera = 1;
@@ -118,8 +126,10 @@ namespace IGCSClient
 		public const byte TiltCameraRight=17;
 		public const byte ToggleHUD=18;
 		public const byte PauseUnpauseGame = 19;
-		// to add more, derived a type of this class and define the next value one higher than the last one in this class.
-	}
+        public const byte SlowMoKey = 20;
+
+        // to add more, derived a type of this class and define the next value one higher than the last one in this class.
+    }
 
 
 	public class SettingKind

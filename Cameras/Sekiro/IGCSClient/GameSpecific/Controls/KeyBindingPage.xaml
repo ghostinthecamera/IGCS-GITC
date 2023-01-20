@@ -21,17 +21,18 @@
 			<controls:KeyCombinationInputWPF Header="Move camera down" x:Name="_moveCameraDownInput" Width="300" HorizontalAlignment="Left" Margin="0,0,0,10"/>
 			<controls:KeyCombinationInputWPF Header="Pause / unpause the game" x:Name="_pauseUnPauseInput" Width="300" HorizontalAlignment="Left" Margin="0,0,0,10"/>
 		</StackPanel>
-		<StackPanel>
-			<controls:KeyCombinationInputWPF Header="Decrease FoV" x:Name="_decreaseFoVInput" Width="300" HorizontalAlignment="Left" Margin="0,0,0,10"/>
-			<controls:KeyCombinationInputWPF Header="Increase FoV" x:Name="_increaseFoVInput" Width="300" HorizontalAlignment="Left" Margin="0,0,0,10"/>
-			<controls:KeyCombinationInputWPF Header="Reset FoV" x:Name="_resetFoVInput" Width="300" HorizontalAlignment="Left" Margin="0,0,0,10"/>
-			<controls:KeyCombinationInputWPF Header="Rotate camera up" x:Name="_rotateCameraUpInput" Width="300" HorizontalAlignment="Left" Margin="0,0,0,10"/>
-			<controls:KeyCombinationInputWPF Header="Rotate camera down" x:Name="_rotateCameraDownInput" Width="300" HorizontalAlignment="Left" Margin="0,0,0,10"/>
-			<controls:KeyCombinationInputWPF Header="Rotate camera left" x:Name="_rotateCameraLeftInput" Width="300" HorizontalAlignment="Left" Margin="0,0,0,10"/>
-			<controls:KeyCombinationInputWPF Header="Rotate camera right" x:Name="_rotateCameraRightInput" Width="300" HorizontalAlignment="Left" Margin="0,0,0,10"/>
-			<controls:KeyCombinationInputWPF Header="Tilt camera left" x:Name="_tiltCameraLeftInput" Width="300" HorizontalAlignment="Left" Margin="0,0,0,10"/>
-			<controls:KeyCombinationInputWPF Header="Tilt camera right" x:Name="_tiltCameraRightInput" Width="300" HorizontalAlignment="Left" Margin="0,0,0,10"/>
+        <StackPanel>
+            <controls:KeyCombinationInputWPF Header="Decrease FoV" x:Name="_decreaseFoVInput" Width="300" HorizontalAlignment="Left" Margin="0,0,0,10"/>
+            <controls:KeyCombinationInputWPF Header="Increase FoV" x:Name="_increaseFoVInput" Width="300" HorizontalAlignment="Left" Margin="0,0,0,10"/>
+            <controls:KeyCombinationInputWPF Header="Reset FoV" x:Name="_resetFoVInput" Width="300" HorizontalAlignment="Left" Margin="0,0,0,10"/>
+            <controls:KeyCombinationInputWPF Header="Rotate camera up" x:Name="_rotateCameraUpInput" Width="300" HorizontalAlignment="Left" Margin="0,0,0,10"/>
+            <controls:KeyCombinationInputWPF Header="Rotate camera down" x:Name="_rotateCameraDownInput" Width="300" HorizontalAlignment="Left" Margin="0,0,0,10"/>
+            <controls:KeyCombinationInputWPF Header="Rotate camera left" x:Name="_rotateCameraLeftInput" Width="300" HorizontalAlignment="Left" Margin="0,0,0,10"/>
+            <controls:KeyCombinationInputWPF Header="Rotate camera right" x:Name="_rotateCameraRightInput" Width="300" HorizontalAlignment="Left" Margin="0,0,0,10"/>
+            <controls:KeyCombinationInputWPF Header="Tilt camera left" x:Name="_tiltCameraLeftInput" Width="300" HorizontalAlignment="Left" Margin="0,0,0,10"/>
+            <controls:KeyCombinationInputWPF Header="Tilt camera right" x:Name="_tiltCameraRightInput" Width="300" HorizontalAlignment="Left" Margin="0,0,0,10"/>
             <controls:KeyCombinationInputWPF Header="Toggle HUD" x:Name="_toggleHUDInput" Width="300" HorizontalAlignment="Left" Margin="0,0,0,10"/>
-		</StackPanel>
-	</StackPanel>
+            <controls:KeyCombinationInputWPF Header="Slow Motion" x:Name="_slowmoKey" Width="300" HorizontalAlignment="Left" Margin="0,0,0,10"/>
+        </StackPanel>
+    </StackPanel>
 </UserControl>

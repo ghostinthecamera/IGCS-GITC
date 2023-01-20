@@ -57,6 +57,10 @@ namespace IGCS::GameSpecific
 	#define FOV_INTERCEPT_KEY							"FOV_INTERCEPT_KEY" //2nops
 	#define FOV_INTERCEPT_DEBUG							"FOV_INTERCEPT_DEBUG"
 	#define DOF_KEY										"DOF_KEY"
+	#define UVKEY										"UVKEY"
+	#define PLAYERPOINTER_KEY							"PLAYERPOINTER_KEY"
+	#define ENTITY_KEY									"ENTITY_KEY	"
+	#define FPSUNLOCK									"FPSUNLOCK"
 
 	// Indices in the structures read by interceptors 
 	#define COORDS_IN_STRUCT_OFFSET						0x40

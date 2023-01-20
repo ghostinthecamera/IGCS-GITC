@@ -51,6 +51,7 @@ namespace IGCSClient
 		{
 			SettingFactory.InitializeSettings();
 			SettingFactory.InitializeKeyBindings();
+			SettingFactory.InitializeUserSettings();
 		}
 
 

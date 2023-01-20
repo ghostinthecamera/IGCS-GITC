@@ -34,7 +34,7 @@ namespace IGCSClient.GameSpecific.Classes
 	{
 		public const string ClientWindowTitle = "Sekiro";
 		public const string CameraVersion = "0.1";
-		public const string CameraCredits = "";
+		public const string CameraCredits = "Camera/ghostinthecamera, playersonly/jim2point0, ";
 		public const bool HotsamplingRequiresEXITSIZEMOVE = false;
 	}
 
@@ -50,6 +50,9 @@ namespace IGCSClient.GameSpecific.Classes
 		public const bool InvertYLookDirection = false;
 		public const float FoVZoomSpeed = 0.01f;
 		public const float SlowMotionFactor = 0.5f;
+		public const float FOVDelta = 43.0f;
+		public const bool UVbool = false;
+		public const bool FPSunlock = false;
 	}
 
 
@@ -75,5 +78,6 @@ namespace IGCSClient.GameSpecific.Classes
 		public const int TiltCameraRightDefault = (int)Keys.NumPad3;
 		public const int ToggleHUDDefault = (int)Keys.Delete;
 		public const int PauseUnpauseGameDefault = (int)Keys.NumPad0;
-	}
+        public const int SlowMoDefault = (int)Keys.End;
+    }
 }

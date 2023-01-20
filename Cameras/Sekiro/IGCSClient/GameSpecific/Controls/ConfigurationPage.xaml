@@ -28,7 +28,6 @@
 			<GroupBox Header="Miscellaneous camera options" Margin="15, 0, 0, 0">
 				<ui:SimpleStackPanel Orientation="Vertical">
                     <controls:FloatInputSliderWPF Header="Field of View (FoV) zoom speed" x:Name="_fovSpeedInput" ClipToBounds="True"/>
-                    <controls:FloatInputSliderWPF Header="SlowMo Factor" x:Name="_slowmoInput"/>
                 </ui:SimpleStackPanel>
 			</GroupBox>
 		</ui:SimpleStackPanel>

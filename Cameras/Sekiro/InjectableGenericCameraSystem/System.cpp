@@ -104,6 +104,34 @@ namespace IGCS
 			return;
 		}
 
+		if ((Globals::instance().settings().UVenable))
+		{
+			
+			CameraManipulator::ultrawidefov(Globals::instance().settings().fovDelta, _uwfixinit);
+			_uwfixinit = (uint8_t)1;
+		
+		}
+		else if	(!Globals::instance().settings().UVenable)
+		{
+			if (_uwfixinit)
+			{
+				CameraManipulator::ultrawidefov(Globals::instance().settings().fovDelta, _uwfixinit);
+			}
+			_uwfixinit = (uint8_t)0;
+		}
+
+		if (Globals::instance().settings().FPSunlocked || !Globals::instance().settings().FPSunlocked)
+		{
+			BYTE fps120[8] = { 0x89, 0x88, 0x08, 0x3C, 0x4C, 0x89, 0xAB, 0x70 };
+			if (Globals::instance().settings().FPSunlocked)
+			{
+				InterceptorHelper::SaveBytesWrite(_aobBlocks[FPSUNLOCK], 8, fps120, true);
+			}
+			if (!Globals::instance().settings().FPSunlocked && _aobBlocks[FPSUNLOCK]->nopState2)
+			{
+				InterceptorHelper::SaveBytesWrite(_aobBlocks[FPSUNLOCK], 8, fps120, false);
+			}
+		}
 
 		if (Input::isActionActivated(ActionType::CameraEnable))
 		{
@@ -117,7 +145,7 @@ namespace IGCS
 				CameraManipulator::toggleDOF();
 
 				toggleCameraMovementLockState(false);
-				_camInit = (uint8_t)0;
+				//_camInit = (uint8_t)0;
 			}
 			else
 			{
@@ -128,7 +156,7 @@ namespace IGCS
 				CameraManipulator::toggleDOF();
 
 				_camera.resetAngles();
-				_camInit = (uint8_t)1;
+				//_camInit = (uint8_t)1;
 			}
 			g_cameraEnabled = g_cameraEnabled == 0 ? (uint8_t)1 : (uint8_t)0;
 			displayCameraState();
@@ -165,9 +193,7 @@ namespace IGCS
 
 		if (Input::isActionActivated(ActionType::HudToggle))
 		{
-			_hudToggled = !_hudToggled;
-			InterceptorHelper::SaveNOPReplace(_aobBlocks[HUDTOGGLE], 2, _hudToggled);
-			MessageHandler::addNotification(_hudToggled ? "HUD Off" : "HUD On");
+			CameraManipulator::playersOnly();
 			_applyHammerPrevention = true;
 		}
 
@@ -348,7 +374,7 @@ namespace IGCS
 		_camera.setPitch(INITIAL_PITCH_RADIANS);
 		_camera.setRoll(INITIAL_ROLL_RADIANS);
 		_camera.setYaw(INITIAL_YAW_RADIANS);
-		//CameraManipulator::getAR();
+
 
 	}
 

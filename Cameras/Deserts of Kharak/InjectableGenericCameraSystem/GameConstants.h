@@ -30,8 +30,8 @@
 namespace IGCS::GameSpecific
 {
 	// Mandatory constants to define for a game
-	#define GAME_NAME									"Deserts of Kharak - WIP"
-	#define CAMERA_VERSION								"1.0"
+	#define GAME_NAME									"Deserts of Kharak"
+	#define CAMERA_VERSION								"2.0"
 	#define CAMERA_CREDITS								"GHOSTINTHECAMERA & IDK31"
 	#define GAME_WINDOW_TITLE							"DESERTS OF KHARAK"
 	#define INITIAL_PITCH_RADIANS						0.0f	// around X axis	(right)
@@ -41,7 +41,7 @@ namespace IGCS::GameSpecific
 	#define FASTER_MULTIPLIER							5.0f
 	#define SLOWER_MULTIPLIER							0.1f
 	#define MOUSE_SPEED_CORRECTION						0.2f	// to correct for the mouse-deltas related to normal rotation.
-	#define DEFAULT_MOVEMENT_SPEED						10.00f
+	#define DEFAULT_MOVEMENT_SPEED						5.00f
 	#define DEFAULT_ROTATION_SPEED						0.01f
 	#define DEFAULT_FOV_SPEED							0.10f
 	#define DEFAULT_UP_MOVEMENT_MULTIPLIER				0.7f

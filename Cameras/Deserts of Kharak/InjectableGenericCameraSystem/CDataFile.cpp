@@ -738,7 +738,7 @@ void Trim(t_Str& szStr)
 // WriteLn
 // Writes the formatted output to the file stream, returning the number of
 // bytes written.
-int WriteLn(std::fstream& stream, char* fmt, ...)
+int WriteLn(std::fstream& stream, const char* fmt, ...)
 {
 	char buf[MAX_BUFFER_LEN];
 	int nLength;
@@ -765,7 +765,7 @@ int WriteLn(std::fstream& stream, char* fmt, ...)
 // A simple reporting function. Outputs the report messages to stdout
 // This is a dumb'd down version of a simmilar function of mine, so if 
 // it looks like it should do more than it does, that's why...
-void Report(e_DebugLevel DebugLevel, char *fmt, ...)
+void Report(e_DebugLevel DebugLevel, const char *fmt, ...)
 {
 	char buf[MAX_BUFFER_LEN];
 	int nLength;

@@ -45,4 +45,5 @@ namespace IGCS::GameSpecific::CameraManipulator
 	void writeEnableBytes();
 	void timeStop();
 	void sloMoFunc(float amount);
+	void getEffectiveCam();
 }

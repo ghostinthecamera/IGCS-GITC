@@ -58,8 +58,9 @@ namespace IGCS::GameSpecific
 	
 
 	// Indices in the structures read by interceptors 
-	#define COORDS_IN_STRUCT_OFFSET						-0xC20
-	#define QUATERNION_IN_STRUCT_OFFSET					-0xC30
+	#define COORDS_IN_STRUCT_OFFSET						0x19C0  //+173c / -0xC20
+	#define QUATERNION_IN_STRUCT_OFFSET					0x19B0  //+172c / -0xC30
+	#define CAM_STRUCT_BASE								0x1980  
 	#define FOV_IN_STRUCT_OFFSET						0x284
 	#define TIMESTOP_OFFSET								0x0CC
 

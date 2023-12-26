@@ -41,6 +41,7 @@ extern "C" {
 	//LPBYTE g_resolutionScaleAddress = nullptr;
 	//LPBYTE g_todStructAddress = nullptr;
 	LPBYTE g_timestopStructAddress = nullptr;
+	LPBYTE _effectivecamstruct = nullptr;
 	bool _timeStopped;
 }
 
@@ -50,6 +51,17 @@ namespace IGCS::GameSpecific::CameraManipulator
 	static float _originalQuaternion[4];
 	static float _originalFoV;
 	//static LPBYTE g_resolutionScaleMenuValueAddress = nullptr;
+
+	void getEffectiveCam()
+	{
+		if (g_cameraStructAddress == nullptr)
+		{
+			return;
+		}
+		_effectivecamstruct = g_cameraStructAddress + CAM_STRUCT_BASE;
+	}
+
+
 
 	void writeEnableBytes()
 	{
@@ -150,7 +162,7 @@ namespace IGCS::GameSpecific::CameraManipulator
 		float* quaternionInMemory = nullptr;
 
 		// only the gameplay camera. Photomode coords aren't updated.
-		coordsInMemory = reinterpret_cast<float*>(g_cameraStructAddress + COORDS_IN_STRUCT_OFFSET);
+		coordsInMemory = reinterpret_cast<float*>(g_cameraStructAddress + +0x19C0);
 		coordsInMemory[0] = newCoords.x;
 		coordsInMemory[1] = newCoords.y;
 		coordsInMemory[2] = newCoords.z;
@@ -172,6 +184,8 @@ namespace IGCS::GameSpecific::CameraManipulator
 	void displayCameraStructAddress()
 	{
 		OverlayConsole::instance().logDebug("Camera struct address: %p", (void*)g_cameraStructAddress);
+		LPBYTE g_structaddress = (g_cameraStructAddress + CAM_STRUCT_BASE);
+		OverlayConsole::instance().logDebug("Camera struct address: %p", (void*)g_structaddress);
 	}
 	
 

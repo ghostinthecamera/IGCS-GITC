@@ -46,6 +46,7 @@ PUBLIC timestopReadInterceptor
 ; values in asm to communicate with the system
 EXTERN g_cameraEnabled: byte
 EXTERN g_cameraStructAddress: qword
+EXTERN _effectivecamstruct: qword
 ;EXTERN g_resolutionScaleAddress: qword
 ;EXTERN g_todStructAddress: qword
 EXTERN g_timestopStructAddress: qword
@@ -57,6 +58,7 @@ EXTERN g_timestopStructAddress: qword
 ; Own externs, defined in InterceptorHelper.cpp
 EXTERN _cameraStructInterceptionContinue: qword
 EXTERN _divssAbsoluteAdd: qword
+
 EXTERN _cameraWrite1InterceptionContinue: qword
 EXTERN _cameraWrite2InterceptionContinue: qword
 ;EXTERN _fovReadInterceptionContinue: qword
@@ -66,6 +68,7 @@ EXTERN _timestopReadInterceptionContinue: qword
 ;EXTERN _fogReadInterceptionContinue: qword
 
 .data
+
 
 
 .code
@@ -84,10 +87,10 @@ cameraStructInterceptor PROC
 	mov [rbx+326h],byte ptr 1
 	mov [rbx+327h],byte ptr 1
 	movaps xmm6,xmm7
-	push rbx
+	push rax
 	mov rax, [_divssAbsoluteAdd]
 	divss xmm0, dword ptr [rax]
-	pop rbx
+	pop rax
 exit:
 	jmp qword ptr [_cameraStructInterceptionContinue]	; jmp back into the original game code, which is the location after the original statements above.
 cameraStructInterceptor ENDP
@@ -108,7 +111,14 @@ cameraWrite1Interceptor PROC
 ;DesertsOfKharak64.Transform::SetPosition+9B - C3                    - ret 
   cmp byte ptr [g_cameraEnabled],1
   jne originalcode
-  cmp dword ptr [rbx+0F8Ch], 01000100h        ;compare to rbx+0f8c, if equal then we're in the right call so continue to our code
+  ;push r10
+  ;push r8
+  ;mov qword ptr r8, [g_cameraStructAddress]
+  ;lea r10, [r8+1980h]
+  ;cmp qword ptr r10, rbx
+  cmp qword ptr rbx, [_effectivecamstruct]      ;same as above to ensure we have the right call
+  ;pop r10
+  ;pop r8
   je mycode									 ;jump to our code if the above variables are equal
 originalcode:
   mov dword ptr [rbx+40h],r8d
@@ -118,7 +128,7 @@ originalcode:
   mov dword ptr [rbx+48h],eax
   jmp exit
 mycode:
-  mov edx,00000001
+  mov edx,00000001h
   mov rcx,rbx
 exit:
   jmp qword ptr [_cameraWrite1InterceptionContinue]	; jmp back into the original game code, which is the location after the original statements above.
@@ -144,7 +154,15 @@ cameraWrite2Interceptor PROC
 ;DesertsOfKharak64.Transform::SetRotationSafe+E6 - C3                    - ret 
   cmp byte ptr [g_cameraEnabled],1
   jne originalcode
-  cmp dword ptr [rbx+0F8Ch], 01000100h     ;same as above to ensure we have the right call
+  ;push r10
+  ;push r8
+  ;mov qword ptr r8, [g_cameraStructAddress]
+  ;lea r10, [r8+1980h]
+  ;cmp qword ptr r10, rbx
+  cmp qword ptr rbx, [_effectivecamstruct] 
+  ;cmp dword ptr [rbx+88Ch], 01010000h      ;same as above to ensure we have the right call
+  ;pop r10
+  ;pop r8
   je exit
 originalcode:
   mov dword ptr [rbx+30h],eax

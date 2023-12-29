@@ -347,7 +347,7 @@ namespace IGCS::Utils
 	{
 		if (arrayLength < startIndex + 4)
 		{
-			return nullptr;
+			return "";
 		}
 		char* charInArray = reinterpret_cast<char*>(byteArray + startIndex);
 		// copy over the bytes in our own array which has a trailing 0

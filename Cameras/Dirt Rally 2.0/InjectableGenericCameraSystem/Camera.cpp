@@ -47,12 +47,12 @@ namespace IGCS
 
 	XMVECTOR Camera::calculateLookQuaternion()
 	{
-		XMVECTOR xQ = XMQuaternionRotationNormal(XMVectorSet(1.0f, 0.0f, 0.0f, 1.0f), -_pitch);
-		XMVECTOR yQ = XMQuaternionRotationNormal(XMVectorSet(0.0f, 1.0f, 0.0f, 1.0f), _yaw);
-		XMVECTOR zQ = XMQuaternionRotationNormal(XMVectorSet(0.0f, 0.0f, 1.0f, 1.0f), _roll);
+		XMVECTOR xQ = XMQuaternionRotationNormal(XMVectorSet(1.0f, 0.0f, 0.0f, 1.0f), _pitch);
+		XMVECTOR yQ = XMQuaternionRotationNormal(XMVectorSet(0.0f, 1.0f, 0.0f, 1.0f), -_yaw);
+		XMVECTOR zQ = XMQuaternionRotationNormal(XMVectorSet(0.0f, 0.0f, 1.0f, 1.0f), -_roll);
 
-		XMVECTOR tmpQ = XMQuaternionMultiply(zQ, xQ);
-		XMVECTOR qToReturn = XMQuaternionMultiply(yQ, tmpQ);
+		XMVECTOR tmpQ = XMQuaternionMultiply(xQ, yQ);
+		XMVECTOR qToReturn = XMQuaternionMultiply(zQ, tmpQ);
 		XMQuaternionNormalize(qToReturn);
 		return qToReturn;
 	}
@@ -96,7 +96,8 @@ namespace IGCS
 		if (_movementOccurred)
 		{
 			XMVECTOR directionAsQ = XMVectorSet(_direction.x, _direction.y, _direction.z, 0.0f);
-			XMVECTOR newDirection = XMVector3InverseRotate(directionAsQ, lookQ); //game uses 0,1,0 for left/right so need to use inverse quaternion
+			//XMVECTOR newDirection = XMVector3InverseRotate(directionAsQ, lookQ); //game uses 0,1,0 for left/right so need to use inverse quaternion
+			XMVECTOR newDirection = XMVector3Rotate(directionAsQ, lookQ);
 			toReturn.x += XMVectorGetX(newDirection);
 			toReturn.y += XMVectorGetY(newDirection);
 			toReturn.z += XMVectorGetZ(newDirection);

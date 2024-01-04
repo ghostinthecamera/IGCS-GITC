@@ -133,16 +133,16 @@ namespace IGCS::GameSpecific::CameraManipulator
 		//Game calculates a 3x3 matrix from internal quaternions and uses the matrix for the current replay camera.
 		//Matrix is ordered y,x,z
 		matrixInMemory = reinterpret_cast<float*>(g_cameraStructAddress + MATRIX_IN_STRUCT_OFFSET);
-		matrixInMemory[0] = rotationMatrix._12;
+		matrixInMemory[0] = rotationMatrix._21;
 		matrixInMemory[1] = rotationMatrix._22;
-		matrixInMemory[2] = rotationMatrix._32;
-		matrixInMemory[3] = 0.0f;	//boundary has a zero rather than 1
+		matrixInMemory[2] = rotationMatrix._23;
+		matrixInMemory[3] = 0.0f;
 		matrixInMemory[4] = rotationMatrix._11;
-		matrixInMemory[5] = rotationMatrix._21;
-		matrixInMemory[6] = rotationMatrix._31;
+		matrixInMemory[5] = rotationMatrix._12;
+		matrixInMemory[6] = rotationMatrix._13;
 		matrixInMemory[7] = 0.0f;
-		matrixInMemory[8] = rotationMatrix._13;
-		matrixInMemory[9] = rotationMatrix._23;
+		matrixInMemory[8] = rotationMatrix._31;
+		matrixInMemory[9] = rotationMatrix._32;
 		matrixInMemory[10] = rotationMatrix._33;
 		matrixInMemory[11] = 0.0f;
 	}

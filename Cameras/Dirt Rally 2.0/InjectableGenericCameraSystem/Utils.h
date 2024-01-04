@@ -42,16 +42,16 @@ namespace IGCS::Utils
 	};
 
 	template <typename T>
-	T clamp(T value, T min, T max, T default)
+	T clamp(T value, T min, T max, T defaultvalue)
 	{
-		return value < min ? default
-			: value > max ? default: value;
+		return value < min ? defaultvalue
+			: value > max ? defaultvalue: value;
 	}
 	
 	template <typename T>
-	T clamp(T value, T min, T default)
+	T clamp(T value, T min, T defaultvalue)
 	{
-		return value < min ? default : value;
+		return value < min ? defaultvalue : value;
 	}
 	
 

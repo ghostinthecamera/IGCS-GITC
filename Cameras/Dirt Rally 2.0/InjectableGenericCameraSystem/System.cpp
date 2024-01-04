@@ -96,7 +96,7 @@ namespace IGCS
 
 		// calculate new camera values. We have two cameras, but they might not be available both, so we have to test before we do anything. 
 		DirectX::XMVECTOR newLookQuaternion = _camera.calculateLookQuaternion();
-		DirectX::XMVECTOR newDustQuaternion = _camera.calculateDustQuaternion();
+		//DirectX::XMVECTOR newDustQuaternion = _camera.calculateDustQuaternion();
 		DirectX::XMFLOAT3 currentCoords;
 		DirectX::XMFLOAT3 currentDustCoords;
 		DirectX::XMFLOAT3 newCoords;
@@ -114,8 +114,8 @@ namespace IGCS
 			else
 			{
 			newCoords = _camera.calculateNewCoords(currentCoords, newLookQuaternion);
-			newDustCoords = _camera.calculateNewDustCoords(currentDustCoords, newDustQuaternion);
-			GameSpecific::CameraManipulator::writeNewDustCameraValuesToGameData(newDustCoords, newDustQuaternion);
+			newDustCoords = _camera.calculateNewDustCoords(currentDustCoords, newLookQuaternion);
+			GameSpecific::CameraManipulator::writeNewDustCameraValuesToGameData(newDustCoords, newLookQuaternion);
 			GameSpecific::CameraManipulator::writeNewCameraValuesToGameData(newCoords, newLookQuaternion);
 			}
 		}

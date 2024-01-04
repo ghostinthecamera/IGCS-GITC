@@ -139,11 +139,11 @@ typedef SectionList::iterator SectionItor;
 
 /// General Purpose Utility Functions ///////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////
-void	Report(e_DebugLevel DebugLevel, char *fmt, ...);
+void	Report(e_DebugLevel DebugLevel, const char *fmt, ...);
 t_Str	GetNextWord(t_Str& CommandLine);
 int		CompareNoCase(t_Str str1, t_Str str2);
 void	Trim(t_Str& szStr);
-int		WriteLn(fstream& stream, char* fmt, ...);
+int		WriteLn(fstream& stream, const char* fmt, ...);
 
 
 /// Class Definitions ///////////////////////////////////////////////////////////

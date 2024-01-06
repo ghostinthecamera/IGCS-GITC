@@ -42,4 +42,5 @@ namespace IGCS::GameSpecific::CameraManipulator
 	void displayCameraStructAddress();
 	void getSettingsFromGameState();
 	void applySettingsToGameState();
+	void calculatePositionAddress();
 }

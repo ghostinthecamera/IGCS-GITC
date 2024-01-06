@@ -98,26 +98,26 @@ namespace IGCS
 		DirectX::XMVECTOR newLookQuaternion = _camera.calculateLookQuaternion();
 		//DirectX::XMVECTOR newDustQuaternion = _camera.calculateDustQuaternion();
 		DirectX::XMFLOAT3 currentCoords;
-		DirectX::XMFLOAT3 currentDustCoords;
+		//DirectX::XMFLOAT3 currentDustCoords;
 		DirectX::XMFLOAT3 newCoords;
-		DirectX::XMFLOAT3 newDustCoords;
+		//DirectX::XMFLOAT3 newDustCoords;
 		if (GameSpecific::CameraManipulator::isCameraFound())
 		{
 			currentCoords = GameSpecific::CameraManipulator::getCurrentCameraCoords();
-			currentDustCoords = GameSpecific::CameraManipulator::getCurrentDustCameraCoords();
+			//currentDustCoords = GameSpecific::CameraManipulator::getCurrentDustCameraCoords();
 
-			if (Globals::instance().settings().videomode)
-			{
+			//if (Globals::instance().settings().videomode)
+			//{
 			newCoords = _camera.calculateNewCoords(currentCoords, newLookQuaternion);
 			GameSpecific::CameraManipulator::writeNewCameraValuesToGameData(newCoords, newLookQuaternion);
-			}
-			else
-			{
-			newCoords = _camera.calculateNewCoords(currentCoords, newLookQuaternion);
-			newDustCoords = _camera.calculateNewDustCoords(currentDustCoords, newLookQuaternion);
-			GameSpecific::CameraManipulator::writeNewDustCameraValuesToGameData(newDustCoords, newLookQuaternion);
-			GameSpecific::CameraManipulator::writeNewCameraValuesToGameData(newCoords, newLookQuaternion);
-			}
+			
+			//else
+			//{
+			//newCoords = _camera.calculateNewCoords(currentCoords, newLookQuaternion);
+			//newDustCoords = _camera.calculateNewDustCoords(currentDustCoords, newLookQuaternion);
+			//GameSpecific::CameraManipulator::writeNewDustCameraValuesToGameData(newDustCoords, newLookQuaternion);
+			//GameSpecific::CameraManipulator::writeNewCameraValuesToGameData(newCoords, newLookQuaternion);
+			//}
 		}
 	}
 
@@ -154,8 +154,16 @@ namespace IGCS
 				// it's going to be disabled, make sure things are alright when we give it back to the host
 				CameraManipulator::restoreOriginalValuesAfterCameraDisable();
 				toggleCameraMovementLockState(false);
-				InterceptorHelper::SaveNOPReplace(_aobBlocks[QUATERNION_WRITE2_KEY], 5, false);
-				InterceptorHelper::SaveNOPReplace(_aobBlocks[CAMERA_WRITE2_INTERCEPT_KEY], 3, false);
+				InterceptorHelper::SaveNOPReplace(_aobBlocks[CAMERA_WRITE11_INTERCEPT_KEY], 4, false);
+				InterceptorHelper::SaveNOPReplace(_aobBlocks[CAMERA_WRITE12_INTERCEPT_KEY], 4, false);
+				InterceptorHelper::SaveNOPReplace(_aobBlocks[CAMERA_WRITE13_SERVICEAREA_INTERCEPT_KEY], 4, false);
+				InterceptorHelper::SaveNOPReplace(_aobBlocks[CAMERA_WRITE14_SERVICEAREA_INTERCEPT_KEY], 4, false);
+				InterceptorHelper::SaveNOPReplace(_aobBlocks[CAMERA_WRITE15_SERVICEAREA_INTERCEPT_KEY], 4, false);
+				InterceptorHelper::SaveNOPReplace(_aobBlocks[CAMERA_WRITE16_SERVICEAREA_INTERCEPT_KEY], 4, false);
+				InterceptorHelper::SaveNOPReplace(_aobBlocks[CAMERA_WRITE17_SERVICEAREA_INTERCEPT_KEY], 4, false);
+				InterceptorHelper::SaveNOPReplace(_aobBlocks[CAMERA_WRITE26_SERVICEAREA_INTERCEPT_KEY], 4, false);
+				InterceptorHelper::SaveNOPReplace(_aobBlocks[FOV1_KEY], 5, false);
+				InterceptorHelper::SaveNOPReplace(_aobBlocks[FOV2_KEY], 6, false);
 			}
 			else
 			{
@@ -164,8 +172,16 @@ namespace IGCS
 				_camera.resetAngles();
 				CameraManipulator::displayCameraStructAddress();
 				toggleInputBlockState(true);
-				InterceptorHelper::SaveNOPReplace(_aobBlocks[QUATERNION_WRITE2_KEY], 5, true);
-				InterceptorHelper::SaveNOPReplace(_aobBlocks[CAMERA_WRITE2_INTERCEPT_KEY], 3, true);
+				InterceptorHelper::SaveNOPReplace(_aobBlocks[CAMERA_WRITE11_INTERCEPT_KEY], 4, true);
+				InterceptorHelper::SaveNOPReplace(_aobBlocks[CAMERA_WRITE12_INTERCEPT_KEY], 4, true);
+				InterceptorHelper::SaveNOPReplace(_aobBlocks[CAMERA_WRITE13_SERVICEAREA_INTERCEPT_KEY], 4, true);
+				InterceptorHelper::SaveNOPReplace(_aobBlocks[CAMERA_WRITE14_SERVICEAREA_INTERCEPT_KEY], 4, true);
+				InterceptorHelper::SaveNOPReplace(_aobBlocks[CAMERA_WRITE15_SERVICEAREA_INTERCEPT_KEY], 4, true);
+				InterceptorHelper::SaveNOPReplace(_aobBlocks[CAMERA_WRITE16_SERVICEAREA_INTERCEPT_KEY], 4, true);
+				InterceptorHelper::SaveNOPReplace(_aobBlocks[CAMERA_WRITE17_SERVICEAREA_INTERCEPT_KEY], 4, true);
+				InterceptorHelper::SaveNOPReplace(_aobBlocks[CAMERA_WRITE26_SERVICEAREA_INTERCEPT_KEY], 4, true);
+				InterceptorHelper::SaveNOPReplace(_aobBlocks[FOV1_KEY], 5, true);
+				InterceptorHelper::SaveNOPReplace(_aobBlocks[FOV2_KEY], 6, true);
 			}
 			g_cameraEnabled = g_cameraEnabled == 0 ? (BYTE)1 : (BYTE)0;
 			displayCameraState();
@@ -351,8 +367,10 @@ namespace IGCS
 		DX11Hooker::initializeHook();
 
 		GameSpecific::InterceptorHelper::initializeAOBBlocks(_hostImageAddress, _hostImageSize, _aobBlocks);
+		GameSpecific::InterceptorHelper::getAbsoluteAddresses(_aobBlocks);
 		GameSpecific::InterceptorHelper::setCameraStructInterceptorHook(_aobBlocks);
 		waitForCameraStructAddresses();		// blocks till camera is found.
+		CameraManipulator::calculatePositionAddress();
 		GameSpecific::InterceptorHelper::setPostCameraStructHooks(_aobBlocks);
 
 		// camera struct found, init our own camera object now and hook into game code which uses camera.

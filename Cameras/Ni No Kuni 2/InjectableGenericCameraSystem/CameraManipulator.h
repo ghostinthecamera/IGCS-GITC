@@ -35,17 +35,20 @@ namespace IGCS::GameSpecific::CameraManipulator
 	void cacheOriginalValuesBeforeCameraEnable();
 	DirectX::XMFLOAT3 initialiseCamera();
 	DirectX::XMFLOAT3 currentQuatCoords();
-	void sloMoFunc(float amount);
+	DirectX::XMFLOAT3 currentQuatCoordsInverse();
+	//void sloMoFunc(float amount);
 	void resetFoV();
 	void changeFoV(float amount);
-	void cacheOriginalGameSpeed();
-	void sloMoFunc(float amount, bool timestop);
+	//void cacheOriginalGameSpeed();
+	//void sloMoFunc(float amount, bool timestop);
 	bool isCameraFound();
 	void displayCameraStructAddress();
 	void getSettingsFromGameState();
 	void applySettingsToGameState();
-	void timeStop();
-	void speedUp(int multiplier, bool toggle);
+	//void speedUp(int multiplier, bool toggle);
 	void toggleHUD();
 	void writeNewCameraValuesToGameDataQuaternion(DirectX::XMFLOAT3 newCoords, DirectX::XMVECTOR newLookQuaternion);
+	void timeStop(bool enabled);
+	float establishbullshitfactor();
+	void establishfovRatio();
 }

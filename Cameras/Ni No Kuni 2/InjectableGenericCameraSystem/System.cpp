@@ -96,45 +96,28 @@ namespace IGCS
 		}
 
 		DirectX::XMVECTOR newLookQuaternion = _camera.calculateLookQuaternion();
-		//DirectX::XMFLOAT3 newCoords;
-		//DirectX::XMFLOAT3 currentCoords;
-
-		DirectX::XMFLOAT3 initCoords;
-		static DirectX::XMFLOAT3 currentCoords;
-		DirectX::XMFLOAT3 newCoords;
-
 		DirectX::XMVECTOR newLookQuaternion2 = _camera.calculateLookQuaternionSecond();
+		DirectX::XMFLOAT3 initCoords;
+		DirectX::XMFLOAT3 newCoords;
 		DirectX::XMFLOAT3 newCoords2;
-		DirectX::XMFLOAT3 currentCoords2;
+		static DirectX::XMFLOAT3 currentCoords;
 
 		if (GameSpecific::CameraManipulator::isCameraFound())
 		{
-			if (g_cameraEnabled && !_cutscenecamtoggled)
+			//this is for the viewmatrix - keep it if the quaternion doesnt work
+			if (_camInit==1)
 			{
-				/*currentCoords = GameSpecific::CameraManipulator::initialiseCamera();
-				newCoords = _camera.calculateNewCoords(currentCoords, newLookQuaternion);
-				GameSpecific::CameraManipulator::writeNewCameraValuesToGameData(newCoords, newLookQuaternion);*/
-				if (_camInit == 1)
-				{
-					initCoords = GameSpecific::CameraManipulator::initialiseCamera();
-					newCoords = _camera.calculateNewCoords(initCoords, newLookQuaternion);
-					GameSpecific::CameraManipulator::writeNewCameraValuesToGameData(newCoords, newLookQuaternion);
-					currentCoords = newCoords;
-					_camInit = (uint8_t)0;
-				}
-				{
-					//currentCoords = initialiseCamera();
-					newCoords = _camera.calculateNewCoords(currentCoords, newLookQuaternion);
-					GameSpecific::CameraManipulator::writeNewCameraValuesToGameData(newCoords, newLookQuaternion);
-					currentCoords = newCoords;
-				}
+				initCoords = GameSpecific::CameraManipulator::currentQuatCoords();
+				newCoords = _camera.calculateNewCoords(initCoords, newLookQuaternion);
+				GameSpecific::CameraManipulator::writeNewCameraValuesToGameData(newCoords, newLookQuaternion);
+				currentCoords = newCoords;
+				_camInit = (uint8_t)0;
 			}
-			if (g_cameraEnabled && _cutscenecamtoggled)
-			{
-				currentCoords2 = GameSpecific::CameraManipulator::currentQuatCoords();
-				newCoords2 = _camera.calculateNewCoordsSecond(currentCoords2, newLookQuaternion2);
-				GameSpecific::CameraManipulator::writeNewCameraValuesToGameDataQuaternion(newCoords2, newLookQuaternion2);
-			}
+			newCoords = _camera.calculateNewCoords(currentCoords, newLookQuaternion);
+			newCoords2 = _camera.calculateNewCoordsSecond(currentCoords, newLookQuaternion2);
+			GameSpecific::CameraManipulator::writeNewCameraValuesToGameData(newCoords, newLookQuaternion);
+			GameSpecific::CameraManipulator::writeNewCameraValuesToGameDataQuaternion(newCoords, newLookQuaternion);
+			currentCoords = newCoords;
 		}
 	}
 
@@ -179,51 +162,49 @@ namespace IGCS
 				InterceptorHelper::SaveNOPReplace(_aobBlocks[QUATERNION_WRITE], 5, false);
 				InterceptorHelper::SaveNOPReplace(_aobBlocks[QUATERNION_COORD_WRITE], 16, false);
 				InterceptorHelper::SaveNOPReplace(_aobBlocks[QUATERNION_CUTSCENE_COORD_WRITE], 18, false);
+				InterceptorHelper::SaveNOPReplace(_aobBlocks[BULLSHIT_FACTOR_WRITE1], 8, false);
+				InterceptorHelper::SaveNOPReplace(_aobBlocks[BULLSHIT_FACTOR_WRITE2], 8, false);
+				InterceptorHelper::SaveNOPReplace(_aobBlocks[BULLSHIT_FACTOR_WRITE3], 8, false);
+				InterceptorHelper::SaveNOPReplace(_aobBlocks[BULLSHIT_FACTOR_WRITE4], 9, false);
+				InterceptorHelper::SaveNOPReplace(_aobBlocks[BULLSHIT_FACTOR_WRITE5], 8, false);
+				InterceptorHelper::SaveNOPReplace(_aobBlocks[FOV_WRITE1], 3, false);
+				InterceptorHelper::SaveNOPReplace(_aobBlocks[FOV_WRITE2], 4, false);
+				InterceptorHelper::SaveNOPReplace(_aobBlocks[FOV_WRITE3], 5, false);
+				InterceptorHelper::SaveNOPReplace(_aobBlocks[FOV_WRITE4], 4, false);
+				InterceptorHelper::SaveNOPReplace(_aobBlocks[FOV_WRITE5], 4, false);
+				InterceptorHelper::SaveNOPReplace(_aobBlocks[FOV_WRITE6], 5, false);
+
 				_camInit = (uint8_t)0;
 			}
 			else
 			{
 				// it's going to be enabled, so cache the original values before we enable it so we can restore it afterwards
+				CameraManipulator::establishbullshitfactor();
+				CameraManipulator::establishfovRatio();
 				CameraManipulator::cacheOriginalValuesBeforeCameraEnable();
 				_camera.resetAngles();
-				InterceptorHelper::SaveNOPReplace(_aobBlocks[QUATERNION_WRITE], 5, true);
+			    InterceptorHelper::SaveNOPReplace(_aobBlocks[QUATERNION_WRITE], 5, true);
 				InterceptorHelper::SaveNOPReplace(_aobBlocks[QUATERNION_COORD_WRITE], 16, true);
 				InterceptorHelper::SaveNOPReplace(_aobBlocks[QUATERNION_CUTSCENE_COORD_WRITE], 18, true);
+				InterceptorHelper::SaveNOPReplace(_aobBlocks[BULLSHIT_FACTOR_WRITE1], 8, true);
+				InterceptorHelper::SaveNOPReplace(_aobBlocks[BULLSHIT_FACTOR_WRITE2], 8, true);
+				InterceptorHelper::SaveNOPReplace(_aobBlocks[BULLSHIT_FACTOR_WRITE3], 8, true);
+				InterceptorHelper::SaveNOPReplace(_aobBlocks[BULLSHIT_FACTOR_WRITE4], 9, true);
+				InterceptorHelper::SaveNOPReplace(_aobBlocks[BULLSHIT_FACTOR_WRITE5], 8, true);
+				InterceptorHelper::SaveNOPReplace(_aobBlocks[FOV_WRITE1], 3, true);
+				InterceptorHelper::SaveNOPReplace(_aobBlocks[FOV_WRITE2], 4, true);
+				InterceptorHelper::SaveNOPReplace(_aobBlocks[FOV_WRITE3], 5, true);
+				InterceptorHelper::SaveNOPReplace(_aobBlocks[FOV_WRITE4], 4, true);
+				InterceptorHelper::SaveNOPReplace(_aobBlocks[FOV_WRITE5], 4, true);
+				InterceptorHelper::SaveNOPReplace(_aobBlocks[FOV_WRITE6], 5, true);
+
 				_camInit = (uint8_t)1;
 			}
 			g_cameraEnabled = g_cameraEnabled == 0 ? (BYTE)1 : (BYTE)0;
 			displayCameraState();
 			_applyHammerPrevention = true;
 		}
-		if (Input::isActionActivated(ActionType::CutsceneCamera))
-		{
-			if (g_cameraEnabled && !_cutscenecamtoggled)
-			{
-				return;
-			}
-			if (g_cameraEnabled)
-			{
-				//going to be disabled
-				CameraManipulator::restoreOriginalValuesAfterCameraDisable();
-				toggleCameraMovementLockState(false);
-				InterceptorHelper::SaveNOPReplace(_aobBlocks[QUATERNION_WRITE], 5, false);
-				InterceptorHelper::SaveNOPReplace(_aobBlocks[QUATERNION_COORD_WRITE], 16, false);
-				InterceptorHelper::SaveNOPReplace(_aobBlocks[QUATERNION_CUTSCENE_COORD_WRITE], 18, false);
-			}
-			else
-			{
-				// it's going to be enabled, so cache the original values before we enable it so we can restore it afterwards
-				CameraManipulator::cacheOriginalValuesBeforeCameraEnable();
-				_camera.resetAngles();
-				InterceptorHelper::SaveNOPReplace(_aobBlocks[QUATERNION_WRITE], 5, true);
-				InterceptorHelper::SaveNOPReplace(_aobBlocks[QUATERNION_COORD_WRITE], 16, true);
-				InterceptorHelper::SaveNOPReplace(_aobBlocks[QUATERNION_CUTSCENE_COORD_WRITE], 18, true);
-			}
-			g_cameraEnabled = g_cameraEnabled == 0 ? (BYTE)1 : (BYTE)0;
-			_cutscenecamtoggled = _cutscenecamtoggled == false ? true : false;
-			displayCutsceneCameraState();
-			_applyHammerPrevention = true;
-		}
+
 		if (Input::isActionActivated(ActionType::FovReset) && Globals::instance().keyboardMouseControlCamera())
 		{
 			CameraManipulator::resetFoV();
@@ -487,8 +468,8 @@ namespace IGCS
 	{
 		_timeStopped = !_timeStopped;
 		OverlayControl::addNotification(_timeStopped ? "Game paused" : "Game unpaused");
-		g_timestopEnabled = g_timestopEnabled == 0 ? (BYTE)1 : (BYTE)0;
-		//CameraManipulator::timeStop();
+		//g_timestopEnabled = g_timestopEnabled == 0 ? (BYTE)1 : (BYTE)0;
+		CameraManipulator::timeStop(_timeStopped);
 	}
 
 	void System::toggleHudRenderState()

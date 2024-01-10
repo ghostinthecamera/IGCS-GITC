@@ -43,4 +43,5 @@ namespace IGCS::GameSpecific::CameraManipulator
 	void getSettingsFromGameState();
 	void applySettingsToGameState();
 	void calculatePositionAddress();
+	void setnearplane();
 }

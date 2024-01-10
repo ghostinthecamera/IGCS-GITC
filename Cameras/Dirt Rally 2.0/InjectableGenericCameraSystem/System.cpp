@@ -96,28 +96,14 @@ namespace IGCS
 
 		// calculate new camera values. We have two cameras, but they might not be available both, so we have to test before we do anything. 
 		DirectX::XMVECTOR newLookQuaternion = _camera.calculateLookQuaternion();
-		//DirectX::XMVECTOR newDustQuaternion = _camera.calculateDustQuaternion();
 		DirectX::XMFLOAT3 currentCoords;
-		//DirectX::XMFLOAT3 currentDustCoords;
 		DirectX::XMFLOAT3 newCoords;
-		//DirectX::XMFLOAT3 newDustCoords;
 		if (GameSpecific::CameraManipulator::isCameraFound())
 		{
 			currentCoords = GameSpecific::CameraManipulator::getCurrentCameraCoords();
-			//currentDustCoords = GameSpecific::CameraManipulator::getCurrentDustCameraCoords();
-
-			//if (Globals::instance().settings().videomode)
-			//{
 			newCoords = _camera.calculateNewCoords(currentCoords, newLookQuaternion);
 			GameSpecific::CameraManipulator::writeNewCameraValuesToGameData(newCoords, newLookQuaternion);
 			
-			//else
-			//{
-			//newCoords = _camera.calculateNewCoords(currentCoords, newLookQuaternion);
-			//newDustCoords = _camera.calculateNewDustCoords(currentDustCoords, newLookQuaternion);
-			//GameSpecific::CameraManipulator::writeNewDustCameraValuesToGameData(newDustCoords, newLookQuaternion);
-			//GameSpecific::CameraManipulator::writeNewCameraValuesToGameData(newCoords, newLookQuaternion);
-			//}
 		}
 	}
 
@@ -168,6 +154,7 @@ namespace IGCS
 			else
 			{
 				// it's going to be enabled, so cache the original values before we enable it so we can restore it afterwards
+				//GameSpecific::InterceptorHelper::setPostCameraStructHooks(_aobBlocks);
 				CameraManipulator::cacheOriginalValuesBeforeCameraEnable();
 				_camera.resetAngles();
 				CameraManipulator::displayCameraStructAddress();
@@ -182,6 +169,7 @@ namespace IGCS
 				InterceptorHelper::SaveNOPReplace(_aobBlocks[CAMERA_WRITE26_SERVICEAREA_INTERCEPT_KEY], 4, true);
 				InterceptorHelper::SaveNOPReplace(_aobBlocks[FOV1_KEY], 5, true);
 				InterceptorHelper::SaveNOPReplace(_aobBlocks[FOV2_KEY], 6, true);
+				CameraManipulator::setnearplane();
 			}
 			g_cameraEnabled = g_cameraEnabled == 0 ? (BYTE)1 : (BYTE)0;
 			displayCameraState();

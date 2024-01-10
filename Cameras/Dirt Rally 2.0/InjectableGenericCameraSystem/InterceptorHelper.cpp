@@ -62,6 +62,8 @@ extern "C" {
 	void fovWrite();
 	void fovWrite2();
 	void fovWrite3();
+	void nearplane();
+	void nearplane2();
 }
 
 // external addresses used in asm.
@@ -89,6 +91,9 @@ extern "C" {
 	LPBYTE _fov2Continue = nullptr;
 	LPBYTE _fov3Continue = nullptr;
 	LPBYTE _fovabsoluteAddress = nullptr;
+	LPBYTE _NPabsoluteAddress = nullptr;
+	LPBYTE _nearplane1Continue = nullptr;
+	LPBYTE _nearplane2Continue = nullptr;
 }
 
 namespace IGCS::GameSpecific::InterceptorHelper
@@ -125,10 +130,13 @@ namespace IGCS::GameSpecific::InterceptorHelper
 		aobBlocks[CAMERA_WRITE25_INTERCEPT_KEY] = new AOBBlock(CAMERA_WRITE25_INTERCEPT_KEY, "0F 28 BC 24 A0 00 00 00 0F 28 00", 1);
 		aobBlocks[FOV1_KEY] = new AOBBlock(FOV1_KEY, "F3 0F 11 4F 70 48 8B 5C 24 30", 1);
 		aobBlocks[FOV2_KEY] = new AOBBlock(FOV2_KEY, "F3 44 0F 11 75 70 44 0F 28 B4 24 90 00 00 00", 1);
-		aobBlocks[FOV3_KEY] = new AOBBlock(FOV3_KEY, "48 8B CB F3 0F11 47 70 8B 43 18 89 47 78", 1);
+		aobBlocks[FOV3_KEY] = new AOBBlock(FOV3_KEY, "48 8B CB F3 0F 11 47 70 8B 43 18 89 47 78", 1);
 		aobBlocks[FOV_ABS_KEY] = new AOBBlock(FOV_ABS_KEY, "F3 0F 59 0D | 00 9F 97 00", 1);
 		aobBlocks[FOV4_KEY] = new AOBBlock(FOV4_KEY, "0F B6 44 24 68 0F 5B C9", 1);
-		aobBlocks[FOV5_KEY] = new AOBBlock(FOV5_KEY, "0F 11 4B 70 F3 0F 10 4D A8 F3 0F 5C 4B 78", 1);
+		aobBlocks[FOV5_KEY] = new AOBBlock(FOV5_KEY, "0F 29 03 F3 0F 5C 4B 70", 1);
+		aobBlocks[NEARPLANE1_KEY] = new AOBBlock(NEARPLANE1_KEY, "66 0F 6E C0 0F 5B C0 F3 0F 11 4B 78", 1);
+		aobBlocks[NEARPLANE2_KEY] = new AOBBlock(NEARPLANE2_KEY, "F3 0F 11 4B 78 F3 0F 10 83 AC 00 00 00", 1);
+		aobBlocks[NP1_ABS_KEY] = new AOBBlock(NP1_ABS_KEY, "F3 0F 59 05 | CC 13 80 00", 1);
 
 		map<string, AOBBlock*>::iterator it;
 		bool result = true;
@@ -175,13 +183,18 @@ namespace IGCS::GameSpecific::InterceptorHelper
 		GameImageHooker::setHook(aobBlocks[CAMERA_WRITE25_INTERCEPT_KEY], 0x0F, &_cameraWrite25Continue, &cameraWrite25);
 		GameImageHooker::setHook(aobBlocks[FOV3_KEY], 0x0E, &_fovContinue, &fovWrite);
 		GameImageHooker::setHook(aobBlocks[FOV4_KEY], 0x15, &_fov2Continue, &fovWrite2);
-		GameImageHooker::setHook(aobBlocks[FOV5_KEY], 0x0E, &_fov3Continue, &fovWrite3);
+		GameImageHooker::setHook(aobBlocks[FOV5_KEY], 0x16, &_fov3Continue, &fovWrite3);
+		GameImageHooker::setHook(aobBlocks[NEARPLANE1_KEY], 0x14, &_nearplane1Continue, &nearplane);
+		GameImageHooker::setHook(aobBlocks[NEARPLANE2_KEY], 0x12, &_nearplane2Continue, &nearplane2);
 	}
 
 	void getAbsoluteAddresses(map<string, AOBBlock*>& aobBlocks)
 	{
 		_fovabsoluteAddress = Utils::calculateAbsoluteAddress(aobBlocks[FOV_ABS_KEY], 4);
-		OverlayConsole::instance().logDebug("Absolute Address of DIVSS: %p", (void*)_fovabsoluteAddress);
+		_NPabsoluteAddress = Utils::calculateAbsoluteAddress(aobBlocks[NP1_ABS_KEY], 4);
+
+		OverlayConsole::instance().logDebug("Absolute Address of FOV Absolute Address: %p", (void*)_fovabsoluteAddress);
+		OverlayConsole::instance().logDebug("Absolute Address of Near Plane Absolute Address: %p", (void*)_NPabsoluteAddress);
 	}
 	// Reads and stores x number of bytes, and replaces them with NOPS when activated. Returns bytes when deactivated.
 	void SaveNOPReplace(AOBBlock* hookData, int numberOfBytes, bool enabled)

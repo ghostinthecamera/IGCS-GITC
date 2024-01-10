@@ -83,10 +83,14 @@ namespace IGCS::GameSpecific
 	#define FOV_ABS_KEY									"AOB_FOV_ABS_KEY"
 	#define FOV4_KEY									"AOB_FOV4_KEY"
 	#define FOV5_KEY									"AOB_FOV5_KEY"
+	#define NEARPLANE1_KEY								"AOB_NEARPLANE1_KEY"
+	#define NEARPLANE2_KEY								"AOB_NEARPLANE2_KEY"
+	#define NP1_ABS_KEY									"AOB_NP1_ABS_KEY"
 
 	// Indices in the structures read by interceptors 
 	#define COORDS_IN_STRUCT_OFFSET						0x10
 	#define QUATERNION_IN_STRUCT_OFFSET					0x00
 	#define FOV_IN_STRUCT_OFFSET						0x70
+	#define NEAR_PLANE_OFFSET							0x78
 
 }

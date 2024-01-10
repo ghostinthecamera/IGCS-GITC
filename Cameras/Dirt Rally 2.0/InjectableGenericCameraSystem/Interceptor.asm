@@ -52,6 +52,8 @@ PUBLIC cameraWrite25
 PUBLIC fovWrite
 PUBLIC fovWrite2
 PUBLIC fovWrite3
+PUBLIC nearplane
+PUBLIC nearplane2
 
 ;---------------------------------------------------------------
 
@@ -90,11 +92,64 @@ EXTERN _fovContinue: qword
 EXTERN _fov2Continue: qword
 EXTERN _fov3Continue: qword
 EXTERN _fovabsoluteAddress: qword
+EXTERN _NPabsoluteAddress: qword
+EXTERN _nearplane1Continue: qword
+EXTERN _nearplane2Continue: qword
 
 .data
 
 .code
 
+nearplane PROC
+;66 0F 6E C0 0F 5B C0 F3 0F 11 4B 78; 14 jump / F3 0F 59 05 CC 13 80 00 AOB for absolute
+;dirtrally2.exe+A2C57F - 0FB7 44 24 20         - movzx eax,word ptr [rsp+20]
+;dirtrally2.exe+A2C584 - 0F5B C0               - cvtdq2ps xmm0,xmm0
+;dirtrally2.exe+A2C587 - 66 0F6E C8            - movd xmm1,eax
+;dirtrally2.exe+A2C58B - F3 0F59 05 059F9700   - mulss xmm0,[dirtrally2.exe+13A6498] { (0.00) }
+;dirtrally2.exe+A2C593 - FF25 00000000 2F4846BCFB7F0000 - jmp DirtRally2CameraTools.dll+7482F
+;dirtrally2.exe+A2C5A1 - 0F59 0D 009F9700      - mulps xmm1,[dirtrally2.exe+13A64A8] { (0.00) }
+;dirtrally2.exe+A2C5A8 - 66 0F6E C0            - movd xmm0,eax				<<<inject
+;dirtrally2.exe+A2C5AC - 0F5B C0               - cvtdq2ps xmm0,xmm0
+;dirtrally2.exe+A2C5AF - F3 0F11 4B 78         - movss [rbx+78],xmm1		<<Skip
+;dirtrally2.exe+A2C5B4 - F3 0F59 05 CC138000   - mulss xmm0,[dirtrally2.exe+122D988] { (0.00) }
+;dirtrally2.exe+A2C5BC - F3 0F11 83 AC000000   - movss [rbx+000000AC],xmm0	<<return
+;dirtrally2.exe+A2C5C4 - 48 83 C4 40           - add rsp,40 { 64 }
+	movd xmm0,eax
+	cvtdq2ps xmm0,xmm0
+	cmp [g_cameraEnabled], 1
+	jne noskip
+	cmp [g_cameraStructAddress],rbx
+	je skip
+noskip:
+	movss dword ptr [rbx+78h],xmm1
+skip:
+	push rax
+	mov rax, [_NPabsoluteAddress]
+	mulss xmm0, dword ptr [rax]
+	pop rax
+	jmp qword ptr [_nearplane1Continue]
+nearplane ENDP
+
+nearplane2 PROC
+;dirtrally2.exe+A39747 - F3 0F5C 4B 78         - subss xmm1,[rbx+78]
+;dirtrally2.exe+A3974C - F3 0F59 CF            - mulss xmm1,xmm7
+;dirtrally2.exe+A39750 - F3 0F58 4B 78         - addss xmm1,[rbx+78]
+;dirtrally2.exe+A39755 - F3 0F11 4B 78         - movss [rbx+78],xmm1		<<INJECT/SKIP
+;dirtrally2.exe+A3975A - F3 0F10 83 AC000000   - movss xmm0,[rbx+000000AC]
+;dirtrally2.exe+A39762 - F3 0F10 4D DC         - movss xmm1,[rbp-24]
+;dirtrally2.exe+A39767 - F3 0F5C C8            - subss xmm1,xmm0			<<RETURN
+;dirtrally2.exe+A3976B - F3 0F59 CF            - mulss xmm1,xmm7
+	cmp [g_cameraEnabled], 1
+	jne noskip
+	cmp [g_cameraStructAddress],rbx
+	je skip
+noskip:
+	movss dword ptr [rbx+78h],xmm1
+skip:
+	movss xmm0,dword ptr [rbx+000000ACh]
+	movss xmm1,dword ptr [rbp-24h]
+	jmp qword ptr [_nearplane2Continue]
+nearplane2 ENDP
 
 fovWrite PROC
 ;dirtrally2.exe+A63094 - 48 8B CB              - mov rcx,rbx
@@ -110,8 +165,8 @@ fovWrite PROC
 noskip:
 	movss dword ptr [rdi+70h],xmm0
 skip:
-	mov eax, [rbx+18h]
-	mov [rdi+78h],eax
+	mov eax, dword ptr [rbx+18h]
+	mov dword ptr [rdi+78h],eax
 	jmp qword ptr [_fovContinue]
 fovWrite ENDP
 
@@ -141,23 +196,48 @@ skip:
 fovWrite2 ENDP
 
 fovWrite3 PROC
-;dirtrally2.exe+A3973E - 0F11 4B 70            - movups [rbx+70],xmm1	<<INJECT
+;dirtrally2.exe+A3972C - 0F29 03               - movaps [rbx],xmm0
+;dirtrally2.exe+A3972F - F3 0F5C 4B 70         - subss xmm1,[rbx+70]
+;dirtrally2.exe+A39734 - F3 0F59 CF            - mulss xmm1,xmm7
+;dirtrally2.exe+A39738 - F3 0F58 4B 70         - addss xmm1,[rbx+70]
+;dirtrally2.exe+A3973D - F3 0F11 4B 70         - movss [rbx+70],xmm1		<<<INJECT
 ;dirtrally2.exe+A39742 - F3 0F10 4D A8         - movss xmm1,[rbp-58]
 ;dirtrally2.exe+A39747 - F3 0F5C 4B 78         - subss xmm1,[rbx+78]
-;dirtrally2.exe+A3974C - F3 0F59 CF            - mulss xmm1,xmm7		<<RETURN
+;dirtrally2.exe+A3974C - F3 0F59 CF            - mulss xmm1,xmm7			<<RETURN
 ;dirtrally2.exe+A39750 - F3 0F58 4B 78         - addss xmm1,[rbx+78]
 ;dirtrally2.exe+A39755 - F3 0F11 4B 78         - movss [rbx+78],xmm1
 ;dirtrally2.exe+A3975A - F3 0F10 83 AC000000   - movss xmm0,[rbx+000000AC]
 ;dirtrally2.exe+A39762 - F3 0F10 4D DC         - movss xmm1,[rbp-24]
+
+;newcode
+;dirtrally2.exe+A39716 - 0F58 73 50            - addps xmm6,[rbx+50]
+;dirtrally2.exe+A3971A - 0F29 73 50            - movaps [rbx+50],xmm6
+;dirtrally2.exe+A3971E - E8 6D36AFFF           - call dirtrally2.exe+52CD90
+;dirtrally2.exe+A39723 - 0F28 45 00            - movaps xmm0,[rbp+00]
+;dirtrally2.exe+A39727 - F3 0F10 4D A0         - movss xmm1,[rbp-60]
+;dirtrally2.exe+A3972C - 0F29 03               - movaps [rbx],xmm0		<<INJECT
+;dirtrally2.exe+A3972F - F3 0F5C 4B 70         - subss xmm1,[rbx+70]	
+;dirtrally2.exe+A39734 - F3 0F59 CF            - mulss xmm1,xmm7
+;dirtrally2.exe+A39738 - F3 0F58 4B 70         - addss xmm1,[rbx+70]
+;dirtrally2.exe+A3973D - F3 0F11 4B 70         - movss [rbx+70],xmm1	<<SKIP
+;dirtrally2.exe+A39742 - F3 0F10 4D A8         - movss xmm1,[rbp-58]	<<RETURN
+;dirtrally2.exe+A39747 - F3 0F5C 4B 78         - subss xmm1,[rbx+78]
+;dirtrally2.exe+A3974C - F3 0F59 CF            - mulss xmm1,xmm7
+;dirtrally2.exe+A39750 - F3 0F58 4B 78         - addss xmm1,[rbx+78]
+;dirtrally2.exe+A39755 - F3 0F11 4B 78         - movss [rbx+78],xmm1
+;dirtrally2.exe+A3975A - F3 0F10 83 AC000000   - movss xmm0,[rbx+000000AC]
+;dirtrally2.exe+A39762 - F3 0F10 4D DC         - movss xmm1,[rbp-24]	
 	cmp [g_cameraEnabled], 1
 	jne noskip
 	cmp [g_cameraStructAddress],rbx
 	je skip
 noskip:
-	movups [rbx+70h],xmm1
+	movaps [rbx],xmm0
+	subss xmm1,dword ptr [rbx+70h]
+	mulss xmm1,xmm7
+	addss xmm1,dword ptr [rbx+70h]
+	movss dword ptr [rbx+70h],xmm1
 skip:
-	movss xmm1,dword ptr [rbp-58h]
-	subss xmm1,dword ptr [rbx+78h]
 	jmp qword ptr [_fov3Continue]
 fovWrite3 ENDP
 

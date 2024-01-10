@@ -62,6 +62,16 @@ namespace IGCS::GameSpecific::CameraManipulator
 		LPBYTE g_positionAddress = (g_cameraStructAddress + COORDS_IN_STRUCT_OFFSET);
 	}
 
+	void setnearplane()
+	{
+		if (g_cameraStructAddress == nullptr)
+		{
+			return;
+		}
+		float* nearplane = reinterpret_cast<float*>(g_cameraStructAddress + NEAR_PLANE_OFFSET);
+		*nearplane = 0.01f;
+	}
+
 	// Resets the FOV to the one it got when we enabled the camera
 	void resetFoV()
 	{

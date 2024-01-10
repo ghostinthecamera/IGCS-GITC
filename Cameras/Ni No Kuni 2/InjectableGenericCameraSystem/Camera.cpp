@@ -56,7 +56,7 @@ namespace IGCS
 	XMVECTOR Camera::calculateLookQuaternion()
 	{
 		XMVECTOR xQ = XMQuaternionRotationNormal(XMVectorSet(1.0f, 0.0f, 0.0f, 1.0f), _pitch);
-		XMVECTOR yQ = XMQuaternionRotationNormal(XMVectorSet(0.0f, 1.0f, 0.0f, 1.0f), -_roll);
+		XMVECTOR yQ = XMQuaternionRotationNormal(XMVectorSet(0.0f, 1.0f, 0.0f, 1.0f), -_roll);  // -
 		XMVECTOR zQ = XMQuaternionRotationNormal(XMVectorSet(0.0f, 0.0f, 1.0f, 1.0f), _yaw);
 
 		XMVECTOR tmpQ = XMQuaternionMultiply(xQ, yQ);
@@ -67,13 +67,14 @@ namespace IGCS
 
 	XMVECTOR Camera::calculateLookQuaternionSecond()
 	{
-		XMVECTOR xQ = XMQuaternionRotationNormal(XMVectorSet(1.0f, 0.0f, 0.0f, 1.0f), -_pitch);
-		XMVECTOR yQ = XMQuaternionRotationNormal(XMVectorSet(0.0f, 1.0f, 0.0f, 1.0f), -_roll);
-		XMVECTOR zQ = XMQuaternionRotationNormal(XMVectorSet(0.0f, 0.0f, 1.0f, 1.0f), -_yaw);
+		XMVECTOR xQ = XMQuaternionRotationNormal(XMVectorSet(1.0f, 0.0f, 0.0f, 1.0f), _pitch); //-
+		XMVECTOR yQ = XMQuaternionRotationNormal(XMVectorSet(0.0f, 1.0f, 0.0f, 1.0f), _roll);  //-
+		XMVECTOR zQ = XMQuaternionRotationNormal(XMVectorSet(0.0f, 0.0f, 1.0f, 1.0f), _yaw);   //-
 
 		XMVECTOR tmpQ = XMQuaternionMultiply(xQ, yQ);
 		XMVECTOR qToReturn = XMQuaternionMultiply(zQ, tmpQ);
 		XMQuaternionNormalize(qToReturn);
+		//XMQuaternionInverse(qToReturn);
 		return qToReturn;
 	}
 
@@ -122,9 +123,9 @@ namespace IGCS
 		{
 			XMVECTOR directionAsQ = XMVectorSet(_direction.x, _direction.y, _direction.z, 0.0f);
 			XMVECTOR newDirection = XMVector3Rotate(directionAsQ, lookQ);
-			toReturn.x -= XMVectorGetX(newDirection);
-			toReturn.y -= XMVectorGetY(newDirection);
-			toReturn.z -= XMVectorGetZ(newDirection);
+			toReturn.x += XMVectorGetX(newDirection);
+			toReturn.y += XMVectorGetY(newDirection);
+			toReturn.z += XMVectorGetZ(newDirection);
 		}
 		return toReturn;
 	}
@@ -132,7 +133,7 @@ namespace IGCS
 
 	void Camera::moveForward(float amount)
 	{
-		_direction.z -= (Globals::instance().settings().movementSpeed * amount);		// y out of the screen, z up
+		_direction.z -= (Globals::instance().settings().movementSpeed * amount);		// y out of the screen, z up // used to be -
 		_movementOccurred = true;
 	}
 
@@ -144,7 +145,7 @@ namespace IGCS
 
 	void Camera::moveUp(float amount)
 	{
-		_direction.y -= (Globals::instance().settings().movementSpeed * amount * Globals::instance().settings().movementUpMultiplier);		// z is up
+		_direction.y -= (Globals::instance().settings().movementSpeed * amount * Globals::instance().settings().movementUpMultiplier);		// z is up //used to be -
 		_movementOccurred = true;
 	}
 

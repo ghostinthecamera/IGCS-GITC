@@ -53,6 +53,9 @@ namespace IGCS::GameSpecific::CameraManipulator
 	static float _originalMatrix[12];
 	static float _horiginalFoV;
 	static float _voriginalFoV;
+	static float _bullshitNumber;
+	static float k;
+	static float fovRatio;
 	//static float _basespeed1 = 30.0f;
 	//static float _basespeed2 = 30.0f;
 	//static LPBYTE g_resolutionScaleMenuValueAddress = nullptr;
@@ -68,6 +71,17 @@ namespace IGCS::GameSpecific::CameraManipulator
 		*HUDinMemory = *HUDinMemory == (BYTE)0 ? (BYTE)1 : (BYTE)0;
 	}
 
+	void timeStop(bool enabled) 
+	{
+		if (nullptr == g_timescaleAddress)
+		{
+			return;
+		}
+
+		float* timestopinmemory = reinterpret_cast<float*>(g_timescaleAddress + TIMESTOP_OFFSET);
+		*timestopinmemory = (enabled) ? 0.0f :1.0f;
+	}
+
 
 	void getSettingsFromGameState()
 	{
@@ -80,51 +94,83 @@ namespace IGCS::GameSpecific::CameraManipulator
 		Settings& currentSettings = Globals::instance().settings();
 	}
 
-
 	// Resets the FOV to the one it got when we enabled the camera
 	void resetFoV()
 	{
-		if (g_fovStructAddress == nullptr)
+		if (g_cameraStructAddress == nullptr)
 		{
 			return;
 		}
-		float* fovAddress = reinterpret_cast<float*>(g_fovStructAddress + HFOV_IN_STRUCT_OFFSET);
-		float* vfovAddress = reinterpret_cast<float*>(g_fovStructAddress + VFOV_IN_STRUCT_OFFSET);
-		*fovAddress = _horiginalFoV;
+		float* hfovAddress = reinterpret_cast<float*>(g_cameraStructAddress + HFOV_FROM_CAM_STRUCT);
+		float* vfovAddress = reinterpret_cast<float*>(g_cameraStructAddress + VFOV_FROM_CAM_STRUCT);
+		float* bullshitnumberAddress = reinterpret_cast<float*>(g_cameraStructAddress + BULLSHIT_FACTOR_OFFSET);
+		*hfovAddress = _horiginalFoV;
 		*vfovAddress = _voriginalFoV;
+		*bullshitnumberAddress = _bullshitNumber;
+	}
+
+	float establishbullshitfactor()
+	{
+		float* bullshitnumberAddress = reinterpret_cast<float*>(g_cameraStructAddress + BULLSHIT_FACTOR_OFFSET);
+		float* hfovAdress = reinterpret_cast<float*>(g_cameraStructAddress + HFOV_FROM_CAM_STRUCT);
+
+		float magicnumber = *bullshitnumberAddress;
+		float hfov = *hfovAdress;
+
+		k = magicnumber * hfov;
+
+		return k;	
+	}
+
+	void establishfovRatio()
+	{
+		float* hfovAddress = reinterpret_cast<float*>(g_cameraStructAddress + HFOV_FROM_CAM_STRUCT);
+		float* vfovAddress = reinterpret_cast<float*>(g_cameraStructAddress + VFOV_FROM_CAM_STRUCT);
+
+		float hfov = *hfovAddress;
+		float vfov = *vfovAddress;
+
+		fovRatio = vfov / hfov;
 	}
 
 
 	// changes the FoV with the specified amount
 	void changeFoV(float amount)
 	{
-		float fovRatio = 1.778;
-		if (g_fovStructAddress == nullptr)
+		if (g_cameraStructAddress == nullptr)
 		{
 			return;
 		}
-		float* hfovAddress = reinterpret_cast<float*>(g_fovStructAddress + HFOV_IN_STRUCT_OFFSET);
-		float* vfovAddress = reinterpret_cast<float*>(g_fovStructAddress + VFOV_IN_STRUCT_OFFSET);
+		float* hfovAddress = reinterpret_cast<float*>(g_cameraStructAddress + HFOV_FROM_CAM_STRUCT);
+		float* vfovAddress = reinterpret_cast<float*>(g_cameraStructAddress + VFOV_FROM_CAM_STRUCT);
+		float* bullshitnumberAddress = reinterpret_cast<float*>(g_cameraStructAddress + BULLSHIT_FACTOR_OFFSET);
 		float hnewValue = *hfovAddress;
-		if (hnewValue < 0.9f)
-		{
-			hnewValue = *hfovAddress - (amount / 10);
-		}
-		else if (hnewValue > 3.0f)
-		{
-			hnewValue = *hfovAddress - (amount * 2);
-		}
-		else hnewValue = *hfovAddress - amount;
 
-		float vnewValue = hnewValue*fovRatio;
+		float multiplier = Utils::clamp(abs(_horiginalFoV / hnewValue ), 0.5f, 1.0f, 1.0f);
 
-		if (hnewValue < 0.2f)
-		{
-			// clamp. Game will crash with negative fov
-			hnewValue = 0.2f;
-		}
+	    hnewValue = Utils::clamp((hnewValue - (amount*multiplier)),0.25f,6.0f,6.00f);
+
+		//if (hnewValue < 0.9f)
+		//{
+		//	hnewValue = *hfovAddress - (amount / 10);
+		//}
+		//else if (hnewValue > 3.0f)
+		//{
+		//	hnewValue = *hfovAddress - (amount * 2);
+		//}
+		//else hnewValue = *hfovAddress - amount;
+
+		float vnewValue = hnewValue * fovRatio;
+		float newbullshitnumber = k / hnewValue;
+
+		//if (hnewValue < 0.2f)
+		//{
+		//	// clamp. Game will crash with negative fov
+		//	hnewValue = 0.2f;
+		//}
 		*hfovAddress = hnewValue;
 		*vfovAddress = vnewValue;
+		*bullshitnumberAddress = newbullshitnumber;
 	}
 
 	XMFLOAT3 currentQuatCoords()
@@ -133,7 +179,14 @@ namespace IGCS::GameSpecific::CameraManipulator
 		XMFLOAT3 currentCoords = XMFLOAT3(coordsInMemory[0], coordsInMemory[1], coordsInMemory[2]);
 		return currentCoords;
 	}
-	
+
+	XMFLOAT3 currentQuatCoordsInverse()
+	{
+		float* coordsInMemory = reinterpret_cast<float*>(g_cameraStructAddress + QUATERNION_COORD_OFFSET);
+		XMFLOAT3 currentCoords = XMFLOAT3(-coordsInMemory[0], -coordsInMemory[1], -coordsInMemory[2]);
+		return currentCoords;
+	}
+
 	XMFLOAT3 initialiseCamera()
 	{
 		//float* matrixInMemory = reinterpret_cast<float*>(g_cameraStructAddress);
@@ -165,7 +218,7 @@ namespace IGCS::GameSpecific::CameraManipulator
 
 	float calcvecdot(XMVECTOR vec1, XMVECTOR vec2)
 	{
-		float dot = ((XMVectorGetX(vec1)*XMVectorGetX(vec2)) +((XMVectorGetY(vec1)*XMVectorGetY(vec2)) + ((XMVectorGetZ(vec1)*XMVectorGetZ(vec2)))));
+		float dot = ((XMVectorGetX(vec1) * XMVectorGetX(vec2)) + ((XMVectorGetY(vec1) * XMVectorGetY(vec2)) + ((XMVectorGetZ(vec1) * XMVectorGetZ(vec2)))));
 		return dot;
 	}
 
@@ -178,15 +231,15 @@ namespace IGCS::GameSpecific::CameraManipulator
 		XMFLOAT4X4 rotationMatrix;
 		float* matrixInMemory = nullptr;
 		XMFLOAT3 Coords;
+		XMVECTOR newViewCoords = XMLoadFloat3(&newCoords);//old code to keep
+		
+		//XMVECTOR UpPos = XMLoadFloat3(&upposition);
+		//XMMATRIX viewMatrix = XMMatrixLookToRH(newViewCoords, newLookQuaternion, XMVECTOR({0.0f,0.0f,0.0f,0.0f}));//new code to make viewmatrix
+		//XMStoreFloat4x4(&rotationMatrix, viewMatrix);
 
+		//old code to keep
 		XMMATRIX rotationMatrixPacked = XMMatrixRotationQuaternion(newLookQuaternion);
-		XMVECTOR newViewCoords = XMLoadFloat3(&newCoords);
 		XMStoreFloat4x4(&rotationMatrix,rotationMatrixPacked);
-
-
-		//XMVECTOR xAxis = XMLoadFloat3(&XMFLOAT3(rotationMatrix._11, rotationMatrix._12, rotationMatrix._13));
-			//XMVECTOR yAxis = XMLoadFloat3(&XMFLOAT3(rotationMatrix._21, rotationMatrix._22, rotationMatrix._23));
-		//XMVECTOR zAxis = XMLoadFloat3(&XMFLOAT3(rotationMatrix._31, rotationMatrix._32, rotationMatrix._33));
 		
 		XMFLOAT3 xAxisXF(rotationMatrix._11, rotationMatrix._12, rotationMatrix._13);
 		XMFLOAT3 yAxisXF(rotationMatrix._21, rotationMatrix._22, rotationMatrix._23);
@@ -196,11 +249,9 @@ namespace IGCS::GameSpecific::CameraManipulator
 		XMVECTOR yAxis = XMLoadFloat3(&yAxisXF);
 		XMVECTOR zAxis = XMLoadFloat3(&zAxisXF);
 
-
 		XMStoreFloat(&Coords.x, -XMVector3Dot(xAxis, newViewCoords));
 		XMStoreFloat(&Coords.y, -XMVector3Dot(yAxis, newViewCoords));
 		XMStoreFloat(&Coords.z, -XMVector3Dot(zAxis, newViewCoords));
-		//XMFLOAT3 Coords(-calcvecdot(xAxis, newViewCoords), -calcvecdot(yAxis, newViewCoords), -calcvecdot(zAxis, newViewCoords));
 
 		matrixInMemory = reinterpret_cast<float*>(g_cameraStructAddress);
 
@@ -216,6 +267,7 @@ namespace IGCS::GameSpecific::CameraManipulator
 		matrixInMemory[9] = rotationMatrix._32;
 		matrixInMemory[10] = rotationMatrix._33;
 		matrixInMemory[11] = Coords.z;
+		
 	}
 
 	void writeNewCameraValuesToGameDataQuaternion(XMFLOAT3 newCoords, XMVECTOR newLookQuaternion)
@@ -226,18 +278,30 @@ namespace IGCS::GameSpecific::CameraManipulator
 		}
 		float* quaternionInMemory = nullptr;
 		float* quaternionCoordsInMemory = nullptr;
+		//float* coords1 = nullptr;
+		//float* coords2 = nullptr;
 
-		quaternionInMemory = reinterpret_cast<float*>(g_cameraStructAddress + QUATERNION_OFFSET);
+		//quaternionInMemory = reinterpret_cast<float*>(g_cameraStructAddress + QUATERNION_OFFSET);
 		quaternionCoordsInMemory = reinterpret_cast<float*>(g_cameraStructAddress + QUATERNION_COORD_OFFSET);
+		//coords1 = reinterpret_cast<float*>(g_cameraStructAddress + COORDS1);
+		//coords2 = reinterpret_cast<float*>(g_cameraStructAddress + COORDS2);
 
 		quaternionInMemory[0] = XMVectorGetX(newLookQuaternion);
 		quaternionInMemory[1] = XMVectorGetY(newLookQuaternion);
 		quaternionInMemory[2] = XMVectorGetZ(newLookQuaternion);
 		quaternionInMemory[3] = XMVectorGetW(newLookQuaternion);
-		quaternionCoordsInMemory[0] = newCoords.x;
-		quaternionCoordsInMemory[1] = newCoords.y;
-		quaternionCoordsInMemory[2] = newCoords.z;
 
+		//quaternionCoordsInMemory[0] = newCoords.x;
+		//quaternionCoordsInMemory[1] = newCoords.y;
+		//quaternionCoordsInMemory[2] = newCoords.z;
+
+		//coords1[0] = newCoords.x;
+		//coords1[1] = newCoords.y;
+		//coords1[2] = newCoords.z;
+
+		//coords2[0] = newCoords.x;
+		//coords2[1] = newCoords.y;
+		//coords2[2] = newCoords.z;
 	}
 
 
@@ -250,6 +314,7 @@ namespace IGCS::GameSpecific::CameraManipulator
 	void displayCameraStructAddress()
 	{
 		OverlayConsole::instance().logDebug("Camera struct address: %p", (void*)g_cameraStructAddress);
+		OverlayConsole::instance().logDebug("Timescale struct address: %p", (void*)g_timescaleAddress);
 	}
 	
 
@@ -260,6 +325,7 @@ namespace IGCS::GameSpecific::CameraManipulator
 		//float* coordsInMemory = nullptr;
 		float *hfovInMemory = nullptr;
 		float* vfovInMemory = nullptr;
+		float* bullshitnumberinMemory = nullptr;
 
 
 		if (!isCameraFound())
@@ -272,10 +338,12 @@ namespace IGCS::GameSpecific::CameraManipulator
 		memcpy(matrixInMemory, _originalMatrix, 12 * sizeof(float));
 		//memcpy(coordsInMemory, _originalCoords, 3 * sizeof(float));
 
-		hfovInMemory = reinterpret_cast<float*>(g_fovStructAddress + HFOV_IN_STRUCT_OFFSET);
+		hfovInMemory = reinterpret_cast<float*>(g_cameraStructAddress + HFOV_FROM_CAM_STRUCT);
 		*hfovInMemory = _horiginalFoV;
-		vfovInMemory = reinterpret_cast<float*>(g_fovStructAddress + VFOV_IN_STRUCT_OFFSET);
+		vfovInMemory = reinterpret_cast<float*>(g_cameraStructAddress + VFOV_FROM_CAM_STRUCT);
 		*vfovInMemory = _voriginalFoV;
+		bullshitnumberinMemory = reinterpret_cast<float*>(g_cameraStructAddress + BULLSHIT_FACTOR_OFFSET);
+		*bullshitnumberinMemory = _bullshitNumber;
 	}
 
 
@@ -285,6 +353,7 @@ namespace IGCS::GameSpecific::CameraManipulator
 		//float* coordsInMemory = nullptr;
 		float* hfovInMemory = nullptr;
 		float* vfovInMemory = nullptr;
+		float* bullshitnumberinMemory = nullptr;
 
 
 		if (!isCameraFound())
@@ -293,14 +362,14 @@ namespace IGCS::GameSpecific::CameraManipulator
 		}
 		// gameplay/cutscene cam
 		matrixInMemory = reinterpret_cast<float*>(g_cameraStructAddress);
-		//coordsInMemory = reinterpret_cast<float*>(g_cameraStructAddress + COORDS_IN_STRUCT_OFFSET);
 		memcpy(_originalMatrix, matrixInMemory, 12 * sizeof(float));
-		//memcpy(_originalCoords, coordsInMemory, 3 * sizeof(float));
 
-		hfovInMemory = reinterpret_cast<float*>(g_fovStructAddress + HFOV_IN_STRUCT_OFFSET);
+		hfovInMemory = reinterpret_cast<float*>(g_cameraStructAddress + HFOV_FROM_CAM_STRUCT);
 		_horiginalFoV = *hfovInMemory;
-		vfovInMemory = reinterpret_cast<float*>(g_fovStructAddress + VFOV_IN_STRUCT_OFFSET);
+		vfovInMemory = reinterpret_cast<float*>(g_cameraStructAddress + VFOV_FROM_CAM_STRUCT);
 		_voriginalFoV = *vfovInMemory;
+		bullshitnumberinMemory = reinterpret_cast<float*>(g_cameraStructAddress + BULLSHIT_FACTOR_OFFSET);
+		_bullshitNumber = *bullshitnumberinMemory;
 	}
 
 }

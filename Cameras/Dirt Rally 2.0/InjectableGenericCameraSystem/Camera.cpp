@@ -124,13 +124,13 @@ namespace IGCS
 
 	void Camera::moveForward(float amount)
 	{
-		_direction.z += (Globals::instance().settings().movementSpeed * amount);		// z out of the screen
+		_direction.z += (Globals::instance().settings().movementSpeed * amount);
 		_movementOccurred = true;
 	}
 
 	void Camera::moveRight(float amount)
 	{
-		_direction.x -= (Globals::instance().settings().movementSpeed * amount);		// x is right
+		_direction.x -= (Globals::instance().settings().movementSpeed * amount);
 		_movementOccurred = true;
 	}
 

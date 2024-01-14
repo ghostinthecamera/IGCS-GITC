@@ -55,9 +55,9 @@ namespace IGCS
 
 	XMVECTOR Camera::calculateLookQuaternion()
 	{
-		XMVECTOR xQ = XMQuaternionRotationNormal(XMVectorSet(1.0f, 0.0f, 0.0f, 1.0f), _pitch);
+		XMVECTOR xQ = XMQuaternionRotationNormal(XMVectorSet(1.0f, 0.0f, 0.0f, 1.0f), -_pitch);
 		XMVECTOR yQ = XMQuaternionRotationNormal(XMVectorSet(0.0f, 1.0f, 0.0f, 1.0f), -_roll);  // -
-		XMVECTOR zQ = XMQuaternionRotationNormal(XMVectorSet(0.0f, 0.0f, 1.0f, 1.0f), _yaw);
+		XMVECTOR zQ = XMQuaternionRotationNormal(XMVectorSet(0.0f, 0.0f, 1.0f, 1.0f), -_yaw);
 
 		XMVECTOR tmpQ = XMQuaternionMultiply(xQ, yQ);
 		XMVECTOR qToReturn = XMQuaternionMultiply(zQ, tmpQ);
@@ -133,13 +133,13 @@ namespace IGCS
 
 	void Camera::moveForward(float amount)
 	{
-		_direction.z -= (Globals::instance().settings().movementSpeed * amount);		// y out of the screen, z up // used to be -
+		_direction.z += (Globals::instance().settings().movementSpeed * amount);		// y out of the screen, z up // used to be -
 		_movementOccurred = true;
 	}
 
 	void Camera::moveRight(float amount)
 	{
-		_direction.x += (Globals::instance().settings().movementSpeed * amount);		// x is right
+		_direction.x -= (Globals::instance().settings().movementSpeed * amount);		// x is right
 		_movementOccurred = true;
 	}
 

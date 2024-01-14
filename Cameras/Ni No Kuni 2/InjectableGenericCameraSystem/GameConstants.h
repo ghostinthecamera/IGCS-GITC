@@ -44,14 +44,14 @@ namespace IGCS::GameSpecific
 	#define DEFAULT_MOVEMENT_SPEED						0.1f
 	#define DEFAULT_ROTATION_SPEED						0.01f
 	#define DEFAULT_FOV_SPEED							0.10f
-	#define DEFAULT_FOV									1.36f	
+	#define DEFAULT_FOV									0.79f	
 	#define DEFAULT_UP_MOVEMENT_MULTIPLIER				0.7f
 	#define RESOLUTION_SCALE_MAX						4.0f
 	#define RESOLUTION_SCALE_MIN						0.5f
 	// End Mandatory constants
 
 	// AOB Keys for interceptor's AOB scanner
-	#define CAMERA_ADDRESS_INTERCEPT_KEY				"AOB_CAMERA_ADDRESS_INTERCEPT"
+	#define ACTIVE_ADDRESS_INTERCEPT_KEY				"AOB_ACTIVE_ADDRESS_INTERCEPT"
 	#define HUD_RENDER_INTERCEPT_KEY					"AOB_HUD_RENDER_INTERCEPT_KEY"
 	#define FOV_INTERCEPT_KEY							"AOB_FOV_INTERCEPT_KEY"
 	#define TIMESCALE_INTERCEPT_KEY						"AOB_TIMESCALE_INTERCEPT_KEY"
@@ -66,28 +66,17 @@ namespace IGCS::GameSpecific
 	#define BULLSHIT_FACTOR_WRITE3						"AOB_BULLSHIT_FACTOR_WRITE3"
 	#define BULLSHIT_FACTOR_WRITE4						"AOB_BULLSHIT_FACTOR_WRITE4"
 	#define BULLSHIT_FACTOR_WRITE5						"AOB_BULLSHIT_FACTOR_WRITE5"
-	#define FOV_WRITE1									"AOB_FOV_WRITE1"
-	#define FOV_WRITE2									"AOB_FOV_WRITE2"
-	#define FOV_WRITE3									"AOB_FOV_WRITE3"
-	#define FOV_WRITE4									"AOB_FOV_WRITE4"
-	#define FOV_WRITE5									"AOB_FOV_WRITE5"
-	#define FOV_WRITE6									"AOB_FOV_WRITE6"
-	#define SHADOW_NOP1									"AOB_SHADOW_NOP1"
-	#define SHADOW_NOP2									"AOB_SHADOW_NOP2"
-	#define SHADOW_NOP3									"AOB_SHADOW_NOP3"
+	#define FOV_BYTEWRITE1								"AOB_FOV_WRITE1"
+	#define FOV_BYTEWRITE2								"AOB_FOV_WRITE2"
+	#define FOV_BYTEWRITE3								"AOB_FOV_WRITE3"
+	#define FOV_BYTEWRITE4								"AOB_FOV_WRITE4"
+	#define CAMERA_ADDRESS_KEY2							"AOB_CAMERA_ADDRESS_KEY2"
+	#define CAMERA_WRITE								"AOB_CAMERA_WRITE"
 
 	// Indices in the structures read by interceptors 
-	#define MATRIX_IN_STRUCT_OFFSET					    0x000
-	#define HFOV_IN_STRUCT_OFFSET						0x160  //-0x80 from viewmatrix
-	#define HFOV_FROM_CAM_STRUCT						-0x80
-	#define VFOV_FROM_CAM_STRUCT						-0x6C
-	#define VFOV_IN_STRUCT_OFFSET						0x174	// -0x6C from viewmatrix
-	#define	BULLSHIT_FACTOR_OFFSET						0xA4	
+	#define FOV_ACTIVECAM_OFFSET						0x284  //-0x80 from viewmatrix
+	#define FOVBYTE_ACTIVECAM_OFFSET					0x2AC	// -0x6C from viewmatrix
 	#define TIMESTOP_OFFSET								0x357C1C
 	#define HUD_OFFSET									0x6144
-	#define QUATERNION_OFFSET						   -0x1C0
-	#define QUATERNION_COORD_OFFSET					   -0x1B0
-	#define COORDS1										0x50
-	#define COORDS2									   -0xD0
-
+	#define NEARPLANE									0x28C
 }

@@ -103,7 +103,6 @@ namespace IGCS
 			currentCoords = GameSpecific::CameraManipulator::getCurrentCameraCoords();
 			newCoords = _camera.calculateNewCoords(currentCoords, newLookQuaternion);
 			GameSpecific::CameraManipulator::writeNewCameraValuesToGameData(newCoords, newLookQuaternion);
-			
 		}
 	}
 

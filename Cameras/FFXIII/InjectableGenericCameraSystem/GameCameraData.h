@@ -34,7 +34,7 @@ namespace IGCS
 	struct GameCameraData
 	{
 		float _coords[3];
-		float _rotation[8];
+		float _rotation[9];
 		float _hfov;
 		float _vfov;
 

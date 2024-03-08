@@ -8,7 +8,7 @@ These tools hijack the in-game camera and allow control over the camera's positi
 allow control of the field of view. Some camera implementations have additional features such as the ability to control the game speed.
 
 The tools are built on the Injectable Game Camera System created by Frans Bouma. You can find his patreon with even more tools based upon a 
-new camera system with enhanced features, check it out!
+new camera system with enhanced features, check it out!  
 IGCS is written in C++ with some x86/x64 assembler to be able to intercept the location of the 3D camera in the game. 
 The system is initially designed for 64bit hosts as all games are 64bit nowadays, but has been reworked to be used for 32bit games too. 
 

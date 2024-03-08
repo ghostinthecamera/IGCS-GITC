@@ -162,7 +162,7 @@ namespace IGCS::GameSpecific::CameraManipulator
 		}
 
 		float* timescale = reinterpret_cast<float*>(g_timescaleaddress + TIMESCALE_OFFSET);
-		*timescale = (*timescale > 0.05f ? 0.0001f : 1.0f);
+		*timescale = (*timescale > 0.05f ? 0.0f : 1.0f);
 	}
 
 	void sloMoFunc(float amount)

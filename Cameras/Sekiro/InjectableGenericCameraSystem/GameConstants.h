@@ -54,8 +54,8 @@ namespace IGCS::GameSpecific
 	#define CAM_BLOCK2									"CAM_BLOCK2"
 	#define HUDTOGGLE									"HUDTOGGLE"
 	#define TIMESTOP_KEY								"TIMESTOP_KEY"
-	#define FOV_INTERCEPT_KEY							"FOV_INTERCEPT_KEY" //2nops
-	#define FOV_INTERCEPT_DEBUG							"FOV_INTERCEPT_DEBUG"
+	#define FOV_INTERCEPT_KEY					        "FOV_INTERCEPT_KEY" //2nops
+	#define FOV_INTERCEPT_DEBUG					        "FOV_INTERCEPT_DEBUG"
 	#define DOF_KEY										"DOF_KEY"
 	#define UVKEY										"UVKEY"
 	#define PLAYERPOINTER_KEY							"PLAYERPOINTER_KEY"

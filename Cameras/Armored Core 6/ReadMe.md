@@ -10,7 +10,7 @@ Credits: ghostinthecamera (with some tips from Frans!)
 - Field of View
 - HUD Toggle
 - Unlocked range in photomode
-- Vignette Removal (If you are using the [ACVI Raw Graphics](https://www.nexusmods.com/armoredcore6firesofrubicon/mods/121) mod to remove Vignette then this will not work, so disable it
+- Vignette Removal (If you are using the [ACVI Raw Graphics](https://www.nexusmods.com/armoredcore6firesofrubicon/mods/121) mod to remove Vignette then this will not work, so disable it)
  
 Special Effects:
 =============

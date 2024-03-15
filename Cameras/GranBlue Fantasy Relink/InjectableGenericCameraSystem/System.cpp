@@ -411,7 +411,7 @@ namespace IGCS
 		NamedPipeManager::instance().connectDllToClient();
 		NamedPipeManager::instance().startListening();
 		InputHooker::setInputHooks();
-		Input::registerRawInput();
+		//Input::registerRawInput();
 
 		GameSpecific::InterceptorHelper::initializeAOBBlocks(_hostImageAddress, _hostImageSize, _aobBlocks);
 		GameSpecific::InterceptorHelper::getAbsoluteAddresses(_aobBlocks); //return if needed

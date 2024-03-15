@@ -1,8 +1,8 @@
 Injectable Camera for GranBlue Fantasy ReLink
 ============================
 
-Current supported game version: 1.1.1 
-Camera version: 2.0   
+Current supported game version: 1.1.2 
+Camera version: 2.01   
 Credits: ghostinthecamera & Skall 
 
 - IGCSDOF support

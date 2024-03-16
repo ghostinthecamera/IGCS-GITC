@@ -261,11 +261,11 @@ namespace IGCS
 
 			if (gamePad.isButtonPressed(IGCS_BUTTON_TILT_LEFT))
 			{
-				_camera.roll(multiplier);
+				_camera.roll(-multiplier);
 			}
 			if (gamePad.isButtonPressed(IGCS_BUTTON_TILT_RIGHT))
 			{
-				_camera.roll(-multiplier);
+				_camera.roll(multiplier);
 			}
 			if (gamePad.isButtonPressed(IGCS_BUTTON_RESET_FOV))
 			{
@@ -306,7 +306,7 @@ namespace IGCS
 				if(leftButtonPressed)
 				{
 					// move up / down
-					_camera.moveUp(-yValue);
+					_camera.moveUp(yValue);
 				}
 				else
 				{
@@ -327,7 +327,7 @@ namespace IGCS
 				// if both buttons are pressed: do tilt
 				if(leftButtonPressed&&rightButtonPressed)
 				{
-					_camera.roll(-xValue);
+					_camera.roll(xValue);
 				}
 				else
 				{
@@ -393,11 +393,11 @@ namespace IGCS
 		}
 		if (Input::isActionActivated(ActionType::TiltLeft, true))
 		{
-			_camera.roll(multiplier);
+			_camera.roll(-multiplier);
 		}
 		if (Input::isActionActivated(ActionType::TiltRight, true))
 		{
-			_camera.roll(-multiplier);
+			_camera.roll(multiplier);
 		}
 	}
 

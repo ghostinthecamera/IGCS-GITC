@@ -379,7 +379,28 @@ namespace IGCS::GameSpecific::CameraManipulator
 		XMVECTOR focuspos = XMLoadFloat3(&focusposinmem);
 		XMVECTOR up = XMLoadFloat3(&upposinmem);
 
-		const XMMATRIX m = XMMatrixLookAtLH(eyepos, focuspos, up);
+		////
+		XMVECTOR EyeDirection = XMVectorSubtract(focuspos, eyepos);
+		XMVECTOR fwd = XMVector3Normalize(EyeDirection);
+
+		XMVECTOR rght = XMVector3Cross(fwd, up);
+		XMVECTOR negRght = XMVectorNegate(rght);
+		rght = XMVector3Normalize(rght);
+
+		XMVECTOR upv = XMVector3Cross(fwd, negRght);
+		upv = XMVector3Normalize(upv);
+
+		XMVECTOR NegEyePosition = XMVectorNegate(eyepos);
+		XMVECTOR D1 = XMVector3Dot(rght, NegEyePosition);
+		XMVECTOR D0 = XMVector3Dot(upv, NegEyePosition);
+		XMVECTOR D2 = XMVector3Dot(fwd, NegEyePosition);
+
+		XMMATRIX m;
+		m.r[0] = XMVectorSelect(D1, rght, g_XMSelect1110.v);
+		m.r[1] = XMVectorSelect(D0, upv, g_XMSelect1110.v);
+		m.r[2] = XMVectorSelect(D2, fwd, g_XMSelect1110.v);
+		m.r[3] = g_XMIdentityR3.v;
+		///
 
 		DirectX::XMVECTOR q = DirectX::XMQuaternionRotationMatrix(m);
 		Matrix sM = (Matrix)m;

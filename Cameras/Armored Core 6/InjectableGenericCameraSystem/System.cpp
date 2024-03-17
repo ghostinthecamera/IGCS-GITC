@@ -265,17 +265,17 @@ namespace IGCS
 			_camera.yaw(rightStickPosition.x * multiplier);
 
 			vec2 leftStickPosition = gamePad.getLStickPosition();
-			_camera.moveUp((gamePad.getLTrigger() - gamePad.getRTrigger()) * multiplier);
+			_camera.moveUp((gamePad.getRTrigger() - gamePad.getLTrigger()) * multiplier);
 			_camera.moveForward(leftStickPosition.y * multiplier);
 			_camera.moveRight(leftStickPosition.x * multiplier);
 
 			if (gamePad.isButtonPressed(IGCS_BUTTON_TILT_LEFT))
 			{
-				_camera.roll(multiplier);
+				_camera.roll(-multiplier);
 			}
 			if (gamePad.isButtonPressed(IGCS_BUTTON_TILT_RIGHT))
 			{
-				_camera.roll(-multiplier);
+				_camera.roll(multiplier);
 			}
 			if (gamePad.isButtonPressed(IGCS_BUTTON_RESET_FOV))
 			{
@@ -337,7 +337,7 @@ namespace IGCS
 				// if both buttons are pressed: do tilt
 				if(leftButtonPressed&&rightButtonPressed)
 				{
-					_camera.roll(-xValue);
+					_camera.roll(xValue);
 				}
 				else
 				{
@@ -403,11 +403,11 @@ namespace IGCS
 		}
 		if (Input::isActionActivated(ActionType::TiltLeft, true))
 		{
-			_camera.roll(multiplier);
+			_camera.roll(-multiplier);
 		}
 		if (Input::isActionActivated(ActionType::TiltRight, true))
 		{
-			_camera.roll(-multiplier);
+			_camera.roll(multiplier);
 		}
 	}
 
@@ -496,31 +496,72 @@ namespace IGCS
 
 	void System::toggleGamePause(bool displayNotification)
 	{
-		bool gamePaused = Globals::instance().toggleGamePaused();
+		const bool* gamePaused = Globals::instance().gamePausedptr();
+		const bool* slowMo = Globals::instance().sloMoptr();
 
-		if (gamePaused) 
-		{ 
+		if (!*gamePaused && !*slowMo)
+		{
+			//it's going to be paused so save the default timescale
+			CameraManipulator::cachetimespeed();
 			_camera.cachetimestopcoords(CameraManipulator::getCurrentCameraCoords());
 			Sleep(50);  //if we dont have a delay, the game is paused before we can store the coordinates above
 		}
+		if (!*gamePaused && *slowMo)
+		{
+			//it's going to be paused while in slowmotion so save the slowmo timespeed
+			CameraManipulator::cacheslowmospeed();
+			_camera.cachetimestopcoords(CameraManipulator::getCurrentCameraCoords());
+			Sleep(50);  //if we dont have a delay, the game is paused before we can store the coordinates above
+		}
+		if (*gamePaused && *slowMo)
+		{
+			//it's going to be unpaused but return to slowmo so use that speed, nothing to do here
+		}
+		if (*gamePaused && !*slowMo)
+		{
+			//it's going to be unpaused
+		}
 
-		CameraManipulator::setTimeStopValue(gamePaused, Globals::instance().sloMo());
+		Globals::instance().toggleGamePaused();
+		CameraManipulator::setTimeStopValue(*gamePaused, *slowMo);
 
 		if (displayNotification)
 		{
-			MessageHandler::addNotification(gamePaused ? "Game paused" : "Game unpaused");
+			MessageHandler::addNotification(*gamePaused ? "Game paused" : "Game unpaused");
 		}
 	}
 
 	void System::toggleSlowMo(bool displaynotification)
 	{
-		bool isslowmo = Globals::instance().toggleSlowMo();
+		const bool* gamePaused = Globals::instance().gamePausedptr();
+		const bool* slowMo = Globals::instance().sloMoptr();
+
+		if (!*slowMo && !*gamePaused)
+		{
+			//slowmotion to be activated so cache the current gamespeed
+			CameraManipulator::cachetimespeed();
+		}
+		if (!*slowMo && *gamePaused)
+		{
+			//slowmotion to be enabled while in pause, return to pause - handled in function
+			CameraManipulator::cacheslowmospeed();
+		}
+		if (*slowMo && *gamePaused)
+		{
+			//slowmotion to be disabled while in pause, return to pause - handled in function
+		}
+		if (*slowMo && !*gamePaused)
+		{
+			//returning to normal speed so disable
+		}
+
+		Globals::instance().toggleSlowMo();
 		
-		CameraManipulator::setSlowMo(Globals::instance().settings().gameSpeed, isslowmo, Globals::instance().gamePaused());
+		CameraManipulator::setSlowMo(Globals::instance().settings().gameSpeed, *slowMo, *gamePaused);
 
 		if (displaynotification)
 		{
-			MessageHandler::addNotification(isslowmo ? "SlowMo" : "Resume");
+			MessageHandler::addNotification(*slowMo ? "SlowMo" : "Resume");
 		}
 
 	}
@@ -595,7 +636,7 @@ namespace IGCS
 			CameraManipulator::restoreCurrentCameraCoords(_igcscacheData.Coordinates);
 		}
 		_camera.moveRight(stepLeftRight / movementspeed);
-		_camera.moveUp((-stepUpDown / movementspeed) / upmovementmultiplier);
+		_camera.moveUp((stepUpDown / movementspeed) / upmovementmultiplier);
 		if (fovDegrees>0)
 		{
 			CameraManipulator::restoreFOV(CameraManipulator::fovinRadians(fovDegrees));

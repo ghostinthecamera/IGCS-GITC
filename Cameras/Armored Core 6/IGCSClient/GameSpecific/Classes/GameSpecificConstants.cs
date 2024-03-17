@@ -33,7 +33,7 @@ namespace IGCSClient.GameSpecific.Classes
 	internal static class GameSpecificConstants
 	{
 		public const string ClientWindowTitle = "Armored Core 6 Tools";
-		public const string CameraVersion = "2.00";
+		public const string CameraVersion = "2.01";
 		public const string CameraCredits = "GHOSTINTHECAMERA";
 		public const bool HotsamplingRequiresEXITSIZEMOVE = false;
 	}
@@ -48,7 +48,7 @@ namespace IGCSClient.GameSpecific.Classes
 		public const int CameraControlDevice = 2;
 		public const float RotationSpeed = 0.01f;
 		public const bool InvertYLookDirection = false;
-		public const float FoVZoomSpeed = 0.05f;
+		public const float FoVZoomSpeed = 0.01f;
 		public const float gameSpeed = 0.5f;
 		public const bool ToggleVignette = false;
 	}
@@ -66,8 +66,8 @@ namespace IGCSClient.GameSpecific.Classes
 		public const int MoveCameraRightDefault = (int)Keys.NumPad6;
 		public const int MoveCameraForwardDefault = (int)Keys.NumPad8;
 		public const int MoveCameraBackwardDefault = (int)Keys.NumPad5;
-		public const int MoveCameraUpDefault = (int)Keys.NumPad7;
-		public const int MoveCameraDownDefault = (int)Keys.NumPad9;
+		public const int MoveCameraUpDefault = (int)Keys.NumPad9;
+		public const int MoveCameraDownDefault = (int)Keys.NumPad7;
 		public const int RotateCameraUpDefault = (int)Keys.Up;
 		public const int RotateCameraDownDefault = (int)Keys.Down;
 		public const int RotateCameraLeftDefault = (int)Keys.Left;

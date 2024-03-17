@@ -50,6 +50,8 @@ namespace IGCS::GameSpecific::CameraManipulator
 	void displayResolution(int width, int height);
 	void setResolution(int width, int height);
 	void cacheGameAddresses(GameAddressData& destination);
+	void cachetimespeed();
+	void cacheslowmospeed();
 
 
 	/// <summary>

@@ -55,8 +55,10 @@ namespace IGCS
 		bool systemActive() const { return _systemActive; }
 		void systemActive(bool value) { _systemActive = value; }
 		bool gamePaused() const { return _gamePaused; }
+		bool* gamePausedptr() { return &_gamePaused; }
 		void gamePaused(bool state) { _gamePaused = state; }
 		bool sloMo() const { return _slowMo; }
+		bool* sloMoptr() { return &_slowMo; }
 		void sloMo(bool status) { _slowMo = status; }
 		HWND mainWindowHandle() const { return _mainWindowHandle; }
 		void mainWindowHandle(HWND handle) { _mainWindowHandle = handle; }

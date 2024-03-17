@@ -106,6 +106,26 @@ namespace IGCS::GameSpecific::CameraManipulator
 		//*ARinmemory = newAR;
 	}
 
+	void cachetimespeed()
+	{
+		if (nullptr == g_timestopAddress)
+		{
+			return;
+		}
+		float* gameSpeedInMemory = reinterpret_cast<float*>(g_timestopAddress + TIMESTOP_FLOAT_OFFSET);
+		cachedGamespeedPause = *gameSpeedInMemory;
+	}
+
+	void cacheslowmospeed()
+	{
+		if (nullptr == g_timestopAddress)
+		{
+			return;
+		}
+		float* gameSpeedInMemory = reinterpret_cast<float*>(g_timestopAddress + TIMESTOP_FLOAT_OFFSET);
+		cachedGamespeedSlowMo = *gameSpeedInMemory;
+	}
+
 	// This timestop is based on game speed. So if the game has to be paused, we will write a 0.0f. If the game has to be unpaused, we'll write a 1.0f.
 	void setTimeStopValue(bool pauseGame, bool slowmoEnabled)
 	{
@@ -114,15 +134,15 @@ namespace IGCS::GameSpecific::CameraManipulator
 			return;
 		}
 		float* gameSpeedInMemory = reinterpret_cast<float*>(g_timestopAddress + TIMESTOP_FLOAT_OFFSET);
-		if (pauseGame) 
-		{ 
-			cachedGamespeedPause = *gameSpeedInMemory; 
-		}
-		if (slowmoEnabled)  //if disabling pause but slowmo enabled, then set slowmo flag to false and set gamepause flag to true
+		if (!slowmoEnabled)
 		{
-			Globals::instance().sloMo(false);
+			*gameSpeedInMemory = pauseGame ? 0.0f : cachedGamespeedPause;
 		}
-		*gameSpeedInMemory = pauseGame ? 0.0f : 1.0f;
+		if (slowmoEnabled)
+		{
+			*gameSpeedInMemory = pauseGame ? 0.0f : cachedGamespeedSlowMo;
+			Globals::instance().toggleSlowMo();
+		}
 	}
 
 	void setSlowMo(float amount, bool slowMo, bool gamepaused)
@@ -132,15 +152,14 @@ namespace IGCS::GameSpecific::CameraManipulator
 			return;
 		}
 		float* gameSpeedInMemory = reinterpret_cast<float*>(g_timestopAddress + TIMESTOP_FLOAT_OFFSET);
-		if (slowMo) 
-		{ 
-			cachedGamespeedSlowMo = *gameSpeedInMemory; 
-		}
-		if (gamepaused && cachedGamespeedSlowMo > 0.95f)
+		if (gamepaused)
 		{
-			Globals::instance().gamePaused(false);
+			*gameSpeedInMemory = slowMo ? amount * cachedGamespeedPause : cachedGamespeedSlowMo;
 		}
-		*gameSpeedInMemory = slowMo? amount * 1.0f : cachedGamespeedSlowMo;
+		if (!gamepaused)
+		{
+			*gameSpeedInMemory = slowMo ? amount * cachedGamespeedPause : cachedGamespeedPause;
+		}
 	}
 
 	// Resets the FOV to the one it got when we enabled the camera

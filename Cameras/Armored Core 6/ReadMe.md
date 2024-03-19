@@ -1,9 +1,9 @@
 Injectable Camera for Armored Core 6
 ============================
 
-Current supported game version: App Ver .60   
-Camera version: 2.21 
-Credits: ghostinthecamera (with some tips from Frans!)   
+Current supported game version: App Ver .60     
+Camera version: 2.11   
+Credits: ghostinthecamera (with some tips from Frans!)     
 
 - IGCSDOF support
 - Timestop/Gamespeed control

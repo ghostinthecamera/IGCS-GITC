@@ -19,6 +19,7 @@
                 <HeaderedContentControl Header="Other" Margin="0, 10, 0, 10" FontSize="20"/>
                 <controls:FloatInputSliderWPF Header="Game Speed" x:Name="_gameSpeed" Margin="0, 0, 0, 10" TickPlacement="Both" SnaptoTick="True" TickValue="0.1"/>
                 <controls:BoolInputWPF x:Name="_vignetteToggle" Label="Remove Vignette"/>
+                <controls:BoolInputWPF x:Name="_altTimestop" Label="Alternative Timestop"/>
             </ui:SimpleStackPanel>
         </GroupBox>
         <ui:SimpleStackPanel Orientation="Vertical" Margin="10,0,0,0">

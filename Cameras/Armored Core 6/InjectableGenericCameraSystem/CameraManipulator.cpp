@@ -126,23 +126,20 @@ namespace IGCS::GameSpecific::CameraManipulator
 		cachedGamespeedSlowMo = *gameSpeedInMemory;
 	}
 
-	// This timestop is based on game speed. So if the game has to be paused, we will write a 0.0f. If the game has to be unpaused, we'll write a 1.0f.
+	// This timestop is based on game speed. So if the game has to be paused, we will write a 0.000000000001f. 
+	// 0.0f causes crashes in certain situations
+	// If the game has to be unpaused, we'll write a 1.0f.
 	void setTimeStopValue(bool pauseGame, bool slowmoEnabled)
 	{
 		if (nullptr == g_timestopAddress)
 		{
 			return;
 		}
+
 		float* gameSpeedInMemory = reinterpret_cast<float*>(g_timestopAddress + TIMESTOP_FLOAT_OFFSET);
-		if (!slowmoEnabled)
-		{
-			*gameSpeedInMemory = pauseGame ? 0.0f : cachedGamespeedPause;
-		}
-		if (slowmoEnabled)
-		{
-			*gameSpeedInMemory = pauseGame ? 0.0f : cachedGamespeedSlowMo;
-			Globals::instance().toggleSlowMo();
-		}
+		
+		bool alt = Globals::instance().settings().AltTimestop;
+		*gameSpeedInMemory = pauseGame ? alt ? 0.000001f : 0.0f : 1.0f;
 	}
 
 	void setSlowMo(float amount, bool slowMo, bool gamepaused)
@@ -151,15 +148,10 @@ namespace IGCS::GameSpecific::CameraManipulator
 		{
 			return;
 		}
+
 		float* gameSpeedInMemory = reinterpret_cast<float*>(g_timestopAddress + TIMESTOP_FLOAT_OFFSET);
-		if (gamepaused)
-		{
-			*gameSpeedInMemory = slowMo ? amount * cachedGamespeedPause : cachedGamespeedSlowMo;
-		}
-		if (!gamepaused)
-		{
-			*gameSpeedInMemory = slowMo ? amount * cachedGamespeedPause : cachedGamespeedPause;
-		}
+
+		*gameSpeedInMemory = slowMo ? amount: 1.0f;
 	}
 
 	// Resets the FOV to the one it got when we enabled the camera

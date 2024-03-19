@@ -31,7 +31,7 @@ namespace IGCS::GameSpecific
 {
 	// Mandatory constants to define for a game
 	#define GAME_NAME									"Armored Core 6"
-	#define CAMERA_VERSION								"2.0"
+	#define CAMERA_VERSION								"2.11"
 	#define CAMERA_CREDITS								"ghostinthecamera"
 	#define GAME_WINDOW_TITLE							"ARMORED CORE™ VI FIRES OF RUBICON™"
 	#define INITIAL_PITCH_RADIANS						0.0f	// around X axis	(right)

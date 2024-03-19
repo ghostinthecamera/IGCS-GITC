@@ -59,6 +59,7 @@ namespace IGCSClient.GameSpecific.Classes
 			appState.AddSetting(new FloatSetting(SettingType.FoVZoomSpeed, nameof(SettingType.FoVZoomSpeed), 0.001, 0.05, 3, 0.001, GameSpecificSettingDefaults.FoVZoomSpeed));
             appState.AddSetting(new FloatSetting(SettingType.gameSpeed, nameof(SettingType.gameSpeed), 0.1, 2.0, 1, 0.1, GameSpecificSettingDefaults.gameSpeed));
 			appState.AddSetting(new BoolSetting(SettingType.ToggleVignette, nameof(SettingType.ToggleVignette), GameSpecificSettingDefaults.ToggleVignette));
+            appState.AddSetting(new BoolSetting(SettingType.AlternativeTimestop, nameof(SettingType.AlternativeTimestop), GameSpecificSettingDefaults.AlternativeTimestop));
         }
 
 

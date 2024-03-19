@@ -81,6 +81,9 @@ namespace IGCSClient.GameSpecific.Controls
                     case SettingType.ToggleVignette:
                         setting.Setup(_vignetteToggle);
                         break;
+                    case SettingType.AlternativeTimestop:
+                        setting.Setup(_altTimestop);
+                        break;
                 }
 			}
 		}

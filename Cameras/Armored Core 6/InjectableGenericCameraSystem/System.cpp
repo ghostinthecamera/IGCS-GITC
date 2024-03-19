@@ -502,20 +502,20 @@ namespace IGCS
 		if (!*gamePaused && !*slowMo)
 		{
 			//it's going to be paused so save the default timescale
-			CameraManipulator::cachetimespeed();
 			_camera.cachetimestopcoords(CameraManipulator::getCurrentCameraCoords());
 			Sleep(50);  //if we dont have a delay, the game is paused before we can store the coordinates above
 		}
 		if (!*gamePaused && *slowMo)
 		{
-			//it's going to be paused while in slowmotion so save the slowmo timespeed
-			CameraManipulator::cacheslowmospeed();
+			//it's going to be paused while in slowmotion so set slowmo flag to false
+			Globals::instance().sloMo(false); //set the slowmo flag to false
 			_camera.cachetimestopcoords(CameraManipulator::getCurrentCameraCoords());
 			Sleep(50);  //if we dont have a delay, the game is paused before we can store the coordinates above
 		}
 		if (*gamePaused && *slowMo)
 		{
-			//it's going to be unpaused but return to slowmo so use that speed, nothing to do here
+			//it's going to be unpaused but slowmoflag true so set slotmo flag to false
+			Globals::instance().sloMo(false); //set the slowmo flag to false
 		}
 		if (*gamePaused && !*slowMo)
 		{
@@ -538,21 +538,21 @@ namespace IGCS
 
 		if (!*slowMo && !*gamePaused)
 		{
-			//slowmotion to be activated so cache the current gamespeed
-			CameraManipulator::cachetimespeed();
+			//slowmotion to be activated, no actions to take
 		}
 		if (!*slowMo && *gamePaused)
 		{
-			//slowmotion to be enabled while in pause, return to pause - handled in function
-			CameraManipulator::cacheslowmospeed();
+			//slowmotion to be enabled while in pause, disable pause
+			Globals::instance().gamePaused(false);
 		}
 		if (*slowMo && *gamePaused)
 		{
-			//slowmotion to be disabled while in pause, return to pause - handled in function
+			//slowmotion to be disabled while in pause, disable pause
+			Globals::instance().gamePaused(false);
 		}
 		if (*slowMo && !*gamePaused)
 		{
-			//returning to normal speed so disable
+			//returning to normal speed - no actions to take
 		}
 
 		Globals::instance().toggleSlowMo();

@@ -50,6 +50,7 @@ namespace IGCS
 		bool vignetteToggle;
 		int hsWidth;
 		int hsHeight;
+		bool AltTimestop;
 		
 		void setValueFromMessage(uint8_t payload[], DWORD payloadLength)
 		{
@@ -89,6 +90,9 @@ namespace IGCS
 				break;
 			case SettingType::ToggleVignette:
 				vignetteToggle = payload[2] == (uint8_t)1 ? true : false;
+				break;
+			case SettingType::AlternativeTimestop:
+				AltTimestop = payload[2] == (uint8_t)1 ? true : false;
 				break;
 			default:
 				// nothing

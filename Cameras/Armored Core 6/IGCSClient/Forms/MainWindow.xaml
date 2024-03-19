@@ -59,8 +59,21 @@
             <TabItem Header="Help" Name="_helpTab">
                 <ScrollViewer>
                     <StackPanel Margin="15">
+                        <Expander Header="Timestop" Margin="0,0,0,10" IsExpanded="True">
+                            <TextBlock TextWrapping="Wrap" FontWeight="Normal" FontSize="12">
+                                There are two timestop methods available. The default method is more stable for normal use BUT will cause the game
+                                to crash if used during the super boost game mechanic. In the 'Configuration' tab of this client, there is an option
+                                to use an alternative timestop.<LineBreak/>
+                                <LineBreak/>
+                                The alternative timestop does not create this crash. However, it comes with its own compromises. The game may randomly
+                                fly your mech to the top of the map when using it and this may be mission breaking. Some particle effects will constantly
+                                be moving or jittering, and the game may accept movement after the timestop is applied meaning the mech may move slightly.<LineBreak/>
+                                <LineBreak/>
+                                Up to you to determine what you need.
+                            </TextBlock>
+                        </Expander>
                         <Expander Header="Controls" Margin="0,0,0,10" IsExpanded="True">
-                            <TextBlock TextWrapping="Wrap">
+                            <TextBlock TextWrapping="Wrap" FontSize="12">
 								<Run Text="Keyboard features" FontWeight="Bold"/><LineBreak/>
 								For operating the camera and enable/disable features using the keyboard, please see the Key-bindings tab. 
 								To move / rotate slower, press Ctrl while rotating / moving the camera. To move / rotate faster, press Alt while
@@ -85,7 +98,7 @@
 								- B button: reset FoV<LineBreak/>
                             </TextBlock>
                         </Expander>
-                        <Expander Header="About hotsampling" Margin="0,0,0,10">
+                        <Expander Header="About hotsampling" Margin="0,0,0,10" FontSize="12">
                             <TextBlock TextWrapping="Wrap">
 								Hotsampling is not supported in these tools.
                             </TextBlock>

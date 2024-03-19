@@ -91,6 +91,7 @@ namespace IGCS
 		FoVZoomSpeed = 7,
 		gameSpeed = 8,
 		ToggleVignette = 9,
+		AlternativeTimestop = 10
 		
 		// add more here
 	};

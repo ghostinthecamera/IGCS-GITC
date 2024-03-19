@@ -93,9 +93,10 @@ namespace IGCSClient
 		public const byte FoVZoomSpeed = 7;
 		public const byte gameSpeed = 8;
 		public const byte ToggleVignette = 9;
+        public const byte AlternativeTimestop = 10;
 
-		// to add more, derived a type of this class and define the next value one higher than the last one in this class.
-	}
+        // to add more, derived a type of this class and define the next value one higher than the last one in this class.
+    }
 
 
 	public class KeyBindingType

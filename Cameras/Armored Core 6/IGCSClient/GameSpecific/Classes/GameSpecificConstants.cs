@@ -33,7 +33,7 @@ namespace IGCSClient.GameSpecific.Classes
 	internal static class GameSpecificConstants
 	{
 		public const string ClientWindowTitle = "Armored Core 6 Tools";
-		public const string CameraVersion = "2.01";
+		public const string CameraVersion = "2.11";
 		public const string CameraCredits = "GHOSTINTHECAMERA";
 		public const bool HotsamplingRequiresEXITSIZEMOVE = false;
 	}
@@ -51,7 +51,8 @@ namespace IGCSClient.GameSpecific.Classes
 		public const float FoVZoomSpeed = 0.01f;
 		public const float gameSpeed = 0.5f;
 		public const bool ToggleVignette = false;
-	}
+        public const bool AlternativeTimestop = false;
+    }
 
 
 	internal static class GameSpecificKeyBindingDefaults

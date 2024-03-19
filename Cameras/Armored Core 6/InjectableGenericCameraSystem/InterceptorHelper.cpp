@@ -61,7 +61,7 @@ namespace IGCS::GameSpecific::InterceptorHelper
 		aobBlocks[FOV_WRITE_KEY] = new AOBBlock(FOV_WRITE_KEY, "F3 0F 11 49 ?? F3 0F 11 49 ?? F3 0F 11 49 ?? F3 0F 11 49 ?? C3 33 C0", 1);
 		aobBlocks[TIMESTOP_INTERCEPT_KEY] = new AOBBlock(TIMESTOP_INTERCEPT_KEY, "F3 0F 10 88 ?? ?? ?? ?? F3 0F 59 88 ?? ?? ?? ?? F3 0F 59 88 ?? ?? ?? ?? 48 8D 35 ?? ?? ?? ??", 1);
 		aobBlocks[TIMESTOP_WRITE_KEY] = new AOBBlock(TIMESTOP_WRITE_KEY, "C7 83 ?? ?? ?? ?? 00 00 80 3F 48 83 3D ?? ?? ?? ?? ??", 1);
-		//aobBlocks[TIMESTOP_WRITE_KEY2] = new AOBBlock(TIMESTOP_WRITE_KEY2, "C7 81 ?? ?? ?? ?? 00 00 80 3F C3 90 48 89 5C", 1);
+		aobBlocks[TIMESTOP_WRITE_KEY2] = new AOBBlock(TIMESTOP_WRITE_KEY2, "C7 81 ?? ?? ?? ?? 00 00 80 3F C3 CC 48 89 ??", 1);
 		aobBlocks[HUD_KEY] = new AOBBlock(HUD_KEY, "42 FF 14 C0 48 63 43 ?? 89 43 ?? 4C 39 73 ?? 74 ?? 44 38 73 69 74 29 83 F8 12", 1);
 		aobBlocks[VIGNETTE_KEY] = new AOBBlock(VIGNETTE_KEY, "0F 11 03 49 8B E3 5B C3", 1);
 
@@ -115,6 +115,7 @@ namespace IGCS::GameSpecific::InterceptorHelper
 	void toolsInit(map<string, AOBBlock*>& aobBlocks)
 	{
 		Utils::SaveNOPReplace(aobBlocks[TIMESTOP_WRITE_KEY], 10, true);
+		//Utils::SaveNOPReplace(aobBlocks[TIMESTOP_WRITE_KEY2], 10, true);
 	}
 
 	void handleSettings(map<string, AOBBlock*>& aobBlocks)

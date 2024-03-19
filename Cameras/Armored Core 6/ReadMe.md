@@ -14,9 +14,9 @@ Credits: ghostinthecamera (with some tips from Frans!)
  
 Changelog
 ==============
-x2.11: Addition of alternative timestop to mitigate crash and update to timescale system
-v2.01: Minor updates to user input code and timescale system
-v2.00: Initial Release
+x2.11: Addition of alternative timestop to mitigate crash and update to timescale system  
+v2.01: Minor updates to user input code and timescale system  
+v2.00: Initial Release  
 
 Timestop/Gamespeed
 ==================

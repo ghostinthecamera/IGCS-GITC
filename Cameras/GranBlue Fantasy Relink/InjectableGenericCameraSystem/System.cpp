@@ -491,18 +491,20 @@ namespace IGCS
 			
 		if (!*gamePaused && !*slowMo)
 		{
-			//it's going to be paused so save the default timescale
+			//it's going to be paused so save the default timescale and disable the write
 			Utils::SaveNOPReplace(_aobBlocks[TIMESTOP_WRITE_KEY], 8, true);
 			CameraManipulator::cachetimespeed();
 		}
 		if (!*gamePaused && *slowMo)
 		{
-			//it's going to be paused while in slowmotion so save the slowmo timespeed
-			CameraManipulator::cacheslowmospeed();
+			//it's going to be paused while in slowmotion so set slowmo flag to false
+			Globals::instance().sloMo(false); //set the slowmo flag to false
 		}
 		if (*gamePaused && *slowMo)
 		{
-			//it's going to be unpaused but return to slowmo so use that speed, nothing to do here
+			//it's going to be unpaused but slowmoflag true so set slowmo flag to false and reenable write
+			Globals::instance().sloMo(false); //set the slowmo flag to false
+			Utils::SaveNOPReplace(_aobBlocks[TIMESTOP_WRITE_KEY], 8, false);
 		}
 		if (*gamePaused && !*slowMo)
 		{
@@ -533,12 +535,14 @@ namespace IGCS
 		}
 		if (!*slowMo && *gamePaused)
 		{
-			//slowmotion to be enabled while in pause, return to pause - handled in function
-			CameraManipulator::cacheslowmospeed();
+			//slowmotion to be enabled while in pause, disable pause
+			Globals::instance().gamePaused(false);
 		}
 		if (*slowMo && *gamePaused)
 		{
-			//slowmotion to be disabled while in pause, return to pause - handled in function
+			//slowmotion to be disabled while in pause, disable pause
+			Globals::instance().gamePaused(false);
+			Utils::SaveNOPReplace(_aobBlocks[TIMESTOP_WRITE_KEY], 8, false);
 		}
 		if (*slowMo && !*gamePaused)
 		{

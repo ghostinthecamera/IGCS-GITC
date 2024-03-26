@@ -1,0 +1,49 @@
+﻿<UserControl x:Class="IGCSClient.Controls.GeneralPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+			 xmlns:ui="http://schemas.modernwpf.com/2019"
+             xmlns:local="clr-namespace:IGCSClient.Controls"
+			 mc:Ignorable="d" Loaded="GeneralPage_OnLoaded"
+			 Style="{StaticResource ControlPageStyle}" Height="561.35" Width="720">
+    <StackPanel>
+        <GroupBox Header="Process and DLL selection" Height="231" DockPanel.Dock="Top" x:Name="_injectDllGroupBox">
+            <StackPanel Margin="0,0,0,0">
+                <HeaderedContentControl Header="Process to inject to" Margin="0, 0, 0, 10">
+                    <DockPanel>
+                        <Button HorizontalAlignment="Right" DockPanel.Dock="Right" x:Name="_selectProcessButton" Width="80" Click="_selectProcessButton_Click" Content="Select..."/>
+                        <TextBox x:Name="_processNameTextBox" IsReadOnly="true" TextChanged="_processNameTextBox_OnTextChanged"/>
+                    </DockPanel>
+                </HeaderedContentControl>
+
+                <HeaderedContentControl Header="DLL to inject" Margin="0, 0, 0, 10">
+                    <DockPanel>
+                        <Button HorizontalAlignment="Right" DockPanel.Dock="Right" x:Name="_browseForDllButton" Width="80" Click="_browseForDllButton_Click" Content="Browse..."/>
+                        <TextBox x:Name="_dllFilenameTextBox" IsReadOnly="true" TextChanged="_dllFilenameTextBox_OnTextChanged"/>
+                    </DockPanel>
+                </HeaderedContentControl>
+
+                <Button x:Name="_injectButton" IsEnabled="True" Click="_injectButton_Click" Content="Inject DLL"/>
+            </StackPanel>
+        </GroupBox>
+        <GroupBox Header="Attached process info" Height="248" DockPanel.Dock="Top" x:Name="_attachedProcessInfoGroupBox">
+            <DockPanel>
+                <Image VerticalAlignment="Top" Width="32" Height="32" x:Name="_executableIconImage" DockPanel.Dock="Left" Margin="0, 19, 0, 0">
+                    <Image.Effect>
+                        <DropShadowEffect RenderingBias="Quality" Opacity="0.7" ShadowDepth="1" BlurRadius="10"/>
+                    </Image.Effect>
+                </Image>
+                <StackPanel DockPanel.Dock="Left" Margin="10, 0, 0, 0">
+                    <HeaderedContentControl Header="Executable" Margin="0, 0, 0, 10">
+                        <TextBox x:Name="_executableTextBox" IsReadOnly="true"/>
+                    </HeaderedContentControl>
+                    <HeaderedContentControl Header="Window title" Margin="0, 0, 0, 10">
+                        <TextBox x:Name="_windowTitleTextBox" IsReadOnly="true"/>
+                    </HeaderedContentControl>
+                    <Button x:Name="_rehookXInputButton" Click="_rehookXInputButton_OnClick" Content="Re-hook XInput"/>
+                </StackPanel>
+            </DockPanel>
+        </GroupBox>
+    </StackPanel>
+</UserControl>

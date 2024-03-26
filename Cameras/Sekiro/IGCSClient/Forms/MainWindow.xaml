@@ -1,0 +1,136 @@
+﻿<Window
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:IGCSClient.Forms"
+             xmlns:ui="http://schemas.modernwpf.com/2019"
+			 xmlns:Controls="clr-namespace:IGCSClient.Controls" 
+			 xmlns:GameSpecificControls="clr-namespace:IGCSClient.GameSpecific.Controls"
+			 xmlns:system="clr-namespace:System;assembly=mscorlib"
+			 xmlns:igcsClient="clr-namespace:IGCSClient"
+			 x:Class="IGCSClient.Forms.MainWindow"
+			 ui:ThemeManager.IsThemeAware="True"
+			 ui:WindowHelper.UseModernWindowStyle="True"
+             mc:Ignorable="d" Height="569.025" Width="874" Loaded="MainWindow_OnLoaded" WindowStartupLocation="CenterScreen">
+    <DockPanel>
+        <StatusBar DockPanel.Dock="Bottom" Height="25">
+            <StatusBarItem Padding="3, 3, 10,3">
+                <TextBlock x:Name="_clientToDllConnectedSBLabel"><Run Text="Not connected"/></TextBlock>
+            </StatusBarItem>
+            <StatusBarItem Padding="3, 3, 10,3">
+                <TextBlock x:Name="_dllToClientConnectedSBLabel"><Run Text="Not connected"/></TextBlock>
+            </StatusBarItem>
+            <StatusBarItem HorizontalAlignment="Right" Margin="0, 0, 5, 0">
+                <TextBlock x:Name="_copyRightSBLabel"><Hyperlink x:Name="_sbHyperlink" RequestNavigate="_sbHyperlink_OnRequestNavigate" Foreground="{DynamicResource UriForecolorKey}"><Run Text="Powered by IGCS. ©2020 Frans 'Otis_Inf' Bouma"/></Hyperlink></TextBlock>
+            </StatusBarItem>
+        </StatusBar>
+        <TabControl DockPanel.Dock="Top" TabStripPlacement="Left" Width="873">
+            <TabControl.Resources>
+                <system:Double x:Key="TabViewItemHeaderFontSize">16</system:Double>
+                <system:Double x:Key="TabViewItemHeaderIconSize">14</system:Double>
+            </TabControl.Resources>
+            <TabControl.Background>
+                <ImageBrush Stretch="UniformToFill" TileMode="None" Opacity="0.6" ImageSource="/Resources/Sekiro.jpg"/>
+            </TabControl.Background>
+            <TabItem Header="General" Name="_generalTab">
+                <Controls:GeneralPage Padding="15" Width="Auto" Height="Auto" x:Name="_generalTabControl" DllInjected="_generalTabControl_OnDllInjected" AttachedProcessExited="_generalTabControl_OnAttachedProcessExited"/>
+            </TabItem>
+            <TabItem Header="Hotsampling" Name="_hotSamplingTab">
+                <Controls:HotsamplingPage Padding="15" x:Name="_hotsamplingControl" Width="Auto" Height="Auto"/>
+            </TabItem>
+            <TabItem Header="Configuration" Name="_configurationTab" Foreground="Black">
+                <ScrollViewer>
+                    <GameSpecificControls:ConfigurationPage Margin="15" x:Name="_configurationEditor" Width="Auto" Height="Auto"/>
+                </ScrollViewer>
+            </TabItem>
+            <TabItem Header="Key-bindings" Name="_keybindingsTab">
+                <ScrollViewer>
+                    <GameSpecificControls:KeyBindingPage Margin="15" x:Name="_keyBindingsEditor" Width="Auto" Height="Auto"/>
+                </ScrollViewer>
+            </TabItem>
+            <TabItem Header="Theme" Name="_themeTab">
+                <Controls:ThemePage Padding="15" />
+            </TabItem>
+            <TabItem Header="Log" Name="_logTab">
+                <Controls:ApplicationOutputPage Padding="15" x:Name="_logControl"/>
+            </TabItem>
+            <TabItem Header="Help" Name="_helpTab">
+                <ScrollViewer>
+                    <StackPanel Margin="15">
+                        <Expander Header="Controls" Margin="0,0,0,10" IsExpanded="True">
+                            <TextBlock TextWrapping="Wrap" FontSize="12">
+								<Run Text="Keyboard features" FontWeight="Bold"/><LineBreak/>
+								For operating the camera and enable/disable features using the keyboard, please see the Key-bindings tab. 
+								To move / rotate slower, press Ctrl while rotating / moving the camera. To move / rotate faster, press Alt while
+								rotating / moving the camera.
+								<LineBreak/><LineBreak/>
+								<Run Text="Mouse features" FontWeight="Bold"/>
+								<LineBreak/>
+								- No mouse buttons pressed: rotate the camera<LineBreak/>
+								- Left button pressed: move camera up / down / left / right<LineBreak/>
+								- Right button pressed: move camera forward / backward / left / right<LineBreak/>
+								- Both left and right button pressed: tilt camera left / right<LineBreak/>
+								- Mousewheel: increase / decrease FoV<LineBreak/>
+								<LineBreak/>
+								<Run Text="Controller features" FontWeight="Bold"/><LineBreak/>
+								- Left stick: move camera forward / backward / left / right <LineBreak/>
+								- Right stick: rotate camera<LineBreak/>
+								- Left trigger: move camera up<LineBreak/>
+								- Right trigger: move camera down<LineBreak/>
+								- Y button + left / right stick: faster movement / rotation<LineBreak/>
+								- X button + left / right stick: slower movement / rotation<LineBreak/>
+								- D-pad up / down: increase / decrease FoV<LineBreak/>
+								- B button: reset FoV<LineBreak/>
+                            </TextBlock>
+                        </Expander>
+                        <Expander Header="About hotsampling" Margin="0,0,0,10" >
+                            <TextBlock TextWrapping="Wrap" FontSize="12">
+								Hotsampling is not supported by this game.
+                            </TextBlock>
+                        </Expander>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+            <TabItem Header="About" Name="_aboutTab">
+                <ScrollViewer>
+                    <StackPanel Margin="15">
+                        <Expander Header="About Injectable Generic Camera System" Margin="0,0,0,10" IsExpanded="True">
+                            <TextBlock TextWrapping="Wrap"><Run Text="This camera is powered by Injectable Generic Camera System (IGCS)."/><LineBreak/><Run Text="Copyright (c) 2020 Otis_Inf (Frans Bouma). All rights reserved."/><LineBreak/><Hyperlink NavigateUri="https://github.com/FransBouma/InjectableGenericCameraSystem" RequestNavigate="_sbHyperlink_OnRequestNavigate" Foreground="{DynamicResource UriForecolorKey}"><Run Text="https://github.com/FransBouma/InjectableGenericCameraSystem"/></Hyperlink><LineBreak/><LineBreak/><Run Text="Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:"/><LineBreak/><LineBreak/><Run Text="1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer."/><LineBreak/><Run Text="2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution."/><LineBreak/><LineBreak/><Run Text="THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS 'AS IS' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE."/></TextBlock>
+                        </Expander>
+                        <Expander Header="About MinHook" Margin="0,0,0,10">
+                            <TextBlock TextWrapping="Wrap"><Run Text="IGCS uses MinHook, copyright (c) 2009-2017 Tsuda Kageyu. All rights reserved."/><LineBreak/><LineBreak/><Run Text="Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:"/><LineBreak/><LineBreak/><Run Text="1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer."/><LineBreak/><Run Text="2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution."/><LineBreak/><LineBreak/><Run Text="THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS 'AS IS' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE."/></TextBlock>
+                        </Expander>
+                        <Expander Header="About ModernWPF" Margin="0,0,0,10">
+                            <TextBlock TextWrapping="Wrap"><Run Text="IGCS uses ModernWPF, copyright (c) 2019 Yimeng Wu."/>
+								<LineBreak/><LineBreak/>
+								Permission is hereby granted, free of charge, to any person obtaining a copy
+								of this software and associated documentation files (the "Software"), to deal
+								in the Software without restriction, including without limitation the rights
+								to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+								copies of the Software, and to permit persons to whom the Software is
+								furnished to do so, subject to the following conditions:
+								<LineBreak/><LineBreak/>
+								The above copyright notice and this permission notice shall be included in all
+								copies or substantial portions of the Software.
+								<LineBreak/><LineBreak/>
+								THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+								IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+								FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+								AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+								LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+								OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+								SOFTWARE.
+                            </TextBlock>
+                        </Expander>
+                        <Expander Header="Special thanks" Margin="0,0,0,10">
+                            <TextBlock TextWrapping="Wrap"><Run Text="Special thanks to:"/><LineBreak/><Run Text="The users of my camera's, you all are a great inspiration to make the best camera tools possible!"/><LineBreak/></TextBlock>
+                        </Expander>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+        </TabControl>
+    </DockPanel>
+</Window>
+
+	

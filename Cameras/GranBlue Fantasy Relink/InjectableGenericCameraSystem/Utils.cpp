@@ -417,8 +417,8 @@ namespace IGCS::Utils
 				MessageHandler::logLine("Currently disabled - Return");
 				break;
 			}
-			GameImageHooker::writeRange(hookData->locationInImage() + hookData->customOffset(), BytestoWrite, numberOfBytes);
-			hookData->nopState2 = true;
+			GameImageHooker::writeRange(hookData->locationInImage() + hookData->customOffset(), hookData->byteStorage2, numberOfBytes);
+			hookData->nopState2 = false;
 			MessageHandler::logDebug("AOB Block returned: %s", hookData->getName().c_str());
 			break;
 		}

@@ -212,6 +212,11 @@ namespace IGCS
 			_applyHammerPrevention = true;
 		}
 
+		if (Input::isActionActivated(ActionType::pauseByte))
+		{
+			toggleBytePause();
+			_applyHammerPrevention = true;
+		}
 
 		if (!g_cameraEnabled)
 		{
@@ -497,6 +502,17 @@ namespace IGCS
 		toggleGamePause(false);
 		Sleep(32);
 		toggleGamePause(false);
+	}
+
+	void System::toggleBytePause(bool displayNotification)
+	{
+		bool bytepaused = Globals::instance().toggleBytePaused();
+		InterceptorHelper::togglePause(_aobBlocks, bytepaused);
+
+		if (displayNotification)
+		{
+			MessageHandler::addNotification(bytepaused ? "Game paused (alternate)" : "Game unpaused (alternate)");
+		}
 	}
 
 

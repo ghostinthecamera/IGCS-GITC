@@ -51,6 +51,8 @@ namespace IGCS::GameSpecific
 	#define MATRIX_SIZE									12
 	#define COORD_SIZE									3
 	#define DEFAULT_IGCS_TYPE							6
+	#define BYTE_PAUSE									0x00
+	#define BYTE_RESUME									0x01
 	// End Mandatory constants
 	
 
@@ -67,6 +69,7 @@ namespace IGCS::GameSpecific
 	#define PLAYERPOINTER_KEY							"PLAYERPOINTER_KEY"
 	#define ENTITY_KEY									"ENTITY_KEY	"
 	#define FPSUNLOCK									"FPSUNLOCK"
+	#define PAUSE_BYTE									"PAUSE_BYTE"
 	
 	// Indices in the structures read by interceptors 
 	#define COORDS_IN_STRUCT_OFFSET						0x40

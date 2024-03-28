@@ -20,6 +20,7 @@
 			<controls:KeyCombinationInputWPF Header="Move camera down" x:Name="_moveCameraDownInput" Width="300" HorizontalAlignment="Left" Margin="0,0,0,10"/>
 			<controls:KeyCombinationInputWPF Header="Pause / unpause the game" x:Name="_pauseUnPauseInput" Width="300" HorizontalAlignment="Left" Margin="0,0,0,10"/>
             <controls:KeyCombinationInputWPF Header="Toggle Gamespeed" x:Name="_slowMoToggle" Width="300" HorizontalAlignment="Left" Margin="0,0,0,10"/>
+            <controls:KeyCombinationInputWPF Header="Toggle Pause (Alternate)" x:Name="_toggleBytePause" Width="300" HorizontalAlignment="Left" Margin="0,0,0,10"/>
         </StackPanel>
 		<StackPanel>
 			<controls:KeyCombinationInputWPF Header="Decrease FoV" x:Name="_decreaseFoVInput" Width="300" HorizontalAlignment="Left" Margin="0,0,0,10"/>

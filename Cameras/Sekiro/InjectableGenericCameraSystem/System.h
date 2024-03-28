@@ -80,6 +80,7 @@ namespace IGCS
 		void handleSkipFrames();
 		//game specific
 		void togglePlayerOnly();
+		void toggleBytePause(bool displayNotification = true);
 
 		/// <summary>
 		/// IGCSDOF

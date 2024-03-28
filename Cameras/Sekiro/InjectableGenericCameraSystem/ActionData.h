@@ -55,6 +55,7 @@ namespace IGCS
 		SlowMo,
 		HUDtoggle,
 		PlayerOnly,
+		pauseByte,
 
 		Amount,
 	};

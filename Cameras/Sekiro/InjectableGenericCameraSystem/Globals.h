@@ -98,10 +98,19 @@ namespace IGCS
 		void handleActionPayload(uint8_t payload[], DWORD payloadLength); //for action payload
 		// gamespecific items
 		bool playeronly() const { return _playerOnly; }
+		bool bytePaused() const { return _bytePaused; }
+		bool* bytePausedPtr() { return &_bytePaused; }
+		void bytePaused(bool state) { _bytePaused = state; }
+
 		bool togglePlayerOnly()
 		{
 			_playerOnly = !_playerOnly;
 			return _playerOnly;
+		}
+		bool toggleBytePaused()
+		{
+			_bytePaused = !_bytePaused;
+			return _bytePaused;
 		}
 
 		//IGCSDOF
@@ -122,6 +131,7 @@ namespace IGCS
 		map<ActionType, ActionData*> _keyBindingPerActionType;
 		bool _hudVisible = true;
 		bool _gamePaused = false;
+		bool _bytePaused = false;
 		bool _slowMo = false;
 		bool _playerOnly = false;
 	};

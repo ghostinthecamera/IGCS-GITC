@@ -125,6 +125,7 @@ namespace IGCSClient
 		public const byte SlowMo = 20;
         public const byte HUDtoggle = 21;
 		public const byte playerOnlyToggle = 22;
+        public const byte pauseByteToggle = 23;
 
         // to add more, derived a type of this class and define the next value one higher than the last one in this class.
     }

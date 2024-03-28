@@ -61,6 +61,7 @@ namespace IGCS
 	#define IGCS_KEY_SKIP_FRAMES					VK_NEXT
 	#define IGCS_KEY_HUD							VK_DELETE
 	#define IGCS_KEY_PLAYERONLY						VK_END
+	#define IGCS_KEY_BYTE_PAUSE						VK_PAUSE
 
 	#define IGCS_BUTTON_FOV_DECREASE	Gamepad::button_t::UP
 	#define IGCS_BUTTON_FOV_INCREASE	Gamepad::button_t::DOWN

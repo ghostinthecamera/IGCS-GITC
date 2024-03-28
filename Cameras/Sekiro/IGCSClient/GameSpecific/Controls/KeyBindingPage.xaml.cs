@@ -117,6 +117,9 @@ namespace IGCSClient.GameSpecific.Controls
                     case KeyBindingType.playerOnlyToggle:
                         binding.Setup(_playerOnly);
                         break;
+                    case KeyBindingType.pauseByteToggle:
+                        binding.Setup(_toggleBytePause);
+                        break;
                 }
 			}
 		}

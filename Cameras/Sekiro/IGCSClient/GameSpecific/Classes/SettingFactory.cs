@@ -91,6 +91,7 @@ namespace IGCSClient.GameSpecific.Classes
             appState.AddKeyBinding(new KeyBindingSetting(KeyBindingType.SlowMo, nameof(KeyBindingType.SlowMo), new KeyCombination(GameSpecificKeyBindingDefaults.SlowMoDefault)));
             appState.AddKeyBinding(new KeyBindingSetting(KeyBindingType.HUDtoggle, nameof(KeyBindingType.HUDtoggle), new KeyCombination(GameSpecificKeyBindingDefaults.HUDtoggle)));
             appState.AddKeyBinding(new KeyBindingSetting(KeyBindingType.playerOnlyToggle, nameof(KeyBindingType.playerOnlyToggle), new KeyCombination(GameSpecificKeyBindingDefaults.PlayerOnlyToggle)));
+            appState.AddKeyBinding(new KeyBindingSetting(KeyBindingType.pauseByteToggle, nameof(KeyBindingType.pauseByteToggle), new KeyCombination(GameSpecificKeyBindingDefaults.PauseByteDefault)));
         }
 	}
 }

@@ -81,5 +81,6 @@ namespace IGCSClient.GameSpecific.Classes
         public const int SlowMoDefault = (int)Keys.PageUp;
         public const int HUDtoggle = (int)Keys.Delete;
         public const int PlayerOnlyToggle = (int)Keys.End;
+        public const int PauseByteDefault = (int)Keys.Pause;
     }
 }

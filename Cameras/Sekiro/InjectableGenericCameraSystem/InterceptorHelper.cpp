@@ -75,6 +75,7 @@ namespace IGCS::GameSpecific::InterceptorHelper
 		aobBlocks[ENTITY_KEY] = new AOBBlock(ENTITY_KEY, "F3 0F 10 83 ?? ?? ?? ?? F3 0F 59 83 ?? ?? ?? ?? F3 0F 59 D0", 1);
 		aobBlocks[FPSUNLOCK] = new AOBBlock(FPSUNLOCK, "89 88 88 3C 4C 89 AB 70 02 00 00 E8 10 C9 7C FF", 1);
 		aobBlocks[HUDTOGGLE] = new AOBBlock(HUDTOGGLE, "42 FF 14 C0 48 63 43 4C 89 43 48 44 38 73 60 74 2F 44 38 73 61 74 29 83 F8 11 77 18", 1); //4 byte nop
+		aobBlocks[PAUSE_BYTE] = new AOBBlock(PAUSE_BYTE, "01 00 00 00 F3 0F 10 40 0C 0F 2F C6 0F 43 CA 88 0D 76 D0 30 03 8B 4F 78", 1); //4 byte nop
 
 		map<string, AOBBlock*>::iterator it;
 		bool result = true;
@@ -113,6 +114,12 @@ namespace IGCS::GameSpecific::InterceptorHelper
 	void toggleHud(map<string, AOBBlock*>& aobBlocks, bool hudVisible)
 	{
 		hudVisible ? Utils::SaveNOPReplace(aobBlocks[HUDTOGGLE], 4, false) : Utils::SaveNOPReplace(aobBlocks[HUDTOGGLE], 4, true);
+	}
+
+	void togglePause(map<string, AOBBlock*>& aobBlocks, bool enabled)
+	{
+		BYTE pause[] = {0x00, 0x00, 0x00, 0x00 };
+		enabled ? Utils::SaveBytesWrite(aobBlocks[PAUSE_BYTE], 4, pause, true) : Utils::SaveBytesWrite(aobBlocks[PAUSE_BYTE], 4, pause, false);
 	}
 
 	//Placeholder code for if absolute addresses are required. Init variable in extern for use in ASM

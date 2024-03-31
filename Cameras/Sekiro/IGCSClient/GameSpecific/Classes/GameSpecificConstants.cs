@@ -33,7 +33,7 @@ namespace IGCSClient.GameSpecific.Classes
 	internal static class GameSpecificConstants
 	{
 		public const string ClientWindowTitle = "Sekiro Tools";
-		public const string CameraVersion = "2.0";
+		public const string CameraVersion = "2.10";
 		public const string CameraCredits = "ghostinthecamera, Jim2Point0, Skall";
 		public const bool HotsamplingRequiresEXITSIZEMOVE = false;
 	}

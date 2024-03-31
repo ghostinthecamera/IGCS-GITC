@@ -31,7 +31,7 @@ namespace IGCS::GameSpecific
 {
 	// Mandatory constants to define for a game
 	#define GAME_NAME									"Sekiro"
-	#define CAMERA_VERSION								"2.0"
+	#define CAMERA_VERSION								"2.10"
 	#define CAMERA_CREDITS								"ghostinthecamera, Jim2point0, Skall"
 	#define GAME_WINDOW_TITLE							"Sekiro"
 	#define INITIAL_PITCH_RADIANS						0.0f	// around X axis	(right)

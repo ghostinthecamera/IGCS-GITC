@@ -18,6 +18,12 @@ x2.11: Addition of alternative timestop to mitigate crash and update to timescal
 v2.01: Minor updates to user input code and timescale system  
 v2.00: Initial Release  
 
+Offline Use Only 
+==================
+As these tools work by injecting into the game's memory and running its own code, this will be flagged by anti-cheat systems. It is STRONGLY recommended to only use these in offline mode.  If you do use these while online, then there is a risk of being flagged by anti-cheat systems and the appropriate consequences being taken against you. 
+
+Use at your own risk.
+
 Timestop/Gamespeed
 ==================
 There are two timestop methods available. The default method is more stable for normal use BUT will cause the game

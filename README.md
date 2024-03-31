@@ -14,8 +14,9 @@ IGCS is written in C++ with some x86/x64 assembler to be able to intercept the l
 The system is initially designed for 64bit hosts as all games are 64bit nowadays, but has been reworked to be used for 32bit games too. 
 
 Making a camera for a game takes a lot of my personal free time. This isn't my day job unfortunately! Therefore, if you have used these tools
-and want to show your appreciation or just a quick thank you then please drop me a message or if you're feeling extra generous, you can head 
-on over to my [Ko-Fi](https://ko-fi.com/ghostinthecamera).
+and want to show your appreciation or just a quick thank you then please drop me a message or if you're feeling extra generous, you can head over to my Ko-Fi  
+  
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/M4M0VZFCD)
 
 ## Folder structure description
 

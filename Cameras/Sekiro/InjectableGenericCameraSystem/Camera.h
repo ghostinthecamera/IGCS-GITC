@@ -74,8 +74,6 @@ namespace IGCS
 		Vec3 getGameEulers() { return gameEulers; }
 		Vec4 getGameQuaternion() { return gameQuaternion; }
 		XMFLOAT4 getToolsQuaternion() { return _toolsQuaternion; }
-		void igcsmoveUp(float amount);
-		void igcsmoveRight(float amount);
 		void setUpVector(Vec3 vec) { upVector = vec; }
 		void setRightVector(Vec3 vec) { rightVector = vec; }
 		void setForwardVector(Vec3 vec) { forwardVector = vec; }

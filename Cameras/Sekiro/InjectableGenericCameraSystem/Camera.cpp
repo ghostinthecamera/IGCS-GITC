@@ -167,15 +167,4 @@ namespace IGCS
 		}
 		return angle;
 	}
-	void Camera::igcsmoveRight(float amount)
-	{
-		_direction.x += (Globals::instance().settings().movementSpeed * amount);		// x is right
-		_movementOccurred = true;
-	}
-
-	void Camera::igcsmoveUp(float amount)
-	{
-		_direction.y += (Globals::instance().settings().movementSpeed * amount * Globals::instance().settings().movementUpMultiplier);  // y is up
-		_movementOccurred = true;
-	}
 }

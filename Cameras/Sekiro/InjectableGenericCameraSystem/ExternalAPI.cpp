@@ -67,7 +67,7 @@ static void IGCS_MoveCameraMultishot(float stepLeftRight, float stepUpDown, floa
 /// </summary>
 static void IGCS_EndScreenshotSession()
 {
-	IGCS::MessageHandler::logDebug("Ending IGCS Connector Session");
 	System* activesystem = Globals::instance().getCurrentSystem();
+	IGCS::MessageHandler::logDebug("Ending IGCS Connector Session");
 	activesystem->endIGCSsession();
 }

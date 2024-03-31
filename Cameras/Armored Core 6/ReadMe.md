@@ -36,9 +36,9 @@ be moving or jittering, and the game may accept movement after the timestop is a
   
 Up to you to determine what you need.
   
-Special Effects:
+Special Effects/Motion Blur:
 =============
-Contains a ShaderToggler.ini file for removal of effects such as the motion blur that stays on the player and enemy mechs when the game is paused. ShaderToggler is a reshade addon and is really needed for this to work.
+Contains a ShaderToggler.ini file for removal of effects such as the motion blur that stays on the player and enemy mechs when the game is paused. ShaderToggler is a reshade addon and is really needed for this to work. You can disable motion blur to remove this, or if you use these tools in conjunction with the photomode you can use the relevant slider to remove the blur. Alternatively, you can use shader toggler.
 
 The shader groupings are self explanatory - try them out and see what they do
 

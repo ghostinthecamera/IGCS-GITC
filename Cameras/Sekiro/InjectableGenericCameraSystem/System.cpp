@@ -598,7 +598,7 @@ namespace IGCS
 			return;
 		}
 		Globals::instance().togglePlayerOnly();
-		g_playersonly = g_playersonly == 0 ? (uint8_t)1 : (uint8_t)0;
+		g_playersonly = g_playersonly == 0 ? (uint8_t)1 : (uint8_t)0; //we set the value here so that the cmp  in our detour can be taken
 		MessageHandler::addNotification(Globals::instance().playeronly() ? "PlayersOnly On" : "PlayersOnly Off");
 	}
 

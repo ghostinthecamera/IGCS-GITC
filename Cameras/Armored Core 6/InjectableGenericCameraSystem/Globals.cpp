@@ -128,5 +128,6 @@ namespace IGCS
 		_keyBindingPerActionType[ActionType::SkipFrames] = new ActionData("SkipFrames", IGCS_KEY_SKIP_FRAMES, false, false, false);
 		_keyBindingPerActionType[ActionType::SlowMo] = new ActionData("SlowMo", IGCS_KEY_SLOWMO, false, false, false);
 		_keyBindingPerActionType[ActionType::HUDtoggle] = new ActionData("HUDtoggle", IGCS_KEY_HUD, false, false, false);
+		_keyBindingPerActionType[ActionType::pauseByte] = new ActionData("PauseByte", IGCS_KEY_BYTE_PAUSE, false, false, false);
 	}
 }

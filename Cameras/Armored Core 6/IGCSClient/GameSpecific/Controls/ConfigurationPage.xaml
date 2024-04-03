@@ -16,10 +16,10 @@
                 <controls:FloatInputSliderWPF Header="Up movement multiplier" x:Name="_upMovementInput" Margin="0, 0, 0, 10" TickPlacement="Both" SnaptoTick="True" TickValue="1.0"/>
                 <controls:FloatInputSliderWPF Header="Movement speed" x:Name="_movementSpeedInput" Margin="0, 0, 0, 10" TickPlacement="Both" SnaptoTick="False" TickValue="0.1"/>
                 <controls:DropDownInputWPF Header="Game control device" x:Name="_cameraControlDeviceInput" Margin="0, 0, 0, 10"/>
-                <HeaderedContentControl Header="Other" Margin="0, 10, 0, 10" FontSize="20"/>
+                <HeaderedContentControl Header="Timescale Control" Margin="0, 10, 0, 10" FontSize="20"/>
                 <controls:FloatInputSliderWPF Header="Game Speed" x:Name="_gameSpeed" Margin="0, 0, 0, 10" TickPlacement="Both" SnaptoTick="True" TickValue="0.1"/>
                 <controls:BoolInputWPF x:Name="_vignetteToggle" Label="Remove Vignette"/>
-                <controls:BoolInputWPF x:Name="_altTimestop" Label="Alternative Timestop"/>
+
             </ui:SimpleStackPanel>
         </GroupBox>
         <ui:SimpleStackPanel Orientation="Vertical" Margin="10,0,0,0">
@@ -34,7 +34,15 @@
                     <controls:FloatInputSliderWPF Header="Field of View (FoV) zoom speed" x:Name="_fovSpeedInput" TickPlacement="Both" SnaptoTick="False" TickValue="0.01"/>
                 </ui:SimpleStackPanel>
             </GroupBox>
+            <GroupBox Header="Other Features" Margin="15, 0, 0, 0" >
+                <ui:SimpleStackPanel Orientation="Vertical">
+                    <controls:BoolInputWPF x:Name="_altTimestop" Label="Alternative Timestop" ToolTip="This timestop writes 0.000001 rather than 0.0 to stop the game.
+This prevents crashes if used during super boost and during sword attacks. However, this creates other issues such as: the 
+game may randomly fly your mech to the top of the map when using it and this may be mission breaking. Some particle effects 
+will constantly be moving or jittering, and the game may accept movement after the timestop is applied meaning the mech 
+may move slightly."/>
+                </ui:SimpleStackPanel>
+            </GroupBox>
         </ui:SimpleStackPanel>
-
     </ui:SimpleStackPanel>
 </UserControl>

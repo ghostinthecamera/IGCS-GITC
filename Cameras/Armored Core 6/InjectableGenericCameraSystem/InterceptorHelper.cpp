@@ -63,7 +63,8 @@ namespace IGCS::GameSpecific::InterceptorHelper
 		aobBlocks[TIMESTOP_WRITE_KEY] = new AOBBlock(TIMESTOP_WRITE_KEY, "C7 83 ?? ?? ?? ?? 00 00 80 3F 48 83 3D ?? ?? ?? ?? ??", 1);
 		aobBlocks[TIMESTOP_WRITE_KEY2] = new AOBBlock(TIMESTOP_WRITE_KEY2, "C7 81 ?? ?? ?? ?? 00 00 80 3F C3 CC 48 89 ??", 1);
 		aobBlocks[HUD_KEY] = new AOBBlock(HUD_KEY, "42 FF 14 C0 48 63 43 ?? 89 43 ?? 4C 39 73 ?? 74 ?? 44 38 73 69 74 29 83 F8 12", 1);
-		aobBlocks[VIGNETTE_KEY] = new AOBBlock(VIGNETTE_KEY, "0F 11 03 49 8B E3 5B C3", 1);
+		aobBlocks[VIGNETTE_KEY] = new AOBBlock(VIGNETTE_KEY, "45 ?? ?? ?? ?? | 0F ?? ?? 49 8B ?? 5B C3 CC", 1);
+		aobBlocks[PAUSE_BYTE_KEY] = new AOBBlock(PAUSE_BYTE_KEY, "66 ?? ?? ?? ?? ?? ?? | 01 00 80 BF ?? ?? ?? ?? ?? 75 ?? E8 ?? ?? ?? ??", 1);
 
 		map<string, AOBBlock*>::iterator it;
 		bool result = true;
@@ -98,6 +99,12 @@ namespace IGCS::GameSpecific::InterceptorHelper
 	void toggleHud(map<string, AOBBlock*>& aobBlocks, bool hudVisible)
 	{
 		hudVisible ? Utils::SaveNOPReplace(aobBlocks[HUD_KEY], 4, false) : Utils::SaveNOPReplace(aobBlocks[HUD_KEY], 4, true);
+	}
+
+	void togglePause(map<string, AOBBlock*>& aobBlocks, bool enabled)
+	{
+		BYTE pause[] = { 0x00, 0x00 };
+		enabled ? Utils::SaveBytesWrite(aobBlocks[PAUSE_BYTE_KEY], 2, pause, true) : Utils::SaveBytesWrite(aobBlocks[PAUSE_BYTE_KEY], 2, pause, false);
 	}
 
 	//Placeholder code for if absolute addresses are required. Init variable in extern for use in ASM

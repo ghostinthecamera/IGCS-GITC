@@ -114,6 +114,9 @@ namespace IGCSClient.GameSpecific.Controls
                     case KeyBindingType.HUDtoggle:
                         binding.Setup(_HUDtoggle);
                         break;
+                    case KeyBindingType.pauseByteToggle:
+                        binding.Setup(_toggleBytePause);
+                        break;
                 }
 			}
 		}

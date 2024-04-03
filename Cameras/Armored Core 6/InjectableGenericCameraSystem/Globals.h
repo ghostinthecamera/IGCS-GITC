@@ -96,6 +96,16 @@ namespace IGCS
 		void handleKeybindingMessage(uint8_t payload[], DWORD payloadLength);
 		void handleActionPayload(uint8_t payload[], DWORD payloadLength); //for action payload
 
+		//gamespecific items
+		bool bytePaused() const { return _bytePaused; }
+		bool* bytePausedPtr() { return &_bytePaused; }
+		void bytePaused(bool state) { _bytePaused = state; }
+		bool toggleBytePaused()
+		{
+			_bytePaused = !_bytePaused;
+			return _bytePaused;
+		}
+
 		//IGCSDOF
 		void storeCurrentSystem(System* system) { currentSystem = system; }
 		System* getCurrentSystem() { return currentSystem; }
@@ -115,5 +125,8 @@ namespace IGCS
 		bool _hudVisible = true;
 		bool _gamePaused = false;
 		bool _slowMo = false;
+
+		//gamespecific
+		bool _bytePaused = false;
 	};
 }

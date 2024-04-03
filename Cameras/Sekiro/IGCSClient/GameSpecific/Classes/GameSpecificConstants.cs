@@ -50,6 +50,7 @@ namespace IGCSClient.GameSpecific.Classes
 		public const bool InvertYLookDirection = false;
 		public const float FoVZoomSpeed = 0.005f;
 		public const float gameSpeed = 0.5f;
+		// Game specific
         public const bool UltrawideFOVToggle = false;
         public const float UltrawideFOVAmount = 43.0f;
         public const bool FPSUnlockToggle = false;
@@ -80,6 +81,7 @@ namespace IGCSClient.GameSpecific.Classes
 		public const int SkipFramesDefault = (int)Keys.PageDown;
         public const int SlowMoDefault = (int)Keys.PageUp;
         public const int HUDtoggle = (int)Keys.Delete;
+		// Game specific
         public const int PlayerOnlyToggle = (int)Keys.End;
         public const int PauseByteDefault = (int)Keys.Pause;
     }

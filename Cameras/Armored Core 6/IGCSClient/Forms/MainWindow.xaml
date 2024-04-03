@@ -61,13 +61,28 @@
                     <StackPanel Margin="15">
                         <Expander Header="Timestop" Margin="0,0,0,10" IsExpanded="True">
                             <TextBlock TextWrapping="Wrap" FontWeight="Normal" FontSize="12">
-                                There are two timestop methods available. The default method is more stable for normal use BUT will cause the game
-                                to crash if used during the super boost game mechanic. In the 'Configuration' tab of this client, there is an option
-                                to use an alternative timestop.<LineBreak/>
+                                There are three(!) timestop methods available. <LineBreak/>
                                 <LineBreak/>
-                                The alternative timestop does not create this crash. However, it comes with its own compromises. The game may randomly
-                                fly your mech to the top of the map when using it and this may be mission breaking. Some particle effects will constantly
-                                be moving or jittering, and the game may accept movement after the timestop is applied meaning the mech may move slightly.<LineBreak/>
+                                 The tools have full control over the gamespeed and offers two options to pause the game using the timescale. The tools also offer a pause leveraging the game's pause system (i.e. when you press pause, or open the photomode)<LineBreak/>
+                                <LineBreak/>
+                                Using the timescale method:<LineBreak/>
+                                This method is functional across the whole game (gameplay, cutscene, hangar). There are two options:<LineBreak/>
+                                - The default method: This sets the tiemscale to 0.0 and will pose no problems for 99% of use cases. However, if used 
+                                during super boost or certain blade attacks, it will cause the game to crash. If you need to be able to pause during 
+                                this action and you are in gameplay, I would recommend using the pause functionality with the Pause key (system pause 
+                                method), but you can also use the alternative timescale method which can be activated through the Configuration tab of 
+                                the tools.<LineBreak/>
+                                <LineBreak/>
+                                - The alternative (legacy) method: This sets the timescale to 0.0000001 and this resolves the potential crashing issues 
+                                above. HOWEVER, this comes with its own compromises: The game may randomly fly your mech to the top of the map when 
+                                using it and this may be mission breaking. Some particle effects will constantly be moving or jittering, and the game 
+                                may accept movement after the timestop is applied meaning the mech may move slightly.<LineBreak/>
+                                <LineBreak/>
+                                Using the system pause method:<LineBreak/>
+                                This method only works during gameplay and the hangar. It has no effect in cutscenes. However, it does not result in a crash in the aforementioned situations. 
+                                The lights may flicker and the environment may continue animating, but you can use the default timescale pause (Num 0) in conjunction
+                                with this with no issues. If you do use both during a super boost, <Bold> MAKE SURE TO DISABLE THE TIMESCALE PAUSE, BEFORE THE SYSTEM PAUSE</Bold> 
+                                otherwise the game will crash.<LineBreak/>
                                 <LineBreak/>
                                 Up to you to determine what you need.
                             </TextBlock>

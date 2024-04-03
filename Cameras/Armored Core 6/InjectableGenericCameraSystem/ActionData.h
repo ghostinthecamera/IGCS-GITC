@@ -54,6 +54,7 @@ namespace IGCS
 		SkipFrames,
 		SlowMo,
 		HUDtoggle,
+		pauseByte,
 
 		Amount,
 	};

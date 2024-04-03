@@ -40,4 +40,5 @@ namespace IGCS::GameSpecific::InterceptorHelper
 	void getAbsoluteAddresses(std::map<std::string, AOBBlock*>& aobBlocks);
 	void toolsInit(std::map<std::string, AOBBlock*>& aobBlocks);
 	void handleSettings(std::map<std::string, AOBBlock*>& aobBlocks);
+	void togglePause(std::map<std::string, AOBBlock*>& aobBlocks, bool enabled);
 }

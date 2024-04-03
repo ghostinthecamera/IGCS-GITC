@@ -79,6 +79,9 @@ namespace IGCS
 		void toggleSlowMo(bool displaynotification = true);
 		void handleSkipFrames();
 
+		//Gamespecific
+		void toggleBytePause(bool displayNotification = true);
+
 		/// <summary>
 		/// IGCSDOF
 		/// </summary>

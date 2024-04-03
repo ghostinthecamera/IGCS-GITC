@@ -31,7 +31,7 @@ namespace IGCS::GameSpecific
 {
 	// Mandatory constants to define for a game
 	#define GAME_NAME									"Armored Core 6"
-	#define CAMERA_VERSION								"2.11"
+	#define CAMERA_VERSION								"2.2"
 	#define CAMERA_CREDITS								"ghostinthecamera"
 	#define GAME_WINDOW_TITLE							"ARMORED CORE™ VI FIRES OF RUBICON™"
 	#define INITIAL_PITCH_RADIANS						0.0f	// around X axis	(right)
@@ -62,7 +62,8 @@ namespace IGCS::GameSpecific
 	#define TIMESTOP_WRITE_KEY2							"TIMESTOP_WRITE_KEY2"	
 	#define HUD_KEY										"HUD_KEY"
 	#define VIGNETTE_KEY								"VIGNETTE_KEY"
-	
+	#define PAUSE_BYTE_KEY								"PAUSE_BYTE_KEY"
+
 	// Indices in the structures read by interceptors 
 	#define COORDS_IN_STRUCT_OFFSET						0x40
 	#define MATRIX_IN_STRUCT_OFFSET						0x10

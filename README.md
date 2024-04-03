@@ -33,7 +33,8 @@ automatically when you clone the repo. The camera uses DirectXMath for the 3D ma
 
 ## Cameras released: 
 - Armored Core 6
-- Granblue Fantasy: Relink  
+- Granblue Fantasy: Relink
+- Sekiro  
 
 ## In-depth article about IGCS and how to create camera tools
 Frans has written a long, in-depth article about how to create camera tools and how IGCS works [on his blog](https://weblogs.asp.net/fbouma/let-s-add-a-photo-mode-to-wolfenstein-ii-the-new-colossus-pc).

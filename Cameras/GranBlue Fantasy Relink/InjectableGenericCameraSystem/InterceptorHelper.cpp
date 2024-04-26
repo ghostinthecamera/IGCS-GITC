@@ -67,19 +67,19 @@ namespace IGCS::GameSpecific::InterceptorHelper
 		aobBlocks[CAMERA_WRITE1_INTERCEPT_KEY] = new AOBBlock(CAMERA_WRITE1_INTERCEPT_KEY, "C5 F8 29 46 ?? C5 F8 29 4E ?? C5 F8 28 86 ?? ?? ?? ??", 1);
 		aobBlocks[CAMERA_WRITE2_INTERCEPT_KEY] = new AOBBlock(CAMERA_WRITE2_INTERCEPT_KEY, "C5 F8 29 4E ?? C5 F8 29 56 ?? C5 F8 29 5E ?? C5 FA 10 0D ?? ?? ?? ??", 1);
 		aobBlocks[CAMERA_WRITE3_INTERCEPT_KEY] = new AOBBlock(CAMERA_WRITE3_INTERCEPT_KEY, "C5 F8 29 4E ?? C5 F8 29 46 ?? C5 F8 29 56 ?? C5 FA 10 86 ?? ?? ?? ??", 1);
-		aobBlocks[CAMERA_WRITE4_INTERCEPT_KEY] = new AOBBlock(CAMERA_WRITE4_INTERCEPT_KEY, "C5 78 29 2D ?? ?? ?? ?? C5 78 29 0D ?? ?? ?? ?? C5 F8 28 0D ?? ?? ?? ??", 1);
-		aobBlocks[FOV_WRITE_KEY1] = new AOBBlock(FOV_WRITE_KEY1, "C4 41 7A 11 AE ?? ?? ?? ?? 41 80 BE ?? ?? ?? ?? ?? 0F 84 ?? ?? ?? ??", 1);
+		aobBlocks[CAMERA_WRITE4_INTERCEPT_KEY] = new AOBBlock(CAMERA_WRITE4_INTERCEPT_KEY, "C5 78 29 ?? ?? ?? ?? ?? C5 78 29 0D ?? ?? ?? ?? C5 F8 28 0D ?? ?? ?? ??", 1);
+		aobBlocks[FOV_WRITE_KEY1] = new AOBBlock(FOV_WRITE_KEY1, "C4 41 7A 11 ?? ?? ?? ?? ?? 41 80 ?? ?? ?? ?? ?? ?? 0F 84 ?? ?? ?? ??", 1); //v1.2
 		aobBlocks[FOV_WRITE_KEY2] = new AOBBlock(FOV_WRITE_KEY2, "C5 FA 11 96 ?? ?? ?? ?? C5 78 28 05 ?? ?? ?? ?? C5 78 29 84 ?? ?? ?? ?? ??", 1);
-		aobBlocks[FOV_WRITE_KEY3] = new AOBBlock(FOV_WRITE_KEY3, "C5 7A 11 8E ?? ?? ?? ?? C5 F8 28 75 ?? C5 F8 28 7D ??", 1);
+		aobBlocks[FOV_WRITE_KEY3] = new AOBBlock(FOV_WRITE_KEY3, "C4 ?? ?? ?? ?? 78 01 00 00 C5 F8 28 75 ?? C5 F8 28 7D ??", 1); //v1.2
 		aobBlocks[TIMESTOP_ADDRESS] = new AOBBlock(TIMESTOP_ADDRESS, "C5 FB 11 05 | ?? ?? ?? ?? 48 8B ?? ?? ?? ?? ?? 48 8B ?? ?? ?? ?? ??", 1);
  		aobBlocks[TIMESTOP_WRITE_KEY] = new AOBBlock(TIMESTOP_WRITE_KEY, "C5 FB 11 05 ?? ?? ?? ?? 48 8B ?? ?? ?? ?? ?? 48 8B ?? ?? ?? ?? ??", 1);
-		aobBlocks[TIMESTOP_WRITE_KEY2] = new AOBBlock(TIMESTOP_WRITE_KEY2, "75 ?? C5 ?? ?? ?? C5 79 ?? ?? 76 ??", 1);
+		aobBlocks[TIMESTOP_WRITE_KEY2] = new AOBBlock(TIMESTOP_WRITE_KEY2, "A9 00 04 00 00 | 75 ?? C5 ?? ?? ??", 1); //v1.2
 		aobBlocks[HUD_KEY] = new AOBBlock(HUD_KEY, "74 ?? 66 90 48 8B 0F | E8 ?? ?? ?? ?? 48 83 C7 ?? 48 ?? ?? 75 ??", 1);
 		aobBlocks[BLOOM_KEY] = new AOBBlock(BLOOM_KEY, "C5 F8 10 40 18 ?? ?? ?? ?? 18 ?? 8B", 1);
-		aobBlocks[DOF_KEY] = new AOBBlock(DOF_KEY, "C5 7A 10 0D ?? ?? ?? ?? C5 78 29 C8 48 39 D1 74 ?? C5 F8 28 D7 E8 ?? ?? ?? ?? C5 F0 57 C9 C5 F2 5F C0 C5 B2 5D C0 C4 C1 4A 5C F0 C4 C2 79 A9 F0 C5 FA 11 75 ?? 48 8B 4D ??", 1);
+		aobBlocks[DOF_KEY] = new AOBBlock(DOF_KEY, "C5 7A 10 0D ?? ?? ?? ?? C5 78 29 C8 48 39 D1 74 ?? C5 F8 28 D7 E8 ?? ?? ?? ?? C5 F0 57 C9 C5 F2 5F C0 C5 B2 5D C0 C4 C1 4A 5C C8 C5 FA 59 C1 C5 BA 58 F0 C5 FA 11 75 ?? 48 8B 4D ??", 1); //v1.2
 		aobBlocks[DOF_KEY2] = new AOBBlock(DOF_KEY2, "FF ?? C5 FA 11 07 48 8B 4D ??", 1);
 		aobBlocks[MENU_DOF_KEY] = new AOBBlock(MENU_DOF_KEY, "0F 84 ?? ?? ?? ?? C5 C8 ?? ?? | C5 FA 10 3D ?? ?? ?? ?? EB ??", 1);
-		aobBlocks[AR_KEY] = new AOBBlock(AR_KEY, "C5 C2 59 08 C4 E2 79 B9 48 ?? C4 E2 49 B9 48 ?? ?? ?? ?? ?? 88", 1);
+		aobBlocks[AR_KEY] = new AOBBlock(AR_KEY, "C5 C2 59 08 C5 FA 59 50 ?? C5 EA 58 C9 C5 CA 59 50 ?? C5 F2 58 CA C5 FA 11 8E ?? ?? ?? ??", 1); //v1.2
 		aobBlocks[RESOLUTION_KEY] = new AOBBlock(RESOLUTION_KEY, "42 8B 54 09 ?? ?? 8B 44 09 ?? ?? 8B 44 09 ?? 42 8B 4C 09 ??", 1);
 
 		map<string, AOBBlock*>::iterator it;
@@ -112,7 +112,7 @@ namespace IGCS::GameSpecific::InterceptorHelper
 		GameImageHooker::setHook(aobBlocks[CAMERA_WRITE2_INTERCEPT_KEY], (0x53C - 0x52D), &_cameraWrite2InterceptionContinue, &cameraWrite2Interceptor);
 		GameImageHooker::setHook(aobBlocks[CAMERA_WRITE3_INTERCEPT_KEY], (0x5A0 - 0x591), &_cameraWrite3InterceptionContinue, &cameraWrite3Interceptor);
 		GameImageHooker::setHook(aobBlocks[RESOLUTION_KEY], (0x25E - 0x24F), &_resolutionInterceptionContinue, &resolutionInterceptor);
-		GameImageHooker::setHook(aobBlocks[AR_KEY], (0x1022 - 0x1012), &_aspectratioInterceptionContinue, &aspectratioInterceptor);
+		GameImageHooker::setHook(aobBlocks[AR_KEY], 0x16, &_aspectratioInterceptionContinue, &aspectratioInterceptor);
 	}
 
 

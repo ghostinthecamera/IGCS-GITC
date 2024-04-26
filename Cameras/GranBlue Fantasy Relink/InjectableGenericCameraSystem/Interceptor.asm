@@ -230,10 +230,29 @@ aspectratioInterceptor PROC
 ;granblue_fantasy_relink.exe+1A1102F - C4E279B94814          - vfmadd231ss xmm1,xmm0,[rax+14]
 ;granblue_fantasy_relink.exe+1A11035 - C4E249B94824          - vfmadd231ss xmm1,xmm6,[rax+24]
 ;granblue_fantasy_relink.exe+1A1103B - C5FA118E 8C 000000    - vmovss [rsi+0000008C],xmm1
+;
+;v1.2
+;granblue_fantasy_relink.exe+1AAEB8D - 8B 05 3DC33804        - mov eax,[granblue_fantasy_relink.exe+5E3AED0] { (0) }
+;granblue_fantasy_relink.exe+1AAEB93 - 48 8D 0D 46D6D302     - lea rcx,[granblue_fantasy_relink.exe+47EC1E0] { (7FF78C744810) }
+;granblue_fantasy_relink.exe+1AAEB9A - 48 8B 04 C1           - mov rax,[rcx+rax*8]
+;granblue_fantasy_relink.exe+1AAEB9E - 48 8B 40 60           - mov rax,[rax+60]
+;granblue_fantasy_relink.exe+1AAEBA2 - C5C25908              - vmulss xmm1,xmm7,[rax]			<<INJECT
+;granblue_fantasy_relink.exe+1AAEBA6 - C5FA5950 10           - vmulss xmm2,xmm0,[rax+10]
+;granblue_fantasy_relink.exe+1AAEBAB - C5EA58C9              - vaddss xmm1,xmm2,xmm1
+;granblue_fantasy_relink.exe+1AAEBAF - C5CA5950 20           - vmulss xmm2,xmm6,[rax+20]
+;granblue_fantasy_relink.exe+1AAEBB4 - C5F258CA              - vaddss xmm1,xmm1,xmm2
+;granblue_fantasy_relink.exe+1AAEBB8 - C5FA118E 88 000000    - vmovss [rsi+00000088],xmm1		<<RETURN
+;granblue_fantasy_relink.exe+1AAEBC0 - C5C25948 04           - vmulss xmm1,xmm7,[rax+04]
+;granblue_fantasy_relink.exe+1AAEBC5 - C5FA5950 14           - vmulss xmm2,xmm0,[rax+14]
+;granblue_fantasy_relink.exe+1AAEBCA - C5EA58C9              - vaddss xmm1,xmm2,xmm1
+;granblue_fantasy_relink.exe+1AAEBCE - C5CA5950 24           - vmulss xmm2,xmm6,[rax+24]
+;granblue_fantasy_relink.exe+1AAEBD3 - C5F258CA              - vaddss xmm1,xmm1,xmm2
 	mov [g_aspectratiobaseAddress],rax
 	vmulss xmm1,xmm7,dword ptr [rax]
-	vfmadd231ss xmm1,xmm0,dword ptr [rax+10h]
-	vfmadd231ss xmm1,xmm6,dword ptr [rax+20h]
+	vmulss xmm2,xmm0,dword ptr [rax+10h]
+	vaddss xmm1,xmm2,xmm1
+	vmulss xmm2,xmm6,dword ptr [rax+20h]
+	vaddss xmm1,xmm1,xmm2
 	jmp qword ptr [_aspectratioInterceptionContinue]	; jmp back into the original game code, which is the location after the original statements above.
 aspectratioInterceptor ENDP
 

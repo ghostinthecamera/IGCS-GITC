@@ -31,7 +31,7 @@ namespace IGCS::GameSpecific
 {
 	// Mandatory constants to define for a game
 	#define GAME_NAME									"Granblue Fantasy Relink"
-	#define CAMERA_VERSION								"2.01"
+	#define CAMERA_VERSION								"2.2.0"
 	#define CAMERA_CREDITS								"ghostinthecamera"
 	#define GAME_WINDOW_TITLE							"Granblue Fantasy: Relink"
 	#define INITIAL_PITCH_RADIANS						0.0f	// around X axis	(right)

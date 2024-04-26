@@ -33,7 +33,7 @@ namespace IGCSClient.GameSpecific.Classes
 	internal static class GameSpecificConstants
 	{
         public const string ClientWindowTitle = "Granblue Fantasy: ReLink Tools";
-        public const string CameraVersion = "2.11";
+        public const string CameraVersion = "2.2.0";
         public const string CameraCredits = "ghostinthecamera & SKALL";
         public const bool HotsamplingRequiresEXITSIZEMOVE = false;
 	}

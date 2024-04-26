@@ -392,6 +392,7 @@ namespace IGCS::Utils
 		}
 	}
 
+
 	void SaveBytesWrite(AOBBlock* hookData, int numberOfBytes, BYTE* BytestoWrite, bool enabled)
 	{
 		if (hookData->byteStorage2 == nullptr)  //check if byteStorage is null - if it is this is the first access and so need to read bytes into it

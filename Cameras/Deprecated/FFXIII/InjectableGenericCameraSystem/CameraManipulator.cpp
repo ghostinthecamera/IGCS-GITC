@@ -172,7 +172,6 @@ namespace IGCS::GameSpecific::CameraManipulator
 		float* bloom = reinterpret_cast<float*>(g_bloomstructaddress + BLOOM_OFFSET);
 		OGBloom = *bloom;
 		*bloom = 0.0f;
-
 	}
 
 	void restoreBloom()
@@ -183,7 +182,6 @@ namespace IGCS::GameSpecific::CameraManipulator
 		}
 		float* bloom = reinterpret_cast<float*>(g_bloomstructaddress + BLOOM_OFFSET);
 		*bloom = OGBloom;
-
 	}
 
 	void killDOF() //and bloom

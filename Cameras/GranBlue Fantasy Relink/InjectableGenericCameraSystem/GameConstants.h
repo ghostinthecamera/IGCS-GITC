@@ -63,6 +63,7 @@ namespace IGCS::GameSpecific
 	#define FOV_WRITE_KEY1								"FOV_WRITE_KEY1"
 	#define FOV_WRITE_KEY2								"FOV_WRITE_KEY2"
 	#define FOV_WRITE_KEY3								"FOV_WRITE_KEY3"
+	#define FOV_WRITE_KEY_PM							"FOV_WRITE_KEY_PM"
 	#define TIMESTOP_ADDRESS							"TIMESTOP_ADDRESS"
 	#define TIMESTOP_WRITE_KEY							"TIMESTOP_WRITE_KEY"
 	#define TIMESTOP_WRITE_KEY2							"TIMESTOP_WRITE_KEY2"	

@@ -81,6 +81,7 @@ namespace IGCS::GameSpecific::InterceptorHelper
 		aobBlocks[MENU_DOF_KEY] = new AOBBlock(MENU_DOF_KEY, "0F 84 ?? ?? ?? ?? C5 C8 ?? ?? | C5 FA 10 3D ?? ?? ?? ?? EB ??", 1);
 		aobBlocks[AR_KEY] = new AOBBlock(AR_KEY, "C5 C2 59 08 C5 FA 59 50 ?? C5 EA 58 C9 C5 CA 59 50 ?? C5 F2 58 CA C5 FA 11 8E ?? ?? ?? ??", 1); //v1.2
 		aobBlocks[RESOLUTION_KEY] = new AOBBlock(RESOLUTION_KEY, "42 8B 54 09 ?? ?? 8B 44 09 ?? ?? 8B 44 09 ?? 42 8B 4C 09 ??", 1);
+		aobBlocks[FOV_WRITE_KEY_PM] = new AOBBlock(FOV_WRITE_KEY_PM, "89 86 ?? ?? ?? ?? 48 8B 07 48 89 86 ?? ?? ?? ??", 1); //v1.3.2
 
 		map<string, AOBBlock*>::iterator it;
 		bool result = true;
@@ -134,6 +135,7 @@ namespace IGCS::GameSpecific::InterceptorHelper
 		Utils::SaveNOPReplace(aobBlocks[FOV_WRITE_KEY1], 9, enabled);
 		Utils::SaveNOPReplace(aobBlocks[FOV_WRITE_KEY2], 8, enabled);
 		Utils::SaveNOPReplace(aobBlocks[FOV_WRITE_KEY3], 8, enabled);
+		Utils::SaveNOPReplace(aobBlocks[FOV_WRITE_KEY_PM], 6, enabled);
 		Utils::SaveNOPReplace(aobBlocks[BLOOM_KEY], 5, enabled);
 		Utils::SaveNOPReplace(aobBlocks[DOF_KEY], 8, enabled);
 		Utils::SaveNOPReplace(aobBlocks[DOF_KEY2], 2, enabled);

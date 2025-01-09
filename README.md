@@ -19,7 +19,8 @@ and want to show your appreciation or just a quick thank you then please drop me
 - Armored Core 6
 - Granblue Fantasy: Relink
 - Sekiro
-- Final Fantasy XIII  
+- Final Fantasy XIII
+- Final Fantasy XIII-2   
 
 ---
 

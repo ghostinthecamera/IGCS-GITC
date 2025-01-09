@@ -1,0 +1,105 @@
+﻿<UserControl x:Class="IGCSClient.Controls.HotsamplingPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:IGCSClient.Controls"
+			 Style="{StaticResource ControlPageStyle}"
+			 xmlns:ui="http://schemas.modernwpf.com/2019"
+             mc:Ignorable="d" d:DesignWidth="800" Height="473">
+	<Grid>
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition Width="245"/>
+			<ColumnDefinition Width="5"/>
+			<ColumnDefinition Width="*"/>
+		</Grid.ColumnDefinitions>
+		<TreeView Grid.Column="0" x:Name="_resolutionTreeView" SelectedItemChanged="_resolutionTreeView_OnSelectedItemChanged">
+			<TreeView.Resources>
+				<ResourceDictionary Source="/ModernWpf;component/DensityStyles/Compact.xaml"/>
+			</TreeView.Resources>
+			<TreeView.ItemTemplate>
+				<HierarchicalDataTemplate ItemsSource="{Binding}">
+					<!-- Content presenter for the list of IGrouping objects. Binding is done to the Key property on the IGrouping class -->
+					<TextBlock FontWeight="Bold" Text="{Binding Path=Key}"/>
+					<HierarchicalDataTemplate.ItemTemplate>
+						<DataTemplate>
+							<!-- Content presenter for the list of objects in each grouping. Binding is done to the Description property on the custom class -->
+							<TextBlock Text="{Binding Path=Description}"/>
+						</DataTemplate>
+					</HierarchicalDataTemplate.ItemTemplate>
+				</HierarchicalDataTemplate>
+			</TreeView.ItemTemplate>
+		</TreeView>
+		<GridSplitter Grid.Column="1" HorizontalAlignment="Stretch" Background="{DynamicResource SystemControlBackgroundListLowBrush}"/>
+		<ScrollViewer Grid.Column="2" HorizontalScrollBarVisibility="Auto">
+			<DockPanel>
+				<StackPanel Margin="10, 0, 0,0" DockPanel.Dock='Top'>
+					<GroupBox Header="New resolution to set">
+						<ui:SimpleStackPanel>
+							<ui:SimpleStackPanel Orientation="Horizontal">
+								<HeaderedContentControl Header="Width">
+									<ui:NumberBox Name="_newWidthBox" Width="100" ValueChanged="_newWidthBox_OnValueChanged"/>
+								</HeaderedContentControl>
+								<HeaderedContentControl Header="Height" Margin="10,0,0,0">
+									<ui:NumberBox Name="_newHeightBox" Width="100" ValueChanged="_newHeightBox_OnValueChanged"/>
+								</HeaderedContentControl>
+								<HeaderedContentControl Header="Aspect ratio" Margin="10,0,0,0">
+									<TextBox Name="_aspectRatioTextBox" IsReadOnly="true"/>
+								</HeaderedContentControl>
+								<Button Margin="10,0,0,0" VerticalAlignment="Bottom" Name="_setResolutionButton" IsEnabled="False" Click="_setResolutionButton_OnClick">Set</Button>
+							</ui:SimpleStackPanel>
+							<ui:SimpleStackPanel Margin="0,10,0,0" Orientation="Horizontal">
+								<HeaderedContentControl Header="Use window borders">
+									<CheckBox Name="_useWindowBordersCheckBox"/>
+								</HeaderedContentControl>
+								<HeaderedContentControl Header="Switch to game after resizing" Margin="10,0,0,0">
+									<CheckBox Name="_switchAfterResizingCheckBox" IsChecked="True"/>
+								</HeaderedContentControl>
+							</ui:SimpleStackPanel>
+							<ui:SimpleStackPanel Orientation="Horizontal" Margin="0, 10, 0, 0">
+								<Button x:Name="_recentlyUsedResolutionsButton">
+									<ui:SimpleStackPanel Orientation="Horizontal" x:Name="_rurSP">
+										<TextBlock x:Name="_rurTB">Recently used resolutions</TextBlock>
+										<TextBlock FontFamily="Segoe MDL2 Assets" Margin="10, 4, 0, 0" FontSize="12">&#xE70D;</TextBlock>
+									</ui:SimpleStackPanel>
+									<ui:FlyoutService.Flyout>
+										<ui:Flyout Placement="BottomEdgeAlignedLeft" x:Name="_recentlyUsedResolutionsFlyout">
+											<ListBox x:Name="_recentlyUsedResolutionsList" DisplayMemberPath="Description" SelectionMode="Single" 
+													 PreviewMouseDown="_recentlyUsedResolutionsList_OnPreviewMouseDown"/>
+										</ui:Flyout>
+									</ui:FlyoutService.Flyout>
+								</Button>
+								<Button Name="_fakeFullScreen" Margin="10, 0, 0,0" VerticalAlignment="Bottom" Click="_fakeFullScreen_OnClick">Fake fullscreen</Button>
+							</ui:SimpleStackPanel>
+						</ui:SimpleStackPanel>
+					</GroupBox>
+					<GroupBox Header="Active window resolution" Margin="0, 10, 0, 0">
+						<ui:SimpleStackPanel Orientation="Horizontal">
+							<HeaderedContentControl Header="Width">
+								<TextBox IsReadOnly="true" Name="_currentWidthTextBox"/>
+							</HeaderedContentControl>
+							<HeaderedContentControl Header="Height" Margin="10,0,0,0">
+								<TextBox IsReadOnly="true" Name="_currentHeightTextBox"/>
+							</HeaderedContentControl>
+							<HeaderedContentControl Header="Aspect ratio" Margin="10,0,0,0">
+								<TextBox IsReadOnly="true" Name="_currentARTextBox"/>
+							</HeaderedContentControl>
+							<Button Margin="10,0,0,0" VerticalAlignment="Bottom" Name="_switchToGameWindowButton" Click="_switchToGameWindowButton_OnClick">Switch to window</Button>
+						</ui:SimpleStackPanel>
+					</GroupBox>
+					<GroupBox Header="Alignment controls">
+						<ui:SimpleStackPanel Orientation="Horizontal">
+							<Button Name="_leftAlignButton" Content="Left" Click="_leftAlignButton_Click"/>
+							<Button Name="_rightAlignButton" Content="Right" Margin="10,0,0,0" Click="_rightAlignButton_Click"/>
+							<Button Name="_topAlignButton" Content="Top" Margin="10,0,0,0" Click="_topAlignButton_Click"/>
+							<Button Name="_bottomAlignButton" Content="Bottom" Margin="10,0,0,0" Click="_bottomAlignButton_Click"/>
+							<Button Name="_horizontalCenterAlignButton" Content="H. center" Margin="10,0,0,0" Click="_horizontalCenterAlignButton_Click"/>
+							<Button Name="_verticalCenterAlignButton" Content="V. center" Margin="10,0,0,0" Click="_verticalCenterAlignButton_Click"/>
+						</ui:SimpleStackPanel>
+					</GroupBox>
+				</StackPanel>
+				<Button VerticalAlignment="Bottom" Content="Refresh" Margin="10, 0" Name="_refreshButton" Click="_refreshButton_OnClick"/>
+			</DockPanel>
+		</ScrollViewer>
+	</Grid>
+</UserControl>

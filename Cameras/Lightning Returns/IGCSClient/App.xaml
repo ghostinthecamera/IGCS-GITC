@@ -10,21 +10,27 @@
 
     <Application.Resources>
 		<ResourceDictionary>
-			<!--<ResourceDictionary.MergedDictionaries>
-				<ui:XamlControlsResources />
-				<ui:ThemeResources>	--><!-- Loads the theme assets --><!--
+            <ResourceDictionary.MergedDictionaries>
+                <ui:XamlControlsResources />
+                <ui:ThemeResources>
+                    <!-- Loads the theme assets -->
                     <ui:ThemeResources.ThemeDictionaries>
+                        <!-- theme specific overwrites here -->
                         <ResourceDictionary x:Key="Dark">
                             <ResourceDictionary.MergedDictionaries>
+                                <ui:DefaultThemeResources Key="Dark" />
                             </ResourceDictionary.MergedDictionaries>
+                            <StaticResource x:Key="TextControlForegroundFocused" ResourceKey="SystemControlForegroundBaseHighBrush" />
+                            <StaticResource x:Key="TextControlBackgroundFocused" ResourceKey="SystemControlBackgroundAltMediumLowBrush" />
+                            <StaticResource x:Key="TextControlPlaceholderForegroundFocused" ResourceKey="SystemControlForegroundBaseMediumLowBrush" />
+                            <StaticResource x:Key="TextControlButtonForeground" ResourceKey="SystemControlForegroundBaseMediumHighBrush" />
+                            <StaticResource x:Key="ComboBoxFocusedDropDownBackgroundPointerOver" ResourceKey="SystemControlBackgroundBaseLowBrush" />
+                            <StaticResource x:Key="ComboBoxFocusedDropDownBackgroundPointerPressed" ResourceKey="SystemControlHighlightBaseMediumLowBrush" />
+                            <StaticResource x:Key="ComboBoxEditableDropDownGlyphForeground" ResourceKey="SystemControlForegroundBaseMediumHighBrush" />
                         </ResourceDictionary>
-					</ui:ThemeResources.ThemeDictionaries>
-				</ui:ThemeResources>
-				--><!-- Other merged dictionaries here --><!--
-			</ResourceDictionary.MergedDictionaries>-->
-            <ResourceDictionary.MergedDictionaries>
-                <ui:ThemeResources RequestedTheme="Dark"/>
-                <ui:XamlControlsResources />
+                    </ui:ThemeResources.ThemeDictionaries>
+                </ui:ThemeResources>
+                <!-- Other merged dictionaries here -->
             </ResourceDictionary.MergedDictionaries>
             <!-- Other app resources here -->
 			<themes:InverseAppThemeConverter x:Key="InverseAppThemeConverter" />

@@ -1,7 +1,7 @@
 Injectable Camera for Dark Souls 3
 ============================
 ![Dark Souls III 2025 04 21 - 23 29 50 01_2](https://github.com/user-attachments/assets/8e43a39c-eba0-425f-8cfe-b01c4c2dc038)  
-Current supported game version: 1.15 and 1.15.2
+Current supported game version: 1.15 and 1.15.2  
 Camera version: 1.0.0  
 Credits: ghostinthecamera
 

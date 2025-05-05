@@ -1,0 +1,21 @@
+﻿<UserControl x:Class="IGCSClient.Controls.BoolInputWPF"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:IGCSClient.Controls"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800" d:Background="White">
+	<!--<HeaderedContentControl Header="" Name="_headerControl">-->
+    <CheckBox Name="_checkboxControl" Checked="_checkboxControl_Checked" Unchecked="_checkboxControl_OnUnchecked" VerticalAlignment="Center" HorizontalAlignment="Left">
+        <Label Content="{Binding Label, RelativeSource={RelativeSource AncestorType=UserControl}}"
+               FontSize="{Binding LabelFontSize, RelativeSource={RelativeSource AncestorType=UserControl}}"
+               Width="Auto" Height="20"
+               VerticalAlignment="Center"
+               VerticalContentAlignment="Center"
+               Margin="0,0,0,0"
+               Padding="0"
+               Name="_labelControl"/>
+    </CheckBox>
+    <!--</HeaderedContentControl>-->
+</UserControl>

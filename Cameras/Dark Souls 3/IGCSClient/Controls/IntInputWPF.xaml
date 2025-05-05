@@ -1,0 +1,53 @@
+﻿<UserControl x:Class="IGCSClient.Controls.IntInputWPF"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:IGCSClient.Controls"
+             xmlns:controls="http://schemas.modernwpf.com/2019"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <HeaderedContentControl x:Name="_headerControl" HorizontalAlignment="Stretch">
+        <HeaderedContentControl.Style>
+            <Style TargetType="HeaderedContentControl">
+                <!-- Default template: shows header and content -->
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="HeaderedContentControl">
+                            <StackPanel>
+                                <ContentPresenter ContentSource="Header" />
+                                <ContentPresenter ContentSource="Content" />
+                            </StackPanel>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+                <Style.Triggers>
+                    <!-- When Header is empty or null, use a template that only shows content -->
+                    <DataTrigger Binding="{Binding Header, RelativeSource={RelativeSource Self}}" Value="">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="HeaderedContentControl">
+                                    <ContentPresenter ContentSource="Content" />
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </DataTrigger>
+                    <DataTrigger Binding="{Binding Header, RelativeSource={RelativeSource Self}}" Value="{x:Null}">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="HeaderedContentControl">
+                                    <ContentPresenter ContentSource="Content" />
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </DataTrigger>
+                </Style.Triggers>
+            </Style>
+        </HeaderedContentControl.Style>
+
+        <!-- Your content -->
+        <controls:NumberBox HorizontalAlignment="Stretch" Name="_numberControl" 
+                          ValueChanged="_numberControl_OnValueChanged" 
+                          Margin="0,0,0,0" CornerRadius="0,0,0,0" />
+    </HeaderedContentControl>
+</UserControl>

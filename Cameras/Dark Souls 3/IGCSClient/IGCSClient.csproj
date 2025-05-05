@@ -248,7 +248,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="IGCSIcon.ico" />
-    <Resource Include="Resources\Sekiro.jpg" />
+    <Resource Include="Resources\DS3.jpg" />
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">

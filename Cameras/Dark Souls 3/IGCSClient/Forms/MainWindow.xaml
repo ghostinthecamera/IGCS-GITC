@@ -46,7 +46,7 @@
                 <system:Double x:Key="TabViewItemHeaderIconSize">14</system:Double>
             </TabControl.Resources>
             <TabControl.Background>
-                <ImageBrush Stretch="UniformToFill" TileMode="None" Opacity="0.6" ImageSource="/Resources/Sekiro.jpg"/>
+                <ImageBrush Stretch="UniformToFill" TileMode="None" Opacity="0.6" ImageSource="/Resources/DS3.jpg"/>
             </TabControl.Background>
             <TabItem Header="General" Name="_generalTab">
                 <Controls:GeneralPage Padding="15" Width="843" Height="Auto" x:Name="_generalTabControl" DllInjected="_generalTabControl_OnDllInjected" AttachedProcessExited="_generalTabControl_OnAttachedProcessExited" Margin="0,15,0,15"/>

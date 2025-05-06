@@ -26,15 +26,13 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-using System.ComponentModel;
-
 namespace IGCSClient
 {
 	internal class ConstantsEnums
 	{
 		internal static readonly string DllToClientNamedPipeName = "IgcsDllToClient";
 		internal static readonly string ClientToDllNamedPipeName = "IgcsClientToDll";
-		internal static readonly int BufferLength = 14*1024;	// 4KB buffer should be more than enough. We expect to be actively reading whenever things arrive.
+		internal static readonly int BufferLength = 10*1024;	// Up from 4KB, 10KB buffer should be more than enough to account for path data. We expect to be actively reading whenever things arrive.
 		internal static readonly string IniFilename = "IGCSClientSettings.ini";
 		internal static readonly string IGCSSettingsFolder = "IGCS";
 		internal static readonly string RecentlyUsedFilename = "IGCSClientRecentlyUsed.txt";

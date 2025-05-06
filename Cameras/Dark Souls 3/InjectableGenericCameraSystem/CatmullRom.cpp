@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "MessageHandler.h"
 #include "CatmullRom.h"
-#include <DirectXMath.h>
 
 namespace IGCS 
 {

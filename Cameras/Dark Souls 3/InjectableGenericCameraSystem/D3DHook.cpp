@@ -7,7 +7,6 @@
 #include "PathManager.h"
 #include <DirectXMath.h>
 #include <d3dcompiler.h>
-#include <TlHelp32.h>
 #include "Bezier.h"
 #include "CentripetalCatmullRom.h"
 #include "CatmullRom.h"
@@ -15,7 +14,6 @@
 #include "Cubic.h"
 #include "PathUtils.h"
 #include "RiemannCubic.h"
-#include "Console.h"
 #include "Utils.h"
 
 #pragma comment(lib, "d3d11.lib")

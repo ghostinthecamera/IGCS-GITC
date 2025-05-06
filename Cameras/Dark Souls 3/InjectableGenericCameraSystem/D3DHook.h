@@ -7,9 +7,7 @@
 #include <atomic>
 #include <vector>
 #include <string>
-#include <memory>
 #include <unordered_map>
-
 #include "CameraPath.h"
 
 // Forward declarations

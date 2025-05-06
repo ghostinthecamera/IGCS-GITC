@@ -7,7 +7,6 @@
 #include "MessageHandler.h"
 #include <algorithm>
 #include <cmath>
-#include "Console.h"
 #include "CatmullRom.h"
 #include "CentripetalCatmullRom.h"
 #include "PathUtils.h"

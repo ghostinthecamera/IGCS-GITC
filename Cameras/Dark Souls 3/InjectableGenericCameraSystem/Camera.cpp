@@ -4,10 +4,8 @@
 // ================== Camera.cpp ==================
 #include "stdafx.h"
 #include "Camera.h"
-#include "Defaults.h"
 #include "GameConstants.h"
 #include "Globals.h"
-#include "CameraToolsData.h"
 #include "CameraManipulator.h"
 #include "PathUtils.h"
 
@@ -221,7 +219,7 @@ namespace IGCS
         _roll = eulers.z;
     }
 
-    void Camera::setTargetPitch(float a) noexcept { _targetpitch = clampAngle(a); }
-    void Camera::setTargetYaw(float a) noexcept { _targetyaw = clampAngle(a); }
-    void Camera::setTargetRoll(float a) noexcept { _targetroll = clampAngle(a); }
+    void Camera::setTargetPitch(float angle) noexcept { _targetpitch = clampAngle(angle); }
+    void Camera::setTargetYaw(float angle) noexcept { _targetyaw = clampAngle(angle); }
+    void Camera::setTargetRoll(float angle) noexcept { _targetroll = clampAngle(angle); }
 } // namespace IGCS

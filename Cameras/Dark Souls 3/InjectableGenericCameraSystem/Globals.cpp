@@ -29,7 +29,6 @@
 #include "Globals.h"
 
 #include "Console.h"
-#include "GameConstants.h"
 #include "NamedPipeManager.h"
 #include "Input.h"
 #include "Gamepad.h"

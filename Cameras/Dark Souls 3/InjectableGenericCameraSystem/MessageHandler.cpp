@@ -34,7 +34,7 @@
 namespace IGCS::MessageHandler
 {
 	
-	void addNotification(const string& notificationText)
+	void addNotification(const std::string& notificationText)
 	{
 		NamedPipeManager::instance().writeNotification(notificationText);
 	}
@@ -45,7 +45,7 @@ namespace IGCS::MessageHandler
 #ifdef _DEBUG
 		va_list args;
 		va_start(args, fmt);
-		const string formattedArgs = Utils::formatStringVa(fmt, args);
+		const std::string formattedArgs = Utils::formatStringVa(fmt, args);
 		va_end(args);
 
 		NamedPipeManager::instance().writeMessage(formattedArgs, false, true);
@@ -57,7 +57,7 @@ namespace IGCS::MessageHandler
 	{
 		va_list args;
 		va_start(args, fmt);
-		const string formattedArgs = Utils::formatStringVa(fmt, args);
+		const std::string formattedArgs = Utils::formatStringVa(fmt, args);
 		va_end(args);
 		NamedPipeManager::instance().writeMessage(formattedArgs, true, false);
 	}
@@ -67,9 +67,9 @@ namespace IGCS::MessageHandler
 	{
 		va_list args;
 		va_start(args, fmt);
-		string format(fmt);
+		std::string format(fmt);
 		format += '\n';
-		const string formattedArgs = Utils::formatStringVa(fmt, args);
+		const std::string formattedArgs = Utils::formatStringVa(fmt, args);
 		va_end(args);
 		NamedPipeManager::instance().writeMessage(formattedArgs);
 	}

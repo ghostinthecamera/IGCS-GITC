@@ -1,10 +1,7 @@
-﻿using IGCSClient.Controls;
-using IGCSClient.Interfaces;
+﻿using IGCSClient.Interfaces;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using IGCSClient.Controls;
 
 namespace IGCSClient.Classes.Settings
 {
@@ -46,8 +43,7 @@ namespace IGCSClient.Classes.Settings
             base.Setup(controlToUse);
 
             // Cast the control to our custom ToggleGroupInputWPF.
-            var toggleControl = controlToUse as Controls.ToggleGroupInputWPF;
-            if (toggleControl == null)
+            if (controlToUse is not ToggleGroupInputWPF toggleControl)
                 return;
 
             // Use our updated Setup method that takes an optional list of values.

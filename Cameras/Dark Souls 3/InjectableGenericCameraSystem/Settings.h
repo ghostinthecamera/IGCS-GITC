@@ -27,11 +27,11 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma once
 #include "stdafx.h"
-#include "Gamepad.h"
 #include "Utils.h"
 #include "GameConstants.h"
 #include "Defaults.h"
 #include "D3DHook.h"
+#include "PathManager.h"
 #include "System.h"
 
 namespace IGCS

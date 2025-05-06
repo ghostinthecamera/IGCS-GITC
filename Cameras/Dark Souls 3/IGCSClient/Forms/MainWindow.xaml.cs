@@ -27,16 +27,13 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Navigation;
 using IGCSClient.Classes;
-using IGCSClient.Controls;
 using IGCSClient.GameSpecific.Classes;
-using IGCSClient.ViewModels;
 using ModernWpf.Controls;
 using ModernWpf.Controls.Primitives;
 using ToastNotifications;

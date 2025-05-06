@@ -269,7 +269,7 @@ namespace IGCS
 			auto connectResult = ConnectNamedPipe(_clientToDllPipe, nullptr);
 			if(connectResult!=0 || GetLastError()==ERROR_PIPE_CONNECTED)
 			{
-				uint8_t buffer[14*1024];
+				uint8_t buffer[IGCS_MAX_MESSAGE_SIZE];
 				DWORD bytesRead;
 				while (ReadFile(_clientToDllPipe, buffer, sizeof(buffer), &bytesRead, nullptr))
 				{

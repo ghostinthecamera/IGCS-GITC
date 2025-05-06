@@ -1,7 +1,6 @@
 ﻿#pragma once
 #include "stdafx.h"
 #include <DirectXMath.h>
-
 #include "Utils.h"
 
 namespace IGCS

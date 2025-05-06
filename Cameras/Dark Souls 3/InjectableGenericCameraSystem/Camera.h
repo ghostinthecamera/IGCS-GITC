@@ -2,13 +2,12 @@
 #pragma once
 
 #include <DirectXMath.h>
-#include <algorithm>
-#include "CameraToolsData.h"
-#include "GameCameraData.h"
+
 #include "Utils.h"
 
 namespace IGCS
 {
+    using namespace DirectX;
     class Camera
     {
     public:

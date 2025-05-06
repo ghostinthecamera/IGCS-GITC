@@ -65,7 +65,7 @@ public:
 		Gamepad::button_t         button;  // enum alias for convenience
 	};
 
-	inline static constexpr std::array<IdToXInput, 14> kIdToXInputTable{ {
+	static constexpr std::array<IdToXInput, 14> kIdToXInputTable{ {
 			/* 1  */ {  1, XINPUT_GAMEPAD_A,              Gamepad::button_t::A      },
 			/* 2  */ {  2, XINPUT_GAMEPAD_B,              Gamepad::button_t::B      },
 			/* 3  */ {  3, XINPUT_GAMEPAD_X,              Gamepad::button_t::X      },

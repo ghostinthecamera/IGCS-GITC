@@ -27,6 +27,8 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 #include "stdafx.h"
 #include "System.h"
+
+#include "Camera.h"
 #include "Globals.h"
 #include "Defaults.h"
 #include "GameConstants.h"
@@ -41,7 +43,6 @@
 #include "IGCSConnector.h"
 #include "CameraPath.h"
 #include "PathManager.h"
-#include "Console.h"
 #include "GameImageHooker.h"
 
 namespace IGCS

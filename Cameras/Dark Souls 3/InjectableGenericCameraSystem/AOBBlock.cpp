@@ -30,7 +30,6 @@
 #include "AOBBlock.h"
 #include "Utils.h"
 #include "MessageHandler.h"
-#include "GameImageHooker.h"
 #include <string>
 #include <algorithm>
 

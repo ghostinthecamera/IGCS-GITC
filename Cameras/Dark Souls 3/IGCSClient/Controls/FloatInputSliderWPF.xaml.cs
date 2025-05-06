@@ -3,7 +3,6 @@ using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
-using IGCSClient.Classes;
 using IGCSClient.Interfaces;
 
 namespace IGCSClient.Controls

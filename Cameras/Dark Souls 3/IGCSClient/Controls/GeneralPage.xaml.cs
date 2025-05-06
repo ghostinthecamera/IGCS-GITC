@@ -27,7 +27,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Configuration;
 using System.Diagnostics;
@@ -38,7 +37,6 @@ using System.Windows.Controls;
 using System.Windows.Forms;
 using IGCSClient.Classes;
 using IGCSClient.Forms;
-using IGCSClient.GameSpecific.Classes;
 using MessageBox = System.Windows.MessageBox;
 using UserControl = System.Windows.Controls.UserControl;
 

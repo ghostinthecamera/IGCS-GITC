@@ -1,6 +1,4 @@
 #pragma once
-#include <cstdint>
-
 #include "PathManager.h"
 
 namespace IGCS::BinaryPathStructs

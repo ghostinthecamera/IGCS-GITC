@@ -28,14 +28,13 @@
 #pragma once
 
 #include "stdafx.h"
-#include "Gamepad.h"
 
 namespace IGCS
 {
 	// System defaults
 	#define FRAME_SLEEP								8		// in milliseconds
 	#define IGCS_SUPPORT_RAWKEYBOARDINPUT			true	// if set to false, raw keyboard input is ignored.
-	#define IGCS_MAX_MESSAGE_SIZE					14*1024	// in bytes
+	#define IGCS_MAX_MESSAGE_SIZE					10*1024	// in bytes
 
 	// Keyboard system control
 	#define IGCS_KEY_CAMERA_ENABLE					VK_INSERT

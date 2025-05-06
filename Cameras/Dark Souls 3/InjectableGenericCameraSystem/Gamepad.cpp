@@ -5,8 +5,6 @@
 #include "Gamepad.h"
 #include <Windows.h>
 #include <Xinput.h>
-#include <algorithm>
-#include <limits>
 
 #define clamp(v, _min, _max) max(min(v, _max), _min)
 

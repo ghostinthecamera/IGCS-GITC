@@ -6,6 +6,7 @@
 #include "IGCSConnector.h"
 #include "Camera.h"
 #include "CameraManipulator.h"
+#include "CameraToolsData.h"
 
 namespace IGCS::IGCSConnector
 {

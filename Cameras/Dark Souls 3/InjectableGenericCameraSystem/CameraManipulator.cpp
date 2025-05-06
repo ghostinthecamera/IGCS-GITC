@@ -32,7 +32,6 @@
 #include "Camera.h"
 #include "GameCameraData.h"
 #include "MessageHandler.h"
-#include "Console.h"
 
 using namespace DirectX;
 using namespace std;

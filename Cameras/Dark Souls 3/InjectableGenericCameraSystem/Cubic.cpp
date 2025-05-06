@@ -1,6 +1,4 @@
 ﻿#include "stdafx.h"
-#include "MessageHandler.h"
-#include "CentripetalCatmullRom.h"
 #include <DirectXMath.h>
 #include "Globals.h"
 #include "Cubic.h"

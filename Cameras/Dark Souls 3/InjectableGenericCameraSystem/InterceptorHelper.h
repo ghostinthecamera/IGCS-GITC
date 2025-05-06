@@ -29,8 +29,6 @@
 #include "stdafx.h"
 #include <map>
 #include <string>
-#include <string_view>
-#include "Utils.h"
 #include "GameCameraData.h"
 #include "AOBBlock.h"
 

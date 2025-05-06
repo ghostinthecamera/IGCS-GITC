@@ -26,15 +26,9 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 using IGCSClient.Classes;
 using IGCSClient.Classes.Settings;
-using IGCSClient.Controls;
 
 namespace IGCSClient.GameSpecific.Classes
 {

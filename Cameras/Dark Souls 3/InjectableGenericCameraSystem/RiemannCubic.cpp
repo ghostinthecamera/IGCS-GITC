@@ -2,7 +2,6 @@
 #include "CameraPath.h"
 #include "RiemannCubic.h"
 #include "PathUtils.h"
-#include "Globals.h"
 
 namespace IGCS
 {

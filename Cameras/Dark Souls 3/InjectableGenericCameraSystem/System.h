@@ -27,13 +27,10 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma once
 #include "stdafx.h"
-#include "Camera.h"
-#include "InputHooker.h"
 #include "Gamepad.h"
 #include <map>
 #include "AOBBlock.h"
 #include "GameCameraData.h" //IGCSDOF
-#include "PathManager.h"
 #include "D3DHook.h"
 
 namespace IGCS

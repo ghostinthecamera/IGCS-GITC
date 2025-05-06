@@ -27,11 +27,14 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 #include "stdafx.h"
 #include "InterceptorHelper.h"
+
+#include <functional>
+
 #include "GameConstants.h"
 #include "GameImageHooker.h"
 #include "MessageHandler.h"
-#include "CameraManipulator.h"
-#include "Globals.h"
+#include "Utils.h"
+
 
 using namespace std;
 

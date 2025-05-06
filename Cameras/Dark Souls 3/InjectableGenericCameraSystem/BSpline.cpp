@@ -1,6 +1,5 @@
 ﻿#include "stdafx.h"
 #include "MessageHandler.h"
-#include <DirectXMath.h>
 #include "Globals.h"
 #include "BSpline.h"
 #include "PathUtils.h"

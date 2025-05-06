@@ -25,11 +25,8 @@
 // OR TORT(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
-using System;
-using System.Windows;
 using System.Windows.Controls;
 using IGCSClient.Classes;
-using IGCSClient.Interfaces;
 
 namespace IGCSClient.GameSpecific.Controls
 {

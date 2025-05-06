@@ -7,8 +7,8 @@
 #include "Defaults.h"
 #include "CameraManipulator.h"
 #include "PathUtils.h"
-#include "Console.h"
 #include "BinaryPathStructs.h"
+#include "Camera.h"
 
 namespace IGCS
 {

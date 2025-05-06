@@ -28,14 +28,9 @@
 
 using System;
 using System.Text;
-using System.Windows;
-using System.Windows.Forms;
 using IGCSClient.NamedPipeSubSystem;
 using IGCSClient.Forms;
-using IGCSClient.Controls;
 using IGCSClient.Helpers;
-using IGCSClient.ViewModels;
-using Windows.Storage.Streams;
 
 namespace IGCSClient.Classes
 {

@@ -69,7 +69,7 @@ namespace IGCS
 	#define IGCS_KEY_PATH_DELETE					VK_F10
 	#define IGCS_KEY_PATH_CYCLE						VK_OEM_6 // ']' key
 	#define IGCS_KEY_PATH_DELETE_LAST_NODE			VK_F11
-	#define IGCS_KEY_PATH_TOGGLE_DEPTH				VK_F10
+	#define IGCS_KEY_PATH_TOGGLE_DEPTH				VK_F9
 
 	#define IGCS_BUTTON_FOV_DECREASE				Gamepad::button_t::UP
 	#define IGCS_BUTTON_FOV_INCREASE				Gamepad::button_t::DOWN

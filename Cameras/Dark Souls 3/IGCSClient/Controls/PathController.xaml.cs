@@ -60,7 +60,7 @@ namespace IGCSClient.Controls
         private const int MinPathNameLength = 4;
         private const int MaxPathNameLength = 10;
         private const int MaxTotalPaths = 5;
-        private const int MaxNodesPerPath = 8;
+        private const int MaxNodesPerPath = 15;
 
         private bool _isScrubbing = false;
         private bool _isUpdatingSlider = false;

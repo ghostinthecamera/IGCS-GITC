@@ -13,14 +13,6 @@ using namespace DirectX;
 
 namespace IGCS
 {
-    // -----------------------------------------------------------------------------------------------------------------
-    //  Compile?time engine?specific movement signs
-    //  Modify these constants (?1.f or 1.f) to match your engine’s forward/right/up directions. 1.f == current behaviour.
-    static constexpr float kForwardSign = 1.0f; // set to ?1.f if engine uses negative forward
-    static constexpr float kRightSign = 1.0f; // set to ?1.f if engine uses negative right
-    static constexpr float kUpSign = 1.0f; // set to ?1.f if engine uses negative up
-    // -----------------------------------------------------------------------------------------------------------------
-
     // --------------------------------------------- Quaternion / movement helpers -------------------------------------
     XMVECTOR Camera::calculateLookQuaternion() noexcept
     {

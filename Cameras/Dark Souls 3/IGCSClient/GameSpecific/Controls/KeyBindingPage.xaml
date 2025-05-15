@@ -100,7 +100,6 @@
                             <controls:KeyCombinationInputWPF Header="Frame Skip" x:Name="_skipFramesInput" />
                             <controls:KeyCombinationInputWPF Header="Toggle HUD" x:Name="_HUDtoggle" />
                             <controls:KeyCombinationInputWPF Header="Toggle PlayersOnly" x:Name="_playerOnly" />
-                            <controls:KeyCombinationInputWPF Header="Cycle Depth Buffers" x:Name="_cycleDepthBuffers" />
                         </UniformGrid>
                     </StackPanel>
                 </ScrollViewer>
@@ -126,6 +125,8 @@
                             <controls:KeyCombinationInputWPF Header="Delete Path" x:Name="_pathDeletePath" />
                             <controls:KeyCombinationInputWPF Header="Cycle Paths" x:Name= "_pathCycle" />
                             <controls:KeyCombinationInputWPF Header="Delete Last Node" x:Name="_pathDeleteLastNode" />
+                            <controls:KeyCombinationInputWPF Header="Toggle Depth Usage" x:Name="_toggleDepthUsage" />
+                            <controls:KeyCombinationInputWPF Header="Cycle Depth Buffers" x:Name="_cycleDepthBuffers" />
                         </UniformGrid>
 
                         <HeaderedContentControl FontSize="15" FontWeight="Bold" Margin="0,0,0,5">Gamepad</HeaderedContentControl>

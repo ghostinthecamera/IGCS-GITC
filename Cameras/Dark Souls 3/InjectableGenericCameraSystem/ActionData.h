@@ -62,9 +62,10 @@ namespace IGCS
 		PathDelete = 28,
 		PathCycle = 29,
 		PathDeleteLastNode = 30,
-		GamepadSlowModifier = 31,
-		GamepadFastModifier = 32,
-		ToggleDepthBuffer = 33,
+		ToggleDepthBuffer = 31,
+		GamepadSlowModifier = 32,
+		GamepadFastModifier = 33,
+
 
 		Amount,
 	};

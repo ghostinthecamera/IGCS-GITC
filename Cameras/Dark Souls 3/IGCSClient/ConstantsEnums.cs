@@ -180,6 +180,8 @@ namespace IGCSClient
         public const byte PathDelete = 28;
         public const byte PathCycle = 29;
         public const byte PathDeleteLastNode = 30;
+
+        public const byte ToggleDepthBuffer = 31;
         // to add more, derived a type of this class and define the next value one higher than the last one in this class.
     }
 

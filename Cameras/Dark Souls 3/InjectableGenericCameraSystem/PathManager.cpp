@@ -264,7 +264,7 @@ namespace IGCS
 			sendAllCameraPathsCombined();
 			
 			//MessageHandler::logDebug("CameraPathManager::handleAddNodeMessage::%s node added", _selectedPath.c_str());
-			MessageHandler::logLine("Node %zu added to path: %s", n, _selectedPath.c_str());
+			//MessageHandler::logLine("Node %zu added to path: %s", n, _selectedPath.c_str());
 			return n;
 		}
 		MessageHandler::logError("CameraPathManager::handleAddNodeMessage::%s not found in array", _selectedPath.c_str());

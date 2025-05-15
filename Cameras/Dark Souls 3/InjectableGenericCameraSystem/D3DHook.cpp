@@ -31,14 +31,13 @@ namespace IGCS {
     D3DHook::Present_t D3DHook::_originalPresent = nullptr;
     D3DHook::ResizeBuffers_t D3DHook::_originalResizeBuffers = nullptr;
     D3DHook::OMSetRenderTargets_t D3DHook::_originalOMSetRenderTargets = nullptr;
-    std::unordered_map<std::string, D3DHook::GameDepthFormat> D3DHook::_gameDepthFormats;
 
 	//==================================================================================================
 	// Getters, setters and other methods
 	//==================================================================================================
     void D3DHook::setVisualization(const bool enabled) {
         _visualizationEnabled = enabled;
-        MessageHandler::logDebug("D3DHook::setVisualization: Visualization is now %s", _visualizationEnabled ? "ON" : "OFF");
+        MessageHandler::logLine("Path Visualization %s", _visualizationEnabled ? "ON" : "OFF");
     }
 
     bool D3DHook::isVisualizationEnabled() const {
@@ -47,7 +46,7 @@ namespace IGCS {
 
     void D3DHook::setRenderPathOnly(const bool renderPathOnly) {
         _renderSelectedPathOnly = renderPathOnly;
-        MessageHandler::logDebug("D3DHook::setRenderPathOnly: Render selected path only is now %s",
+        MessageHandler::logLine("Selected path rendering %s",
             _renderSelectedPathOnly ? "ON" : "OFF");
     }
 
@@ -75,7 +74,7 @@ namespace IGCS {
 
     void D3DHook::toggleDepthBufferUsage() {
         _useDetectedDepthBuffer = !_useDetectedDepthBuffer;
-        MessageHandler::logDebug("D3DHook::toggleDepthBufferUsage: Depth buffer usage is now %s",
+        MessageHandler::logLine("Depth buffer usage %s",
             _useDetectedDepthBuffer ? "ON" : "OFF");
 
         // Force recreation of any depth-related resources on next frame
@@ -96,9 +95,8 @@ namespace IGCS {
     //==================================================================================================
     // Constructor & Destructor
     //==================================================================================================
-    D3DHook::D3DHook()
+    D3DHook::D3DHook(): _renderSelectedPathOnly(false)
     {
-        initializeGameDepthFormats();
     }
 
     D3DHook::~D3DHook() {
@@ -304,7 +302,7 @@ namespace IGCS {
         // Log info about the current depth buffer
         if (_currentDepthBufferIndex < _depthTextureDescs.size()) {
             const auto& desc = _depthTextureDescs[_currentDepthBufferIndex];
-            MessageHandler::logDebug("D3DHook::cycleDepthBuffer: Switched to depth buffer %d of %zu, dimensions: %dx%d, format: %d",
+            MessageHandler::logLine("D3DHook::cycleDepthBuffer: Switched to depth buffer %d of %zu, dimensions: %dx%d, format: %d",
                 _currentDepthBufferIndex + 1, _detectedDepthStencilViews.size(),
                 desc.Width, desc.Height, desc.Format);
         }

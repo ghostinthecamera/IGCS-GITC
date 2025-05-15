@@ -124,6 +124,7 @@ namespace IGCSClient.GameSpecific.Classes
             appState.AddKeyBinding(new KeyBindingSetting(KeyBindingType.SlowMo, nameof(KeyBindingType.SlowMo), new KeyCombination(GameSpecificKeyBindingDefaults.SlowMoDefault)));
             appState.AddKeyBinding(new KeyBindingSetting(KeyBindingType.HUDtoggle, nameof(KeyBindingType.HUDtoggle), new KeyCombination(GameSpecificKeyBindingDefaults.HUDtoggle)));
             appState.AddKeyBinding(new KeyBindingSetting(KeyBindingType.CycleDepthBuffers, nameof(KeyBindingType.CycleDepthBuffers), new KeyCombination(GameSpecificKeyBindingDefaults.CycleDepthBuffers)));
+            appState.AddKeyBinding(new KeyBindingSetting(KeyBindingType.ToggleDepthBuffer, nameof(KeyBindingType.ToggleDepthBuffer), new KeyCombination(GameSpecificKeyBindingDefaults.ToggleDepthBuffer)));
             //Game Specific
             appState.AddKeyBinding(new KeyBindingSetting(KeyBindingType.playerOnlyToggle, nameof(KeyBindingType.playerOnlyToggle), new KeyCombination(GameSpecificKeyBindingDefaults.PlayerOnlyToggle)));
             appState.AddKeyBinding(new KeyBindingSetting(KeyBindingType.PathCreate, nameof(KeyBindingType.PathCreate), new KeyCombination(GameSpecificKeyBindingDefaults.PathCreate)));

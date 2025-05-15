@@ -112,18 +112,17 @@ namespace IGCS {
         static DXGI_FORMAT getDepthViewFormat(DXGI_FORMAT resourceFormat);
         void cleanupDepthBufferResources();
 
-        static void initializeGameDepthFormats() {
-            // Just game name in lowercase and DXGI format number
-            _gameDepthFormats["darksoulsiii.exe"] = { 19, true };
-            _gameDepthFormats["nino2.exe"] = { 44, true };
-        }
-
         struct GameDepthFormat {
             int format;
             bool matchViewportSize;
         };
 
-        static std::unordered_map<std::string, GameDepthFormat> _gameDepthFormats;
+        // Static member with inline initialization
+        static inline std::unordered_map<std::string, GameDepthFormat> _gameDepthFormats{
+            {"darksoulsiii.exe", {19, true}},
+            {"nino2.exe", {44, true}}
+        };
+
 
         // ==== Path Data Structures ====
         struct PathInfo {

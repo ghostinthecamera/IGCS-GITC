@@ -31,7 +31,7 @@ namespace IGCS
 {
 	// Mandatory constants to define for a game
 	#define GAME_NAME									"DS3"
-	#define CAMERA_VERSION								"0.1"
+	#define CAMERA_VERSION								"1.0"
 	#define CAMERA_CREDITS								"ghostinthecamera"
 	#define GAME_WINDOW_TITLE							"DARK SOULS III"
 	#define GAME_EXE_NAME								"DarkSoulsIII.exe"
@@ -63,9 +63,19 @@ namespace IGCS
 	#define NEGATE_ROLL									true
 	#define RAD_TO_DEG_FACTOR							(180.0f / XM_PI)
 	#define DEG_TO_RAD_FACTOR							(XM_PI / 180.0f)
+
+	// Other Compile?time constants
 	inline constexpr auto PATH_MANAGER_MAXPATHS = 5;
-	inline constexpr auto PATH_MAX_NODES = 8;
+	inline constexpr auto PATH_MAX_NODES = 15;
 	inline constexpr auto RUN_IN_HOOKED_PRESENT = false;
+	// Modify these constants (?1.f or 1.f) to match your engine’s forward/right/up directions. 1.f == current behaviour.
+	static constexpr float kForwardSign = 1.0f; // set to ?1.f if engine uses negative forward
+	static constexpr float kRightSign = 1.0f; // set to ?1.f if engine uses negative right
+	static constexpr float kUpSign = 1.0f; // set to ?1.f if engine uses negative up
+	// D3DLogging Constant
+	static constexpr auto D3DLOGGING = true;
+	static constexpr auto VERBOSE = false;
+	static constexpr auto USE_WINDOWFOREGROUND_OVERRIDE = false;
 	// End Mandatory constants
 	
 

@@ -141,6 +141,9 @@ namespace IGCSClient.GameSpecific.Controls
                     case KeyBindingType.PathDeleteLastNode:
                         binding.Setup(_pathDeleteLastNode);
                         break;
+                    case KeyBindingType.ToggleDepthBuffer:
+                        binding.Setup(_toggleDepthUsage);
+                        break;
 
                 }
 			}

@@ -116,7 +116,7 @@ namespace IGCSClient.GameSpecific.Classes
         public const int SlowMoDefault = (int)Keys.PageUp;
         public const int HUDtoggle = (int)Keys.Delete;
 
-        public const int CycleDepthBuffers = (int)Keys.Tab;
+        
 
 
         // Game specific
@@ -131,6 +131,8 @@ namespace IGCSClient.GameSpecific.Classes
         public const int PathDelete = (int)Keys.F10;
         public const int PathCycle = (int)Keys.OemCloseBrackets;
         public const int PathDeleteLastNode = (int)Keys.F11;
+        public const int CycleDepthBuffers = (int)Keys.Tab;
+        public const int ToggleDepthBuffer = (int)Keys.F9;
 
         // Path controls for gamepad
         public static readonly KeyCombination IncreaseFoV_GamepadDefault = new(false, false, false, XInputConstants.DPAD_DOWN, true);

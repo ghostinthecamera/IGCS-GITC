@@ -83,7 +83,7 @@ namespace IGCS
 		const uint8_t newNodeIndex = static_cast<uint8_t>(_nodes.size()) - 1;
 		printNodeDetails(newNodeIndex);
 		//MessageHandler::logDebug("CameraPath::addNode: Node added");
-		MessageHandler::logLine("Node added to path: %s", _pathName.c_str());
+		MessageHandler::logLine("Node %zu added to path: %s", newNodeIndex, _pathName.c_str());
 
 		continuityCheck();
 		// Recalculate path metrics

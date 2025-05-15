@@ -1188,55 +1188,74 @@ namespace IGCS {
             return;
         }
 
-        // Check if we already have this DSV
-        for (const auto& dsv : _detectedDepthStencilViews) {
-            if (dsv == pDSV) {
-                return; // Already in our list
-            }
-        }
-
-        // Get the resource and texture info
+        // Get the resource (texture) from the view
         ID3D11Resource* pResource = nullptr;
         pDSV->GetResource(&pResource);
-
-        if (pResource) {
-            ID3D11Texture2D* pTexture = nullptr;
-            const HRESULT hr = pResource->QueryInterface(__uuidof(ID3D11Texture2D), (void**)&pTexture);
-
-            if (SUCCEEDED(hr) && pTexture) {
-                // Get texture description
-                D3D11_TEXTURE2D_DESC desc;
-                pTexture->GetDesc(&desc);
-
-                // Ensure this is actually a depth format (do we need this even i don't know)
-                if (isDepthFormat(desc.Format)) {
-                    // Add a reference to the DSV and texture
-                    pDSV->AddRef();
-                    _detectedDepthStencilViews.push_back(pDSV);
-
-                    // Store the texture
-                    pTexture->AddRef();
-                    _detectedDepthTextures.push_back(pTexture);
-
-                    // Store the texture description
-                    _depthTextureDescs.push_back(desc);
-
-                    // If this is our first DSV, set it as current
-                    if (_detectedDepthStencilViews.size() == 1) {
-                        _currentDepthBufferIndex = 0;
-                        _useDetectedDepthBuffer = true;
-                    }
-
-                    MessageHandler::logDebug("D3DHook::captureActiveDepthBuffer: Found active game depth buffer: %dx%d, format: %d, DSV addr: %p, Texture addr: %p",
-                        desc.Width, desc.Height, desc.Format,
-                        static_cast<void*>(pDSV),            // DSV address
-                        static_cast<void*>(pTexture));       // Texture address
-                }
-
-                pTexture->Release(); // Release our query interface reference
-            }
-            pResource->Release();
+        if (!pResource) {
+            return;
         }
+
+        // Query for the texture interface
+        ID3D11Texture2D* pTexture = nullptr;
+        HRESULT hr = pResource->QueryInterface(__uuidof(ID3D11Texture2D), (void**)&pTexture);
+        pResource->Release(); // Release our reference to the resource
+
+        if (FAILED(hr) || !pTexture) {
+            return; // Not a 2D texture, can't be a depth buffer we want
+        }
+
+        // Get texture description to verify it's a depth format
+        D3D11_TEXTURE2D_DESC desc;
+        pTexture->GetDesc(&desc);
+
+        // Check if this is a depth format
+        if (!isDepthFormat(desc.Format)) {
+            pTexture->Release();
+            return;
+        }
+
+        // Check for duplicates - compare actual texture pointers
+        bool isDuplicate = false;
+        for (size_t i = 0; i < _detectedDepthTextures.size(); i++) {
+            if (_detectedDepthTextures[i] == pTexture) {
+                // We already have this texture, but we might want to update the view
+                // Option 1: Keep using the first view we found (do nothing)
+                // Option 2: Update to use the newest view (this one)
+
+                // Release the old view and replace with the new one
+                _detectedDepthStencilViews[i]->Release();
+                pDSV->AddRef(); // Add reference for our storage
+                _detectedDepthStencilViews[i] = pDSV;
+
+                isDuplicate = true;
+                break;
+            }
+        }
+
+        // If this is a new unique texture, add it to our collections
+        if (!isDuplicate) {
+            // Add references for storage
+            pDSV->AddRef();
+            pTexture->AddRef();
+
+            // Store in our collections
+            _detectedDepthStencilViews.push_back(pDSV);
+            _detectedDepthTextures.push_back(pTexture);
+            _depthTextureDescs.push_back(desc);
+
+            // If this is our first DSV, set it as current
+            if (_detectedDepthStencilViews.size() == 1) {
+                _currentDepthBufferIndex = 0;
+                _useDetectedDepthBuffer = true;
+            }
+
+            MessageHandler::logDebug("D3DHook::captureActiveDepthBuffer: Found unique depth buffer: %dx%d, format: %d",
+                desc.Width, desc.Height, desc.Format);
+        }
+
+        // Release our working reference to the texture
+        pTexture->Release();
+		pResource->Release(); // Release the resource reference
     }
 
     void D3DHook::selectAppropriateDepthBuffer() {

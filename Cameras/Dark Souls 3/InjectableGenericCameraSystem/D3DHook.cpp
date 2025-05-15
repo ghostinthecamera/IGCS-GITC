@@ -31,6 +31,7 @@ namespace IGCS {
     D3DHook::Present_t D3DHook::_originalPresent = nullptr;
     D3DHook::ResizeBuffers_t D3DHook::_originalResizeBuffers = nullptr;
     D3DHook::OMSetRenderTargets_t D3DHook::_originalOMSetRenderTargets = nullptr;
+    std::unordered_map<std::string, D3DHook::GameDepthFormat> D3DHook::_gameDepthFormats;
 
 	//==================================================================================================
 	// Getters, setters and other methods
@@ -96,7 +97,9 @@ namespace IGCS {
     // Constructor & Destructor
     //==================================================================================================
     D3DHook::D3DHook()
-    = default;
+    {
+        initializeGameDepthFormats();
+    }
 
     D3DHook::~D3DHook() {
         cleanUp();
@@ -1282,6 +1285,42 @@ namespace IGCS {
                     pResource->Release();
                 }
             }
+        }
+
+        // Game-specific depth buffer selection
+    	// ------------------------------------------------------------------------
+        const char* exeName = Utils::getExecutableName();
+
+        // Look for game-specific format (using string literal for comparison since our keys and exeName are both lowercase)
+        const auto it = _gameDepthFormats.find(exeName);
+        if (it != _gameDepthFormats.end()) {
+            const int preferredFormat = it->second.format;
+            const bool shouldMatchViewport = it->second.matchViewportSize;
+
+            for (size_t i = 0; i < _depthTextureDescs.size(); i++) {
+                const auto& desc = _depthTextureDescs[i];
+
+                // Skip invalid buffers
+                if (desc.Width == 0 || desc.Height == 0) continue;
+
+                // Match format and optionally size
+                if (desc.Format == preferredFormat) {
+                    if (!shouldMatchViewport ||
+                        (desc.Width == viewportWidth && desc.Height == viewportHeight)) {
+
+                        _currentDepthBufferIndex = static_cast<int>(i);
+                        _useDetectedDepthBuffer = true;
+                        _depthMatchFound = true;
+
+                        MessageHandler::logDebug("Game-specific match: Selected depth buffer for %s: %dx%d format %d",
+                            exeName, desc.Width, desc.Height, desc.Format);
+                        return;
+                    }
+                }
+            }
+
+            MessageHandler::logDebug("Game-specific format %d defined for %s, but no matching buffer found",
+                preferredFormat, exeName);
         }
 
         // Step 1: Try exact size + preferred format
@@ -2538,23 +2577,23 @@ namespace IGCS {
         XMMATRIX& projMatrix) {
 
         // Get camera position from game memory
-            DirectX::XMFLOAT3 camPos = GameSpecific::CameraManipulator::getCurrentCameraCoords();
+            XMFLOAT3 camPos = GameSpecific::CameraManipulator::getCurrentCameraCoords();
 
         // Get the camera matrix from game memory
-        float* matrixInMemory = reinterpret_cast<float*>(
+        const auto matrixInMemory = reinterpret_cast<float*>(
             GameSpecific::CameraManipulator::getCameraStruct() + MATRIX_IN_STRUCT_OFFSET);
 
-        DirectX::XMMATRIX cameraWorldMatrix;
+        XMMATRIX cameraWorldMatrix;
         memcpy(&cameraWorldMatrix, matrixInMemory, sizeof(XMMATRIX));
         XMVECTOR dt = XMMatrixDeterminant(cameraWorldMatrix);
         // Use the same exact matrix for rendering paths as what's used for the game camera
         // This ensures perfect alignment regardless of interpolation status
-        viewMatrix = DirectX::XMMatrixInverse(&dt, cameraWorldMatrix);
+        viewMatrix = XMMatrixInverse(&dt, cameraWorldMatrix);
 
         // Create projection matrix using the game's FOV
         float fov = GameSpecific::CameraManipulator::getCurrentFoV();
         fov = max(0.01f, min(fov, 3.0f));
-        float aspectRatio = viewport.Width / viewport.Height;
+        const float aspectRatio = viewport.Width / viewport.Height;
         projMatrix = XMMatrixPerspectiveFovLH(fov, aspectRatio, 0.08f, 10000.0f);
 
         // Log matrix components for debugging

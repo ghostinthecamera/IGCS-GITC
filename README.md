@@ -19,7 +19,8 @@ and want to show your appreciation or just a quick thank you then please drop me
 - Sekiro
 - Final Fantasy XIII
 - Final Fantasy XIII-2
-- Lightning Returns: Final Fantasy XIII  
+- Lightning Returns: Final Fantasy XIII
+- Dark Souls 3
 
 ---
 

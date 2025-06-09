@@ -33,7 +33,7 @@ namespace IGCSClient.GameSpecific.Classes
 	internal static class GameSpecificConstants
 	{
 		public const string ClientWindowTitle = "Dark Souls 3 Tools";
-		public const string CameraVersion = "1.0";
+		public const string CameraVersion = "1.1";
 		public const string CameraCredits = "ghostinthecamera";
 		public const bool HotsamplingRequiresEXITSIZEMOVE = false;
 	}

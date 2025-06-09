@@ -87,12 +87,13 @@ namespace IGCS
 		static bool checkIfGamehasFocus();
 		void handlePathManagerInput();	
 		void handleUserInput();
+		static float calculateModifier();
 		static void displayCameraState();
 		static void toggleCameraMovementLockState();
 		static void handleKeyboardCameraMovement(float multiplier);
 		void checkDXHookRequired();
 		static void handleMouseCameraMovement(float multiplier);
-		void handleGamePadMovement();
+		void handleGamePadMovement(float multiplier);
 		void waitForCameraStructAddresses();
 		static void toggleInputBlockState();
 		void toggleHud();

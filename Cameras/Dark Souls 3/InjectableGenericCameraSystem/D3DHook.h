@@ -48,6 +48,7 @@ namespace IGCS {
         void performQueuedInitialization();
         [[nodiscard]] bool isFullyInitialized() const;
         [[nodiscard]] bool needsInitialization() const { return _needsInitialization; }
+        void markResourcesForUpdate() { _resourcesNeedUpdate.store(true, std::memory_order_release); }
 
         // ==== Visualization control ====
         void setVisualization(bool enabled);

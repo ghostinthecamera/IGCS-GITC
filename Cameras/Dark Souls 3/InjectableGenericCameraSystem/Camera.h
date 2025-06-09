@@ -92,6 +92,7 @@ namespace IGCS
         void setTargetPitch(float angle) noexcept;  // target setters (clamped)
         void setTargetYaw(float angle) noexcept;
         void setTargetRoll(float angle) noexcept;
+        void prepareCamera() noexcept;
 
         float shortestAngleDifference(float current, float target) noexcept;
 

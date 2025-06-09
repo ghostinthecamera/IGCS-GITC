@@ -356,7 +356,7 @@ namespace IGCS
 				CameraManipulator::cacheGameCameraData(_originalData);
 				CameraManipulator::displayAddresses();
 				InterceptorHelper::cameraSetup(_aobBlocks, true, _addressData);
-				Camera::instance().setAllRotation(CameraManipulator::getEulers());
+				Camera::instance().prepareCamera();
 			}
 			g_cameraEnabled ^= 1;
 			NamedPipeManager::instance().writeBinaryPayload(g_cameraEnabled, MessageType::CameraEnabled);
@@ -447,15 +447,31 @@ namespace IGCS
 			return;
 		}
 
-		Settings& settings = Globals::instance().settings();
-		float multiplier = Utils::altPressed() ? settings.fastMovementMultiplier : Utils::ctrlPressed() ? settings.slowMovementMultiplier : 1.0f;
-		// Calculates a multiplier based on the current fov. We have a baseline of DEFAULT_FOV. If the fov is > than that, use 1.0
-		// otherwise calculate a factor by using the currentfov / DEFAULT_FOV. Cap the minimum at 0.1 so some movement is still possible :)
-		multiplier *= Utils::clamp(abs(CameraManipulator::getCurrentFoV() / DEFAULT_FOV), 0.01f, 1.0f);
+		const float multiplier = calculateModifier();
+
 		handleKeyboardCameraMovement(multiplier);
 		handleMouseCameraMovement(multiplier);
-		handleGamePadMovement();
+		handleGamePadMovement(multiplier);
 		handlePathManagerInput();
+	}
+
+	float System::calculateModifier()
+	{
+		const Settings& settings = Globals::instance().settings();
+
+		// Check for fast movement from ANY input device
+		bool fastMovement = Utils::altPressed() || Input::isActionActivated(ActionType::GamepadFastModifier);
+
+		// Check for slow movement from ANY input device  
+		bool slowMovement = Utils::ctrlPressed() || Input::isActionActivated(ActionType::GamepadSlowModifier);
+
+		// Determine base multiplier
+		float baseMultiplier = fastMovement ? settings.fastMovementMultiplier :
+			slowMovement ? settings.slowMovementMultiplier : 1.0f;
+
+		// Apply FoV scaling
+		float fovScalingFactor = Utils::clamp(abs(CameraManipulator::getCurrentFoV() / DEFAULT_FOV), 0.01f, 1.0f);
+		return baseMultiplier * fovScalingFactor;
 	}
 
 	void System::handlePathManagerInput()
@@ -612,7 +628,7 @@ namespace IGCS
 	}
 
 
-	void System::handleGamePadMovement()
+	void System::handleGamePadMovement(float multiplier)
 	{
 		if(!Globals::instance().controllerControlsCamera())
 		{
@@ -622,8 +638,7 @@ namespace IGCS
 		if (auto gamePad = Globals::instance().gamePad(); gamePad.isConnected())
 		{
 			Settings& settings = Globals::instance().settings();
-			float  multiplier = Input::isActionActivated((ActionType::GamepadFastModifier)) ? settings.fastMovementMultiplier 
-																			: Input::isActionActivated((ActionType::GamepadSlowModifier)) ? settings.slowMovementMultiplier : 1.0f;
+			
 			vec2 rightStickPosition = gamePad.getRStickPosition();
 			Camera::instance().targetPitch(rightStickPosition.y * multiplier);
 			Camera::instance().targetYaw(rightStickPosition.x * multiplier);

@@ -64,6 +64,10 @@ namespace IGCS
 
 	void CameraPath::addNode(const XMVECTOR position, const XMVECTOR rotation, float fov)
 	{
+		if (!Globals::instance().settings().d3ddisabled && D3DHook::instance().isVisualizationEnabled()) {
+			D3DHook::instance().markResourcesForUpdate();
+		}
+
 		_nodes.emplace_back(position, rotation, fov);
 		CameraPathManager::instance().appendStateToReshadePath(_pathName);
 		generateArcLengthTables();
@@ -72,6 +76,10 @@ namespace IGCS
 	uint8_t CameraPath::addNode()
 	{
 		auto node = createNode();
+
+		if (!Globals::instance().settings().d3ddisabled && D3DHook::instance().isVisualizationEnabled()) {
+			D3DHook::instance().markResourcesForUpdate();
+		}
 
 		// Add the new node
 		_nodes.emplace_back(node);
@@ -132,6 +140,10 @@ namespace IGCS
 		}
 
 		const auto node = createNode();
+
+		if (!Globals::instance().settings().d3ddisabled && D3DHook::instance().isVisualizationEnabled()) {
+			D3DHook::instance().markResourcesForUpdate();
+		}
 		_nodes.insert(_nodes.begin() + nodeIndex, node);
 
 		MessageHandler::logDebug("CameraPath::insertNodeBefore: Node inserted before %d", nodeIndex);
@@ -161,6 +173,10 @@ namespace IGCS
 			MessageHandler::logDebug("CameraPath::deleteNode: nodeIndex out of bounds. Returning");
 			MessageHandler::logError("Selected node %zu out of bounds for path: %s", nodeIndex, _pathName.c_str());
 			return;
+		}
+
+		if (!Globals::instance().settings().d3ddisabled && D3DHook::instance().isVisualizationEnabled()) {
+			D3DHook::instance().markResourcesForUpdate();
 		}
 
 		_nodes.erase(_nodes.begin() + nodeIndex);
@@ -297,6 +313,8 @@ namespace IGCS
 			Camera::instance().setAllRotation(eulers);
 			GameSpecific::CameraManipulator::setCurrentCameraCoords(position);
 			Camera::instance().setFoV(interpolatedFOV, true);
+			Camera::instance().resetMovement();
+			Camera::instance().resetTargetMovement();
 		}
 	}
 

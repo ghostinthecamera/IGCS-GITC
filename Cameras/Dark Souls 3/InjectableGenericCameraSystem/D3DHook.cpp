@@ -2480,14 +2480,21 @@ namespace IGCS {
             return;
         }
 
+
+        if (CameraPathManager::instance().getPathCount() == 0) {
+            return;
+        }
+
         // Update path resources if needed
         if (_resourcesNeedUpdate.load(std::memory_order_acquire) || !_pathResourcesCreated) {
             std::lock_guard<std::mutex> lock(_resourceMutex);
             if (_resourcesNeedUpdate.load(std::memory_order_acquire) || !_pathResourcesCreated) {
-                createPathVisualization();
+                MessageHandler::logDebug("D3DHook::renderPaths: Updating path resources");
+            	createPathVisualization();
                 _resourcesNeedUpdate.store(false, std::memory_order_release);
 
                 if (!_pathResourcesCreated) {
+                    MessageHandler::logError("D3DHook::renderPaths: Failed to create path resources");
                     return; // Creation failed, exit
                 }
             }

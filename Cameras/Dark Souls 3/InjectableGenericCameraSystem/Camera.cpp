@@ -214,4 +214,18 @@ namespace IGCS
     void Camera::setTargetPitch(float angle) noexcept { _targetpitch = clampAngle(angle); }
     void Camera::setTargetYaw(float angle) noexcept { _targetyaw = clampAngle(angle); }
     void Camera::setTargetRoll(float angle) noexcept { _targetroll = clampAngle(angle); }
+
+    //--------------------------- Camera Prep
+    void Camera::prepareCamera() noexcept
+    {
+        // Set camera fov to game fov
+        setFoV(GameSpecific::CameraManipulator::getCurrentFoV(), true);
+        // Set initial values
+        setAllRotation(GameSpecific::CameraManipulator::getEulers());
+        _direction = { 0.0f, 0.0f, 0.0f };
+        _targetdirection = { 0.0f, 0.0f, 0.0f };
+        _movementOccurred = false;
+        // Initialize FOV
+        initFOV();
+    }
 } // namespace IGCS

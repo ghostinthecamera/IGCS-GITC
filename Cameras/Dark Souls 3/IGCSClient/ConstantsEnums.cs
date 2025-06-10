@@ -76,6 +76,7 @@ namespace IGCSClient
         public const byte UpdateSelectedPath = 13;
         public const byte CyclePath = 14;
         public const byte PathProgress = 15;
+        public const byte NotificationOnly = 16;
     }
 
 

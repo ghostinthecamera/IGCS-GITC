@@ -39,6 +39,11 @@ namespace IGCS::MessageHandler
 		NamedPipeManager::instance().writeNotification(notificationText);
 	}
 
+	void addNotificationOnly(const std::string& notificationText)
+	{
+		NamedPipeManager::instance().writeNotificationOnly(notificationText);
+	}
+
 
 	void logDebug(const char* fmt, ...)
 	{

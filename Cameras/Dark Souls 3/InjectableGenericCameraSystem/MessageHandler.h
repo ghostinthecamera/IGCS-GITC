@@ -34,4 +34,5 @@ namespace IGCS::MessageHandler
 	void logError(const char* fmt, ...);
 	void logLine(const char* fmt, ...);
 	void addNotification(const std::string& notificationText);
+	void addNotificationOnly(const std::string& notificationText);
 }

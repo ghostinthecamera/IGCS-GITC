@@ -230,6 +230,11 @@ namespace IGCS
 		writeTextPayload(notificationText, MessageType::Notification);
 	}
 
+	void NamedPipeManager::writeNotificationOnly(const std::string& notificationText)
+	{
+		writeTextPayload(notificationText, MessageType::NotificationOnly);
+	}
+
 
 	DWORD NamedPipeManager::listenerThread()
 	{

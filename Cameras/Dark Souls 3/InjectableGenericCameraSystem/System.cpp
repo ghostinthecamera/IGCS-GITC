@@ -538,8 +538,9 @@ namespace IGCS
 			else
 			{
 				// Otherwise, play the selected path - safety checks are done in the function
-				pathManager.handlePlayPathMessage();
 				MessageHandler::addNotification("Playing path: " + selectedPath);
+				pathManager.handlePlayPathMessage();
+				
 			}
 			_applyHammerPrevention = true;
 		}
@@ -559,7 +560,7 @@ namespace IGCS
 			}
 
 			const auto n = pathManager.handleAddNodeMessage();
-			MessageHandler::addNotification("Node " + std::to_string(n) + " added to path: " + selectedPath);
+			MessageHandler::addNotificationOnly("Node " + std::to_string(n) + " added to path: " + selectedPath);
 			_applyHammerPrevention = true;
 		}
 
@@ -569,7 +570,7 @@ namespace IGCS
 
 			if (pathManager.handleDeletePathMessage())
 			{
-				MessageHandler::addNotification("Path deleted: " + selectedPath);
+				MessageHandler::addNotificationOnly("Path deleted: " + selectedPath);
 			}
 			else
 			{
@@ -583,7 +584,7 @@ namespace IGCS
 			const auto selectedPath = pathManager.getSelectedPath();
 
 			pathManager.handleDeleteNodeMessage(255);
-			MessageHandler::addNotification("Last node deleted from path: " + selectedPath);
+			MessageHandler::addNotificationOnly("Last node deleted from path: " + selectedPath);
 			_applyHammerPrevention = true;
 		}
 

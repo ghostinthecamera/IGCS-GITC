@@ -180,7 +180,7 @@ namespace IGCS
 		}
 
 		_nodes.erase(_nodes.begin() + nodeIndex);
-		MessageHandler::logDebug("CameraPath::deleteNode: Node %zu deleted", nodeIndex);
+		//MessageHandler::logDebug("CameraPath::deleteNode: Node %zu deleted", nodeIndex);
 
 		//delete from reshade if available
 		CameraPathManager::instance().removeReshadeState(_pathName, nodeIndex);

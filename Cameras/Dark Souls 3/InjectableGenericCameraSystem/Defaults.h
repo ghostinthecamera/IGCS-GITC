@@ -172,6 +172,7 @@ namespace IGCS
 		UpdateSelectedPath = 13,
 		CyclePath = 14,
 		PathProgress = 15,
+		NotificationOnly = 16,
 	};
 
 	enum class ActionMessageType : uint8_t

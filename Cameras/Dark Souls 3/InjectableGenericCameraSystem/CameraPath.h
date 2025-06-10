@@ -148,7 +148,7 @@ namespace IGCS
 
 
 	private:
-		float _currentProgress = 0.0f;
+		XMVECTOR interpolatedRotation = XMQuaternionIdentity();
 		static InterpolationMode _interpolationMode;
 		static ParameterMode _parameterMode;
 		static RotationMode _rotationMode;
@@ -165,7 +165,7 @@ namespace IGCS
 		XMVECTOR _playerPosition = XMVectorZero();   // Current player position
 		XMVECTOR _initialPlayerPosition = XMVectorZero(); // Player position when path started
 		XMVECTOR _currentPlayerOffset = XMVectorZero(); // Current smoothed offset value
-		XMVECTOR interpolatedRotation = XMQuaternionIdentity();
+		
 
 		std::string _pathName; // Name of the path
 
@@ -174,6 +174,7 @@ namespace IGCS
 		double _currentTime = 0.0; //for UniformTime mode
 		double _totalDuration = 0.0; // Duration per node in seconds
 		float _currentArcLength = 0.0f; // how far along the path we are
+		float _currentProgress = 0.0f;
 		
 
 		float interpolatedFOV = 0.0f;

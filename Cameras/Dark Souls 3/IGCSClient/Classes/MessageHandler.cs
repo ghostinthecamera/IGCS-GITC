@@ -139,7 +139,11 @@ namespace IGCSClient.Classes
 					LogHandlerSingleton.Instance().LogLine(notificationText, string.Empty);
 					this.NotificationLogFunc?.Invoke(notificationText);
 					break;
-				case MessageType.NormalTextMessage:
+                case MessageType.NotificationOnly:
+                    var notificationTextOnly = asciiEncoding.GetString(e.Value, 1, e.Value.Length - 1);
+                    this.NotificationLogFunc?.Invoke(notificationTextOnly);
+                    break;
+                case MessageType.NormalTextMessage:
 					LogHandlerSingleton.Instance().LogLine(asciiEncoding.GetString(e.Value, 1, e.Value.Length - 1), string.Empty);
 					break;
 				case MessageType.DebugTextMessage:

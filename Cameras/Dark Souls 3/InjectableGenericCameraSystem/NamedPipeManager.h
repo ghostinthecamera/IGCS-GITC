@@ -47,6 +47,7 @@ namespace IGCS
 		void writeMessage(const std::string& messageText, bool isError);
 		void writeMessage(const std::string& messageText, bool isError, bool isDebug);
 		void writeNotification(const std::string& notificationText);
+		void writeNotificationOnly(const std::string& notificationText);
 		void writeBinaryPayload(size_t value, MessageType typeOfMessage) const;
 		void writeBinaryPayload(const void* data, size_t dataSize, MessageType typeOfMessage, bool logDebug = true);
 		void writeFloatPayload(float value, MessageType typeOfMessage) const;

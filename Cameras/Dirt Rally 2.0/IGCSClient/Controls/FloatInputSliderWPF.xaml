@@ -1,0 +1,344 @@
+﻿<UserControl x:Class="IGCSClient.Controls.FloatInputSliderWPF"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:IGCSClient.Controls"
+             xmlns:ui="http://schemas.modernwpf.com/2019"
+             mc:Ignorable="d" 
+             d:DesignHeight="80" d:DesignWidth="300" d:Background="White">
+    <UserControl.Resources>
+        <!-- Keep all your existing styles and templates -->
+        <Style x:Key="DefaultThumbStyle" TargetType="Thumb">
+            <Setter Property="Width" Value="20"/>
+            <Setter Property="Height" Value="20"/>
+            <Setter Property="Background" Value="{DynamicResource SystemControlHighlightAccentBrush}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Thumb">
+                        <Ellipse Fill="{TemplateBinding Background}" />
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Background" Value="{DynamicResource SystemControlForegroundDisabledBrush}" />
+                    <Setter Property="Foreground" Value="{DynamicResource SystemControlForegroundDisabledBrush}"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="CustomThumbStyle" TargetType="Thumb">
+            <Setter Property="Width" Value="16"/>
+            <Setter Property="Height" Value="16"/>
+            <Setter Property="Background" Value="{DynamicResource SystemControlHighlightAccentBrush}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Thumb">
+                        <Ellipse Fill="{TemplateBinding Background}" />
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Background" Value="{DynamicResource SystemControlForegroundDisabledBrush}" />
+                    <Setter Property="Foreground" Value="{DynamicResource SystemControlForegroundDisabledBrush}"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <ControlTemplate x:Key="DefaultSliderTemplate" TargetType="Slider">
+            <!-- Keep your existing template -->
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <TickBar x:Name="TopTick"
+                 Grid.Row="0"
+                 Placement="Top"
+                 Fill="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                 Height="4"
+                 Margin="0,0,0,0"
+                 Visibility="Collapsed"
+                 Maximum="{TemplateBinding Maximum}"
+                 Minimum="{TemplateBinding Minimum}"
+                 TickFrequency="{TemplateBinding TickFrequency}"
+                 IsDirectionReversed="{TemplateBinding IsDirectionReversed}"/>
+
+                <Grid Grid.Row="1">
+                    <Rectangle Height="1"
+                       Fill="{DynamicResource SystemControlForegroundBaseLowBrush}"
+                       VerticalAlignment="Center"
+                       HorizontalAlignment="Stretch"
+                       Margin="0,5,0,5"/>
+                    <Track x:Name="PART_Track"
+                   IsDirectionReversed="{TemplateBinding IsDirectionReversed}"
+                   IsEnabled="{TemplateBinding IsEnabled}"
+                   Maximum="{TemplateBinding Maximum}"
+                   Minimum="{TemplateBinding Minimum}"
+                   Value="{TemplateBinding Value}"
+                   Orientation="{TemplateBinding Orientation}">
+                        <Track.DecreaseRepeatButton>
+                            <RepeatButton Command="Slider.DecreaseLarge"
+                                  IsTabStop="False"
+                                  Visibility="Collapsed"/>
+                        </Track.DecreaseRepeatButton>
+                        <Track.IncreaseRepeatButton>
+                            <RepeatButton Command="Slider.IncreaseLarge"
+                                  IsTabStop="False"
+                                  Visibility="Collapsed"/>
+                        </Track.IncreaseRepeatButton>
+                        <Track.Thumb>
+                            <Thumb x:Name="PART_Thumb" Style="{StaticResource DefaultThumbStyle}" />
+                        </Track.Thumb>
+                    </Track>
+                </Grid>
+
+                <TickBar x:Name="BottomTick"
+                 Grid.Row="2"
+                 Placement="Bottom"
+                 Fill="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                 Height="4"
+                 Margin="0,0,0,0"
+                 Visibility="Collapsed"
+                 Maximum="{TemplateBinding Maximum}"
+                 Minimum="{TemplateBinding Minimum}"
+                 TickFrequency="{TemplateBinding TickFrequency}"
+                 IsDirectionReversed="{TemplateBinding IsDirectionReversed}"/>
+            </Grid>
+
+            <ControlTemplate.Triggers>
+                <Trigger Property="TickPlacement" Value="TopLeft">
+                    <Setter TargetName="TopTick" Property="Visibility" Value="Visible"/>
+                </Trigger>
+                <Trigger Property="TickPlacement" Value="BottomRight">
+                    <Setter TargetName="BottomTick" Property="Visibility" Value="Visible"/>
+                </Trigger>
+                <Trigger Property="TickPlacement" Value="Both">
+                    <Setter TargetName="TopTick" Property="Visibility" Value="Visible"/>
+                    <Setter TargetName="BottomTick" Property="Visibility" Value="Visible"/>
+                </Trigger>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter TargetName="TopTick" Property="Fill" Value="{DynamicResource SystemControlForegroundDisabledBrush}"/>
+                    <Setter TargetName="BottomTick" Property="Fill" Value="{DynamicResource SystemControlForegroundDisabledBrush}"/>
+                    <Setter TargetName="PART_Track" Property="Opacity" Value="0.5"/>
+                </Trigger>
+            </ControlTemplate.Triggers>
+        </ControlTemplate>
+
+        <ControlTemplate x:Key="CustomSliderTemplate" TargetType="Slider">
+            <!-- Keep your existing custom template -->
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <TickBar x:Name="TopTick"
+                 Grid.Row="0"
+                 Placement="Top"
+                 Fill="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                 Height="4"
+                 Margin="0,0,0,3"
+                 Visibility="Collapsed"
+                 Maximum="{TemplateBinding Maximum}"
+                 Minimum="{TemplateBinding Minimum}"
+                 TickFrequency="{TemplateBinding TickFrequency}"
+                 IsDirectionReversed="{TemplateBinding IsDirectionReversed}"
+                 />
+
+                <Rectangle Grid.Row="1"
+                   Height="1"
+                   Fill="{DynamicResource SystemControlForegroundBaseLowBrush}"
+                   VerticalAlignment="Center"
+                   HorizontalAlignment="Stretch"
+                   Margin="0,5,0,5" />
+
+                <Track x:Name="PART_Track"
+               Grid.Row="1"
+               IsDirectionReversed="{TemplateBinding IsDirectionReversed}"
+               IsEnabled="{TemplateBinding IsEnabled}"
+               Maximum="{TemplateBinding Maximum}"
+               Minimum="{TemplateBinding Minimum}"
+               Value="{TemplateBinding Value}"
+               Orientation="{TemplateBinding Orientation}">
+                    <Track.DecreaseRepeatButton>
+                        <RepeatButton Command="Slider.DecreaseLarge" 
+                              IsTabStop="False" 
+                              Visibility="Collapsed"/>
+                    </Track.DecreaseRepeatButton>
+                    <Track.IncreaseRepeatButton>
+                        <RepeatButton Command="Slider.IncreaseLarge" 
+                              IsTabStop="False" 
+                              Visibility="Collapsed"/>
+                    </Track.IncreaseRepeatButton>
+                    <Track.Thumb>
+                        <Thumb x:Name="PART_Thumb" Style="{StaticResource CustomThumbStyle}" />
+                    </Track.Thumb>
+                </Track>
+
+                <TickBar x:Name="BottomTick"
+                 Grid.Row="2"
+                 Placement="Bottom"
+                 Fill="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                 Height="4"
+                 Margin="0,3,0,0"
+                 Visibility="Collapsed"
+                 Maximum="{TemplateBinding Maximum}"
+                 Minimum="{TemplateBinding Minimum}"
+                 TickFrequency="{TemplateBinding TickFrequency}"
+                 IsDirectionReversed="{TemplateBinding IsDirectionReversed}"
+                 />
+            </Grid>
+
+            <ControlTemplate.Triggers>
+                <Trigger Property="TickPlacement" Value="TopLeft">
+                    <Setter TargetName="TopTick" Property="Visibility" Value="Visible"/>
+                </Trigger>
+                <Trigger Property="TickPlacement" Value="BottomRight">
+                    <Setter TargetName="BottomTick" Property="Visibility" Value="Visible"/>
+                </Trigger>
+                <Trigger Property="TickPlacement" Value="Both">
+                    <Setter TargetName="TopTick" Property="Visibility" Value="Visible"/>
+                    <Setter TargetName="BottomTick" Property="Visibility" Value="Visible"/>
+                </Trigger>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter TargetName="TopTick" Property="Fill" Value="{DynamicResource SystemControlForegroundDisabledBrush}"/>
+                    <Setter TargetName="BottomTick" Property="Fill" Value="{DynamicResource SystemControlForegroundDisabledBrush}"/>
+                    <Setter TargetName="PART_Track" Property="Opacity" Value="1.0"/>
+                    <Setter TargetName="PART_Thumb" Property="Background" Value="Gray"/>
+                </Trigger>
+            </ControlTemplate.Triggers>
+        </ControlTemplate>
+
+        <Style TargetType="Slider">
+            <Setter Property="Template" Value="{StaticResource DefaultSliderTemplate}" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding UseCustomTemplate, RelativeSource={RelativeSource AncestorType=UserControl}}" Value="True">
+                    <Setter Property="Template" Value="{StaticResource CustomSliderTemplate}" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Resources>
+
+    <!-- Updated HeaderedContentControl with style to handle empty headers -->
+    <HeaderedContentControl Header="{Binding Header, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                            Name="_headerControl">
+        <HeaderedContentControl.Style>
+            <Style TargetType="HeaderedContentControl">
+                <!-- Default template: shows header and content -->
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="HeaderedContentControl">
+                            <StackPanel>
+                                <ContentPresenter ContentSource="Header" Margin="0,0,0,5"/>
+                                <ContentPresenter ContentSource="Content" />
+                            </StackPanel>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+                <!-- Hide header when empty or null -->
+                <Style.Triggers>
+                    <DataTrigger Binding="{Binding Header, RelativeSource={RelativeSource Self}}" Value="">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="HeaderedContentControl">
+                                    <ContentPresenter ContentSource="Content" />
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </DataTrigger>
+                    <DataTrigger Binding="{Binding Header, RelativeSource={RelativeSource Self}}" Value="{x:Null}">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="HeaderedContentControl">
+                                    <ContentPresenter ContentSource="Content" />
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </DataTrigger>
+                </Style.Triggers>
+            </Style>
+        </HeaderedContentControl.Style>
+
+        <!-- Main content grid with improved layout -->
+        <Grid Margin="0,2,0,0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <!-- Slider row -->
+                <RowDefinition Height="Auto"/>
+                <!-- Labels row -->
+            </Grid.RowDefinitions>
+
+            <!-- Slider with consistent margins -->
+            <Slider x:Name="_sliderControl" Grid.Row="0"
+                    Minimum="0.0" Maximum="0.7"
+                    IsMoveToPointEnabled="true" 
+                    AutoToolTipPlacement="TopLeft" AutoToolTipPrecision="2"
+                    ValueChanged="_sliderControl_OnValueChanged" 
+                    TickPlacement="Both" TickFrequency="0.1"
+                    HorizontalAlignment="Stretch" VerticalAlignment="Center"
+                    Margin="0,3,0,3" />
+
+            <!-- Labels Grid -->
+            <Grid Grid.Row="1" Margin="{Binding LabelMargin, RelativeSource={RelativeSource AncestorType=UserControl}}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" MinWidth="50"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto" MinWidth="50"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Left Label with ModernWPF compatible styling -->
+                <Label x:Name="LeftLabel" Grid.Column="0"
+                       Content="{Binding LeftLabelText, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                       VerticalAlignment="Center" HorizontalAlignment="Left"
+                       FontSize="{Binding LabelFontSize, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                       FontWeight="{Binding LabelFontWeight, RelativeSource={RelativeSource AncestorType=UserControl}}">
+                    <!-- No explicit Foreground to allow default theme behavior -->
+                    <Label.Style>
+                        <Style TargetType="Label" BasedOn="{StaticResource {x:Type Label}}">
+                            <Setter Property="Visibility" Value="Visible"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding LeftLabelText, RelativeSource={RelativeSource AncestorType=UserControl}}" Value="">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding LeftLabelText, RelativeSource={RelativeSource AncestorType=UserControl}}" Value="{x:Null}">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Label.Style>
+                </Label>
+
+                <!-- Empty space column -->
+                <Grid Grid.Column="1"/>
+
+                <!-- Right Label - Simple, using default theme foreground -->
+                <Label x:Name="RightLabel" Grid.Column="2"
+                       Content="{Binding RightLabelText, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                       VerticalAlignment="Center" HorizontalAlignment="Right"
+                       FontSize="{Binding LabelFontSize, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                       FontWeight="{Binding LabelFontWeight, RelativeSource={RelativeSource AncestorType=UserControl}}">
+                    <!-- No explicit Foreground to allow default theme behavior -->
+                    <Label.Style>
+                        <Style TargetType="Label" BasedOn="{StaticResource {x:Type Label}}">
+                            <Setter Property="Visibility" Value="Visible"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding RightLabelText, RelativeSource={RelativeSource AncestorType=UserControl}}" Value="">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding RightLabelText, RelativeSource={RelativeSource AncestorType=UserControl}}" Value="{x:Null}">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Label.Style>
+                </Label>
+            </Grid>
+        </Grid>
+    </HeaderedContentControl>
+</UserControl>

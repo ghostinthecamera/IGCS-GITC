@@ -92,6 +92,9 @@
                     <StackPanel Margin="15">
                         <Expander Header="Features" Margin="0,0,0,10" IsExpanded="True">
                             <TextBlock TextWrapping="Wrap" FontSize="12">
+                                <Run Text="READ THE README" FontWeight="Bold"/><LineBreak/>
+                                More complete information is found there
+                                <LineBreak/><LineBreak/>
                                 <Run Text="Pause/Gamespeed Control" FontWeight="Bold"/><LineBreak/>
                                 The tools have full control over the gamespeed and offers two ways to pause the game. The method bound to 
                                 Num 0 will set the timescale to 0.0. This functions in gameplay and replay mode. While pausing works in gameplay,

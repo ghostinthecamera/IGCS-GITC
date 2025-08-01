@@ -178,6 +178,7 @@ namespace IGCS
 		void setCameraLookAtVisualization(bool enabled) noexcept { _freeCameraLookAtVisualization = enabled; }
 
         XMFLOAT3 getInternalPosition() const { return _toolsCoordinates; }
+		void setInternalPosition(const XMFLOAT3& pos) { _toolsCoordinates = pos; }
 
     private:
         Camera() = default;

@@ -333,11 +333,11 @@ namespace IGCS {
         _pathInfos.clear();
         _nodePositions.clear();
 
-        // Update the path visualization with new resources
-        createPathVisualization();
-
         // Reset the flag
         _isChangingMode.store(false, std::memory_order_release);
+
+        // Update the path visualization with new resources
+        createPathVisualization();
 
         MessageHandler::logDebug("D3DHook::safeInterpolationModeChange: Interpolation mode changed successfully");
     }

@@ -1323,7 +1323,7 @@ namespace IGCS
 		const float movementspeed = s.movementSpeed;
 		const float upmovementmultiplier = s.movementUpMultiplier;
 		if (fromStartPosition)
-			CameraManipulator::restoreCurrentCameraCoords(_igcscacheData.Coordinates);
+			Camera::instance().setInternalPosition(_igcscacheData.Coordinates);
 		
 		Camera::instance().moveRight(stepLeftRight / movementspeed,false);
 		Camera::instance().moveUp((stepUpDown / movementspeed) / upmovementmultiplier, false);

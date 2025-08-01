@@ -572,7 +572,7 @@ namespace IGCS
 
 			//Write final values to game
 			Camera::instance().setAllRotation(eulers);
-			GameSpecific::CameraManipulator::setCurrentCameraCoords(position);
+			Camera::instance().setInternalPosition(position);
 			Camera::instance().setFoV(fov, true);
 
 			//apply reshade state if connected

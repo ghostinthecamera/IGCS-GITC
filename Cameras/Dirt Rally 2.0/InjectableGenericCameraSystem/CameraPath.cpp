@@ -318,7 +318,7 @@ namespace IGCS
 			const XMFLOAT3 eulers = QuaternionToEulerAngles(interpolatedRotation, MULTIPLICATION_ORDER);
 			XMStoreFloat3(&position, interpolatedPosition);
 			Camera::instance().setAllRotation(eulers);
-			GameSpecific::CameraManipulator::setCurrentCameraCoords(position);
+			Camera::instance().setInternalPosition(position);
 			Camera::instance().setFoV(interpolatedFOV, true);
 			Camera::instance().resetMovement();
 			Camera::instance().resetTargetMovement();

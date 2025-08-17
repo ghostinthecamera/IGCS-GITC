@@ -282,6 +282,7 @@ namespace IGCS
     void Camera::captureCurrentRelativeOffset() noexcept
     {
         // Get current camera position and rotation
+        _toolsCoordinates = GameSpecific::CameraManipulator::getCurrentCameraCoords();
         const XMFLOAT3 cameraPos = _toolsCoordinates;
         const XMFLOAT3 cameraRotation = getRotation();
 
@@ -304,18 +305,13 @@ namespace IGCS
 
         XMStoreFloat3(&_fixedMountPositionOffset, localOffset);
 
-        // Calculate relative transformation matrix
-        // Create transformation matrices for both player and camera
-        const XMMATRIX playerTransform = XMMatrixMultiply(playerRotMatrix, XMMatrixTranslationFromVector(playerPosVec));
-
+    	// Calculate and store relative rotation as quaternion
         const XMVECTOR cameraRotVec = generateEulerQuaternion(cameraRotation, MULTIPLICATION_ORDER, false, false, false);
-        const XMMATRIX cameraRotMatrix = XMMatrixRotationQuaternion(cameraRotVec);
-        const XMMATRIX cameraTransform = XMMatrixMultiply(cameraRotMatrix, XMMatrixTranslationFromVector(camPosVec));
 
-        // Calculate relative transform: camera = relativeTransform * player
-        // So: relativeTransform = camera * inverse(player)
-        const XMMATRIX invPlayerTransform = XMMatrixInverse(nullptr, playerTransform);
-        _fixedMountRelativeTransform = XMMatrixMultiply(cameraTransform, invPlayerTransform);
+        // Calculate relative rotation: camera = relative * player
+        // So: relative = camera * inverse(player)
+        const XMVECTOR invPlayerRot = XMQuaternionInverse(playerRotVec);
+        _fixedMountRelativeRotation = XMQuaternionMultiply(cameraRotVec, invPlayerRot);
     };
 
     // --------------------------------------------- Camera update ----------------------------------------------------
@@ -336,7 +332,8 @@ namespace IGCS
         // Handle camera modes - each mode is self-contained and handles both position and rotation
         if (_fixedCameraMountEnabled)
         {
-            handleFixedMountMode();
+            _toolsCoordinates = GameSpecific::CameraManipulator::getCurrentCameraCoords();
+        	handleFixedMountMode();
         }
         else if (s.lookAtEnabled)
         {
@@ -368,11 +365,6 @@ namespace IGCS
         // Clear movement since position is controlled by mount
         _direction = { 0.0f, 0.0f, 0.0f };
         _targetdirection = { 0.0f, 0.0f, 0.0f };
-
-        // Update quaternion directly from current euler angles (no interpolation)
-        const XMVECTOR currentRot = generateEulerQuaternion({ _pitch, _yaw, _roll },
-            MULTIPLICATION_ORDER, false, false, false);
-        XMStoreFloat4(&_toolsQuaternion, currentRot);
     }
 
     void Camera::handleLookAtMode(float positionLerpTime, float rotationLerpTime) noexcept
@@ -423,7 +415,7 @@ namespace IGCS
 
         PathUtils::EnsureQuaternionContinuity(cR, tR);
 
-        XMVECTOR newRotQ = XMVectorCatmullRom(cR, cR, tR, tR, lerpTime);
+        XMVECTOR newRotQ = XMQuaternionSlerp(cR, tR, lerpTime);
         newRotQ = XMQuaternionNormalize(newRotQ);
         setRotation(QuaternionToEulerAngles(newRotQ, MULTIPLICATION_ORDER));
         XMStoreFloat4(&_toolsQuaternion, newRotQ);
@@ -437,37 +429,30 @@ namespace IGCS
     void Camera::applyFixedMountTransformation(const XMVECTOR& playerPosVec,
         const XMVECTOR& playerRotVec) noexcept
     {
-        // Create player transformation matrix
-        const XMMATRIX playerRotMatrix = XMMatrixRotationQuaternion(playerRotVec);
-        const XMMATRIX playerTransform = XMMatrixMultiply(playerRotMatrix,
-            XMMatrixTranslationFromVector(playerPosVec));
+    	// Direct quaternion and position calculation (most efficient)
+	    // This avoids matrix multiplication entirely
 
-        // Calculate new camera transform
-        const XMMATRIX newCameraTransform = XMMatrixMultiply(_fixedMountRelativeTransform, playerTransform);
+		// Calculate camera position: player position + rotated offset
+        const XMVECTOR localOffset = XMLoadFloat3(&_fixedMountPositionOffset);
+        const XMVECTOR worldOffset = XMVector3Rotate(localOffset, playerRotVec);
+        const XMVECTOR newCameraPos = XMVectorAdd(playerPosVec, worldOffset);
 
-        // Extract and apply position
-        const XMVECTOR newCameraPos = XMVectorSet(
-            XMVectorGetX(newCameraTransform.r[3]),
-            XMVectorGetY(newCameraTransform.r[3]),
-            XMVectorGetZ(newCameraTransform.r[3]),
-            1.0f
-        );
-
-        // Apply position to our internal value
+        // Store position directly
         XMStoreFloat3(&_toolsCoordinates, newCameraPos);
 
-        // Extract and apply rotation
-        const XMVECTOR newCameraRotQuat = XMQuaternionRotationMatrix(newCameraTransform);
-        const XMFLOAT3 newCameraRotEuler = Utils::QuaternionToEulerAngles(newCameraRotQuat, MULTIPLICATION_ORDER);
+        // Calculate camera rotation: relative rotation * player rotation
+        const XMVECTOR newCameraRotQuat = XMQuaternionMultiply(_fixedMountRelativeRotation, playerRotVec);
 
-        // Set rotations directly (no interpolation for mount mode)
-        setTargetPitch(newCameraRotEuler.x);
-        setTargetYaw(newCameraRotEuler.y);
-        setTargetRoll(newCameraRotEuler.z);
+        // Store quaternion directly
+        XMStoreFloat4(&_toolsQuaternion, newCameraRotQuat);
 
-        setPitch(newCameraRotEuler.x);
-        setYaw(newCameraRotEuler.y);
-        setRoll(newCameraRotEuler.z);
+        // Update euler angles for UI/display purposes only
+        const XMFLOAT3 newEulers = Utils::QuaternionToEulerAngles(newCameraRotQuat, MULTIPLICATION_ORDER);
+
+        // Set all angles at once to prevent interpolation conflicts
+        _pitch = _targetpitch = newEulers.x;
+        _yaw = _targetyaw = newEulers.y;
+        _roll = _targetroll = newEulers.z;
     }
 
     void Camera::applyLookAtRotation(const XMFLOAT3& cameraPos,
@@ -522,12 +507,16 @@ namespace IGCS
     }
 
     // --------------------------------------------- Bridging ---------------------------------------------------------
-    void Camera::setAllRotation(DirectX::XMFLOAT3 eulers) noexcept
+	// Uses axis inversion settings, applies negation constants to target values
+	// Does not apply axis inversion to current angles
+	void Camera::setAllRotation(DirectX::XMFLOAT3 eulers) noexcept
     {
-        _targetpitch = (NEGATE_PITCH ? -eulers.x : eulers.x);
+		// We need to apply negation constants to target values only
+    	_targetpitch = (NEGATE_PITCH ? -eulers.x : eulers.x);
         _targetyaw = (NEGATE_YAW ? -eulers.y : eulers.y);
         _targetroll = (NEGATE_ROLL ? -eulers.z : eulers.z);
 
+		// We don't need to apply negation constants to current angles as they do not experience interpolation
     	_pitch = eulers.x;
     	_yaw = eulers.y;
     	_roll = eulers.z;
@@ -542,6 +531,7 @@ namespace IGCS
 		_movementOccurred = false;
 	}
 
+	// Does not use axis inversion settings, just sets target values directly
     void Camera::setTargetEulers(DirectX::XMFLOAT3 eulers) noexcept
     {
         _targetpitch = eulers.x;
@@ -556,10 +546,6 @@ namespace IGCS
         _roll = eulers.z;
     }
 
-    void Camera::setTargetPitch(float a) noexcept { _targetpitch = clampAngle(a); }
-    void Camera::setTargetYaw(float a) noexcept { _targetyaw = clampAngle(a); }
-    void Camera::setTargetRoll(float a) noexcept { _targetroll = clampAngle(a); }
-
 
     //--------------------------- Camera Prep
 	void Camera::prepareCamera() noexcept
@@ -570,9 +556,8 @@ namespace IGCS
         setFoV(GameSpecific::CameraManipulator::getCurrentFoV(), true);
 		// Set initial values
 		setAllRotation(GameSpecific::CameraManipulator::getEulers());
-		_direction = { 0.0f, 0.0f, 0.0f };
-		_targetdirection = { 0.0f, 0.0f, 0.0f };
-		_movementOccurred = false;
+		// Reset direction and target direction
+		resetDirection();
 		// Initialize FOV
 		initFOV();
 	}

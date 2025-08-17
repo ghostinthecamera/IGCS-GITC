@@ -323,7 +323,6 @@ namespace IGCS
 				Camera::instance().setFoV(_originalData._fov, true);
 				Globals::instance().cameraMovementLocked(false);
 				InterceptorHelper::cameraSetup(_aobBlocks, false, _addressData);
-				//NamedPipeManager::instance().writeBinaryPayload(0, MessageType::CameraEnabled);
 			}
 			else
 			{
@@ -332,9 +331,6 @@ namespace IGCS
 				CameraManipulator::displayAddresses();
 				InterceptorHelper::cameraSetup(_aobBlocks, true, _addressData);
 				Camera::instance().prepareCamera();
-				//NamedPipeManager::instance().writeBinaryPayload(1, MessageType::CameraEnabled);
-				// Game specific
-				//NamedPipeManager::instance().writeFloatPayload(CameraManipulator::getMotionBlur(), MessageType::MotionBlurUpdate);
 			}
 			g_cameraEnabled ^= 1;
 			NamedPipeManager::instance().writeBinaryPayload(g_cameraEnabled, MessageType::CameraEnabled);

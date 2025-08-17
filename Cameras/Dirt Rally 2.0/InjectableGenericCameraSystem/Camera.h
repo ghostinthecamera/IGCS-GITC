@@ -93,9 +93,9 @@ namespace IGCS
 		void setInterpolatedQuaternation(XMVECTOR q) { _interpolatedQuaternion = q; }
 		[[nodiscard]] XMVECTOR getInterpolatedQuaternion() const { return _interpolatedQuaternion; }
 
-        void setTargetPitch(float angle) noexcept;  // target setters (clamped)
-        void setTargetYaw(float angle) noexcept;
-        void setTargetRoll(float angle) noexcept;
+        void setTargetPitch(float a) noexcept { _targetpitch = clampAngle(a); }
+        void setTargetYaw(float a) noexcept { _targetyaw = clampAngle(a); }
+        void setTargetRoll(float a) noexcept { _targetroll = clampAngle(a); }
         void prepareCamera() noexcept;
 
         float shortestAngleDifference(float current, float target) noexcept;
@@ -254,7 +254,7 @@ namespace IGCS
         bool _fixedCameraMountEnabled{ false };  // true = camera is virtually mounted to player
         XMFLOAT3 _fixedMountPositionOffset{ 0.0f, 0.0f, 0.0f };  // relative position in player's local space
         XMMATRIX _fixedMountRelativeTransform{ XMMatrixIdentity() };  // relative transformation matrix from player to camera
-
+        XMVECTOR _fixedMountRelativeRotation{ XMQuaternionIdentity() };
 
         //  Euler order constant (compile time selectable for debug)
 #ifdef DEBUG

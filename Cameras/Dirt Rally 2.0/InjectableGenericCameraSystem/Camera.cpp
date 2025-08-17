@@ -282,27 +282,23 @@ namespace IGCS
     void Camera::captureCurrentRelativeOffset() noexcept
     {
         // Get current camera position and rotation
-        _toolsCoordinates = GameSpecific::CameraManipulator::getCurrentCameraCoords();
-        const XMFLOAT3 cameraPos = _toolsCoordinates;
+        // Camera position is loaded directly from class member _toolsCoordinate below
         const XMFLOAT3 cameraRotation = getRotation();
 
         // Get player position and rotation
         const XMVECTOR playerPosVec = GameSpecific::CameraManipulator::getCurrentPlayerPosition();
-        XMFLOAT3 playerPos;
-        XMStoreFloat3(&playerPos, playerPosVec);
-
         const XMVECTOR playerRotVec = GameSpecific::CameraManipulator::getCurrentPlayerRotation();
 
         // Calculate relative position in player's local coordinate system
-        const XMVECTOR camPosVec = XMLoadFloat3(&cameraPos);
-        const XMVECTOR playerPosVec3 = XMLoadFloat3(&playerPos);
-        const XMVECTOR worldOffset = XMVectorSubtract(camPosVec, playerPosVec3);
+        const XMVECTOR camPosVec = XMLoadFloat3(&_toolsCoordinates);
+        const XMVECTOR worldOffset = XMVectorSubtract(camPosVec, playerPosVec);
 
         // Transform world offset to player's local space (inverse transform)
         const XMMATRIX playerRotMatrix = XMMatrixRotationQuaternion(playerRotVec);
         const XMMATRIX invPlayerRotMatrix = XMMatrixTranspose(playerRotMatrix);  // Inverse of rotation matrix is its transpose
         const XMVECTOR localOffset = XMVector3Transform(worldOffset, invPlayerRotMatrix);
 
+		// Store the local offset in fixed mount position offset
         XMStoreFloat3(&_fixedMountPositionOffset, localOffset);
 
     	// Calculate and store relative rotation as quaternion
@@ -332,7 +328,6 @@ namespace IGCS
         // Handle camera modes - each mode is self-contained and handles both position and rotation
         if (_fixedCameraMountEnabled)
         {
-            _toolsCoordinates = GameSpecific::CameraManipulator::getCurrentCameraCoords();
         	handleFixedMountMode();
         }
         else if (s.lookAtEnabled)
@@ -421,7 +416,7 @@ namespace IGCS
         XMStoreFloat4(&_toolsQuaternion, newRotQ);
     }
 
-    void Camera::interpolateFOV(float lerpTime) noexcept
+    inline void Camera::interpolateFOV(const float lerpTime) noexcept
     {
         _fov = PathUtils::lerpFMA(_fov, _targetfov, lerpTime);
     }
@@ -449,7 +444,7 @@ namespace IGCS
         // Update euler angles for UI/display purposes only
         const XMFLOAT3 newEulers = Utils::QuaternionToEulerAngles(newCameraRotQuat, MULTIPLICATION_ORDER);
 
-        // Set all angles at once to prevent interpolation conflicts
+        // Set all angles at once
         _pitch = _targetpitch = newEulers.x;
         _yaw = _targetyaw = newEulers.y;
         _roll = _targetroll = newEulers.z;

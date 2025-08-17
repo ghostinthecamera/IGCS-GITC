@@ -31,7 +31,7 @@ namespace IGCS
 {
 	// Mandatory constants to define for a game
 	#define GAME_NAME									"Dirt Rally 2.0"
-	#define CAMERA_VERSION								"2.0.0"
+	#define CAMERA_VERSION								"2.0.1"
 	#define CAMERA_CREDITS								"ghostinthecamera"
 	#define GAME_WINDOW_TITLE							"DiRT Rally 2.0"
 	#define GAME_EXE_NAME								"dirtrally2.exe"

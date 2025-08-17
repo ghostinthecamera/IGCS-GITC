@@ -35,7 +35,7 @@ namespace IGCSClient.GameSpecific.Classes
 	internal static class GameSpecificConstants
 	{
 		public const string ClientWindowTitle = "Dirt Rally 2.0 Tools";
-		public const string CameraVersion = "2.0.0";
+		public const string CameraVersion = "2.0.1";
 		public const string CameraCredits = "ghostinthecamera";
 		public const bool HotsamplingRequiresEXITSIZEMOVE = false;
 	}

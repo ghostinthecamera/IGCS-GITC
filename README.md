@@ -1,6 +1,6 @@
 GITS-IGCS Camera Tools
 ------
-__The tools are entirely built on the awesome Injectable Game Camera System created by Frans Bouma. I have not really modified his work in any substantial way. You can find his patreon with even more tools based upon a new camera system with enhanced features, check it out!__  
+__The tools are entirely built on the awesome Injectable Game Camera System created by Frans Bouma. I have not really modified the core functionality in any substantial way but I have added a number of additions and refinements. You can find his patreon with even more tools based upon a new camera system with enhanced features, check it out!__  
 
 Update: I am currently working on updating older cameras to the newer codebase and as such they will be removed from the public repo while that happens. 
 Releases that are working will still be available, but these will also be replaced with the most up to date version.

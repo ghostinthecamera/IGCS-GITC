@@ -1,0 +1,229 @@
+﻿<UserControl x:Class="IGCSClient.GameSpecific.Controls.ConfigurationPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:IGCSClient.GameSpecific.Controls"
+             xmlns:ui="http://schemas.modernwpf.com/2019"
+             xmlns:controls="clr-namespace:IGCSClient.Controls"
+             Style="{StaticResource ControlPageStyle}"
+             mc:Ignorable="d">
+
+    <Grid Margin="0">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Tab Control -->
+        <TabControl Grid.Row="1" >
+            <!-- Tab 1: Camera Controls -->
+            <TabItem Header="Camera Controls">
+                <Grid Margin="10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" MinWidth="300"/>
+                        <ColumnDefinition Width="10"/>
+                        <ColumnDefinition Width="*" MinWidth="300"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Left Column -->
+                    <ui:SimpleStackPanel Grid.Column="0" Spacing="10">
+
+                        <!-- Camera Controls -->
+                        <Border BorderBrush="{DynamicResource SystemControlForegroundBaseMediumLowBrush}" 
+                                BorderThickness="0" 
+                                CornerRadius="4"
+                                Padding="10">
+                            <ui:SimpleStackPanel Spacing="8">
+                                <Label FontWeight="DemiBold" FontSize="16" Margin="0,0,0,5">Camera Controls</Label>
+
+                                <controls:DropDownInputWPF FontSize="13" Header="Camera Control Device" x:Name="_cameraControlDeviceInput"/>
+
+                                <Separator Margin="0,5,0,5"/>
+
+                                <!-- Basic Controls -->
+                                <controls:FloatInputSliderWPF FontSize="13" Header="Movement speed" x:Name="_movementSpeedInput" 
+                                                              TickPlacement="Both" SnaptoTick="False" TickValue="0.05"/>
+                                <controls:FloatInputSliderWPF FontSize="13" Header="Rotation speed" x:Name="_rotationSpeedInput"
+                                                              TickPlacement="Both" SnaptoTick="False" TickValue="0.05"/>
+                                <controls:FloatInputSliderWPF FontSize="13" Header="Field of View (FoV) zoom speed" x:Name="_fovSpeedInput"
+                                                              TickPlacement="Both" SnaptoTick="False" TickValue="0.05"/>
+                                <controls:BoolInputWPF LabelFontSize="13" Label="Invert Y Direction" x:Name="_invertYInput"/>
+                            </ui:SimpleStackPanel>
+                        </Border>
+
+                        <!-- Movement Multipliers -->
+                        <Border BorderBrush="{DynamicResource SystemControlForegroundBaseMediumLowBrush}" 
+                                BorderThickness="0" 
+                                CornerRadius="4"
+                                Padding="10">
+                            <ui:SimpleStackPanel Spacing="8">
+                                <Label FontWeight="DemiBold" FontSize="16" Margin="0,0,0,5">Movement Multipliers</Label>
+
+                                <controls:FloatInputSliderWPF FontSize="13" Header="Fast multiplier" x:Name="_fastMovementInput"
+                                                              TickPlacement="Both" SnaptoTick="True" TickValue="2.0"/>
+                                <controls:FloatInputSliderWPF FontSize="13" Header="Slow multiplier" x:Name="_slowMovementInput"
+                                                              TickPlacement="Both" SnaptoTick="False" TickValue="0.1"/>
+                                <controls:FloatInputSliderWPF FontSize="13" Header="Up movement multiplier" x:Name="_upMovementInput"
+                                                              TickPlacement="Both" SnaptoTick="False" TickValue="1.0"/>
+                            </ui:SimpleStackPanel>
+                        </Border>
+
+                    </ui:SimpleStackPanel>
+
+                    <!-- Column Separator -->
+                    <Rectangle Grid.Column="1" Width="1" Fill="{DynamicResource SystemControlForegroundBaseMediumLowBrush}"/>
+
+                    <!-- Right Column -->
+                    <ui:SimpleStackPanel Grid.Column="2" Spacing="10">
+
+                        <!-- Camera Smoothing -->
+                        <Border BorderBrush="{DynamicResource SystemControlForegroundBaseMediumLowBrush}" 
+                                BorderThickness="0" 
+                                CornerRadius="4"
+                                Padding="10">
+                            <ui:SimpleStackPanel Spacing="8">
+                                <Label FontWeight="DemiBold" FontSize="16" Margin="0,0,0,5">Camera Smoothing</Label>
+
+                                <controls:FloatInputSliderWPF FontSize="13" Header="Movement Smoothness" x:Name="_movementSmoothness"
+                                                              TickPlacement="Both" SnaptoTick="True" TickValue="0.5" 
+                                                              LeftLabelText="0.5" RightLabelText="20" LabelMargin="4,0,6,5"/>
+                                <controls:FloatInputSliderWPF FontSize="13" Header="Rotation Smoothness" x:Name="_rotationSmoothness"
+                                                              TickPlacement="Both" SnaptoTick="True" TickValue="0.5" 
+                                                              LeftLabelText="0.5" RightLabelText="20" LabelMargin="4,0,6,5"/>
+                                <controls:FloatInputSliderWPF FontSize="13" Header="FoV Smoothness" x:Name="_fovSmoothness"
+                                                              TickPlacement="Both" SnaptoTick="True" TickValue="0.5" 
+                                                              LeftLabelText="0.5" RightLabelText="20" LabelMargin="4,0,6,5"/>
+                            </ui:SimpleStackPanel>
+                        </Border>
+
+                    </ui:SimpleStackPanel>
+
+                </Grid>
+            </TabItem>
+
+            <!-- Tab 2: Effects & Game -->
+            <TabItem Header="Effects &amp; Game">
+                <Grid Margin="10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" MinWidth="300"/>
+                        <ColumnDefinition Width="10"/>
+                        <ColumnDefinition Width="*" MinWidth="300"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Left Column - Camera Effects -->
+                    <ui:SimpleStackPanel Grid.Column="0" Spacing="10">
+
+                        <!-- Camera Shake -->
+                        <Border BorderBrush="{DynamicResource SystemControlForegroundBaseMediumLowBrush}" 
+                                BorderThickness="0" 
+                                CornerRadius="4"
+                                Padding="10">
+                            <ui:SimpleStackPanel Spacing="8">
+                                <Label FontWeight="DemiBold" FontSize="16" Margin="0,0,0,5">Camera Shake</Label>
+
+                                <controls:BoolInputWPF FontWeight="Bold" x:Name="_enableShakeB" Label="Enable Camera Shake"/>
+                                <Grid Margin="0,5,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <controls:FloatInputSliderWPF Grid.Column="0" FontSize="12" UseCustomTemplate="True" 
+                                                                  Header="Amplitude" x:Name="_shakeAmplitudeB" Margin="0,0,5,0"/>
+                                    <controls:FloatInputSliderWPF Grid.Column="1" FontSize="12" UseCustomTemplate="True" 
+                                                                  Header="Frequency" x:Name="_shakeFrequencyB" Margin="5,0,0,0"/>
+                                </Grid>
+                            </ui:SimpleStackPanel>
+                        </Border>
+
+                        <!-- Handheld Mode -->
+                        <Border BorderBrush="{DynamicResource SystemControlForegroundBaseMediumLowBrush}" 
+                                BorderThickness="0" 
+                                CornerRadius="4"
+                                Padding="10">
+                            <ui:SimpleStackPanel Spacing="8">
+                                <Label FontWeight="DemiBold" FontSize="16" Margin="0,0,0,5">Handheld Mode</Label>
+
+                                <controls:BoolInputWPF FontWeight="Bold" x:Name="_enablehandheldB" Label="Enable Handheld Mode"/>
+
+                                <Grid Margin="0,5,0,5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <controls:BoolInputWPF Grid.Column="0" x:Name="_handheldRotationToggleB" Label="Rotation" Margin="0,0,5,0"/>
+                                    <controls:BoolInputWPF Grid.Column="1" x:Name="_handheldPositionToggleB" Label="Position" Margin="5,0,0,0"/>
+                                </Grid>
+
+                                <controls:FloatInputSliderWPF UseCustomTemplate="True" Header="Overall Intensity" 
+                                                              TickPlacement="TopLeft" x:Name="_handheldIntensityB"/>
+
+                                <Separator Margin="0,5,0,5"/>
+
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+
+                                    <controls:FloatInputSliderWPF Grid.Row="0" Grid.Column="0" FontSize="11" UseCustomTemplate="True" 
+                                                                  Header="Drift Intensity" TickPlacement="TopLeft" 
+                                                                  x:Name="_handheldDriftIntensityB" Margin="0,0,5,5"/>
+                                    <controls:FloatInputSliderWPF Grid.Row="0" Grid.Column="1" FontSize="11" UseCustomTemplate="True" 
+                                                                  Header="Jitter Intensity" TickPlacement="TopLeft" 
+                                                                  x:Name="_handheldJitterIntensityB" Margin="5,0,0,5"/>
+                                    <controls:FloatInputSliderWPF Grid.Row="1" Grid.Column="0" FontSize="11" UseCustomTemplate="True" 
+                                                                  Header="Position Drift Speed" TickPlacement="TopLeft" 
+                                                                  x:Name="_handheldDriftSpeedB" Margin="0,0,5,5"/>
+                                    <controls:FloatInputSliderWPF Grid.Row="1" Grid.Column="1" FontSize="11" UseCustomTemplate="True" 
+                                                                  Header="Rotation Drift Speed" TickPlacement="TopLeft" 
+                                                                  x:Name="_handheldRotationDriftSpeedB" Margin="5,0,0,5"/>
+                                    <controls:FloatInputSliderWPF Grid.Row="2" Grid.Column="0" FontSize="11" UseCustomTemplate="True" 
+                                                                  Header="Breathing Intensity" TickPlacement="TopLeft" 
+                                                                  x:Name="_handheldBreathingIntensityB" Margin="0,0,5,0"/>
+                                    <controls:FloatInputSliderWPF Grid.Row="2" Grid.Column="1" FontSize="11" UseCustomTemplate="True" 
+                                                                  Header="Breathing Rate" TickPlacement="TopLeft" 
+                                                                  x:Name="_handheldBreathingRateB" Margin="5,0,0,0"/>
+                                </Grid>
+                            </ui:SimpleStackPanel>
+                        </Border>
+
+                    </ui:SimpleStackPanel>
+
+                    <!-- Column Separator -->
+                    <Rectangle Grid.Column="1" Width="1" Fill="{DynamicResource SystemControlForegroundBaseMediumLowBrush}"/>
+
+                    <!-- Right Column - Game Parameters -->
+                    <ui:SimpleStackPanel Grid.Column="2" Spacing="10" VerticalAlignment="Top">
+
+                        <!-- Game Parameters -->
+                        <Border BorderBrush="{DynamicResource SystemControlForegroundBaseMediumLowBrush}" 
+                                BorderThickness="0" 
+                                CornerRadius="4"
+                                Padding="10">
+                            <ui:SimpleStackPanel Spacing="10">
+                                <Label FontWeight="DemiBold" FontSize="16" Margin="0,0,0,5">Game Parameters</Label>
+
+                                <controls:FloatInputSliderWPF Header="Game Speed" x:Name="_gameSpeed"
+                                                              TickPlacement="Both" SnaptoTick="True" TickValue="0.05" 
+                                                              LabelMargin="7,0,7,0" LeftLabelText="0" RightLabelText="2"/>
+                                <controls:BoolInputWPF LabelFontSize="13" Label="Look At Player" x:Name="_toggleLookAt"/>
+                                <controls:BoolInputWPF LabelFontSize="13" Label="Alternative Player Tracking" ToolTip="Allows tracking of the in focus vehicle/during gameplay" x:Name="_altPLayerTracking"/>
+                                <controls:BoolInputWPF LabelFontSize="13" Label="Increase Shadow Resolution" ToolTip="Increases shadow resolution to 4096" x:Name="_incShadowRes"/>
+                            </ui:SimpleStackPanel>
+                        </Border>
+
+                    </ui:SimpleStackPanel>
+
+                </Grid>
+            </TabItem>
+
+        </TabControl>
+
+    </Grid>
+</UserControl>

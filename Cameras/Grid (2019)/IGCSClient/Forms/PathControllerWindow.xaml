@@ -1,0 +1,41 @@
+﻿<Window      x:Class="IGCSClient.Forms.PathControllerWindow"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:IGCSClient.Forms"
+             xmlns:Controls="clr-namespace:IGCSClient.Controls"
+             xmlns:ui="http://schemas.modernwpf.com/2019"
+             mc:Ignorable="d"
+             ui:ThemeManager.IsThemeAware="True"
+			 ui:WindowHelper.UseModernWindowStyle="True"
+             Title="IGCS Path Controller"
+             SizeToContent="WidthAndHeight"
+             Loaded="Window_Loaded"
+             MaxHeight="900"
+             MinWidth="280"
+             Background="{DynamicResource SystemControlBackgroundAltHighBrush}">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Add a panel for the Always on Top toggle -->
+        <Border Grid.Row="1" 
+                BorderBrush="{DynamicResource SystemControlBackgroundListLowBrush}" 
+                BorderThickness="0,1,0,0" 
+                Padding="8,4">
+            <Viewbox HorizontalAlignment="Right" VerticalAlignment="Center" Height="25">
+                <CheckBox x:Name="AlwaysOnTopToggle" 
+                          Content="Always on Top" 
+                          Checked="AlwaysOnTopToggle_CheckedChanged" 
+                          Unchecked="AlwaysOnTopToggle_CheckedChanged"
+                          VerticalAlignment="Center"
+                          HorizontalAlignment="Right"/>
+            </Viewbox>
+        </Border>
+        <!-- Host the existing PathController user control -->
+        <Controls:PathController Grid.Row="0" x:Name="pathControllerControl"/>
+    </Grid>
+</Window>

@@ -920,73 +920,77 @@ namespace IGCS
 
 	void PathManager::connectToAddon(const HMODULE hModule)
 	{
-		_reshadeResult = true;
+		bool result = true;
 
 		_addCameraPath = reinterpret_cast<IgcsConnector_addCameraPath>(GetProcAddress(hModule, "addCameraPath"));
 		if (!_addCameraPath) {
 			MessageHandler::logError("Failed to get addCameraPath function from IgcsConnector");
-			_reshadeResult = false;
+			result = false;
 		}
 
 		_appendStateSnapshotToPath = reinterpret_cast<IgcsConnector_appendStateSnapshotToPath>(GetProcAddress(hModule, "appendStateSnapshotToPath"));
 		if (!_appendStateSnapshotToPath) {
 			MessageHandler::logError("Failed to get appendStateSnapshotToPath function from IgcsConnector");
-			_reshadeResult = false;
+			result = false;
 		}
 
 		_appendStateSnapshotAfterSnapshotOnPath = reinterpret_cast<IgcsConnector_appendStateSnapshotAfterSnapshotOnPath>(GetProcAddress(hModule, "appendStateSnapshotAfterSnapshotOnPath"));
 		if (!_appendStateSnapshotAfterSnapshotOnPath) {
 			MessageHandler::logError("Failed to get appendStateSnapshotAfterSnapshotOnPath function from IgcsConnector");
-			_reshadeResult = false;
+			result = false;
 		}
 
 		_insertStateSnapshotBeforeSnapshotOnPath = reinterpret_cast<IgcsConnector_insertStateSnapshotBeforeSnapshotOnPath>(GetProcAddress(hModule, "insertStateSnapshotBeforeSnapshotOnPath"));
 		if (!_insertStateSnapshotBeforeSnapshotOnPath) {
 			MessageHandler::logError("Failed to get insertStateSnapshotBeforeSnapshotOnPath function from IgcsConnector");
-			_reshadeResult = false;
+			result = false;
 		}
 
 		_removeStateSnapshotFromPath = reinterpret_cast<IgcsConnector_removeStateSnapshotFromPath>(GetProcAddress(hModule, "removeStateSnapshotFromPath"));
 		if (!_removeStateSnapshotFromPath) {
 			MessageHandler::logError("Failed to get removeStateSnapshotFromPath function from IgcsConnector");
-			_reshadeResult = false;
+			result = false;
 		}
 
 		_removeCameraPath = reinterpret_cast<IgcsConnector_removeCameraPath>(GetProcAddress(hModule, "removeCameraPath"));
 		if (!_removeCameraPath) {
 			MessageHandler::logError("Failed to get removeCameraPath function from IgcsConnector");
-			_reshadeResult = false;
+			result = false;
 		}
 
 		_clearPaths = reinterpret_cast<IgcsConnector_clearPaths>(GetProcAddress(hModule, "clearPaths"));
 		if (!_clearPaths) {
 			MessageHandler::logError("Failed to get clearPaths function from IgcsConnector");
-			_reshadeResult = false;
+			result = false;
 		}
 
 		_setReshadeState = reinterpret_cast<IgcsConnector_setReshadeState>(GetProcAddress(hModule, "setReshadeState"));
 		if (!_setReshadeState) {
 			MessageHandler::logError("Failed to get setReshadeState function from IgcsConnector");
-			_reshadeResult = false;
+			result = false;
 		}
 
 		_setReshadeStateInterpolated = reinterpret_cast<IgcsConnector_setReshadeStateInterpolated>(GetProcAddress(hModule, "setReshadeStateInterpolated"));
 		if (!_setReshadeStateInterpolated) {
 			MessageHandler::logError("Failed to get setReshadeStateInterpolated function from IgcsConnector");
-			_reshadeResult = false;
+			result = false;
 		}
 
 		_updateStateSnapshotOnPath = reinterpret_cast<IgcsConnector_updateStateSnapshotOnPath>(GetProcAddress(hModule, "updateStateSnapshotOnPath"));
 		if (!_updateStateSnapshotOnPath) {
 			MessageHandler::logError("Failed to get updateStateSnapshotOnPath function from IgcsConnector");
-			_reshadeResult = false;
+			result = false;
 		}
+
+		_reshadeResult = result;
 
 		// Log connection status
 		if (_reshadeResult)
 			MessageHandler::logLine("Successfully connected to IgcsConnector path management functions");
 		else
 			MessageHandler::logError("Failed to get all IgcsConnector path management functions");
+
+
 	}
 
 	// Path Management Helper Functions

@@ -152,7 +152,7 @@ namespace IGCS
 
         bool _isScrubbing = false;
         float _scrubbingProgress = 0.0f;
-        bool _reshadeResult = true;
+        bool _reshadeResult = false;
 
         std::atomic<bool> _isProcessingAction{ false };
 

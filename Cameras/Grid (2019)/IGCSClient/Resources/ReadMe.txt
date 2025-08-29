@@ -1,11 +1,12 @@
 Injectable Camera for Grid 2019
 ============================
 Current supported game version: Latest
-Camera version: 1.0.0 
+Camera version: 1.0.1 
 Credits: ghostinthecamera
 
 Changelog
 ========================
+v1.0.1 - Reshade connection bug fix which always returned true for reshade connected
 v1.0.0 - Initial Release
 
 Features

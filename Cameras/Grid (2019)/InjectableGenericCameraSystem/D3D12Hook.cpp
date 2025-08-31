@@ -163,30 +163,30 @@ namespace IGCS {
             return false;
         }
 
-        //MessageHandler::logDebug("D3D12Hook::initialise: Finding command queue offset");
-        //s_command_queue_offset = 0;
+        MessageHandler::logDebug("D3D12Hook::initialise: Finding command queue offset");
+        s_command_queue_offset = 0;
 
-        //for (auto i = 0; i < 512 * sizeof(void*); i += sizeof(void*)) {
-        //    const auto base = (uintptr_t)swap_chain + i;
+        for (auto i = 0; i < 512 * sizeof(void*); i += sizeof(void*)) {
+            const auto base = (uintptr_t)swap_chain + i;
 
-        //    // Check if we can read this memory
-        //    if (IsBadReadPtr((void*)base, sizeof(void*))) {
-        //        break;
-        //    }
+            // Check if we can read this memory
+            if (IsBadReadPtr((void*)base, sizeof(void*))) {
+                break;
+            }
 
-        //    auto data = *(ID3D12CommandQueue**)base;
+            auto data = *(ID3D12CommandQueue**)base;
 
-        //    if (data == command_queue) {
-        //        s_command_queue_offset = i;
-        //        MessageHandler::logDebug("D3D12Hook::initialise: Found command queue offset: 0x%X", i);
-        //        break;
-        //    }
-        //}
+            if (data == command_queue) {
+                s_command_queue_offset = i;
+                MessageHandler::logDebug("D3D12Hook::initialise: Found command queue offset: 0x%X", i);
+                break;
+            }
+        }
 
-        //if (s_command_queue_offset == 0) {
-        //    MessageHandler::logError("D3D12Hook::initialise: Failed to find command queue offset - will try to capture from ExecuteCommandLists");
-        //    // Continue anyway - we'll try to capture it from ExecuteCommandLists
-        //}
+        if (s_command_queue_offset == 0) {
+            MessageHandler::logError("D3D12Hook::initialise: Failed to find command queue offset - will try to capture from ExecuteCommandLists");
+            // Continue anyway - we'll try to capture it from ExecuteCommandLists
+        }
 
         // Store vtable pointers
         s_swapchain_vtable = *reinterpret_cast<void***>(swap_chain);
@@ -400,7 +400,11 @@ namespace IGCS {
 
         // Get swap chain description
         DXGI_SWAP_CHAIN_DESC desc;
-        pSwapChain->GetDesc(&desc);
+        const HRESULT hr = pSwapChain->GetDesc(&desc);
+        if (FAILED(hr)) {
+            MessageHandler::logError("D3D12Hook::initialiseFrameContexts: Failed to get swap chain description, error: 0x%X", hr);
+            return;
+        }
         _frameBufferCount = desc.BufferCount;
 
         // Resize frame contexts
@@ -472,7 +476,7 @@ namespace IGCS {
             resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
             resourceDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
 
-            const HRESULT hr = _pDevice->CreateCommittedResource(
+            const HRESULT hresult = _pDevice->CreateCommittedResource(
                 &heapProps,
                 D3D12_HEAP_FLAG_NONE,
                 &resourceDesc,
@@ -480,7 +484,7 @@ namespace IGCS {
                 nullptr,
                 IID_PPV_ARGS(&_perFrameConstantBuffers[i].buffer));
 
-            if (SUCCEEDED(hr)) {
+            if (SUCCEEDED(hresult)) {
                 _perFrameConstantBuffers[i].gpuAddress = _perFrameConstantBuffers[i].buffer->GetGPUVirtualAddress();
 
                 // Keep it mapped for the lifetime
@@ -907,9 +911,14 @@ namespace IGCS {
         auto& hook = instance();
 
         if (!hook._pCommandQueue && pCommandQueue) {
-            hook._pCommandQueue = pCommandQueue;
-            pCommandQueue->AddRef(); // Important: add reference
-            MessageHandler::logDebug("D3D12Hook::hookedExecuteCommandLists: Captured command queue from ExecuteCommandLists");
+            D3D12_COMMAND_QUEUE_DESC queueDesc = {};
+            queueDesc = pCommandQueue->GetDesc();
+
+            if (queueDesc.Type == D3D12_COMMAND_LIST_TYPE_DIRECT) {
+                hook._pCommandQueue = pCommandQueue;
+                pCommandQueue->AddRef(); // Important: add reference
+                MessageHandler::logDebug("D3D12Hook::hookedExecuteCommandLists: Captured DIRECT command queue");
+            }
 
             // NOW GET THE DEVICE FROM THE COMMAND QUEUE
             if (!hook._pDevice) {
@@ -1005,6 +1014,8 @@ namespace IGCS {
         ID3D12Resource* pResource,
         const D3D12_DEPTH_STENCIL_VIEW_DESC* pDesc,
         D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor) {
+
+        instance().trackDepthDescriptor(DestDescriptor);
 
         if (pResource) {
             // Lock the mutex to ensure thread-safe access to the map
@@ -1356,6 +1367,39 @@ namespace IGCS {
             return;
         }
 
+        // DEBUGGING: Log and validate command queue before execution
+        if (!_pCommandQueue) {
+            MessageHandler::logError("Command queue is null before ExecuteCommandLists");
+            return;
+        }
+
+        // Check if command queue is valid by calling a harmless method
+        try {
+            D3D12_COMMAND_QUEUE_DESC queueDesc = _pCommandQueue->GetDesc();
+
+            // Verify it's a direct command queue
+            if (queueDesc.Type != D3D12_COMMAND_LIST_TYPE_DIRECT) {
+                MessageHandler::logError("Command queue is not a DIRECT queue (Type=%d)", queueDesc.Type);
+            }
+        }
+        catch (...) {
+            MessageHandler::logError("Exception when accessing command queue - likely invalid pointer");
+            return;
+        }
+
+        // Check if the command queue matches the swapchain's expected queue
+        try {
+	        ID3D12CommandQueue* swapchainQueue = nullptr;
+	        swapchainQueue = *(ID3D12CommandQueue**)((uintptr_t)pSwapChain + s_command_queue_offset);
+            if (_pCommandQueue != swapchainQueue) {
+                //MessageHandler::logError("Command queue mismatch! Using: %p vs SwapChain's: %p",
+                    //_pCommandQueue, swapchainQueue);
+            }
+        }
+        catch (...) {
+            MessageHandler::logError("Exception when checking swapchain queue - offset might be wrong");
+        }
+
         // Reset allocator
         HRESULT hr = frameContext.commandAllocator->Reset();
         if (FAILED(hr)) {
@@ -1433,7 +1477,11 @@ namespace IGCS {
         _pCommandList->ResourceBarrier(1, &barrier);
 
         // Close and execute
-        _pCommandList->Close();
+        hr = _pCommandList->Close();
+        if (FAILED(hr)) {
+            MessageHandler::logError("Failed to close command list: 0x%X", hr);
+            return;
+        }
         ID3D12CommandList* ppCommandLists[] = { _pCommandList };
         _pCommandQueue->ExecuteCommandLists(ARRAYSIZE(ppCommandLists), ppCommandLists);
 

@@ -1,11 +1,13 @@
 Injectable Camera for Grid 2019
 ============================
 Current supported game version: Latest
-Camera version: 1.0.1 
+Camera version: 1.0.2  
 Credits: ghostinthecamera
 
 Changelog
 ========================
+v1.0.2 - Fixed bug where command queue capture would not capture a directx12 command list if it was not the first command list used in a frame.  
+		 Code now captures direct command lists only.
 v1.0.1 - Reshade connection bug fix which always returned true for reshade connected
 v1.0.0 - Initial Release
 

@@ -207,7 +207,7 @@ namespace IGCS::GameSpecific
             });
 
 			// Enable all patches apart from shadow res at init
-			std:vector<std::string> initPatches = { "FocusLoss1", "FocusLoss2", "FocusLoss3", "Vignette", "ChromaticAbberation"};
+			const vector<std::string> initPatches = { "FocusLoss1", "FocusLoss2", "FocusLoss3", "Vignette", "ChromaticAbberation"};
             MemoryPatcher::togglePatchGroup(initPatches, true);
 	    }
 	    catch (const exception& e)

@@ -78,6 +78,7 @@ namespace IGCS
 		uint8_t* cameraAddress = nullptr;
 		uint8_t* replayTimescaleAddress = nullptr;
 		uint8_t* gameplayTimescaleAddress = nullptr;
+		uint8_t* playerStructAddress = nullptr;
 	};
 
 	/// <summary>

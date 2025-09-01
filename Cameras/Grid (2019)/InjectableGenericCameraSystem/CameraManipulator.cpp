@@ -411,7 +411,7 @@ namespace IGCS::GameSpecific::CameraManipulator
 		destination.cameraAddress = g_cameraStructAddress;
 		destination.replayTimescaleAddress = g_replayTimescaleAddress;
 		destination.gameplayTimescaleAddress = g_gameplayTimescaleAddress;
-		//destination.carPositionAddress = g_carPositionAddress;
+		destination.playerStructAddress = g_playerStructAddress;
 		//destination.dofStrengthAddress = g_dofStrengthAddress;
 		//destination.timescaleAddress = g_timescaleAddress;
 	}
@@ -424,16 +424,17 @@ namespace IGCS::GameSpecific::CameraManipulator
 	void cacheigcsData(IGCSSessionCacheData& igcscache)
 	{
 		igcscache.eulers = Camera::instance().getRotation();
-		igcscache.Coordinates = getCurrentCameraCoords();
+		igcscache.Coordinates = Camera::instance().getInternalPosition();
 		igcscache.quaternion = Camera::instance().getToolsQuaternion();
 		igcscache.fov = getCurrentFoV();
 	}
 
 	void restoreigcsData(const IGCSSessionCacheData& igcscache)
 	{
-		Camera::instance().setRotation(igcscache.eulers);
 
-		restoreCurrentCameraCoords(igcscache.Coordinates);
+		Camera::instance().setRotation(igcscache.eulers);
+		Camera::instance().setInternalPosition(igcscache.Coordinates);
+		//restoreCurrentCameraCoords(igcscache.Coordinates);
 		restoreFOV(igcscache.fov);
 	}
 
@@ -444,11 +445,8 @@ namespace IGCS::GameSpecific::CameraManipulator
 			return;
 		}
 
-		if (!System::instance().isCameraStructValid)
-			return;
-
-		const auto coordsInMemory = reinterpret_cast<float*>(g_cameraStructAddress + COORDS_IN_STRUCT_OFFSET);
-		memcpy(coordsInMemory, &coordstorestore, 3 * sizeof(float));
+		//const auto coordsInMemory = reinterpret_cast<float*>(g_cameraStructAddress + COORDS_IN_STRUCT_OFFSET);
+		//memcpy(coordsInMemory, &coordstorestore, 3 * sizeof(float));
 	}
 
 	void restoreFOV(const float fov)

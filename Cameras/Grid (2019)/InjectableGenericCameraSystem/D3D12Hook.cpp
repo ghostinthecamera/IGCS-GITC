@@ -209,22 +209,9 @@ namespace IGCS {
         device->Release();
 
         // Hook the functions
-        // Hook ExecuteCommandLists
-        MessageHandler::logDebug("D3D12Hook::initialise: Hooking ExecuteCommandLists at %p", executeCommandListsAddress);
-        MH_STATUS status = MH_CreateHook(executeCommandListsAddress, &D3D12Hook::hookedExecuteCommandLists, reinterpret_cast<void**>(&_originalExecuteCommandLists));
-        if (status != MH_OK) {
-            MessageHandler::logError("D3D12Hook::initialise: Failed to create ExecuteCommandLists hook, error: %d", status);
-        }
-        else {
-            status = MH_EnableHook(executeCommandListsAddress);
-            if (status != MH_OK) {
-                MessageHandler::logError("D3D12Hook::initialise: Failed to enable ExecuteCommandLists hook, error: %d", status);
-            }
-        }
-
-        // Hook Present
+    	// Hook Present
         MessageHandler::logDebug("D3D12Hook::initialise: Hooking Present function at %p", presentAddress);
-        status = MH_CreateHook(presentAddress, &D3D12Hook::hookedPresent, reinterpret_cast<void**>(&_originalPresent));
+        MH_STATUS status = MH_CreateHook(presentAddress, &D3D12Hook::hookedPresent, reinterpret_cast<void**>(&_originalPresent));
         if (status != MH_OK) {
             MessageHandler::logError("D3D12Hook::initialise: Failed to create Present hook, error: %d", status);
             return false;
@@ -234,6 +221,20 @@ namespace IGCS {
         if (status != MH_OK) {
             MessageHandler::logError("D3D12Hook::initialise: Failed to enable Present hook, error: %d", status);
             return false;
+        }
+
+
+        // Hook ExecuteCommandLists
+        MessageHandler::logDebug("D3D12Hook::initialise: Hooking ExecuteCommandLists at %p", executeCommandListsAddress);
+        status = MH_CreateHook(executeCommandListsAddress, &D3D12Hook::hookedExecuteCommandLists, reinterpret_cast<void**>(&_originalExecuteCommandLists));
+        if (status != MH_OK) {
+            MessageHandler::logError("D3D12Hook::initialise: Failed to create ExecuteCommandLists hook, error: %d", status);
+        }
+        else {
+            status = MH_EnableHook(executeCommandListsAddress);
+            if (status != MH_OK) {
+                MessageHandler::logError("D3D12Hook::initialise: Failed to enable ExecuteCommandLists hook, error: %d", status);
+            }
         }
 
         // Hook ResizeBuffers
@@ -283,12 +284,14 @@ namespace IGCS {
             MessageHandler::logError("D3D12Hook::initialiseRenderingResources: Failed to create command allocator");
             return false;
         }
+        MessageHandler::logDebug("D3D12Hook::initialiseRenderingResources: Command allocator created successfully");
 
         hr = instance()._pDevice->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, instance()._pCommandAllocator, nullptr, IID_PPV_ARGS(&instance()._pCommandList));
         if (FAILED(hr)) {
             MessageHandler::logError("D3D12Hook::initialiseRenderingResources: Failed to create command list");
             return false;
         }
+		MessageHandler::logDebug("D3D12Hook::initialiseRenderingResources: Command list created successfully");
 
         // Close command list as it's created in recording state
         hr = instance()._pCommandList->Close();
@@ -296,6 +299,7 @@ namespace IGCS {
             MessageHandler::logError("D3D12Hook::initialiseRenderingResources: Failed to close command list after creation");
             return false;
 		}
+		MessageHandler::logDebug("D3D12Hook::initialiseRenderingResources: Command list closed successfully after creation");
 
         // Create root signature
         if (!instance().createRootSignature()) {
@@ -444,8 +448,6 @@ namespace IGCS {
                 continue;
             }
 
-            // IMPORTANT: Store the same pointer in _pRenderTargets WITHOUT adding a reference
-            _pRenderTargets[i] = _frameContexts[i].renderTarget;
             // NO AddRef() here - we're just copying the pointer
 
             // Create RTV
@@ -520,7 +522,7 @@ namespace IGCS {
     }
 
     bool D3D12Hook::isFullyInitialised() const {
-        return _isInitialized && _frameContextsInitialized && !_frameContexts.empty() && !_needsInitialisation;
+        return _isInitialized /*&& _frameContextsInitialized*/ && !_needsInitialisation;
     }
 
     //==================================================================================================
@@ -721,34 +723,32 @@ namespace IGCS {
 
         auto& hook = instance();
 
-        // One-time swap chain initialization (device should already be captured from ExecuteCommandLists)
-        if (!hook._pSwapChain && hook._pDevice) {
-            std::lock_guard<std::mutex> lock(hook._resourceMutex);
-            // Double-check after lock
-            if (!hook._pSwapChain) {
-                // Store the swap chain
-                hook._pSwapChain = pSwapChain;
+        // One-time initialization to capture the primary device from the swap chain.
+        if (hook._devicefound == DeviceCaptureState::Pending && pSwapChain)
+        {
+            //// ACQUIRE THE LOCK FIRST to prevent race conditions.
+            //std::lock_guard lock(hook._resourceMutex);
 
-                // Initialize frame contexts
-                hook.initialiseFrameContexts(pSwapChain);
+            // Double-check the condition AFTER acquiring the lock.
+            if (hook._devicefound == DeviceCaptureState::Pending && pSwapChain)
+            {
+                if (SUCCEEDED(pSwapChain->GetDevice(IID_PPV_ARGS(&hook._pDevice))))
+                {
+                    MessageHandler::logDebug("D3D12Hook::hookedPresent: Captured primary device from swap chain.");
+                    // Now we have the device, we can safely do other one-time initializations.
+                    hook._pSwapChain = pSwapChain;
+                    hook.initialiseFrameContexts(pSwapChain);
+                    hook.hookDeviceMethods(); // Hook device methods now that we have the device.
+                    hook.queueInitialisation();
 
-                // Create command list if needed
-                if (!hook._pCommandList && !hook._frameContexts.empty()) {
-                    if (FAILED(hook._pDevice->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT,
-                        hook._frameContexts[0].commandAllocator, nullptr, IID_PPV_ARGS(&hook._pCommandList)))) {
-                        MessageHandler::logError("Failed to create command list");
-                    }
-                    else {
-                        const HRESULT result = hook._pCommandList->Close(); // Must close immediately
-                        if (FAILED(result)) {
-                            MessageHandler::logError("Failed to close command list after creation, error: 0x%X", result);
-                        }
-                        else {
-                            MessageHandler::logDebug("Command list created and closed successfully");
-						}
-                    }
+                    // Signal that the device is ready.
+					hook._devicefound = DeviceCaptureState::SuccessFromPresent; // indicates device found successfully
                 }
-                hook.queueInitialisation();
+                else
+                {
+                    MessageHandler::logError("D3D12Hook::hookedPresent: Failed to get device from swap chain, will signal for fallback");
+					hook._devicefound = DeviceCaptureState::FailedInPresent; // indicates an attempt was made in hookedPresent but failed, we can try capture from ExecuteCommandLists
+                }
             }
         }
 
@@ -760,7 +760,7 @@ namespace IGCS {
 
         // Initialize D3D12 resources if needed
         if (hook._needsInitialisation) {
-            std::lock_guard<std::mutex> lock(hook._resourceMutex);
+            //std::lock_guard<std::mutex> lock(hook._resourceMutex);
             if (hook._needsInitialisation) {  // Double-check after acquiring lock
                 hook.performQueuedInitialisation();
             }
@@ -792,7 +792,7 @@ namespace IGCS {
             try {
 				hook._viewPort = hook.getFullViewport();
 				hook.setupCameraMatrices();
-                hook.renderWithResourceBarriers(pSwapChain);
+                hook.drawVisualisation(pSwapChain);
             }
             catch (const std::exception& e) {
                 MessageHandler::logError("Exception during rendering: %s", e.what());
@@ -821,9 +821,99 @@ namespace IGCS {
         return result;
     }
 
+    void WINAPI D3D12Hook::hookedExecuteCommandLists(ID3D12CommandQueue* pCommandQueue, const UINT NumCommandLists, ID3D12CommandList* const* ppCommandLists)
+	{
+        auto& hook = instance();
+
+        // One-time capture logic for the command queue.
+        if (hook._devicefound == DeviceCaptureState::SuccessFromPresent && hook._pDevice && !hook._pCommandQueue && pCommandQueue)
+        {
+            ID3D12Device* queueDevice = nullptr;
+            if (SUCCEEDED(pCommandQueue->GetDevice(IID_PPV_ARGS(&queueDevice))))
+            {
+                if (queueDevice == hook._pDevice)
+                {
+                    MessageHandler::logDebug("D3D12Hook::hookedExecuteCommandLists: Device matched.");
+                    D3D12_COMMAND_QUEUE_DESC queueDesc = pCommandQueue->GetDesc();
+
+                    if (queueDesc.Type == D3D12_COMMAND_LIST_TYPE_DIRECT) {
+                        hook._pCommandQueue = pCommandQueue;
+                        pCommandQueue->AddRef(); // We are keeping this pointer, so AddRef.
+                        MessageHandler::logDebug("D3D12Hook::hookedExecuteCommandLists: Captured DIRECT command queue.");
+                    }
+                }
+                else
+                {
+                    MessageHandler::logDebug("D3D12Hook::hookedExecuteCommandLists: Queue's device does not match our primary device. Skipping capture.");
+                }
+                queueDevice->Release();
+            }
+        }
+        else if (hook._devicefound == DeviceCaptureState::FailedInPresent && !hook._pDevice && !hook._pCommandQueue && pCommandQueue) //hookedPresent failed to get the device, try here as a fallback
+        {
+            MessageHandler::logDebug("D3D12Hook::hookedExecuteCommandLists: Fallback required as hookedPresent device captured failed");
+            D3D12_COMMAND_QUEUE_DESC queueDesc = {};
+            queueDesc = pCommandQueue->GetDesc();
+
+            if (queueDesc.Type == D3D12_COMMAND_LIST_TYPE_DIRECT) {
+                hook._pCommandQueue = pCommandQueue;
+                pCommandQueue->AddRef(); // Important: add reference
+                MessageHandler::logDebug("D3D12Hook::hookedExecuteCommandLists::FALLBACK: Captured DIRECT command queue");
+            }
+
+            // NOW GET THE DEVICE FROM THE COMMAND QUEUE
+            if (!hook._pDevice) {
+                ID3D12Device* device = nullptr;
+                if (SUCCEEDED(pCommandQueue->GetDevice(IID_PPV_ARGS(&device)))) {
+                    hook._pDevice = device;
+                    // Don't AddRef here - GetDevice already does it
+                    MessageHandler::logDebug("D3D12Hook::hookedExecuteCommandLists::FALLBACK: Captured device from command queue");
+
+                    // Hook device methods immediately
+					MessageHandler::logDebug("D3D12Hook::hookedExecuteCommandLists::FALLBACK: Hooking device methods for depth buffer capture");
+                    hook.hookDeviceMethods();
+                }
+            }
+			hook._devicefound = DeviceCaptureState::SuccessFromFallback; // Mark as success to avoid retrying
+
+        }
+
+        // NEW LOGIC: Intercept and hook every graphics command list passed by the game.
+        for (UINT i = 0; i < NumCommandLists; ++i)
+        {
+            // We only care about graphics command lists, as they do the rendering.
+            ID3D12GraphicsCommandList* pGraphicsCommandList = nullptr;
+            if (SUCCEEDED(ppCommandLists[i]->QueryInterface(IID_PPV_ARGS(&pGraphicsCommandList))))
+            {
+                // Lock to safely access our set of hooked lists
+                std::lock_guard<std::mutex> lock(hook._pCommandListHookMutex);
+
+                // Check if we've already hooked this specific command list instance.
+                if (!hook._pHookedCommandLists.contains(pGraphicsCommandList))
+                {
+                    // It's a new one, so apply our hooks to its vtable.
+                    hookCommandListMethods(pGraphicsCommandList);
+
+                    // Add it to our set so we don't hook it again.
+                    hook._pHookedCommandLists.insert(pGraphicsCommandList);
+                    //MessageHandler::logDebug("D3D12Hook: Hooked new game command list: %p", pGraphicsCommandList);
+                }
+
+                // We are done with this temporary pointer.
+                pGraphicsCommandList->Release();
+            }
+        }
+
+        // Call the original function
+        if (_originalExecuteCommandLists) {
+            _originalExecuteCommandLists(pCommandQueue, NumCommandLists, ppCommandLists);
+        }
+    }
+
     HRESULT WINAPI D3D12Hook::hookedResizeBuffers(IDXGISwapChain3* pSwapChain, const UINT BufferCount,
         const UINT Width, const UINT Height,
         const DXGI_FORMAT NewFormat, const UINT SwapChainFlags) {
+
         auto& hook = instance();
 
         MessageHandler::logDebug("D3D12Hook::hookedResizeBuffers: Resizing to %ux%u, BufferCount: %u",
@@ -858,7 +948,7 @@ namespace IGCS {
 
         // Recreate frame contexts with the new swap chain
         // This will handle EVERYTHING including GetBuffer and RTV creation
-        hook.initialiseFrameContexts(pSwapChain);
+       // hook.initialiseFrameContexts(pSwapChain);
 
         // Mark that resources need to be recreated on next render
         hook._resourcesNeedUpdate.store(true, std::memory_order_release);
@@ -903,54 +993,6 @@ namespace IGCS {
         }
 
         return result;
-    }
-
-    void WINAPI D3D12Hook::hookedExecuteCommandLists(ID3D12CommandQueue* pCommandQueue, const UINT NumCommandLists,
-        ID3D12CommandList* const* ppCommandLists) {
-
-        auto& hook = instance();
-
-        if (!hook._pCommandQueue && pCommandQueue) {
-            D3D12_COMMAND_QUEUE_DESC queueDesc = {};
-            queueDesc = pCommandQueue->GetDesc();
-
-            if (queueDesc.Type == D3D12_COMMAND_LIST_TYPE_DIRECT) {
-                hook._pCommandQueue = pCommandQueue;
-                pCommandQueue->AddRef(); // Important: add reference
-                MessageHandler::logDebug("D3D12Hook::hookedExecuteCommandLists: Captured DIRECT command queue");
-            }
-
-            // NOW GET THE DEVICE FROM THE COMMAND QUEUE
-            if (!hook._pDevice) {
-                ID3D12Device* device = nullptr;
-                if (SUCCEEDED(pCommandQueue->GetDevice(IID_PPV_ARGS(&device)))) {
-                    hook._pDevice = device;
-                    // Don't AddRef here - GetDevice already does it
-                    MessageHandler::logDebug("D3D12Hook::hookedExecuteCommandLists: Captured device from command queue");
-
-                    // Hook device methods immediately
-                    hook.hookDeviceMethods();
-                }
-            }
-        }
-
-        for (UINT i = 0; i < NumCommandLists; ++i) {
-            if (ppCommandLists[i]) {
-                ID3D12GraphicsCommandList* pGraphicsCommandList = nullptr;
-                const HRESULT hr = ppCommandLists[i]->QueryInterface(IID_PPV_ARGS(&pGraphicsCommandList));
-
-                if (SUCCEEDED(hr) && pGraphicsCommandList) {
-                    // Hook this command list for depth buffer detection and rendering
-                    hookCommandListMethods(pGraphicsCommandList);
-                    pGraphicsCommandList->Release();
-                }
-            }
-        }
-
-        // Call the original function
-        if (_originalExecuteCommandLists) {
-            _originalExecuteCommandLists(pCommandQueue, NumCommandLists, ppCommandLists);
-        }
     }
 
     void WINAPI D3D12Hook::hookedOMSetRenderTargets(ID3D12GraphicsCommandList* pCommandList,
@@ -1015,7 +1057,7 @@ namespace IGCS {
         const D3D12_DEPTH_STENCIL_VIEW_DESC* pDesc,
         D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor) {
 
-        instance().trackDepthDescriptor(DestDescriptor);
+        //instance().trackDepthDescriptor(DestDescriptor);
 
         if (pResource) {
             // Lock the mutex to ensure thread-safe access to the map
@@ -1324,8 +1366,8 @@ namespace IGCS {
     //==================================================================================================
 	// Rendering Core
 	//==================================================================================================
-    void D3D12Hook::renderWithResourceBarriers(IDXGISwapChain3* pSwapChain) {
-        if (!_pDevice || !_pCommandQueue || !_pCommandList || _frameContexts.empty()) {
+    void D3D12Hook::drawVisualisation(IDXGISwapChain3* pSwapChain) {
+        if (!_pDevice || !_pCommandQueue || !_pCommandList) {
             return;
         }
 
@@ -1333,11 +1375,11 @@ namespace IGCS {
         RenderingScope scope(*this);
 
         if (_frameContexts.empty()) {
-            MessageHandler::logDebug("renderWithResourceBarriers: Frame contexts not initialized");
+            MessageHandler::logDebug("drawVisualisation: Frame contexts not initialized - running initialisation now");
             // Try to initialise them now
             initialiseFrameContexts(pSwapChain);
             if (_frameContexts.empty()) {
-                MessageHandler::logError("renderWithResourceBarriers: Failed to initialise frame contexts");
+                MessageHandler::logError("drawVisualisation: Failed to initialise frame contexts");
                 return;
             }
         }
@@ -1512,7 +1554,7 @@ namespace IGCS {
 
         // Update path resources if needed
         if (_resourcesNeedUpdate.load(std::memory_order_acquire) || !_pathResourcesCreated) {
-            std::lock_guard<std::mutex> lock(_resourceMutex);
+            std::lock_guard lock(_resourceMutex);
             if (_resourcesNeedUpdate.load(std::memory_order_acquire) || !_pathResourcesCreated) {
                 MessageHandler::logDebug("D3D12Hook::renderPaths: Updating path resources. Flag status: _resourcesNeedUpdate=%s | _pathResourcesCreated=%s", _resourcesNeedUpdate.load() ? "true" : "false", _pathResourcesCreated ? "true" : "false");
                 createPathVisualisation();
@@ -1722,115 +1764,44 @@ namespace IGCS {
     }
 
     void D3D12Hook::updateConstantBuffer(const XMMATRIX& worldViewProj) {
-        if (_currentFrameIndex >= _perFrameConstantBuffers.size()) {
+        if (_currentFrameIndex >= _perFrameConstantBuffers.size() || _currentCBVIndex >= 256) {
+            return; // Safety checks
+        }
+
+        // Get the large constant buffer for the current frame in flight.
+        const auto& frameCB = _perFrameConstantBuffers[_currentFrameIndex];
+        if (!frameCB.mappedData) {
             return;
         }
 
-        // Get this frame's constant buffer
-        const auto& frameBuffer = _perFrameConstantBuffers[_currentFrameIndex];
+        // Calculate the size of a single constant buffer entry, aligned to 256 bytes.
+        constexpr UINT alignedCBSize = (sizeof(D3D12SimpleConstantBuffer) + 255) & ~255;
 
-        // Option 1: Use the per-frame buffer with offsets
-        if (frameBuffer.mappedData) {
-            constexpr UINT alignedCBSize = (sizeof(D3D12SimpleConstantBuffer) + 255) & ~255;
+        // Determine the memory location for this specific draw call's data.
+        UINT8* destPtr = frameCB.mappedData + (_currentCBVIndex * alignedCBSize);
 
-            // Write to different offset for each object
-            UINT8* destPtr = frameBuffer.mappedData + (_currentCBVIndex * alignedCBSize);
+        // Prepare and copy the matrix data.
+        D3D12SimpleConstantBuffer cbData;
+        cbData.worldViewProjection = XMMatrixTranspose(worldViewProj);
+        memcpy(destPtr, &cbData, sizeof(cbData));
 
-            D3D12SimpleConstantBuffer cb;
-            cb.worldViewProjection = XMMatrixTranspose(worldViewProj);
-            memcpy(destPtr, &cb, sizeof(cb));
-
-            // Calculate descriptor handle for this object's CBV
-            D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle = _pCBVHeap->GetCPUDescriptorHandleForHeapStart();
-            cpuHandle.ptr += _currentCBVIndex * _cbvDescriptorSize;
-
-            // Create CBV pointing to the correct offset in the buffer
-            D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {};
-            cbvDesc.BufferLocation = frameBuffer.gpuAddress + (_currentCBVIndex * alignedCBSize);
-            cbvDesc.SizeInBytes = alignedCBSize;
-
-            _pDevice->CreateConstantBufferView(&cbvDesc, cpuHandle);
-
-            // Bind this specific descriptor
-            D3D12_GPU_DESCRIPTOR_HANDLE gpuHandle = _pCBVHeap->GetGPUDescriptorHandleForHeapStart();
-            gpuHandle.ptr += _currentCBVIndex * _cbvDescriptorSize;
-            _pCommandList->SetGraphicsRootDescriptorTable(0, gpuHandle);
-
-            // Move to next CBV slot
-            _currentCBVIndex = (_currentCBVIndex + 1) % 256;
-
-            return;
-        }
-
-        // Option 2: Create a temporary buffer for dynamic updates
-        constexpr UINT bufferSize = (sizeof(D3D12SimpleConstantBuffer) + 255) & ~255;
-
-        D3D12_HEAP_PROPERTIES heapProps = {};
-        heapProps.Type = D3D12_HEAP_TYPE_UPLOAD;
-        heapProps.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
-        heapProps.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
-
-        D3D12_RESOURCE_DESC desc = {};
-        desc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
-        desc.Width = bufferSize;
-        desc.Height = 1;
-        desc.DepthOrArraySize = 1;
-        desc.MipLevels = 1;
-        desc.Format = DXGI_FORMAT_UNKNOWN;
-        desc.SampleDesc.Count = 1;
-        desc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
-        desc.Flags = D3D12_RESOURCE_FLAG_NONE;
-
-        ID3D12Resource* pTempBuffer = nullptr;
-        HRESULT hr = _pDevice->CreateCommittedResource(
-            &heapProps,
-            D3D12_HEAP_FLAG_NONE,
-            &desc,
-            D3D12_RESOURCE_STATE_GENERIC_READ,
-            nullptr,
-            IID_PPV_ARGS(&pTempBuffer));
-
-        if (FAILED(hr)) {
-            MessageHandler::logError("Failed to create temp constant buffer: 0x%X", hr);
-            return;
-        }
-
-        // Map, write, unmap
-        D3D12SimpleConstantBuffer cb;
-        cb.worldViewProjection = XMMatrixTranspose(worldViewProj);
-
-        void* pData = nullptr;
-        const D3D12_RANGE readRange = { 0, 0 };
-        hr = pTempBuffer->Map(0, &readRange, &pData);
-        if (SUCCEEDED(hr)) {
-            memcpy(pData, &cb, sizeof(cb));
-            const D3D12_RANGE writeRange = { 0, sizeof(cb) };
-            pTempBuffer->Unmap(0, &writeRange);
-        }
-
-        // Calculate descriptor handle
+        // Get the CPU handle for the descriptor heap slot we're about to use.
         D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle = _pCBVHeap->GetCPUDescriptorHandleForHeapStart();
         cpuHandle.ptr += _currentCBVIndex * _cbvDescriptorSize;
 
-        // Update CBV
+        // Create a new Constant Buffer View (CBV) that points to the specific offset in our large buffer.
         D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {};
-        cbvDesc.BufferLocation = pTempBuffer->GetGPUVirtualAddress();
-        cbvDesc.SizeInBytes = bufferSize;
-
+        cbvDesc.BufferLocation = frameCB.gpuAddress + (_currentCBVIndex * alignedCBSize);
+        cbvDesc.SizeInBytes = alignedCBSize;
         _pDevice->CreateConstantBufferView(&cbvDesc, cpuHandle);
 
-        // Bind this specific descriptor
+        // Get the corresponding GPU handle to bind to the root signature.
         D3D12_GPU_DESCRIPTOR_HANDLE gpuHandle = _pCBVHeap->GetGPUDescriptorHandleForHeapStart();
         gpuHandle.ptr += _currentCBVIndex * _cbvDescriptorSize;
         _pCommandList->SetGraphicsRootDescriptorTable(0, gpuHandle);
 
-        // Move to next CBV slot
-        _currentCBVIndex = (_currentCBVIndex + 1) % 256;
-
-        // Track for cleanup
-        if (_currentFrameIndex < _frameTempResources.size()) {
-            _frameTempResources[_currentFrameIndex].constantBuffers.push_back(pTempBuffer);
-        }
+        // Move to the next available slot for the next draw call.
+        _currentCBVIndex = (_currentCBVIndex + 1);
     }
 
     //==================================================================================================
@@ -2192,7 +2163,7 @@ namespace IGCS {
         const XMMATRIX worldMatrix = XMMatrixScaling(_lookAtTargetSize, _lookAtTargetSize, _lookAtTargetSize) *
             XMMatrixTranslationFromVector(targetPos);
 
-        const_cast<D3D12Hook*>(this)->updateConstantBuffer(worldMatrix * viewMatrix * projMatrix);
+        updateConstantBuffer(worldMatrix * viewMatrix * projMatrix);
 
         // Set primitive topology
         //_pCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -2286,7 +2257,7 @@ namespace IGCS {
             constexpr float value = 0.9f;
 
             // Convert HSV to RGB for path color
-            XMFLOAT4 pathColor = convertHSVtoRGB(hue, saturation, value, 0.9f);
+            XMFLOAT4 pathColor = convertHSVtoRGB(hue, saturation, value, 1.0f);
 
             // Create path info record
             PathInfo pathInfo;
@@ -3234,7 +3205,8 @@ namespace IGCS {
 
     void D3D12Hook::cycleDepthBuffer() {
         // Lock the mutex for safe access to tracked descriptors
-        std::lock_guard<std::mutex> lock(_depthBufferMutex);
+        
+        lock_guard lock(_depthBufferMutex);
 
         if (_trackedDepthDescriptors.empty()) {
             MessageHandler::logDebug("D3D12Hook::cycleDepthBuffer: No tracked depth descriptors yet!");
@@ -3280,9 +3252,32 @@ namespace IGCS {
     }
 
     void D3D12Hook::toggleDepthBufferUsage() {
+        // Lock the mutex to ensure this state change is atomic
+        std::lock_guard<std::mutex> lock(_depthBufferMutex);
+
         _useDetectedDepthBuffer = !_useDetectedDepthBuffer;
         MessageHandler::logDebug("D3D12Hook::toggleDepthBufferUsage: Depth buffer usage is now %s",
             _useDetectedDepthBuffer ? "ON" : "OFF");
+
+        if (_useDetectedDepthBuffer) {
+            _currentDepthDescriptorIndex = -1; // Reset index upon enabling
+
+            if (!_trackedDepthDescriptors.empty()) {
+                // Find the best-matching depth buffer (usually the one with the same resolution as the window)
+                for (size_t i = 0; i < _trackedDepthDescriptors.size(); ++i) {
+                    DepthResourceInfo info = getDepthResourceInfo(_trackedDepthDescriptors[i]);
+                    if (info.resource && info.desc.Width == _windowWidth && info.desc.Height == _windowHeight) {
+                        _currentDepthDescriptorIndex = static_cast<int>(i);
+                        MessageHandler::logDebug("Automatically selected matching depth buffer #%d", _currentDepthDescriptorIndex + 1);
+                        break;
+                    }
+                }
+                // If no perfect match, select the first one to be safe.
+                if (_currentDepthDescriptorIndex == -1) {
+                    _currentDepthDescriptorIndex = 0;
+                }
+            }
+        }
     }
 
     bool D3D12Hook::isUsingDepthBuffer() const {
@@ -3290,12 +3285,14 @@ namespace IGCS {
     }
 
     void D3D12Hook::cleanupDepthBuffers() {
-        std::lock_guard<std::mutex> lock(_depthBufferMutex);
+        lock_guard lock(_depthBufferMutex);
 
         // Release all depth buffer resources
         _trackedDepthDescriptors.clear();
         _currentDepthDescriptorIndex = -1;
         _useDetectedDepthBuffer = false;
+		_depthResourceMap.clear();
+		MessageHandler::logDebug("D3D12Hook::cleanupDepthBuffers: Cleared all tracked depth buffers");
     }
 
     //==================================================================================================
@@ -3303,7 +3300,7 @@ namespace IGCS {
 	//==================================================================================================
 
     void D3D12Hook::resetState() {
-        std::lock_guard<std::mutex> lock(_resourceMutex);
+        std::lock_guard lock(_resourceMutex);
 
         MessageHandler::logDebug("D3D12Hook::resetState: Beginning state reset");
 
@@ -3364,11 +3361,8 @@ namespace IGCS {
             context.rtvHandle = {};
         }
         _frameContexts.clear();
-
-        // Just null out _pRenderTargets - DON'T Release since they're the same pointers
-        for (auto& _pRenderTarget : _pRenderTargets) {
-            _pRenderTarget = nullptr;  // Just null, no Release()
-        }
+        _frameContexts.empty() ? MessageHandler::logDebug("Frame contexts cleared") 
+			: MessageHandler::logError("Frame contexts not fully cleared!");
 
         // ==== STEP 7: Release descriptor heaps ====
         if (_pRTVHeap) {
@@ -3437,7 +3431,7 @@ namespace IGCS {
     void D3D12Hook::cleanUp() {
         MessageHandler::logDebug("D3D12Hook::cleanUp: Starting cleanup");
 
-        std::lock_guard<std::mutex> lock(_resourceMutex);
+        std::lock_guard lock(_resourceMutex);
 
         cleanupFrameContexts();
 
@@ -3460,17 +3454,8 @@ namespace IGCS {
         // Wait for GPU to finish if we have a fence
         synchroniseGPU();
 
-        //// Clean up render targets
-        //for (int i = 0; i < _frameBufferCount; i++) {
-        //    if (_pRenderTargets[i]) {
-        //        _pRenderTargets[i]->Release();
-        //        _pRenderTargets[i] = nullptr;
-        //    }
-        //}
-
         // Instead, just null them out
         for (UINT i = 0; i < _frameBufferCount; i++) {
-            _pRenderTargets[i] = nullptr;
         }
 
         // Clean up descriptor heaps
@@ -3605,7 +3590,7 @@ namespace IGCS {
 
         auto& resources = _frameTempResources[frameIndex];
 
-        // The wait is now handled in renderWithResourceBarriers, so we just release.
+        // The wait is now handled in drawVisualisation, so we just release.
         // No need to call synchroniseGPU() or waitForFenceValue() here anymore.
         for (auto* buffer : resources.constantBuffers) {
             if (buffer) {

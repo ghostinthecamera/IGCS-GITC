@@ -131,9 +131,9 @@ namespace IGCS {
         // Look-at Target Visualization
         //==============================================================================================
         void createLookAtTargetSphere(float radius = 0.5f,
-            const DirectX::XMFLOAT4& color = DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 0.8f));
-        void renderFreeCameraLookAtTarget(const DirectX::XMMATRIX& viewMatrix, const DirectX::XMMATRIX& projMatrix);
-        void renderPathLookAtTarget(const DirectX::XMMATRIX& viewMatrix, const DirectX::XMMATRIX& projMatrix);
+            const XMFLOAT4& color = XMFLOAT4(0.0f, 1.0f, 0.0f, 0.8f));
+        void renderFreeCameraLookAtTarget(const XMMATRIX& viewMatrix, const XMMATRIX& projMatrix);
+        void renderPathLookAtTarget(const XMMATRIX& viewMatrix, const XMMATRIX& projMatrix);
 
         //==============================================================================================
         // Hooked Function Implementations (Static)
@@ -179,25 +179,25 @@ namespace IGCS {
 
         struct PathInfo {
             std::string name;
-            DirectX::XMFLOAT4 color;
+            XMFLOAT4 color;
             UINT interpStartIndex;
             UINT interpVertexCount;
             UINT nodeStartIndex{};
             UINT nodeCount{};
             UINT directionStartIndex{};
             UINT directionVertexCount{};
-            std::vector<std::pair<DirectX::XMFLOAT3, DirectX::XMFLOAT3>> pathDirections{};
+            std::vector<std::pair<XMFLOAT3, XMFLOAT3>> pathDirections{};
         };
 
         struct TubeInfo {
             UINT startIndex;
             UINT indexCount;
-            DirectX::XMFLOAT4 color;
+            XMFLOAT4 color;
         };
 
         struct InterpSample {
-            DirectX::XMVECTOR rotation;
-            DirectX::XMFLOAT3 position;
+            XMVECTOR rotation;
+            XMFLOAT3 position;
             float fov;
         };
 
@@ -253,20 +253,20 @@ namespace IGCS {
         //==============================================================================================
         // Rendering Pipeline
         //==============================================================================================
-        void renderWithResourceBarriers(IDXGISwapChain3* pSwapChain);
-        void renderPaths(const DirectX::XMMATRIX& viewMatrix, const DirectX::XMMATRIX& projMatrix);
+        void drawVisualisation(IDXGISwapChain3* pSwapChain);
+        void renderPaths(const XMMATRIX& viewMatrix, const XMMATRIX& projMatrix);
         void setupCameraMatrices();
         D3D12_VIEWPORT getFullViewport();
         ID3D12PipelineState* selectPipelineState(bool wireframe, bool useDepth) const;
-        void updateConstantBuffer(const DirectX::XMMATRIX& worldViewProj);
-        void updateConstantBuffer(const DirectX::XMMATRIX& viewMatrix, const DirectX::XMMATRIX& projMatrix);
+        void updateConstantBuffer(const XMMATRIX& worldViewProj);
+        void updateConstantBuffer(const XMMATRIX& viewMatrix, const XMMATRIX& projMatrix);
 
         //==============================================================================================
         // Path Rendering
         //==============================================================================================
-        void renderPathTubes(const DirectX::XMMATRIX& viewMatrix, const DirectX::XMMATRIX& projMatrix);
-        void renderDirectionArrows(const DirectX::XMMATRIX& viewMatrix, const DirectX::XMMATRIX& projMatrix);
-        void renderNodeSpheres(const DirectX::XMMATRIX& viewMatrix, const DirectX::XMMATRIX& projMatrix);
+        void renderPathTubes(const XMMATRIX& viewMatrix, const XMMATRIX& projMatrix);
+        void renderDirectionArrows(const XMMATRIX& viewMatrix, const XMMATRIX& projMatrix);
+        void renderNodeSpheres(const XMMATRIX& viewMatrix, const XMMATRIX& projMatrix);
         void renderArrow(const XMFLOAT3& position,
             const XMVECTOR& direction,
             const float length,
@@ -283,13 +283,13 @@ namespace IGCS {
             std::vector<D3D12SimpleVertex>& tubeMeshVertices,
             std::vector<UINT>& tubeMeshIndices,
             std::vector<TubeInfo>& pathTubeInfos,
-            const DirectX::XMFLOAT4& nodeColor,
-            const DirectX::XMFLOAT4& directionColor);
+            const XMFLOAT4& nodeColor,
+            const XMFLOAT4& directionColor);
 
         void processPathNodes(const CameraPath& path, size_t nodeCount,
             std::vector<D3D12SimpleVertex>& directionIndicatorVertices,
-            const DirectX::XMFLOAT4& nodeColor,
-            const DirectX::XMFLOAT4& directionColor);
+            const XMFLOAT4& nodeColor,
+            const XMFLOAT4& directionColor);
 
         std::vector<InterpSample> generateInterpolatedSamples(const CameraPath& path, size_t nodeCount);
 
@@ -301,10 +301,10 @@ namespace IGCS {
             const std::vector<D3D12SimpleVertex>& interpolatedDirectionVertices,
             size_t startIndex, size_t count);
 
-        void createPathTubes(const std::vector<DirectX::XMFLOAT3>& points,
+        void createPathTubes(const std::vector<XMFLOAT3>& points,
             std::vector<D3D12SimpleVertex>& tubeMeshVertices,
             std::vector<UINT>& tubeMeshIndices,
-            const DirectX::XMFLOAT4& color) const;
+            const XMFLOAT4& color) const;
 
         void createPathBuffers(const std::vector<D3D12SimpleVertex>& directionIndicatorVertices,
             const std::vector<D3D12SimpleVertex>& interpolatedDirectionVertices,
@@ -315,12 +315,12 @@ namespace IGCS {
         //==============================================================================================
         // Geometry Creation
         //==============================================================================================
-        void createNodeSphere(float radius, const DirectX::XMFLOAT4& color);
-        void createSolidColorSphere(float radius, const DirectX::XMFLOAT4& color);
+        void createNodeSphere(float radius, const XMFLOAT4& color);
+        void createSolidColorSphere(float radius, const XMFLOAT4& color);
         void createArrowGeometry();
         void createArrowHead();
         void createArrowShaft();
-        static std::vector<TubeInfo> generateTubeMesh(const std::vector<DirectX::XMFLOAT3>& pathPoints,
+        static std::vector<TubeInfo> generateTubeMesh(const std::vector<XMFLOAT3>& pathPoints,
             float radius, int segments,
             std::vector<D3D12SimpleVertex>& outVertices,
             std::vector<UINT>& outIndices);
@@ -352,7 +352,7 @@ namespace IGCS {
         //==============================================================================================
         // Utility Functions
         //==============================================================================================
-        static DirectX::XMFLOAT4 convertHSVtoRGB(float hue, float saturation, float value, float alpha);
+        static XMFLOAT4 convertHSVtoRGB(float hue, float saturation, float value, float alpha);
         static const char* formatToString(DXGI_FORMAT format);
         void clearDepthStencilLogging(ID3D12GraphicsCommandList* pCommandList,
             D3D12_CPU_DESCRIPTOR_HANDLE DepthStencilView,
@@ -400,6 +400,14 @@ namespace IGCS {
         std::atomic<bool> _resourcesNeedUpdate{ false };
         std::atomic<bool> _isChangingMode{ false };
 
+        enum class DeviceCaptureState {
+            Pending,          // Default state (0)
+            SuccessFromPresent, // Found in Present (1)
+            FailedInPresent,  // Failed in Present, try fallback (2)
+            SuccessFromFallback // Found in ExecuteCommandLists (3)
+        };
+        DeviceCaptureState _devicefound{DeviceCaptureState::Pending};
+
         //==============================================================================================
         // D3D12 Core Resources
         //==============================================================================================
@@ -408,16 +416,19 @@ namespace IGCS {
         ID3D12CommandQueue* _pCommandQueue{ nullptr };
         ID3D12CommandAllocator* _pCommandAllocator{ nullptr };
         ID3D12GraphicsCommandList* _pCommandList{ nullptr };
+        std::unordered_set<ID3D12GraphicsCommandList*> _pHookedCommandLists;
+        std::mutex _pCommandListHookMutex;
 
         //==============================================================================================
         // Render Target Resources
         //==============================================================================================
         ID3D12DescriptorHeap* _pRTVHeap{ nullptr };
-        ID3D12Resource* _pRenderTargets[DXGI_MAX_SWAP_CHAIN_BUFFERS]{ nullptr };
         std::vector<FrameContext> _frameContexts;
         UINT _frameBufferCount{ 0 };
         UINT _currentBackBuffer{ 0 };
         UINT _rtvDescriptorSize{ 0 };
+        std::vector<PerFrameConstantBuffer> _perFrameConstantBuffers;
+        std::vector<FrameTempResources> _frameTempResources;
 
         //==============================================================================================
         // Pipeline State Resources
@@ -442,8 +453,6 @@ namespace IGCS {
         ID3D12Resource* _pConstantBuffer{ nullptr };
         ID3D12DescriptorHeap* _pCBVHeap{ nullptr };
         UINT8* _pCbvDataBegin{ nullptr };
-        std::vector<PerFrameConstantBuffer> _perFrameConstantBuffers;
-        std::vector<FrameTempResources> _frameTempResources;
         UINT _currentFrameIndex{ 0 };
         UINT _cbvDescriptorSize{ 0 };
         UINT _currentCBVIndex{ 0 };
@@ -509,7 +518,7 @@ namespace IGCS {
         // Path Data
         //==============================================================================================
         std::vector<PathInfo> _pathInfos;
-        std::vector<DirectX::XMFLOAT3> _nodePositions;
+        std::vector<XMFLOAT3> _nodePositions;
 
         //==============================================================================================
         // Depth Buffer Management
@@ -523,8 +532,8 @@ namespace IGCS {
         //==============================================================================================
         // Rendering State
         //==============================================================================================
-        DirectX::XMMATRIX _viewMatrix;
-        DirectX::XMMATRIX _projMatrix;
+        XMMATRIX _viewMatrix;
+        XMMATRIX _projMatrix;
         D3D12_VIEWPORT _viewPort;
         mutable UINT _windowWidth{ 0 };
         mutable UINT _windowHeight{ 0 };

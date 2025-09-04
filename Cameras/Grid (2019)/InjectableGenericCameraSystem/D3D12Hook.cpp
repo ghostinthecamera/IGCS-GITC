@@ -649,7 +649,7 @@ namespace IGCS {
         // One-time initialization to capture the primary device from the swap chain.
         if (hook._devicefound == DeviceCaptureState::Pending && pSwapChain)
         {
-            // ACQUIRE THE LOCK FIRST to prevent race conditions.
+            // Acquire the lock to prevent race conditions.
             std::lock_guard lock(hook._resourceMutex);
 
             // Double-check the condition AFTER acquiring the lock.

@@ -53,11 +53,12 @@ namespace IGCS
 	inline constexpr auto DEFAULT_ROTATION_SMOOTHNESS = 5.0f;
 	inline constexpr auto DEFAULT_LOOKAT = false;
 	//System default defines
-	inline constexpr auto MATRIX_SIZE = 12;
-	inline constexpr auto COORD_SIZE = 3;
 	inline constexpr auto DEFAULT_IGCS_TYPE = 6;
-	inline constexpr auto BYTE_PAUSE = 0x00;
-	inline constexpr auto BYTE_RESUME = 0x01;
+
+	// Modify these constants (?1.f or 1.f) to match your engine’s forward/right/up directions. 1.f == current behaviour.
+	inline constexpr float kForwardSign = -1.0f; // set to ?1.f if engine uses negative forward
+	inline constexpr float kRightSign = 1.0f; // set to ?1.f if engine uses negative right
+	inline constexpr float kUpSign = 1.0f; // set to ?1.f if engine uses negative up
 	inline constexpr auto NEGATE_PITCH = false; //true
 	inline constexpr auto NEGATE_YAW = true; //true
 	inline constexpr auto NEGATE_ROLL = true;
@@ -72,11 +73,6 @@ namespace IGCS
 	inline constexpr auto PATH_MANAGER_MAXPATHS = 5;
 	inline constexpr auto PATH_MAX_NODES = 8;
 	inline constexpr float ASPECT_RATIO = 1.7777777777777777777777777777778f; // Used to calculate vertical FOV from horizontal FOV
-
-	// Modify these constants (?1.f or 1.f) to match your engine’s forward/right/up directions. 1.f == current behaviour.
-	inline constexpr float kForwardSign = -1.0f; // set to ?1.f if engine uses negative forward
-	inline constexpr float kRightSign = 1.0f; // set to ?1.f if engine uses negative right
-	inline constexpr float kUpSign = 1.0f; // set to ?1.f if engine uses negative up
 
 	// D3DLogging Constant
 	inline constexpr auto D3DLOGGING = true;

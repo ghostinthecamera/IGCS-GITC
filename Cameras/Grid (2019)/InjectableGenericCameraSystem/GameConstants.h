@@ -71,7 +71,7 @@ namespace IGCS
 	// Other Compile time constants
 	inline constexpr auto PATH_MANAGER_MAXPATHS = 5;
 	inline constexpr auto PATH_MAX_NODES = 8;
-	inline constexpr float FOV_ASPECT_RATIO = 1.7777777777777777777777777777778f; // Used to calculate vertical FOV from horizontal FOV
+	inline constexpr float ASPECT_RATIO = 1.7777777777777777777777777777778f; // Used to calculate vertical FOV from horizontal FOV
 
 	// Modify these constants (?1.f or 1.f) to match your engine’s forward/right/up directions. 1.f == current behaviour.
 	inline constexpr float kForwardSign = -1.0f; // set to ?1.f if engine uses negative forward

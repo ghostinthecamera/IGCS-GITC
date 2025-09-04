@@ -55,6 +55,7 @@ namespace IGCS {
         void cycleDepthBuffer();
         [[nodiscard]] bool isUsingDepthBuffer() const;
         void toggleDepthBufferUsage();
+        float getAspectRatio() const;
 
         // ==== Path visualization ====
         void safeInterpolationModeChange();

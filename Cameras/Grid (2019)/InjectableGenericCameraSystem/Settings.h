@@ -188,9 +188,7 @@ namespace IGCS
 				if (!PathManager::instance()._pathManagerState)
 					return;
 
-				//D3DHook::instance().safeInterpolationModeChange();
-				D3D12Hook::instance().safeInterpolationModeChange();
-				//D3D11on12Hook::instance().safeInterpolationModeChange();
+				PathManager::D3DHookChecks();
 				break;
 			case SettingType::PathEasingType:
 				easingtype = Utils::uintFromBytes(payload, payloadLength, 2);
@@ -210,9 +208,7 @@ namespace IGCS
 				if (!PathManager::instance()._pathManagerState)
 					return;
 				
-				//D3DHook::instance().safeInterpolationModeChange();
-				D3D12Hook::instance().safeInterpolationModeChange();
-				//D3D11on12Hook::instance().safeInterpolationModeChange();
+				PathManager::D3DHookChecks();
 				break;
 			case SettingType::DeltaType:
 				deltaType = payload[2] == static_cast<uint8_t>(1);

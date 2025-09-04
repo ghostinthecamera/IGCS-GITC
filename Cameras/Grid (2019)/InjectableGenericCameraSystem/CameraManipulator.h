@@ -54,6 +54,7 @@ namespace IGCS::GameSpecific::CameraManipulator
 	void changeFoV(float fovtowrite);//interpolation
 	float getCurrentFoV();
 	float getCurrentVFoV();
+	float getCurrentVFoV(float hfov);
 	bool isCameraFound();
 	void displayAddresses();
 	void applySettingsToGameState();

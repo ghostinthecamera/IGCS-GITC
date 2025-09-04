@@ -194,7 +194,7 @@ namespace IGCS
 		}
 
 		if (D3DMODE == D3DMODE::DX12 && !Globals::instance().settings().d3ddisabled && D3D12Hook::instance().isVisualisationEnabled()) {
-			//DX12 mode code here
+			D3D12Hook::instance().markResourcesForUpdate();
 		}
 	}
 

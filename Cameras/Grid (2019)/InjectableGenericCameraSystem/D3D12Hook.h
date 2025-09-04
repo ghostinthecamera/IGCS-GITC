@@ -103,6 +103,7 @@ namespace IGCS {
         void queueInitialisation();
         void performQueuedInitialisation();
         void markResourcesForUpdate();
+        float getAspectRatio() const;
 
         //==============================================================================================
         // Visualization Control
@@ -253,11 +254,12 @@ namespace IGCS {
         //==============================================================================================
         // Rendering Pipeline
         //==============================================================================================
-        void drawVisualisation(IDXGISwapChain3* pSwapChain);
+        void draw(IDXGISwapChain3* pSwapChain);
+        void prepareCommandListForRendering(const FrameContext& frameContext);
         void renderPaths(const XMMATRIX& viewMatrix, const XMMATRIX& projMatrix);
         void setupCameraMatrices();
         D3D12_VIEWPORT getFullViewport();
-        ID3D12PipelineState* selectPipelineState(bool wireframe, bool useDepth) const;
+        ID3D12PipelineState* selectPipelineState(bool useDepth) const;
         void updateConstantBuffer(const XMMATRIX& worldViewProj);
         void updateConstantBuffer(const XMMATRIX& viewMatrix, const XMMATRIX& projMatrix);
 
@@ -376,7 +378,6 @@ namespace IGCS {
         static void** s_factory_vtable;
         static void** s_command_queue_vtable;
         static void** s_command_list_vtable;
-        static UINT s_command_queue_offset;
 
         //==============================================================================================
         // State Flags
@@ -394,10 +395,12 @@ namespace IGCS {
         bool _inOurRendering{ false };
         bool _isRenderingPaths{ false };
         bool _pathResourcesCreated{ false };
+        bool _depthPSOCreationFailed {false};
 
         std::atomic<bool> _needsInitialisation{ false };
         std::atomic<bool> _resourcesNeedUpdate{ false };
         std::atomic<bool> _isChangingMode{ false };
+        
 
         enum class DeviceCaptureState {
             Pending,          // Default state (0)
@@ -433,11 +436,8 @@ namespace IGCS {
         //==============================================================================================
         ID3D12RootSignature* _pRootSignature{ nullptr };
         ID3D12PipelineState* _pPipelineState{ nullptr };
-        ID3D12PipelineState* _pWireframePipelineState{ nullptr };
         ID3D12PipelineState* _pPipelineStateWithDepth{ nullptr };
         ID3D12PipelineState* _pPipelineStateWithReversedDepth{ nullptr };
-        ID3D12PipelineState* _pWireframePipelineStateWithDepth{ nullptr };
-        ID3D12PipelineState* _pWireframePipelineStateWithReversedDepth{ nullptr };
 
         //==============================================================================================
         // Shader Resources
@@ -531,8 +531,6 @@ namespace IGCS {
         XMMATRIX _viewMatrix;
         XMMATRIX _projMatrix;
         D3D12_VIEWPORT _viewPort;
-        mutable UINT _windowWidth{ 0 };
-        mutable UINT _windowHeight{ 0 };
 
         //==============================================================================================
         // Configuration Constants

@@ -36,7 +36,6 @@ namespace IGCS {
     void** D3D12Hook::s_command_list_vtable = nullptr;
     void** D3D12Hook::s_swapchain_vtable = nullptr;
     void** D3D12Hook::s_factory_vtable = nullptr;
-    UINT D3D12Hook::s_command_queue_offset = 0x0;
 
     // Thread-local to prevent recursion
     thread_local bool g_inside_d3d12_hook = false;
@@ -161,31 +160,6 @@ namespace IGCS {
             command_queue->Release();
             device->Release();
             return false;
-        }
-
-        MessageHandler::logDebug("D3D12Hook::initialise: Finding command queue offset");
-        s_command_queue_offset = 0;
-
-        for (auto i = 0; i < 512 * sizeof(void*); i += sizeof(void*)) {
-            const auto base = (uintptr_t)swap_chain + i;
-
-            // Check if we can read this memory
-            if (IsBadReadPtr((void*)base, sizeof(void*))) {
-                break;
-            }
-
-            auto data = *(ID3D12CommandQueue**)base;
-
-            if (data == command_queue) {
-                s_command_queue_offset = i;
-                MessageHandler::logDebug("D3D12Hook::initialise: Found command queue offset: 0x%X", i);
-                break;
-            }
-        }
-
-        if (s_command_queue_offset == 0) {
-            MessageHandler::logError("D3D12Hook::initialise: Failed to find command queue offset - will try to capture from ExecuteCommandLists");
-            // Continue anyway - we'll try to capture it from ExecuteCommandLists
         }
 
         // Store vtable pointers
@@ -675,8 +649,8 @@ namespace IGCS {
         // One-time initialization to capture the primary device from the swap chain.
         if (hook._devicefound == DeviceCaptureState::Pending && pSwapChain)
         {
-            //// ACQUIRE THE LOCK FIRST to prevent race conditions.
-            //std::lock_guard lock(hook._resourceMutex);
+            // ACQUIRE THE LOCK FIRST to prevent race conditions.
+            std::lock_guard lock(hook._resourceMutex);
 
             // Double-check the condition AFTER acquiring the lock.
             if (hook._devicefound == DeviceCaptureState::Pending && pSwapChain)
@@ -689,7 +663,7 @@ namespace IGCS {
                     hook.initialiseFrameContexts(pSwapChain);
                     hook.hookDeviceMethods(); // Hook device methods now that we have the device.
                     hook.queueInitialisation();
-
+                    hook._viewPort = hook.getFullViewport();
                     // Signal that the device is ready.
 					hook._devicefound = DeviceCaptureState::SuccessFromPresent; // indicates device found successfully
                 }
@@ -709,43 +683,19 @@ namespace IGCS {
 
         // Initialize D3D12 resources if needed
         if (hook._needsInitialisation) {
-            //std::lock_guard<std::mutex> lock(hook._resourceMutex);
+            std::lock_guard lock(hook._resourceMutex);
             if (hook._needsInitialisation) {  // Double-check after acquiring lock
                 hook.performQueuedInitialisation();
             }
         }
 
-        //// Create render target view if needed
-        //if (!hook._renderTargetInitialized && hook._pDevice && hook._pSwapChain) {
-        //    std::lock_guard<std::mutex> lock(hook._resourceMutex);
-        //    if (!hook._renderTargetInitialized) {  // Double-check
-        //        hook.createRenderTargetView();
-        //        hook._renderTargetInitialized = true;
-        //    }
-        //}
-
-        // Redundant check to ensure device methods are hooked (backup if ExecuteCommandLists wasn't called)
-        if (hook._pDevice) {
-            static bool presentHookAttempted = false;
-            if (!presentHookAttempted && !hook._deviceMethodsHooked) {
-                MessageHandler::logDebug("Attempting to hook device methods from Present");
-                hook.hookDeviceMethods();
-                presentHookAttempted = true;
-            }
-        }
-
         // Render visualizations if enabled and resources are ready
-        if ((hook._visualisationEnabled || Camera::instance().getCameraLookAtVisualizationEnabled())
-            && hook.isFullyInitialised()
-            && hook._pCommandQueue) {
-            try {
-				hook._viewPort = hook.getFullViewport();
-				hook.setupCameraMatrices();
-                hook.drawVisualisation(pSwapChain);
-            }
-            catch (const std::exception& e) {
-                MessageHandler::logError("Exception during rendering: %s", e.what());
-            }
+        try {
+        	hook.draw(pSwapChain);
+
+        }
+        catch (const std::exception& e) {
+            MessageHandler::logError("Exception during rendering: %s", e.what());
         }
 
         if (Globals::instance().systemActive() && RUN_IN_HOOKED_PRESENT)
@@ -854,9 +804,8 @@ namespace IGCS {
         }
 
         // Call the original function
-        if (_originalExecuteCommandLists) {
+        if (_originalExecuteCommandLists)
             _originalExecuteCommandLists(pCommandQueue, NumCommandLists, ppCommandLists);
-        }
     }
 
     HRESULT WINAPI D3D12Hook::hookedResizeBuffers(IDXGISwapChain3* pSwapChain, const UINT BufferCount,
@@ -865,21 +814,13 @@ namespace IGCS {
 
         auto& hook = instance();
 
-        MessageHandler::logDebug("D3D12Hook::hookedResizeBuffers: Resizing to %ux%u, BufferCount: %u",
-            Width, Height, BufferCount);
+        MessageHandler::logDebug("D3D12Hook::hookedResizeBuffers: Resizing to %ux%u, BufferCount: %u", Width, Height, BufferCount);
 
         // Reset all D3D12 state and wait for GPU
         hook.resetState();
 
-		MemoryPatcher::togglePatch("ShadowRes", false); //if this patch is active, it will break shadow rendering on resize
-
-        // Update dimensions before calling original
-        hook._windowWidth = Width;
-        hook._windowHeight = Height;
-
-        MessageHandler::logDebug("D3D12Hook::hookedResizeBuffers: Calling original ResizeBuffers");
-
         // Call original ResizeBuffers
+        MessageHandler::logDebug("D3D12Hook::hookedResizeBuffers: Calling original ResizeBuffers");
         const HRESULT result = _originalResizeBuffers ?
             _originalResizeBuffers(pSwapChain, BufferCount, Width, Height, NewFormat, SwapChainFlags) : E_FAIL;
 
@@ -888,22 +829,15 @@ namespace IGCS {
             return result;  // Don't try to recreate resources when resize fails!
         }
 
-        MessageHandler::logDebug("D3D12Hook::hookedResizeBuffers: Original succeeded, recreating resources");
-
-        // Store the swap chain if we don't have it
-        if (!hook._pSwapChain) {
-            hook._pSwapChain = pSwapChain;
-        }
-
-        // Recreate frame contexts with the new swap chain
-        // This will handle EVERYTHING including GetBuffer and RTV creation
-       // hook.initialiseFrameContexts(pSwapChain);
-
         // Mark that resources need to be recreated on next render
+        MessageHandler::logDebug("D3D12Hook::hookedResizeBuffers: Original succeeded - resetting variables for initialisation");
         hook._resourcesNeedUpdate.store(true, std::memory_order_release);
         hook._needsInitialisation.store(true, std::memory_order_release);
 
+        hook._viewPort = hook.getFullViewport();
+        MessageHandler::logDebug("D3D12Hook::hookedResizeBuffers: Viewport updated to %.0f x %.0f", hook._viewPort.Width, hook._viewPort.Height);
         MessageHandler::logDebug("D3D12Hook::hookedResizeBuffers: Resize complete");
+
         return result;
     }
 
@@ -948,24 +882,9 @@ namespace IGCS {
         const UINT NumRenderTargetDescriptors, const D3D12_CPU_DESCRIPTOR_HANDLE* pRenderTargetDescriptors,
         const BOOL RTsSingleHandleToDescriptorRange, const D3D12_CPU_DESCRIPTOR_HANDLE* pDepthStencilDescriptor) {
 
-        auto& hook = instance();
-
-        static bool hasLogged = false;
-        if (!hasLogged) {
-            MessageHandler::logDebug("OMSetRenderTargets successfully hooked and called by %p", pCommandList);
-            hasLogged = true;
-        }
-
-        //// Track depth descriptors only for game command lists
-        //if (pDepthStencilDescriptor && pDepthStencilDescriptor->ptr != 0) {
-        //    hook.trackDepthDescriptor(*pDepthStencilDescriptor);
-        //}
-
         // Call original
-        if (_originalOMSetRenderTargets) {
-            _originalOMSetRenderTargets(pCommandList, NumRenderTargetDescriptors, pRenderTargetDescriptors,
-                RTsSingleHandleToDescriptorRange, pDepthStencilDescriptor);
-        }
+        if (_originalOMSetRenderTargets) 
+            _originalOMSetRenderTargets(pCommandList, NumRenderTargetDescriptors, pRenderTargetDescriptors, RTsSingleHandleToDescriptorRange, pDepthStencilDescriptor);
     }
 
     void WINAPI D3D12Hook::hookedClearDepthStencilView(
@@ -997,6 +916,7 @@ namespace IGCS {
         // --- End of new code ---
 
         // Call the original function
+		if (_originalClearDepthStencilView)
         _originalClearDepthStencilView(pCommandList, DepthStencilView, ClearFlags, Depth, Stencil, NumRects, pRects);
     }
 
@@ -1208,14 +1128,6 @@ namespace IGCS {
             return false;
         }
 
-        // Create wireframe pipeline state for paths
-        psoDesc.RasterizerState.FillMode = D3D12_FILL_MODE_WIREFRAME;
-        hr = _pDevice->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&_pWireframePipelineState));
-        if (FAILED(hr)) {
-            MessageHandler::logError("D3D12Hook::createShadersAndPipelineState: Failed to create wireframe pipeline state");
-            return false;
-        }
-
         // ========== CREATE DEPTH-ENABLED PSOs ==========
 
         // Reset to solid fill for depth-enabled PSOs
@@ -1226,14 +1138,14 @@ namespace IGCS {
         psoDesc.DepthStencilState.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL; // write
         psoDesc.DepthStencilState.StencilEnable = FALSE;
 
-        // Set depth format - you can change this based on what ReShade reports
-        // Common formats: DXGI_FORMAT_D32_FLOAT, DXGI_FORMAT_D24_UNORM_S8_UINT, DXGI_FORMAT_D16_UNORM
-        psoDesc.DSVFormat = DXGI_FORMAT_D32_FLOAT_S8X24_UINT; // Grid 2019 uses D32_FLOAT
+        // Set depth format
+        psoDesc.DSVFormat = DXGI_FORMAT_D32_FLOAT;
 
         // Create PSO with normal depth testing (LESS_EQUAL)
         psoDesc.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
         hr = _pDevice->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&_pPipelineStateWithDepth));
         if (FAILED(hr)) {
+            _depthPSOCreationFailed = true;
             MessageHandler::logError("D3D12Hook::createShadersAndPipelineState: Failed to create PSO with depth (LESS_EQUAL)");
             // This is not fatal - we can still render without depth
         }
@@ -1242,25 +1154,9 @@ namespace IGCS {
         psoDesc.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_GREATER_EQUAL;
         hr = _pDevice->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&_pPipelineStateWithReversedDepth));
         if (FAILED(hr)) {
+            _depthPSOCreationFailed = true;
             MessageHandler::logError("D3D12Hook::createShadersAndPipelineState: Failed to create PSO with reversed depth (GREATER_EQUAL)");
             // This is not fatal - we can still render without depth
-        }
-
-        // Create wireframe PSOs with depth (for path rendering with occlusion)
-        psoDesc.RasterizerState.FillMode = D3D12_FILL_MODE_WIREFRAME;
-
-        // Wireframe with normal depth
-        psoDesc.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
-        hr = _pDevice->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&_pWireframePipelineStateWithDepth));
-        if (FAILED(hr)) {
-            MessageHandler::logError("D3D12Hook::createShadersAndPipelineState: Failed to create wireframe PSO with depth");
-        }
-
-        // Wireframe with reversed depth
-        psoDesc.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_GREATER_EQUAL;
-        hr = _pDevice->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&_pWireframePipelineStateWithReversedDepth));
-        if (FAILED(hr)) {
-            MessageHandler::logError("D3D12Hook::createShadersAndPipelineState: Failed to create wireframe PSO with reversed depth");
         }
 
         // Optional: Create PSOs for other depth formats if needed
@@ -1298,37 +1194,42 @@ namespace IGCS {
         return shaderBlob;
     }
 
-    ID3D12PipelineState* D3D12Hook::selectPipelineState(const bool wireframe, const bool useDepth) const
+    ID3D12PipelineState* D3D12Hook::selectPipelineState(const bool useDepth) const
     {
-        if (!useDepth)
-            // No depth testing
-            return wireframe ? _pWireframePipelineState : _pPipelineState;
-
-        // With depth testing
-        if (_useReversedDepth)
-            return wireframe ? _pWireframePipelineStateWithReversedDepth : _pPipelineStateWithReversedDepth;
-
-        // Normal depth
-        return wireframe ? _pWireframePipelineStateWithDepth : _pPipelineStateWithDepth;
+		return useDepth ? _useReversedDepth ? _pPipelineStateWithReversedDepth : _pPipelineStateWithDepth : _pPipelineState;
     }
 
     //==================================================================================================
 	// Rendering Core
 	//==================================================================================================
-    void D3D12Hook::drawVisualisation(IDXGISwapChain3* pSwapChain) {
-        if (!_pDevice || !_pCommandQueue || !_pCommandList) {
+    void D3D12Hook::draw(IDXGISwapChain3* pSwapChain) {
+        if (_resourcesNeedUpdate.load(std::memory_order_acquire))
+        {
+            // We are on the render thread, so it's safe to perform this work now.
+            safeInterpolationModeChange();
+            // The flag is reset inside createPathVisualisation/safeInterpolationModeChange now
+        }
+
+    	if (!isFullyInitialised() || !_pCommandQueue || !_pDevice ||
+            (!_visualisationEnabled && !Camera::instance().getCameraLookAtVisualizationEnabled()))
+        {
+            return; // Not ready or not enabled, so do nothing.
+        }
+
+        try {
+            setupCameraMatrices();
+        }
+        catch (const std::exception& e) {
+            MessageHandler::logError("Exception during camera matrix setup: %s", e.what());
             return;
         }
 
-        // Automatically set/clear the flag
-        RenderingScope scope(*this);
-
         if (_frameContexts.empty()) {
-            MessageHandler::logDebug("drawVisualisation: Frame contexts not initialized - running initialisation now");
+            MessageHandler::logDebug("D3D12Hook::draw: Frame contexts not initialized - running initialisation now");
             // Try to initialise them now
             initialiseFrameContexts(pSwapChain);
             if (_frameContexts.empty()) {
-                MessageHandler::logError("drawVisualisation: Failed to initialise frame contexts");
+                MessageHandler::logError("D3D12Hook::draw: Failed to initialise frame contexts");
                 return;
             }
         }
@@ -1341,14 +1242,12 @@ namespace IGCS {
         // Set current frame index for constant buffer management
         _currentFrameIndex = frameIndex;
 
-        // --- NEW SYNCHRONIZATION LOGIC ---
         // Wait for the fence from the PREVIOUS frame's submission to complete.
         // This ensures the GPU is no longer using any resources from that frame,
         // including the command allocator we are about to reset.
         if (_frameContexts[frameIndex].fenceValue != 0) {
             waitForFenceValue(_frameContexts[frameIndex].fenceValue);
         }
-        // --- END NEW LOGIC ---
 
         const FrameContext& frameContext = _frameContexts[frameIndex];
         if (!frameContext.commandAllocator || !frameContext.renderTarget) {
@@ -1357,7 +1256,7 @@ namespace IGCS {
 
         // DEBUGGING: Log and validate command queue before execution
         if (!_pCommandQueue) {
-            MessageHandler::logError("Command queue is null before ExecuteCommandLists");
+            MessageHandler::logError("D3D12Hook::draw: Command queue is null before ExecuteCommandLists");
             return;
         }
 
@@ -1367,38 +1266,25 @@ namespace IGCS {
 
             // Verify it's a direct command queue
             if (queueDesc.Type != D3D12_COMMAND_LIST_TYPE_DIRECT) {
-                MessageHandler::logError("Command queue is not a DIRECT queue (Type=%d)", queueDesc.Type);
+                MessageHandler::logError("D3D12Hook::draw: Command queue is not a DIRECT queue (Type=%d)", queueDesc.Type);
             }
         }
         catch (...) {
-            MessageHandler::logError("Exception when accessing command queue - likely invalid pointer");
+            MessageHandler::logError("D3D12Hook::draw: Exception when accessing command queue - likely invalid pointer");
             return;
-        }
-
-        // Check if the command queue matches the swapchain's expected queue
-        try {
-	        ID3D12CommandQueue* swapchainQueue = nullptr;
-	        swapchainQueue = *(ID3D12CommandQueue**)((uintptr_t)pSwapChain + s_command_queue_offset);
-            if (_pCommandQueue != swapchainQueue) {
-                //MessageHandler::logError("Command queue mismatch! Using: %p vs SwapChain's: %p",
-                    //_pCommandQueue, swapchainQueue);
-            }
-        }
-        catch (...) {
-            MessageHandler::logError("Exception when checking swapchain queue - offset might be wrong");
         }
 
         // Reset allocator
         HRESULT hr = frameContext.commandAllocator->Reset();
         if (FAILED(hr)) {
-            MessageHandler::logError("Failed to reset command allocator: 0x%X", hr);
+            MessageHandler::logError("D3D12Hook::draw: Failed to reset command allocator: 0x%X", hr);
             return;
         }
 
         // Reset command list
-        hr = _pCommandList->Reset(frameContext.commandAllocator, nullptr/*_pPipelineState*/);
+        hr = _pCommandList->Reset(frameContext.commandAllocator, nullptr);
         if (FAILED(hr)) {
-            MessageHandler::logError("Failed to reset command list: 0x%X", hr);
+            MessageHandler::logError("D3D12Hook::draw: Failed to reset command list: 0x%X", hr);
             return;
         }
 
@@ -1412,54 +1298,15 @@ namespace IGCS {
         barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
         barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
         barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
-
         _pCommandList->ResourceBarrier(1, &barrier);
 
-        // Set render target
-        // Get depth descriptor
-        const D3D12_CPU_DESCRIPTOR_HANDLE depthDescriptor = getCurrentTrackedDepthDescriptor();
-        const bool useDepth = _useDetectedDepthBuffer && (depthDescriptor.ptr != 0);
+        prepareCommandListForRendering(frameContext);
 
-        // Set render targets
-        if (useDepth && _currentDepthDescriptorIndex != -1) {
-
-            _pCommandList->OMSetRenderTargets(1, &frameContext.rtvHandle, FALSE, &depthDescriptor);
-        }
-        else {
-            _pCommandList->OMSetRenderTargets(1, &frameContext.rtvHandle, FALSE, nullptr);
-        }
-
-        _currentFrameUsingDepth = useDepth;
-        //_pCommandList->OMSetRenderTargets(1, &frameContext.rtvHandle, FALSE, nullptr);
-
-        // Set viewport and scissor
-        //const D3D12_VIEWPORT _viewPort = getFullViewport();
-        const D3D12_RECT scissorRect = { 0, 0, static_cast<LONG>(_viewPort.Width), static_cast<LONG>(_viewPort.Height) };
-        _pCommandList->RSSetViewports(1, &_viewPort);
-        _pCommandList->RSSetScissorRects(1, &scissorRect);
-
-        // Set pipeline state and root signature
-        _pCommandList->SetGraphicsRootSignature(_pRootSignature);
-        //_pCommandList->SetPipelineState(_pPipelineState);
-        ID3D12PipelineState* pso = selectPipelineState(false, _currentFrameUsingDepth); // false = solid
-        _pCommandList->SetPipelineState(pso);
-
-        _pCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-        // Set descriptor heaps
-        ID3D12DescriptorHeap* ppHeaps[] = { _pCBVHeap };
-        _pCommandList->SetDescriptorHeaps(ARRAYSIZE(ppHeaps), ppHeaps);
-        _pCommandList->SetGraphicsRootDescriptorTable(0, _pCBVHeap->GetGPUDescriptorHandleForHeapStart());
-
-        // Render path components if visualization is enabled
-        if (_visualisationEnabled && !Camera::instance().getCameraLookAtVisualizationEnabled()) {
-            renderPaths(_viewMatrix, _projMatrix);
-        }
+        // Render path components
+    	renderPaths(_viewMatrix, _projMatrix);
 
         // Render free camera look-at target if enabled
-        if (Camera::instance().getCameraLookAtVisualizationEnabled() && !_visualisationEnabled) {
-            renderFreeCameraLookAtTarget(_viewMatrix, _projMatrix);
-        }
+    	renderFreeCameraLookAtTarget(_viewMatrix, _projMatrix);
 
         // Transition back to PRESENT
         barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
@@ -1469,7 +1316,7 @@ namespace IGCS {
         // Close and execute
         hr = _pCommandList->Close();
         if (FAILED(hr)) {
-            MessageHandler::logError("Failed to close command list: 0x%X", hr);
+            MessageHandler::logError("D3D12Hook::draw: Failed to close command list: 0x%X", hr);
             return;
         }
         ID3D12CommandList* ppCommandLists[] = { _pCommandList };
@@ -1485,20 +1332,53 @@ namespace IGCS {
         }
         else
         {
-            MessageHandler::logError("Failed to signal fence for frame %u", _currentFrameIndex);
+            MessageHandler::logError("D3D12Hook::draw: Failed to signal fence for frame %u", _currentFrameIndex);
         }
     }
 
+    void D3D12Hook::prepareCommandListForRendering(const FrameContext& frameContext)
+    {
+        // Get depth descriptor
+        const D3D12_CPU_DESCRIPTOR_HANDLE depthDescriptor = getCurrentTrackedDepthDescriptor();
+        const bool useDepth = _useDetectedDepthBuffer && (depthDescriptor.ptr != 0);
+        _currentFrameUsingDepth = useDepth;
+
+        // Set render targets
+        if (useDepth && !_depthPSOCreationFailed && _currentDepthDescriptorIndex != -1)
+        {
+            _pCommandList->OMSetRenderTargets(1, &frameContext.rtvHandle, FALSE, &depthDescriptor);
+        }
+        else
+        {
+            _pCommandList->OMSetRenderTargets(1, &frameContext.rtvHandle, FALSE, nullptr);
+        }
+
+        // Set viewport and scissor
+        const D3D12_RECT scissorRect = { 0, 0, static_cast<LONG>(_viewPort.Width), static_cast<LONG>(_viewPort.Height) };
+        _pCommandList->RSSetViewports(1, &_viewPort);
+        _pCommandList->RSSetScissorRects(1, &scissorRect);
+
+        // Set pipeline state and root signature
+        _pCommandList->SetGraphicsRootSignature(_pRootSignature);
+        ID3D12PipelineState* pso = selectPipelineState(_currentFrameUsingDepth); // false = solid
+        _pCommandList->SetPipelineState(pso);
+        _pCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+        // Set descriptor heaps
+        ID3D12DescriptorHeap* ppHeaps[] = { _pCBVHeap };
+        _pCommandList->SetDescriptorHeaps(ARRAYSIZE(ppHeaps), ppHeaps);
+        _pCommandList->SetGraphicsRootDescriptorTable(0, _pCBVHeap->GetGPUDescriptorHandleForHeapStart());
+    }
+
     void D3D12Hook::renderPaths(const XMMATRIX& viewMatrix, const XMMATRIX& projMatrix) {
+        if (!_visualisationEnabled && Camera::instance().getCameraLookAtVisualizationEnabled())
+            return;
 
         // Check if we have any paths to render, if not, return early
         const auto& paths = PathManager::instance().getPaths();
         if (paths.empty()) {
             return;
         }
-
-        // NO resource barriers here - they're handled by the wrapper
-        _currentCBVIndex = 0;
 
         // Update path resources if needed
         if (_resourcesNeedUpdate.load(std::memory_order_acquire) || !_pathResourcesCreated) {
@@ -1518,10 +1398,7 @@ namespace IGCS {
         renderPathTubes(viewMatrix, projMatrix);
         renderDirectionArrows(viewMatrix, projMatrix);
         renderNodeSpheres(viewMatrix, projMatrix);
-
-        if (Globals::instance().settings().pathLookAtEnabled) {
-            renderPathLookAtTarget(viewMatrix, projMatrix);
-        }
+    	renderPathLookAtTarget(viewMatrix, projMatrix);
     }
 
     void D3D12Hook::setupCameraMatrices() {
@@ -1558,9 +1435,9 @@ namespace IGCS {
 
         // Construct rotation part of view matrix (transpose of world rotation)
         XMMATRIX viewRotation;
-        viewRotation.r[0] = XMVector3Normalize(gameRight);
-        viewRotation.r[1] = XMVector3Normalize(gameUp);
-        viewRotation.r[2] = XMVector3Normalize(gameForward);
+        viewRotation.r[0] = gameRight;
+        viewRotation.r[1] = gameUp;
+        viewRotation.r[2] = gameForward;
         viewRotation.r[3] = XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
 
         // Transpose to get the inverse rotation
@@ -1576,132 +1453,100 @@ namespace IGCS {
         _viewMatrix.r[3] = XMVectorSetW(negTranslation, 1.0f);
 
         // Create projection matrix using the game's FOV
-        float fov = max(0.01f, min(GameSpecific::CameraManipulator::getCurrentVFoV(), 3.0f));
+        float fov = max(0.01f, min(GameSpecific::CameraManipulator::getCurrentFoV(), 3.0f));
 
         float nearZ = max(GameSpecific::CameraManipulator::getNearZ(), 0.01f);// Avoid zero division
         float farZ = max(GameSpecific::CameraManipulator::getFarZ(), 0.1f);// Avoid zero division
 
         float aspectRatio = _viewPort.Width / _viewPort.Height;
 
-        _projMatrix = XMMatrixPerspectiveFovLH(fov, aspectRatio, nearZ, farZ);
+        // Assuming 'fov' is the horizontal FOV in radians
+        float verticalFov = 2.0f * atan(tan(fov / 2.0f) / aspectRatio);
+
+        _projMatrix = XMMatrixPerspectiveFovLH(verticalFov, aspectRatio, nearZ, farZ);
     }
 
-    D3D12_VIEWPORT D3D12Hook::getFullViewport() {
-        D3D12_VIEWPORT viewport = {};
+    D3D12_VIEWPORT D3D12Hook::getFullViewport()
+    {
+        float width = 0.0f;
+        float height = 0.0f;
 
-        // Default fallback dimensions (if we can't get actual dimensions)
+        // --- Step 1: Find the dimensions using the best available method ---
+
+        // Method 1 (Primary): Get dimensions from the swap chain. This is the most reliable source.
+        if (_pSwapChain)
+        {
+            // For D3D12, prefer using IDXGISwapChain1 and GetDesc1()
+            IDXGISwapChain1* pSwapChain1 = nullptr;
+            if (SUCCEEDED(_pSwapChain->QueryInterface(IID_PPV_ARGS(&pSwapChain1))))
+            {
+                DXGI_SWAP_CHAIN_DESC1 desc;
+                if (SUCCEEDED(pSwapChain1->GetDesc1(&desc)))
+                {
+                    width = static_cast<float>(desc.Width);
+                    height = static_cast<float>(desc.Height);
+                }
+                pSwapChain1->Release();
+            }
+        }
+
+        // Method 2 (Fallback): If swap chain failed, try the window's client rect.
+        if (width == 0.0f || height == 0.0f)
+        {
+            const HWND hWnd = Globals::instance().mainWindowHandle();
+            if (hWnd)
+            {
+                RECT clientRect;
+                if (GetClientRect(hWnd, &clientRect))
+                {
+                    width = static_cast<float>(clientRect.right - clientRect.left);
+                    height = static_cast<float>(clientRect.bottom - clientRect.top);
+                }
+            }
+        }
+
+        // --- Step 2: Update cache and handle final fallbacks ---
+
+        if (width > 0.0f && height > 0.0f)
+        {
+            // Dimensions found.
+            MessageHandler::logDebug("D3D12Hook::getFullViewport: Determined dimensions: %.0f x %.0f", width, height);
+        }
+        // CHANGED: Use the existing _viewPort as the cache
+        else if (_viewPort.Width > 0 && _viewPort.Height > 0)
+        {
+            // All methods failed, but we have old data in our main viewport struct. Use it.
+            width = _viewPort.Width;
+            height = _viewPort.Height;
+            MessageHandler::logDebug("D3D12Hook::getFullViewport: Using cached dimensions from _viewPort: %.0f x %.0f", width, height);
+        }
+        else
+        {
+            // Absolute last resort: use a hardcoded default.
+            width = 1280.0f;
+            height = 720.0f;
+            MessageHandler::logDebug("D3D12Hook::getFullViewport: Using default fallback dimensions: %.0f x %.0f", width, height);
+        }
+
+        // --- Step 3: Construct the viewport struct once with the final dimensions ---
+
+        D3D12_VIEWPORT viewport = {};
         viewport.TopLeftX = 0.0f;
         viewport.TopLeftY = 0.0f;
-        viewport.Width = 1280.0f;
-        viewport.Height = 720.0f;
+        viewport.Width = width;
+        viewport.Height = height;
 
-        // Method 1: Try to get dimensions from stored window dimensions
-        // (You'll need to add _windowWidth and _windowHeight as mutable members)
-        if (_windowWidth > 0 && _windowHeight > 0) {
-            viewport.Width = static_cast<float>(_windowWidth);
-            viewport.Height = static_cast<float>(_windowHeight);
-            if (_useReversedDepth) {
-                viewport.MinDepth = 1.0f;  // Near plane at 1
-                viewport.MaxDepth = 0.0f;  // Far plane at 0
-            }
-            else {
-                viewport.MinDepth = 0.0f;  // Normal depth
-                viewport.MaxDepth = 1.0f;
-            }
-            return viewport;
+        if (_useReversedDepth)
+        {
+            viewport.MinDepth = 1.0f;
+            viewport.MaxDepth = 0.0f;
         }
-
-        // Method 2: Try to get dimensions from the swap chain's back buffer
-        if (_pSwapChain) {
-            DXGI_SWAP_CHAIN_DESC desc;
-            if (SUCCEEDED(_pSwapChain->GetDesc(&desc))) {
-                viewport.Width = static_cast<float>(desc.BufferDesc.Width);
-                viewport.Height = static_cast<float>(desc.BufferDesc.Height);
-
-                // Store these dimensions for future use
-                _windowWidth = desc.BufferDesc.Width;
-                _windowHeight = desc.BufferDesc.Height;
-                if (_useReversedDepth) {
-                    viewport.MinDepth = 1.0f;  // Near plane at 1
-                    viewport.MaxDepth = 0.0f;  // Far plane at 0
-                }
-                else {
-                    viewport.MinDepth = 0.0f;  // Normal depth
-                    viewport.MaxDepth = 1.0f;
-                }
-
-                MessageHandler::logDebug("D3D12Hook::getFullViewport: Got dimensions from swap chain: %.1f x %.1f",
-                    viewport.Width, viewport.Height);
-                return viewport;
-            }
-        }
-
-        // Method 3: Try to get dimensions from render targets in frame context
-        // Since D3D12 uses frame contexts, check current frame's render target
-        if (_frameContexts.size() > 0 && _pSwapChain) {
-            const UINT frameIndex = _pSwapChain->GetCurrentBackBufferIndex();
-            if (frameIndex < _frameContexts.size() && _frameContexts[frameIndex].renderTarget) {
-                const D3D12_RESOURCE_DESC rtDesc = _frameContexts[frameIndex].renderTarget->GetDesc();
-                if (rtDesc.Width > 0 && rtDesc.Height > 0) {
-                    viewport.Width = static_cast<float>(rtDesc.Width);
-                    viewport.Height = static_cast<float>(rtDesc.Height);
-                    if (_useReversedDepth) {
-                        viewport.MinDepth = 1.0f;  // Near plane at 1
-                        viewport.MaxDepth = 0.0f;  // Far plane at 0
-                    }
-                    else {
-                        viewport.MinDepth = 0.0f;  // Normal depth
-                        viewport.MaxDepth = 1.0f;
-                    }
-
-                    // Store these dimensions for future use
-                    _windowWidth = static_cast<UINT>(rtDesc.Width);
-                    _windowHeight = static_cast<UINT>(rtDesc.Height);
-
-                    MessageHandler::logDebug("D3D12Hook::getFullViewport: Got dimensions from frame render target: %.1f x %.1f",
-                        viewport.Width, viewport.Height);
-                    return viewport;
-                }
-            }
-        }
-
-        // Method 4: Try to get dimensions from game window
-        const HWND hWnd = Globals::instance().mainWindowHandle();
-        if (hWnd) {
-            RECT clientRect;
-            if (GetClientRect(hWnd, &clientRect)) {
-                viewport.Width = static_cast<float>(clientRect.right - clientRect.left);
-                viewport.Height = static_cast<float>(clientRect.bottom - clientRect.top);
-                if (_useReversedDepth) {
-                    viewport.MinDepth = 1.0f;  // Near plane at 1
-                    viewport.MaxDepth = 0.0f;  // Far plane at 0
-                }
-                else {
-                    viewport.MinDepth = 0.0f;  // Normal depth
-                    viewport.MaxDepth = 1.0f;
-                }
-
-                // Store these dimensions for future use
-                _windowWidth = static_cast<UINT>(viewport.Width);
-                _windowHeight = static_cast<UINT>(viewport.Height);
-
-                MessageHandler::logDebug("D3D12Hook::getFullViewport: Got dimensions from window: %.1f x %.1f",
-                    viewport.Width, viewport.Height);
-                return viewport;
-            }
-        }
-
-        // Using default fallback dimensions if all methods fail
-        MessageHandler::logDebug("D3D12Hook::getFullViewport: Using default fallback dimensions: %.1f x %.1f",
-            viewport.Width, viewport.Height);
-        if (_useReversedDepth) {
-            viewport.MinDepth = 1.0f;  // Near plane at 1
-            viewport.MaxDepth = 0.0f;  // Far plane at 0
-        }
-        else {
-            viewport.MinDepth = 0.0f;  // Normal depth
+        else
+        {
+            viewport.MinDepth = 0.0f;
             viewport.MaxDepth = 1.0f;
         }
+
         return viewport;
     }
 
@@ -1799,9 +1644,6 @@ namespace IGCS {
             MessageHandler::logDebug("renderNodeSpheres: Starting - PathInfos:%zu, NodePositions:%zu",
                 _pathInfos.size(), _nodePositions.size());
         }
-
-        // Set primitive topology
-        //_pCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
         // Set vertex and index buffers for the sphere
         _pCommandList->IASetVertexBuffers(0, 1, &_sphereVertexBufferView);
@@ -2047,17 +1889,19 @@ namespace IGCS {
     }
 
     void D3D12Hook::renderFreeCameraLookAtTarget(const XMMATRIX& viewMatrix, const XMMATRIX& projMatrix) {
+    	if (!Camera::instance().getCameraLookAtVisualizationEnabled() && _visualisationEnabled)
+            return;
         // Only render free camera look-at target when:
-        // 1. Free camera visualization is enabled (checked by caller)
-        // 2. Look-at is enabled and in target offset mode
-        // 3. NOT in path manager mode (free camera only)
-        // 4. We have valid resources and target position
+        // 1. Look-at is enabled and in target offset mode
+        // 2. NOT in path manager mode (free camera only)
+        // 3. We have valid resources and target position
 
         const auto& pathManager = PathManager::instance();
+		const auto& camera = Camera::instance();
         if (!Globals::instance().settings().lookAtEnabled ||
-            !Camera::instance().getUseTargetOffsetMode() ||
+            !camera.getUseTargetOffsetMode() ||
             pathManager._pathManagerState ||  // Don't show in path mode
-            !Camera::instance().hasValidLookAtTarget() ||
+            !camera.hasValidLookAtTarget() ||
             !_pLookAtTargetVertexBuffer || !_pLookAtTargetIndexBuffer || _lookAtTargetIndexCount == 0) {
             return;
         }
@@ -2073,9 +1917,6 @@ namespace IGCS {
         // Update constant buffer
         updateConstantBuffer(worldMatrix * viewMatrix * projMatrix);
 
-        // Set primitive topology
-        //_pCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
         // Set vertex and index buffers
         _pCommandList->IASetVertexBuffers(0, 1, &_lookAtTargetVertexBufferView);
         _pCommandList->IASetIndexBuffer(&_lookAtTargetIndexBufferView);
@@ -2085,6 +1926,8 @@ namespace IGCS {
     }
 
     void D3D12Hook::renderPathLookAtTarget(const XMMATRIX& viewMatrix, const XMMATRIX& projMatrix) {
+        if (!Globals::instance().settings().pathLookAtEnabled)
+            return;
         // Only render path look-at target when:
         // 1. Path visualization is enabled
         // 2. Path manager is active with a selected path
@@ -2162,9 +2005,6 @@ namespace IGCS {
         createPathBuffers(directionIndicatorVertices, interpolatedDirectionVertices,
             tubeMeshVertices, tubeMeshIndices,
             pathTubeInfos);
-
-        // Store the tube infos for rendering
-       // _pathTubeInfos = pathTubeInfos;
 
         // Mark resources as created
         _pathResourcesCreated = true;
@@ -2539,6 +2379,7 @@ namespace IGCS {
             _pathInfos.clear();
             _nodePositions.clear();
             _isChangingMode.store(false, std::memory_order_release);
+			_resourcesNeedUpdate.store(false, std::memory_order_release); // No resources to update
             MessageHandler::logDebug("D3D12Hook::safeInterpolationModeChange: No paths to visualize");
             return;
         }
@@ -2596,6 +2437,8 @@ namespace IGCS {
 
         // 10. Now create new visualization
         createPathVisualisation();
+
+    	_resourcesNeedUpdate.store(false, std::memory_order_release);
 
         MessageHandler::logDebug("D3D12Hook::safeInterpolationModeChange: Interpolation mode changed successfully");
     }
@@ -3214,7 +3057,7 @@ namespace IGCS {
                 // Find the best-matching depth buffer (usually the one with the same resolution as the window)
                 for (size_t i = 0; i < _trackedDepthDescriptors.size(); ++i) {
                     DepthResourceInfo info = getDepthResourceInfo(_trackedDepthDescriptors[i]);
-                    if (info.resource && info.desc.Width == _windowWidth && info.desc.Height == _windowHeight) {
+                    if (info.resource && info.desc.Width == instance()._viewPort.Width && info.desc.Height == instance()._viewPort.Height) {
                         _currentDepthDescriptorIndex = static_cast<int>(i);
                         MessageHandler::logDebug("Automatically selected matching depth buffer #%d", _currentDepthDescriptorIndex + 1);
                         break;
@@ -3443,14 +3286,6 @@ namespace IGCS {
             _pPipelineStateWithReversedDepth->Release();
             _pPipelineStateWithReversedDepth = nullptr;
         }
-        if (_pWireframePipelineStateWithDepth) {
-            _pWireframePipelineStateWithDepth->Release();
-            _pWireframePipelineStateWithDepth = nullptr;
-        }
-        if (_pWireframePipelineStateWithReversedDepth) {
-            _pWireframePipelineStateWithReversedDepth->Release();
-            _pWireframePipelineStateWithReversedDepth = nullptr;
-        }
         if (_directionIndicatorVertexBuffer) {
             _directionIndicatorVertexBuffer->Release();
             _directionIndicatorVertexBuffer = nullptr;
@@ -3577,9 +3412,16 @@ namespace IGCS {
     }
 
     void D3D12Hook::markResourcesForUpdate() {
-        // First, set the flag to indicate resources need updating // POTENTIALLY NOT NECESSARY
+        // First, set the flag to indicate resources need updating 
         _resourcesNeedUpdate.store(true, std::memory_order_release);
     }
+
+    float D3D12Hook::getAspectRatio() const {
+        if (_viewPort.Width == 0) {
+            return ASPECT_RATIO; // Prevent division by zero
+        }
+        return (_viewPort.Width / _viewPort.Height);
+	}
 
     //==================================================================================================
 	// Utility Functions
@@ -3602,18 +3444,35 @@ namespace IGCS {
     }
 
     // Helper function to convert DXGI_FORMAT to a string
-    const char* D3D12Hook::formatToString(DXGI_FORMAT format) {
-        switch (format) {
+    const char* D3D12Hook::formatToString(DXGI_FORMAT format)
+    {
+        switch (format)
+        {
+            // --- 32-bit Depth, 8-bit Stencil ---
         case DXGI_FORMAT_D32_FLOAT_S8X24_UINT:
         case DXGI_FORMAT_R32G8X24_TYPELESS:
-            return "D32_FLOAT_S8X24_UINT";
-        case DXGI_FORMAT_D32_FLOAT: return "D32_FLOAT";
-        case DXGI_FORMAT_D24_UNORM_S8_UINT: return "D24_UNORM_S8_UINT";
-        case DXGI_FORMAT_D16_UNORM: return "D16_UNORM";
-        case DXGI_FORMAT_R32_TYPELESS: return "R32_TYPELESS (likely depth)";
-        case DXGI_FORMAT_R24G8_TYPELESS: return "R24G8_TYPELESS (likely depth)";
-        case DXGI_FORMAT_UNKNOWN: return "UNKNOWN";
-        default: return "Other Format";
+            return "D32_FLOAT_S8X24_UINT / R32G8X24_TYPELESS";
+
+            // --- 32-bit Depth ---
+        case DXGI_FORMAT_D32_FLOAT:
+        case DXGI_FORMAT_R32_TYPELESS:
+            return "D32_FLOAT / R32_TYPELESS";
+
+            // --- 24-bit Depth, 8-bit Stencil ---
+        case DXGI_FORMAT_D24_UNORM_S8_UINT:
+        case DXGI_FORMAT_R24G8_TYPELESS:
+            return "D24_UNORM_S8_UINT / R24G8_TYPELESS";
+
+            // --- 16-bit Depth ---
+        case DXGI_FORMAT_D16_UNORM:
+        case DXGI_FORMAT_R16_TYPELESS:
+            return "D16_UNORM / R16_TYPELESS";
+
+            // --- Other ---
+        case DXGI_FORMAT_UNKNOWN:
+            return "UNKNOWN";
+        default:
+            return "Other Format";
         }
     }
 

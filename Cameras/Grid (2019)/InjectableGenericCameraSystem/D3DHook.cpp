@@ -84,6 +84,12 @@ namespace IGCS {
         }
     }
 
+    float D3DHook::getAspectRatio() const
+    {
+        if (_windowHeight == 0) return 1.77778f; // Default to 16:9 if height is zero to avoid division by zero
+        return static_cast<float>(_windowWidth) / static_cast<float>(_windowHeight);
+    }
+
     //==================================================================================================
     // Singleton Implementation
     //==================================================================================================

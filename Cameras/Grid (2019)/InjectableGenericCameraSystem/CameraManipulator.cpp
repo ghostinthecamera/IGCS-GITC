@@ -239,7 +239,7 @@ namespace IGCS::GameSpecific::CameraManipulator
 		//*fovAddress = fovtowrite;
 
 		// Calculate VFOV from HFOV
-		const float vfovtowrite = fovtowrite / FOV_ASPECT_RATIO;
+		const float vfovtowrite = getCurrentVFoV(fovtowrite);
 
 		// Write HFOV
 		const auto hfovAddress = reinterpret_cast<float*>(g_cameraStructAddress + HFOV_IN_STRUCT_OFFSET);
@@ -261,10 +261,34 @@ namespace IGCS::GameSpecific::CameraManipulator
 
 	float getCurrentVFoV()
 	{
-		if (!g_cameraStructAddress)
-			return DEFAULT_FOV;
+		float aspectRatio;
 
-		return getCurrentFoV() / FOV_ASPECT_RATIO;
+		if (!Globals::instance().settings().d3ddisabled)
+		{
+			aspectRatio = (D3DMODE == D3DMODE::DX11) ? D3DHook::instance().getAspectRatio() : D3D12Hook::instance().getAspectRatio();
+		}
+		else
+		{
+			aspectRatio = ASPECT_RATIO;
+		}
+
+		return 2.0f * atan(tan(getCurrentFoV() / 2.0f) / aspectRatio);
+	}
+
+	float getCurrentVFoV(float hfov)
+	{
+		float aspectRatio;
+
+		if (!Globals::instance().settings().d3ddisabled)
+		{
+			aspectRatio = (D3DMODE == D3DMODE::DX11) ? D3DHook::instance().getAspectRatio() : D3D12Hook::instance().getAspectRatio();
+		}
+		else
+		{
+			aspectRatio = ASPECT_RATIO;
+		}
+
+		return 2.0f * atan(tan(hfov / 2.0f) / aspectRatio);
 	}
 	
 

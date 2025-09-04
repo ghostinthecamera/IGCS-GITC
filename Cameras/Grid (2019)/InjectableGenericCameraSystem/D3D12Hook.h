@@ -340,7 +340,7 @@ namespace IGCS {
         //==============================================================================================
         void trackDepthDescriptor(D3D12_CPU_DESCRIPTOR_HANDLE descriptor);
         D3D12_CPU_DESCRIPTOR_HANDLE getCurrentTrackedDepthDescriptor();
-        bool hasTrackedDepthDescriptors() const { return !_trackedDepthDescriptors.empty(); }
+        [[nodiscard]] bool hasTrackedDepthDescriptors() const { return !_trackedDepthDescriptors.empty(); }
         void cleanupDepthBuffers();
 
         //==============================================================================================
@@ -460,7 +460,7 @@ namespace IGCS {
         UINT64 _fenceValue{ 0 };
         HANDLE _fenceEvent{ nullptr };
         std::mutex _resourceMutex;
-        std::mutex _depthBufferMutex;
+        std::recursive_mutex _depthBufferMutex;
 
         //==============================================================================================
         // Path Visualization Geometry
@@ -523,7 +523,9 @@ namespace IGCS {
         std::vector<DepthBufferInfo> _detectedDepthBuffers;
         std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> _trackedDepthDescriptors;
         std::unordered_set<UINT64> _seenDepthDescriptors;
-        int _currentDepthDescriptorIndex{ -1 };
+        int _currentDepthDescriptorIndex{ 0 };
+        std::unordered_set<UINT64> _loggedDepthDescriptors;
+        std::unordered_set<UINT64> _activeHandlesThisFrame;
 
         //==============================================================================================
         // Rendering State

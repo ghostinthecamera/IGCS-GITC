@@ -396,8 +396,8 @@ namespace IGCS
     void Camera::interpolateRotation(float lerpTime) noexcept
     {
         const XMVECTOR cR = Utils::generateEulerQuaternion({ _pitch, _yaw, _roll },
-                                                           MULTIPLICATION_ORDER, false, false, false);
-        XMVECTOR tR = Utils::generateEulerQuaternion({ _targetpitch, _targetyaw, _targetroll });
+                                                           MULTIPLICATION_ORDER, false, false, false); //no negation constants here as the current rotation already includes them
+		XMVECTOR tR = Utils::generateEulerQuaternion({ _targetpitch, _targetyaw, _targetroll }); //apply negation constants here
 
         PathUtils::EnsureQuaternionContinuity(cR, tR);
 
@@ -489,7 +489,7 @@ namespace IGCS
 		_toolsCoordinates = finalPosition;
 
         // Write final values to game memory
-       // GameSpecific::CameraManipulator::writeNewCameraValuesToGameData(finalPosition, finalRotation);
+       //GameSpecific::CameraManipulator::writeNewCameraValuesToGameData(finalPosition, finalRotation);
         GameSpecific::CameraManipulator::updateCameraDataInGameData();
     	GameSpecific::CameraManipulator::changeFoV(finalFov);
     }
@@ -739,13 +739,12 @@ namespace IGCS
     DirectX::XMMATRIX Camera::getViewMatrix() const
     {
         // Get camera position and quaternion from game memory  
-        void* activeCamAddress = GameSpecific::CameraManipulator::getCameraStruct();
+        auto activeCamAddress = GameSpecific::CameraManipulator::getCameraStructAddress();
         XMFLOAT3 camPos = GameSpecific::CameraManipulator::getCurrentCameraCoords();
-        XMFLOAT4 camQuat;
-        memcpy(&camQuat, static_cast<char*>(activeCamAddress) + QUATERNION_IN_STRUCT_OFFSET, sizeof(XMFLOAT4));
+        const auto camQuat = reinterpret_cast<XMFLOAT4*>(activeCamAddress + QUATERNION_IN_STRUCT_OFFSET);
 
         // Load vectors
-        XMVECTOR quatVec = XMLoadFloat4(&camQuat);
+        XMVECTOR quatVec = XMLoadFloat4(camQuat);
         XMVECTOR posVec = XMLoadFloat3(&camPos);
 
         // Build view matrix from transformed basis vectors

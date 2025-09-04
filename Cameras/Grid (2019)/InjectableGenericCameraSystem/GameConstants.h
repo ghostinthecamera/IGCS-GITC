@@ -72,7 +72,7 @@ namespace IGCS
 	// Other Compile time constants
 	inline constexpr auto PATH_MANAGER_MAXPATHS = 5;
 	inline constexpr auto PATH_MAX_NODES = 8;
-	inline constexpr float ASPECT_RATIO = 1.7777777777777777777777777777778f; // Used to calculate vertical FOV from horizontal FOV
+	inline constexpr float ASPECT_RATIO = (16.0f/9.0f); // Used to calculate vertical FOV from horizontal FOV
 
 	// D3DLogging Constant
 	inline constexpr auto D3DLOGGING = true;

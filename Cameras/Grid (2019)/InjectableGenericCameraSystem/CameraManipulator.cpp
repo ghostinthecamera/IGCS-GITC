@@ -239,7 +239,7 @@ namespace IGCS::GameSpecific::CameraManipulator
 		//*fovAddress = fovtowrite;
 
 		// Calculate VFOV from HFOV
-		const float vfovtowrite = getCurrentVFoV(fovtowrite);
+		const float vfovtowrite = fovtowrite / ASPECT_RATIO;
 
 		// Write HFOV
 		const auto hfovAddress = reinterpret_cast<float*>(g_cameraStructAddress + HFOV_IN_STRUCT_OFFSET);
@@ -372,6 +372,13 @@ namespace IGCS::GameSpecific::CameraManipulator
 		if (!isCameraFound() || !System::instance().isCameraStructValid)
 			return;
 
+		static bool handednessChecked = false;
+		if (!handednessChecked)
+		{
+			Utils::determineHandedness();
+			handednessChecked = true;
+		}
+
 		auto c = reinterpret_cast<float*>(g_cameraStructAddress + COORDS_IN_STRUCT_OFFSET);
 		auto q = reinterpret_cast<XMFLOAT4*>(g_cameraStructAddress + QUATERNION_IN_STRUCT_OFFSET);
 
@@ -482,11 +489,6 @@ namespace IGCS::GameSpecific::CameraManipulator
 
 		const auto fovAddress = reinterpret_cast<float*>(g_cameraStructAddress + HFOV_IN_STRUCT_OFFSET);
 		*fovAddress = fov;
-	}
-
-	LPBYTE getCameraStruct()
-	{
-		return g_cameraStructAddress;
 	}
 
 	void setMatrixRotationVectors()

@@ -481,7 +481,7 @@ namespace IGCS {
         static unordered_set<ID3D12GraphicsCommandList*> hookedLists;
         static std::mutex hookMutex;
 
-        std::lock_guard<std::mutex> lock(hookMutex);
+        std::lock_guard lock(hookMutex);
 
         // Check if we've already hooked this command list
         if (hookedLists.contains(pCommandList)) {
@@ -649,7 +649,7 @@ namespace IGCS {
         // One-time initialization to capture the primary device from the swap chain.
         if (hook._devicefound == DeviceCaptureState::Pending && pSwapChain)
         {
-            // Acquire the lock to prevent race conditions.
+            // ACQUIRE THE LOCK FIRST to prevent race conditions.
             std::lock_guard lock(hook._resourceMutex);
 
             // Double-check the condition AFTER acquiring the lock.
@@ -698,11 +698,6 @@ namespace IGCS {
             MessageHandler::logError("Exception during rendering: %s", e.what());
         }
 
-        if (Globals::instance().systemActive() && RUN_IN_HOOKED_PRESENT)
-        {
-            System::instance().updateFrame();
-        }
-
         // Call original Present
         const HRESULT result = _originalPresent ? _originalPresent(pSwapChain, SyncInterval, Flags) : E_FAIL;
 
@@ -714,6 +709,13 @@ namespace IGCS {
                 MessageHandler::logError("D3D12Hook::hookedPresent: Device removed! Reason: 0x%X", reason);
                 deviceRemovalLogged = true;
             }
+        }
+
+        hook._activeHandlesThisFrame.clear();
+
+        if (Globals::instance().systemActive() && RUN_IN_HOOKED_PRESENT)
+        {
+            System::instance().updateFrame();
         }
 
         // Cleanup handled by RAII guard
@@ -785,7 +787,7 @@ namespace IGCS {
             if (SUCCEEDED(ppCommandLists[i]->QueryInterface(IID_PPV_ARGS(&pGraphicsCommandList))))
             {
                 // Lock to safely access our set of hooked lists
-                std::lock_guard<std::mutex> lock(hook._pCommandListHookMutex);
+                std::lock_guard lock(hook._pCommandListHookMutex);
 
                 // Check if we've already hooked this specific command list instance.
                 if (!hook._pHookedCommandLists.contains(pGraphicsCommandList))
@@ -897,23 +899,25 @@ namespace IGCS {
         const D3D12_RECT* pRects) {
 
         auto& hook = instance();
+        std::lock_guard lock(hook._depthBufferMutex);
 
         hook.clearDepthStencilLogging(pCommandList, DepthStencilView, ClearFlags, Depth, Stencil, NumRects, pRects);
 
+        // This handle is being used by the game right now, so it is valid for this frame.
+    	hook._activeHandlesThisFrame.insert(DepthStencilView.ptr);
+
         hook.trackDepthDescriptor(DepthStencilView);
 
-        // --- NEW: Look up resource info from our map ---
-        static std::unordered_set<UINT64> loggedDescriptors;
-        if (!loggedDescriptors.contains(DepthStencilView.ptr)) {
+        //Look up resource info from our map ---
+        if (!hook._loggedDepthDescriptors.contains(DepthStencilView.ptr)) {
             DepthResourceInfo info = hook.getDepthResourceInfo(DepthStencilView);
             if (info.resource) { // Check if we found it in the map
                 MessageHandler::logDebug("ClearDepthStencilView using known resource:");
                 MessageHandler::logDebug("  - Descriptor: 0x%llX", DepthStencilView.ptr);
                 MessageHandler::logDebug("  - Dimensions: %llu x %u", info.desc.Width, info.desc.Height);
-                loggedDescriptors.insert(DepthStencilView.ptr); // Log only once per descriptor
+                hook._loggedDepthDescriptors.insert(DepthStencilView.ptr); // Log only once per descriptor
             }
         }
-        // --- End of new code ---
 
         // Call the original function
 		if (_originalClearDepthStencilView)
@@ -930,7 +934,7 @@ namespace IGCS {
 
         if (pResource) {
             // Lock the mutex to ensure thread-safe access to the map
-            std::lock_guard<std::mutex> lock(instance()._depthBufferMutex);
+            std::lock_guard lock(instance()._depthBufferMutex);
 
             D3D12_RESOURCE_DESC resourceDesc = pResource->GetDesc();
 
@@ -1346,11 +1350,39 @@ namespace IGCS {
         // Set render targets
         if (useDepth && !_depthPSOCreationFailed && _currentDepthDescriptorIndex != -1)
         {
-            _pCommandList->OMSetRenderTargets(1, &frameContext.rtvHandle, FALSE, &depthDescriptor);
+            // Check if the selected handle is in the safe list for this frame.
+            if (_activeHandlesThisFrame.contains(depthDescriptor.ptr))
+            {
+                // It's valid. Use it.
+                _pCommandList->OMSetRenderTargets(1, &frameContext.rtvHandle, FALSE, &depthDescriptor);
+            }
+            else
+            {
+                // It's NOT in the safe list. The handle is stale.
+                MessageHandler::logError("Stale depth descriptor 0x%llX detected. Skipping depth and removing from list.", depthDescriptor.ptr);
+
+                // 1. Do not use the stale handle for rendering.
+                _pCommandList->OMSetRenderTargets(1, &frameContext.rtvHandle, FALSE, nullptr);
+
+                // 2. Lock the mutex to safely modify the shared descriptor list.
+                std::lock_guard lock(_depthBufferMutex);
+
+                // 3. Remove the stale handle from the master list so we don't cycle to it again.
+                const UINT64 staleHandlePtr = depthDescriptor.ptr;
+                std::erase_if(_trackedDepthDescriptors, [staleHandlePtr](const auto& handle) {
+                    return handle.ptr == staleHandlePtr;
+                    });
+
+                // 4. Safely adjust the current index to prevent it from being out of bounds.
+                if (_currentDepthDescriptorIndex >= _trackedDepthDescriptors.size()) {
+                    _currentDepthDescriptorIndex = _trackedDepthDescriptors.empty() ? -1 : 0;
+                }
+            }
         }
         else
         {
-            _pCommandList->OMSetRenderTargets(1, &frameContext.rtvHandle, FALSE, nullptr);
+            _pCommandList->OMSetRenderTargets(1, &frameContext.rtvHandle, 
+                FALSE, nullptr);
         }
 
         // Set viewport and scissor
@@ -1403,67 +1435,39 @@ namespace IGCS {
 
     void D3D12Hook::setupCameraMatrices() {
 
-        // Get camera position and quaternion from game memory
-        void* activeCamAddress = GameSpecific::CameraManipulator::getCameraStruct();
-        XMFLOAT3 camPos = GameSpecific::CameraManipulator::getCurrentCameraCoords();
-        XMFLOAT4 camQuat;
-        memcpy(&camQuat, static_cast<char*>(activeCamAddress) + QUATERNION_IN_STRUCT_OFFSET, sizeof(XMFLOAT4));
+        const auto activeCamAddress = GameSpecific::CameraManipulator::getCameraStructAddress();
+        if (!activeCamAddress) {
+            _viewMatrix = XMMatrixIdentity();
+            _projMatrix = XMMatrixIdentity();
+            return;
+        }
+        const auto camPos = GameSpecific::CameraManipulator::getCurrentCameraCoords();
+        const auto camQuat = reinterpret_cast<XMFLOAT4*>(activeCamAddress + QUATERNION_IN_STRUCT_OFFSET);
 
-        // Load vectors
-        XMVECTOR quatVec = XMLoadFloat4(&camQuat);
-        XMVECTOR posVec = XMLoadFloat3(&camPos);
+        const XMVECTOR posVec = XMLoadFloat3(&camPos);
+        const XMVECTOR quatVec = XMLoadFloat4(camQuat);
 
-        // Build view matrix from transformed basis vectors
-        // Start with standard basis vectors
-        XMVECTOR rightAxis = XMVectorSet(1.0f, 0.0f, 0.0f, 0.0f);
-        XMVECTOR upAxis = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-        XMVECTOR forwardAxis = XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
+        // Create the camera's world matrix from its position and orientation.
+        const XMMATRIX worldMatrix = XMMatrixRotationQuaternion(quatVec) * XMMatrixTranslationFromVector(posVec);
 
-        // Apply the game's quaternion to get the transformed basis
-        XMVECTOR gameRight = XMVector3Rotate(rightAxis, quatVec);
-        XMVECTOR gameUp = XMVector3Rotate(upAxis, quatVec);
-        XMVECTOR gameForward = XMVector3Rotate(forwardAxis, quatVec);
+        // The view matrix is simply the inverse of the camera's world matrix.
+        _viewMatrix = XMMatrixInverse(nullptr, worldMatrix);
 
-        // Apply coordinate system corrections
-        // Invert axes based on the game's coordinate system 
-        if (kRightSign < 0) gameRight = XMVectorNegate(gameRight);
-        if (kUpSign < 0) gameUp = XMVectorNegate(gameUp);
-        if (kForwardSign < 0) gameForward = XMVectorNegate(gameForward);
+        float fov = GameSpecific::CameraManipulator::getCurrentFoV();
+        float nearZ = GameSpecific::CameraManipulator::getNearZ();
+        float farZ = GameSpecific::CameraManipulator::getFarZ();
 
-        // Build view matrix directly with corrected basis vectors
-        // Remember: A view matrix is the inverse of the world matrix
+        // Clamp values to be safe
+        fov = max(0.01f, min(fov, 3.0f));
+        nearZ = max(nearZ, 0.01f);
+        farZ = max(farZ, nearZ + 0.1f);
 
-        // Construct rotation part of view matrix (transpose of world rotation)
-        XMMATRIX viewRotation;
-        viewRotation.r[0] = gameRight;
-        viewRotation.r[1] = gameUp;
-        viewRotation.r[2] = gameForward;
-        viewRotation.r[3] = XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
+        const float aspectRatio = _viewPort.Width / _viewPort.Height;
 
-        // Transpose to get the inverse rotation
-        viewRotation = XMMatrixTranspose(viewRotation);
+        // Convert from horizontal to vertical FOV 
+        //fov = 2.0f * atan(tan(fov / 2.0f) / aspectRatio);
 
-        // Calculate the translation component of the view matrix
-        // This is -Rt * P where R is the rotation matrix and P is the position
-        XMVECTOR negTranslation = XMVector3Transform(
-            XMVectorNegate(posVec), viewRotation);
-
-        // Assemble the final view matrix
-        _viewMatrix = viewRotation;
-        _viewMatrix.r[3] = XMVectorSetW(negTranslation, 1.0f);
-
-        // Create projection matrix using the game's FOV
-        float fov = max(0.01f, min(GameSpecific::CameraManipulator::getCurrentFoV(), 3.0f));
-
-        float nearZ = max(GameSpecific::CameraManipulator::getNearZ(), 0.01f);// Avoid zero division
-        float farZ = max(GameSpecific::CameraManipulator::getFarZ(), 0.1f);// Avoid zero division
-
-        float aspectRatio = _viewPort.Width / _viewPort.Height;
-
-        // Assuming 'fov' is the horizontal FOV in radians
-        float verticalFov = 2.0f * atan(tan(fov / 2.0f) / aspectRatio);
-
-        _projMatrix = XMMatrixPerspectiveFovLH(verticalFov, aspectRatio, nearZ, farZ);
+        _projMatrix = XMMatrixPerspectiveFovRH(fov/ASPECT_RATIO, aspectRatio, nearZ, farZ);
     }
 
     D3D12_VIEWPORT D3D12Hook::getFullViewport()
@@ -2319,7 +2323,7 @@ namespace IGCS {
         for (size_t i = 0; i < points.size() - 1; i++) {
             // generateTubeMesh already exists in D3D12Hook, we just need to ensure it's being called correctly
             auto tubeInfos = instance().generateTubeMesh(
-                std::vector<XMFLOAT3>{points[i], points[i + 1]},
+                std::vector{points[i], points[i + 1]},
                 _tubeDiameter / 2.0f,
                 _tubeSegments,
                 tubeMeshVertices,
@@ -2958,7 +2962,7 @@ namespace IGCS {
 	// Depth Buffer Management
 	//==================================================================================================
     void D3D12Hook::trackDepthDescriptor(const D3D12_CPU_DESCRIPTOR_HANDLE descriptor) {
-        std::lock_guard<std::mutex> lock(_depthBufferMutex);
+        std::lock_guard lock(_depthBufferMutex);
 
         if (!_seenDepthDescriptors.contains(descriptor.ptr)) {
             _seenDepthDescriptors.insert(descriptor.ptr);
@@ -2975,7 +2979,7 @@ namespace IGCS {
     }
 
     D3D12_CPU_DESCRIPTOR_HANDLE D3D12Hook::getCurrentTrackedDepthDescriptor() {
-        std::lock_guard<std::mutex> lock(_depthBufferMutex);
+        std::lock_guard lock(_depthBufferMutex);
 
         if (!_useDetectedDepthBuffer || _trackedDepthDescriptors.empty() ||
             _currentDepthDescriptorIndex < 0 ||
@@ -3044,7 +3048,7 @@ namespace IGCS {
 
     void D3D12Hook::toggleDepthBufferUsage() {
         // Lock the mutex to ensure this state change is atomic
-        std::lock_guard<std::mutex> lock(_depthBufferMutex);
+        std::lock_guard lock(_depthBufferMutex);
 
         _useDetectedDepthBuffer = !_useDetectedDepthBuffer;
         MessageHandler::logDebug("D3D12Hook::toggleDepthBufferUsage: Depth buffer usage is now %s",
@@ -3080,9 +3084,12 @@ namespace IGCS {
 
         // Release all depth buffer resources
         _trackedDepthDescriptors.clear();
+        _seenDepthDescriptors.clear();
         _currentDepthDescriptorIndex = -1;
         _useDetectedDepthBuffer = false;
-		_depthResourceMap.clear();
+        _depthResourceMap.clear();
+        _loggedDepthDescriptors.clear();
+        _activeHandlesThisFrame.clear();
 		MessageHandler::logDebug("D3D12Hook::cleanupDepthBuffers: Cleared all tracked depth buffers");
     }
 
@@ -3189,11 +3196,7 @@ namespace IGCS {
         _cbvDescriptorSize = 0;
 
         // ==== STEP 11: Clear depth buffer tracking ====
-        _trackedDepthDescriptors.clear();
-        _seenDepthDescriptors.clear();
-        _currentDepthDescriptorIndex = -1;
-        _useDetectedDepthBuffer = false;
-		_depthResourceMap.clear();
+		cleanupDepthBuffers();
 
         // ==== STEP 12: Reset initialization flags ====
         _needsInitialisation.store(false, std::memory_order_release);

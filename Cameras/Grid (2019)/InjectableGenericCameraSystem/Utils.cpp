@@ -36,6 +36,9 @@
 #include <DirectXMath.h>
 #include <cmath>
 
+#include "CameraManipulator.h"
+#include "System.h"
+
 using namespace std;
 using namespace DirectX;
 
@@ -969,8 +972,18 @@ namespace IGCS::Utils
 		return toReturn;
 	}
 
-	void toggleNOPState(AOBBlock& hookData, int numberOfBytes, bool enabled)
+	void toggleNOPState(const string& key, const int numberOfBytes, const bool enabled)
 	{
+		auto& aob = System::instance().getAOBBlock();
+
+		if (!aob.contains(key))
+		{
+			MessageHandler::logError("No AOB block found with key: %s", key.c_str());
+			return;
+		}
+
+		auto& hookData = aob[key];
+
 		// Get target address
 		const LPBYTE targetAddress = hookData.absoluteAddress();
 		if (!targetAddress) {
@@ -1004,11 +1017,20 @@ namespace IGCS::Utils
 
 		// Update state
 		hookData.nopState = enabled;
-	
 	}
 
-	void saveBytesWrite(AOBBlock& hookData, int numberOfBytes, const uint8_t* bytestoWrite, bool enabled)
+	void saveBytesWrite(const string& key, int numberOfBytes, const uint8_t* bytestoWrite, bool enabled)
 	{
+		auto& aob = System::instance().getAOBBlock();
+
+		if (!aob.contains(key))
+		{
+			MessageHandler::logError("No AOB block found with key: %s", key.c_str());
+			return;
+		}
+
+		auto& hookData = aob[key];
+
 		// Get target address
 		const LPBYTE targetAddress = hookData.absoluteAddress();
 		if (!targetAddress) {
@@ -1133,5 +1155,27 @@ namespace IGCS::Utils
 		std::vector<uint8_t> bytes(sizeof(integer));	// 4 bytes for a 32-bit integer
 		std::memcpy(bytes.data(), &integer, sizeof(integer)); // Copy the bytes of the integer into the vector
 		return bytes;
+	}
+
+	bool determineHandedness()
+	{
+		const auto t = GameSpecific::CameraManipulator::getCameraStructAddress();
+		const auto q = reinterpret_cast<XMFLOAT4*>(t + QUATERNION_IN_STRUCT_OFFSET);
+		//load the quaternion from memory into an XMVECTOR
+		const XMVECTOR orientationQuaternion = XMLoadFloat4(q);
+
+		// 1. Derive the RAW, UNCORRECTED basis vectors
+		const XMVECTOR rightVec = XMVector3Rotate(XMVectorSet(1.0f, 0.0f, 0.0f, 0.0f), orientationQuaternion);
+		const XMVECTOR upVec = XMVector3Rotate(XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f), orientationQuaternion);
+		const XMVECTOR forwardVec = XMVector3Rotate(XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f), orientationQuaternion);
+
+		// 2. Calculate the scalar triple product on the RAW vectors
+		const XMVECTOR crossProduct = XMVector3Cross(upVec, forwardVec);
+		const XMVECTOR tripleProduct = XMVector3Dot(rightVec, crossProduct);
+
+		// 4. A positive result indicates a Right-Handed system.
+		const bool isRightHanded = XMVectorGetX(tripleProduct) > 0.0f;
+		MessageHandler::logDebug("Coordinate system detected as: %s", isRightHanded ? "Right-Handed" : "Left-Handed");
+		return isRightHanded;
 	}
 }

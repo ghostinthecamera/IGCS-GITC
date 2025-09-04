@@ -131,8 +131,8 @@ namespace IGCS::Utils
 	double doubleFromBytes(uint8_t byteArray[], DWORD arrayLength, int startIndex);
 	std::string stringFromBytes(uint8_t byteArray[], DWORD arrayLength, int startIndex);
 	std::filesystem::path obtainHostExeAndPath();
-	void toggleNOPState(AOBBlock& hookData, int numberOfBytes, bool enabled);
-	void saveBytesWrite(AOBBlock& hookData, int numberOfBytes, const uint8_t* bytestoWrite, bool enabled);
+	void toggleNOPState(const string& key, int numberOfBytes, bool enabled);
+	void saveBytesWrite(const string& key, int numberOfBytes, const uint8_t* bytestoWrite, bool enabled);
 	DirectX::XMFLOAT3 QuaternionToEulerAngles(DirectX::XMVECTOR q, EulerOrder order = MULTIPLICATION_ORDER);
 	inline float clampAngle(float angle);
 	DirectX::XMVECTOR generateEulerQuaternionManual(const DirectX::XMFLOAT3& euler, EulerOrder order, bool negatePitch = false, bool negateYaw = false, bool negateRoll = false);
@@ -156,4 +156,5 @@ namespace IGCS::Utils
 	uint8_t uintFromBytes(uint8_t byteArray[], DWORD arrayLength, int startIndex);
 	void preciseSleep(DWORD ms);
 	std::vector<uint8_t> intToBytes(const int integer);
+	bool determineHandedness();
 }

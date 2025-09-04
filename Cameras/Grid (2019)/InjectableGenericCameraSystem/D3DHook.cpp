@@ -2655,13 +2655,12 @@ namespace IGCS {
         XMMATRIX& projMatrix) {
 
         // Get camera position and quaternion from game memory
-        void* activeCamAddress = GameSpecific::CameraManipulator::getCameraStruct();
-        XMFLOAT3 camPos = GameSpecific::CameraManipulator::getCurrentCameraCoords();
-        XMFLOAT4 camQuat;
-        memcpy(&camQuat, static_cast<char*>(activeCamAddress) + QUATERNION_IN_STRUCT_OFFSET, sizeof(XMFLOAT4));
+        const auto activeCamAddress = GameSpecific::CameraManipulator::getCameraStructAddress();
+        const auto camPos = GameSpecific::CameraManipulator::getCurrentCameraCoords();
+        const auto camQuat = reinterpret_cast<XMFLOAT4*>(activeCamAddress + QUATERNION_IN_STRUCT_OFFSET);
 
         // Load vectors
-        XMVECTOR quatVec = XMLoadFloat4(&camQuat);
+        XMVECTOR quatVec = XMLoadFloat4(camQuat);
         XMVECTOR posVec = XMLoadFloat3(&camPos);
 
         // Build view matrix from transformed basis vectors

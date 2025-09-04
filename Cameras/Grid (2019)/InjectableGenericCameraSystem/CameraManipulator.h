@@ -76,11 +76,6 @@ namespace IGCS::GameSpecific::CameraManipulator
 	bool validatePlayerPositionMemory();
 	bool validateReplayTimescaleMemory();
 
-	/// <summary>
-	/// igcsconnector functions
-	/// </summary>
-	/// <returns></returns>
-	LPBYTE getCameraStruct();
 	void setMatrixRotationVectors();
 	void cacheigcsData(IGCSSessionCacheData& igcscache);
 	void restoreigcsData(const IGCSSessionCacheData& igcscache);

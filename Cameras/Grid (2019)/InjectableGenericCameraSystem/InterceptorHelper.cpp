@@ -165,8 +165,8 @@ namespace IGCS::GameSpecific
 
     bool InterceptorHelper::toggleHud(map<string, AOBBlock>& aobBlocks, const bool hudVisible)
     {
-    	Utils::saveBytesWrite(aobBlocks[HUD_TOGGLE_INJECTION], sizeof(hudByte), hudByte, !hudVisible);
-        Utils::toggleNOPState(aobBlocks[HUD_TOGGLE_CHECKER_NOP], 2, !hudVisible);
+    	Utils::saveBytesWrite(HUD_TOGGLE_INJECTION, sizeof(hudByte), hudByte, !hudVisible);
+        Utils::toggleNOPState(HUD_TOGGLE_CHECKER_NOP, 2, !hudVisible);
     	return true;
     }
 

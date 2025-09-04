@@ -347,7 +347,6 @@ namespace IGCS {
         void synchroniseGPU();
         void waitForFenceValue(UINT64 value);
         void cleanupFrameContexts();
-        void cleanupFrameTempResources(UINT frameIndex);
 
         //==============================================================================================
         // Utility Functions
@@ -428,7 +427,6 @@ namespace IGCS {
         UINT _currentBackBuffer{ 0 };
         UINT _rtvDescriptorSize{ 0 };
         std::vector<PerFrameConstantBuffer> _perFrameConstantBuffers;
-        std::vector<FrameTempResources> _frameTempResources;
 
         //==============================================================================================
         // Pipeline State Resources
@@ -448,11 +446,9 @@ namespace IGCS {
         ID3DBlob* _pPixelShader{ nullptr };
 
         //==============================================================================================
-        // Constant Buffer Resources
-        //==============================================================================================
-        ID3D12Resource* _pConstantBuffer{ nullptr };
+		// Buffer Resources
+		//==============================================================================================
         ID3D12DescriptorHeap* _pCBVHeap{ nullptr };
-        UINT8* _pCbvDataBegin{ nullptr };
         UINT _currentFrameIndex{ 0 };
         UINT _cbvDescriptorSize{ 0 };
         UINT _currentCBVIndex{ 0 };

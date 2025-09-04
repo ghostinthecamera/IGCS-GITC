@@ -240,20 +240,21 @@ namespace IGCSClient.Classes
 			{
 				iniFile.Write(binding.Name, binding.GetValueAsString(), "KeyBindings");
 			}
+
             foreach (ISetting binding in _gamepadBindings)
             {
                 iniFile.Write(binding.Name + "_Gamepad", binding.GetValueAsString(), "GamepadBindings");
             }
 
             // other settings
-            ApplicationTheme? currentTheme = ThemeManager.Current.ApplicationTheme;
-			int themeID = -1;   // not defined, so use default.
+            var currentTheme = ThemeManager.Current.ApplicationTheme;
+			var themeID = -1;   // not defined, so use default.
 			if (currentTheme != null)
 			{
 				themeID = (int)currentTheme.Value;
 			}
 			iniFile.Write("ThemeID", themeID.ToString(), "MiscSettings");
-			System.Windows.Media.Color? accentColor = ThemeManager.Current.AccentColor;
+			var accentColor = ThemeManager.Current.AccentColor;
 			if (accentColor == null)
 			{
 				iniFile.DeleteKey("AccentColor", "MiscSettings");
@@ -263,7 +264,7 @@ namespace IGCSClient.Classes
 				iniFile.Write("AccentColor", accentColor.ToString(), "MiscSettings");
 			}
 
-			int counter = 0;
+			var counter = 0;
 			foreach (var r in _recentlyUsedResolutions)
 			{
 				// Format: resolution|aspect ratio
@@ -288,6 +289,7 @@ namespace IGCSClient.Classes
 			{
 				binding.SetValueFromString(iniFile.Read(binding.Name, "KeyBindings"));
 			}
+
 			foreach (var binding in _gamepadBindings)
 			{
 				binding.SetValueFromString(iniFile.Read(binding.Name + "_Gamepad", "GamepadBindings"));

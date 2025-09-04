@@ -311,43 +311,8 @@ namespace IGCS {
             return false;
         }
 
-        // Create constant buffer
-        constexpr UINT constantBufferSize = (sizeof(D3D12SimpleConstantBuffer) + 255) & ~255; // 256-byte aligned
-
-        D3D12_HEAP_PROPERTIES heapProps = {};
-        heapProps.Type = D3D12_HEAP_TYPE_UPLOAD;
-        heapProps.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
-        heapProps.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
-
-        D3D12_RESOURCE_DESC resourceDesc;
-        resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
-        resourceDesc.Alignment = 0;
-        resourceDesc.Width = constantBufferSize;
-        resourceDesc.Height = 1;
-        resourceDesc.DepthOrArraySize = 1;
-        resourceDesc.MipLevels = 1;
-        resourceDesc.Format = DXGI_FORMAT_UNKNOWN;
-        resourceDesc.SampleDesc.Count = 1;
-        resourceDesc.SampleDesc.Quality = 0;
-        resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
-        resourceDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
-
-        hr = instance()._pDevice->CreateCommittedResource(
-            &heapProps,
-            D3D12_HEAP_FLAG_NONE,
-            &resourceDesc,
-            D3D12_RESOURCE_STATE_GENERIC_READ,
-            nullptr,
-            IID_PPV_ARGS(&instance()._pConstantBuffer));
-
-        if (FAILED(hr)) {
-            MessageHandler::logError("D3D12Hook::initialiseRenderingResources: Failed to create constant buffer");
-            return false;
-        }
-
-        // Create CBV heap
         D3D12_DESCRIPTOR_HEAP_DESC cbvHeapDesc = {};
-        cbvHeapDesc.NumDescriptors = 256;  // Was 1, now 256
+        cbvHeapDesc.NumDescriptors = 256;  // Max 256 unique objects (spheres, arrows, etc.) per frame
         cbvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
         cbvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 
@@ -357,21 +322,6 @@ namespace IGCS {
             return false;
         }
         instance()._cbvDescriptorSize = instance()._pDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-
-        // Create constant buffer view
-        D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc;
-        cbvDesc.BufferLocation = instance()._pConstantBuffer->GetGPUVirtualAddress();
-        cbvDesc.SizeInBytes = constantBufferSize;
-
-        instance()._pDevice->CreateConstantBufferView(&cbvDesc, instance()._pCBVHeap->GetCPUDescriptorHandleForHeapStart());
-
-        // Map constant buffer
-        const D3D12_RANGE readRange = { 0, 0 };
-        hr = instance()._pConstantBuffer->Map(0, &readRange, reinterpret_cast<void**>(&instance()._pCbvDataBegin));
-        if (FAILED(hr)) {
-            MessageHandler::logError("D3D12Hook::initialiseRenderingResources: Failed to map constant buffer");
-            return false;
-        }
 
         // Create fence for synchronization
         hr = instance()._pDevice->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&instance()._pFence));
@@ -414,7 +364,6 @@ namespace IGCS {
         // Resize frame contexts
         _frameContexts.resize(_frameBufferCount);
         _perFrameConstantBuffers.resize(_frameBufferCount);
-        _frameTempResources.resize(_frameBufferCount);
 
         // Create or reuse RTV heap
         if (!_pRTVHeap) {
@@ -1401,9 +1350,6 @@ namespace IGCS {
         }
         // --- END NEW LOGIC ---
 
-        // Now it is safe to clean up resources from frames that are guaranteed to be finished.
-        cleanupFrameTempResources(frameIndex);
-
         const FrameContext& frameContext = _frameContexts[frameIndex];
         if (!frameContext.commandAllocator || !frameContext.renderTarget) {
             return;
@@ -1455,6 +1401,8 @@ namespace IGCS {
             MessageHandler::logError("Failed to reset command list: 0x%X", hr);
             return;
         }
+
+        _currentCBVIndex = 0;
 
         // Transition to RENDER_TARGET
         D3D12_RESOURCE_BARRIER barrier = {};
@@ -3312,17 +3260,16 @@ namespace IGCS {
         // ==== STEP 2: Synchronize GPU ONCE ====
         synchroniseGPU();
 
-        // ==== STEP 3: Clean up frame temp resources ====
-        for (auto& resources : _frameTempResources) {
-            for (auto* buffer : resources.constantBuffers) {
-                if (buffer) {
-                    buffer->Release();
-                }
-            }
-            resources.constantBuffers.clear();
-            resources.fenceValue = 0;
-        }
-        _frameTempResources.clear();
+        //// ==== STEP 3: Clean up frame temp resources ====
+        //for (auto& resources : _frameTempResources) {
+        //    for (auto* buffer : resources.constantBuffers) {
+        //        if (buffer) {
+        //            buffer->Release();
+        //        }
+        //    }
+        //    resources.constantBuffers.clear();
+        //    resources.fenceValue = 0;
+        //}
 
         // ==== STEP 4: Release command objects ====
         if (_pCommandList) {
@@ -3373,16 +3320,6 @@ namespace IGCS {
         if (_pCBVHeap) {
             _pCBVHeap->Release();
             _pCBVHeap = nullptr;
-        }
-
-        // ==== STEP 8: Release main constant buffer ====
-        if (_pConstantBuffer) {
-            if (_pCbvDataBegin) {
-                _pConstantBuffer->Unmap(0, nullptr);
-                _pCbvDataBegin = nullptr;
-            }
-            _pConstantBuffer->Release();
-            _pConstantBuffer = nullptr;
         }
 
         // ==== STEP 9: Clear path visualization data ====
@@ -3564,11 +3501,10 @@ namespace IGCS {
         }
         _perFrameConstantBuffers.clear();
 
-        // Clean up temp resources
-        for (UINT i = 0; i < _frameTempResources.size(); i++) {
-            cleanupFrameTempResources(i);
-        }
-        _frameTempResources.clear();
+        //// Clean up temp resources
+        //for (UINT i = 0; i < _frameTempResources.size(); i++) {
+        //    cleanupFrameTempResources(i);
+        //}
 
         for (auto& context : _frameContexts) {
             if (context.commandAllocator) {
@@ -3581,23 +3517,6 @@ namespace IGCS {
             }
         }
         _frameContexts.clear();
-    }
-
-    void D3D12Hook::cleanupFrameTempResources(const UINT frameIndex) {
-        if (frameIndex >= _frameTempResources.size()) {
-            return;
-        }
-
-        auto& resources = _frameTempResources[frameIndex];
-
-        // The wait is now handled in drawVisualisation, so we just release.
-        // No need to call synchroniseGPU() or waitForFenceValue() here anymore.
-        for (auto* buffer : resources.constantBuffers) {
-            if (buffer) {
-                buffer->Release();
-            }
-        }
-        resources.constantBuffers.clear();
     }
 
     void D3D12Hook::synchroniseGPU() {

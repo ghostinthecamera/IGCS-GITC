@@ -1,0 +1,92 @@
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Part of Injectable Generic Camera System
+// Copyright(c) 2020, Frans Bouma
+// All rights reserved.
+// https://github.com/FransBouma/InjectableGenericCameraSystem
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are met :
+//
+//  * Redistributions of source code must retain the above copyright notice, this
+//	  list of conditions and the following disclaimer.
+//
+//  * Redistributions in binary form must reproduce the above copyright notice,
+//    this list of conditions and the following disclaimer in the documentation
+//    and / or other materials provided with the distribution.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+// DISCLAIMED.IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+// FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+// DAMAGES(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+// SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+// CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+// OR TORT(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+#pragma once
+#include "stdafx.h"
+
+#include "GameCameraData.h"
+
+
+//extern "C" {
+//	LPBYTE g_cameraStructAddress;
+//	LPBYTE g_dofstructaddress;
+//	LPBYTE g_timescaleaddress;
+//	LPBYTE g_playerpointer;
+//	LPBYTE g_opacitypointer;
+//}
+
+namespace IGCS::GameSpecific::CameraManipulator
+{
+
+
+	void updateCameraDataInGameData();
+	void writeNewCameraValuesToGameData(DirectX::XMFLOAT3& newCoords, DirectX::XMVECTOR newLookQuaternion);
+	void writeNewCameraValuesToGameData(DirectX::XMVECTOR newCoords, DirectX::XMVECTOR newLookQuaternion);
+	DirectX::XMFLOAT3 getCurrentCameraCoords();
+	DirectX::XMVECTOR getCurrentCameraCoordsVector();
+	DirectX::XMVECTOR getCurrentPlayerPosition();
+	DirectX::XMVECTOR getCurrentPlayerRotation();
+	void resetFoV(const GameCameraData& cachedData);
+	void changeFoV(float fovtowrite);//interpolation
+	float getCurrentFoV();
+	float getCurrentVFoV();
+	bool isCameraFound();
+	void displayAddresses();
+	void applySettingsToGameState();
+	void restoreGameCameraData(const GameCameraData& source);
+	void cacheGameCameraData(GameCameraData& destination);
+	void setTimeStopValue(bool pauseGame);
+	void setSlowMo(float amount, bool slowMo);
+	void displayResolution(int width, int height);
+	void setResolution(int width, int height);
+	void cacheGameAddresses(GameAddressData& destination);
+	void cachetimespeed();
+	void cacheslowmospeed();
+	DirectX::XMFLOAT3 getEulers();
+	void setCurrentCameraCoords(DirectX::XMFLOAT3 coords);
+	float getNearZ();
+	float getFarZ();
+	uint8_t* getCameraStructAddress();
+	bool validateCameraMemory();
+	bool validatePlayerPositionMemory();
+	bool validateReplayTimescaleMemory();
+
+	/// <summary>
+	/// igcsconnector functions
+	/// </summary>
+	/// <returns></returns>
+	LPBYTE getCameraStruct();
+	void setMatrixRotationVectors();
+	void cacheigcsData(IGCSSessionCacheData& igcscache);
+	void restoreigcsData(const IGCSSessionCacheData& igcscache);
+	void restoreCurrentCameraCoords(DirectX::XMFLOAT3 coordstorestore);
+	void restoreFOV(float fov);
+	inline float fovinRadians(float fov) { return DirectX::XMConvertToRadians(fov);}
+	inline float fovinDegrees(float fov) { return DirectX::XMConvertToDegrees(fov); }
+
+
+}

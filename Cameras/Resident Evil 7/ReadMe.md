@@ -97,7 +97,7 @@ In the configuration tab of the IGCS Client, you can specify what to use for con
 
 About hotsampling support
 ==========================
-The game does support hotsampling. Using hotsampling or resizing the window while any visualisation is enabled has resulted in sporadic crashes so i would recommend disabling all visualisation before resizing (either through in game or hotsampling)
+The game does support hotsampling.  
 
 Default Keybindings
 ====================
@@ -106,92 +106,92 @@ The following is a list of the default keybindings. You can change these in the 
 Keyboard & Mouse
 ----------------
 
-CAMERA
-  Enable/Disable Camera: Insert - Toggles the custom camera on and off.
-  Lock/Unlock Camera Movement: Home - Locks and unlocks the camera's position and orientation.
-  Block Input to Game: Numpad . (Decimal) - Blocks keyboard and mouse input to the game.
+CAMERA  
+  Enable/Disable Camera: Insert - Toggles the custom camera on and off.  
+  Lock/Unlock Camera Movement: Home - Locks and unlocks the camera's position and orientation.  
+  Block Input to Game: Numpad . (Decimal) - Blocks keyboard and mouse input to the game.  
 
-MOVEMENT
-  Move Forward: Numpad 8 - Moves the camera forward.
-  Move Backward: Numpad 5 - Moves the camera backward.
-  Move Left: Numpad 4 - Moves the camera to the left.
-  Move Right: Numpad 6 - Moves the camera to the right.
-  Move Up: Numpad 9 - Moves the camera up.
-  Move Down: Numpad 7 - Moves the camera down.
+MOVEMENT  
+  Move Forward: Numpad 8 - Moves the camera forward.  
+  Move Backward: Numpad 5 - Moves the camera backward.  
+  Move Left: Numpad 4 - Moves the camera to the left.  
+  Move Right: Numpad 6 - Moves the camera to the right.  
+  Move Up: Numpad 9 - Moves the camera up.  
+  Move Down: Numpad 7 - Moves the camera down.  
 
-ROTATION
-  Rotate Up: Up Arrow - Rotates the camera upwards (pitch).
-  Rotate Down: Down Arrow - Rotates the camera downwards (pitch).
-  Rotate Left: Left Arrow - Rotates the camera to the left (yaw).
-  Rotate Right: Right Arrow - Rotates the camera to the right (yaw).
-  Tilt Left: Numpad 1 - Tilts (rolls) the camera to the left.
-  Tilt Right: Numpad 3 - Tilts (rolls) the camera to the right.
+ROTATION  
+  Rotate Up: Up Arrow - Rotates the camera upwards (pitch).  
+  Rotate Down: Down Arrow - Rotates the camera downwards (pitch).  
+  Rotate Left: Left Arrow - Rotates the camera to the left (yaw).  
+  Rotate Right: Right Arrow - Rotates the camera to the right (yaw).  
+  Tilt Left: Numpad 1 - Tilts (rolls) the camera to the left.  
+  Tilt Right: Numpad 3 - Tilts (rolls) the camera to the right.  
 
-FIELD OF VIEW (FoV)
-  Increase FoV: Numpad + (Add) - Increases the camera's field of view.
-  Decrease FoV: Numpad - (Subtract) - Decreases the camera's field of view.
-  Reset FoV: Numpad * (Multiply) - Resets the field of view to its default value.
+FIELD OF VIEW (FoV)  
+  Increase FoV: Numpad + (Add) - Increases the camera's field of view.  
+  Decrease FoV: Numpad - (Subtract) - Decreases the camera's field of view.  
+  Reset FoV: Numpad * (Multiply) - Resets the field of view to its default value.  
 
-GAME CONTROL
-  Pause/Unpause Game: Numpad 0 - Pauses or unpauses the game.
-  Skip Frame(s): Page Down - Advances the game by a single frame when paused.
-  Slow Motion: Page Up - Toggles slow motion effect.
-  Toggle HUD: Delete - Toggles the game's Heads-Up Display on and off.
+GAME CONTROL  
+  Pause/Unpause Game: Numpad 0 - Pauses or unpauses the game.  
+  Skip Frame(s): Page Down - Advances the game by a single frame when paused.  
+  Slow Motion: Page Up - Toggles slow motion effect.  
+  Toggle HUD: Delete - Toggles the game's Heads-Up Display on and off.  
 
-DEPTH OF FIELD / RESHADE
-  Cycle Depth Buffers: Tab - Cycles through available depth buffers for Reshade.
-  Toggle Depth Buffer Usage: Tab - Toggles the depth buffer used by the camera tool.
+DEPTH OF FIELD / RESHADE  
+  Cycle Depth Buffers: Tab - Cycles through available depth buffers for Reshade.  
+  Toggle Depth Buffer Usage: Tab - Toggles the depth buffer used by the camera tool.  
 
-LOOK AT FEATURES
-  Toggle LookAt Visualization: F9 - Toggles visualization of the LookAt point.
-  Reset LookAt Offsets: F5 - Resets the LookAt offsets to zero.
-  Toggle Offset Mode: F6 - Toggles between camera-relative and world-relative offset modes.
-  Toggle Height-Locked Movement: F7 - Toggles whether camera movement is locked to the current height.
-  Toggle Fixed Camera Mount: F8 - Toggles a fixed camera mount point.
-  Move Target Up: U - Moves the LookAt target up.
-  Move Target Down: O - Moves the LookAt target down.
+LOOK AT FEATURES  
+  Toggle LookAt Visualization: F9 - Toggles visualization of the LookAt point.  
+  Reset LookAt Offsets: F5 - Resets the LookAt offsets to zero.  
+  Toggle Offset Mode: F6 - Toggles between camera-relative and world-relative offset modes.  
+  Toggle Height-Locked Movement: F7 - Toggles whether camera movement is locked to the current height.  
+  Toggle Fixed Camera Mount: F8 - Toggles a fixed camera mount point.  
+  Move Target Up: U - Moves the LookAt target up.  
+  Move Target Down: O - Moves the LookAt target down.  
 
-PATH CONTROLLER
-  Create Path: F2 - Creates a new camera path.
-  Add Node to Path: F4 - Adds the current camera position/orientation as a node to the path.
-  Play/Stop Path: F3 - Starts or stops playing the current camera path.
-  Cycle Path Visualization: F12 - Cycles through different path visualization modes.
-  Delete Current Path: F10 - Deletes the currently selected path.
-  Cycle to Next Path: ] - Switches to the next available camera path.
-  Delete Last Node: F11 - Removes the last added node from the current path.
+PATH CONTROLLER  
+  Create Path: F2 - Creates a new camera path.  
+  Add Node to Path: F4 - Adds the current camera position/orientation as a node to the path.  
+  Play/Stop Path: F3 - Starts or stops playing the current camera path.  
+  Cycle Path Visualization: F12 - Cycles through different path visualization modes.  
+  Delete Current Path: F10 - Deletes the currently selected path.  
+  Cycle to Next Path: ] - Switches to the next available camera path.  
+  Delete Last Node: F11 - Removes the last added node from the current path.  
 
 
 Gamepad
 -------
 
-MODIFIERS
-  Fast Movement / Rotation: Y - Increases camera movement and rotation speed when held.
-  Slow Movement / Rotation: X - Decreases camera movement and rotation speed when held.
-  Path Controller Modifier: Left Shoulder - Hold this button to access Path Controller actions.
+MODIFIERS  
+  Fast Movement / Rotation: Y - Increases camera movement and rotation speed when held.  
+  Slow Movement / Rotation: X - Decreases camera movement and rotation speed when held.  
+  Path Controller Modifier: Left Shoulder - Hold this button to access Path Controller actions.  
 
 CAMERA
-  Tilt Left: D-Pad Left - Tilts (rolls) the camera to the left.
-  Tilt Right: D-Pad Right - Tilts (rolls) the camera to the right.
+  Tilt Left: D-Pad Left - Tilts (rolls) the camera to the left.  
+  Tilt Right: D-Pad Right - Tilts (rolls) the camera to the right.  
 
-FIELD OF VIEW (FoV)
-  Increase FoV: D-Pad Down - Increases the camera's field of view.
-  Decrease FoV: D-Pad Up - Decreases the camera's field of view.
-  Reset FoV: B - Resets the field of view to its default value.
+FIELD OF VIEW (FoV)  
+  Increase FoV: D-Pad Down - Increases the camera's field of view.  
+  Decrease FoV: D-Pad Up - Decreases the camera's field of view.  
+  Reset FoV: B - Resets the field of view to its default value.  
 
-LOOK AT FEATURES
-  Reset LookAt Offsets: LB + B - Resets the LookAt offsets to zero.
-  Toggle Offset Mode: LB + Y - Toggles between camera-relative and world-relative offset modes.
-  Toggle Height-Locked Movement: LB + X - Toggles whether camera movement is locked to the current height.
-  Toggle Fixed Camera Mount: LB + A - Toggles a fixed camera mount point.
-  Toggle LookAt Visualization: LB + Right Stick - Toggles visualization of the LookAt point.
+LOOK AT FEATURES  
+  Reset LookAt Offsets: LB + B - Resets the LookAt offsets to zero.  
+  Toggle Offset Mode: LB + Y - Toggles between camera-relative and world-relative offset modes.  
+  Toggle Height-Locked Movement: LB + X - Toggles whether camera movement is locked to the current height.  
+  Toggle Fixed Camera Mount: LB + A - Toggles a fixed camera mount point.  
+  Toggle LookAt Visualization: LB + Right Stick - Toggles visualization of the LookAt point.  
 
-PATH CONTROLLER
-  Create Path: LB + Y - Creates a new camera path.
-  Add Node to Path: LB + A - Adds the current camera position/orientation as a node to the path.
-  Play/Stop Path: LB + X - Starts or stops playing the current camera path.
-  Cycle Path Visualization: LB + Left Stick - Cycles through different path visualization modes.
-  Delete Current Path: LB + B - Deletes the currently selected path.
-  Cycle to Next Path: LB + D-Pad Right - Switches to the next available camera path.
-  Delete Last Node: LB + D-Pad Left - Removes the last added node from the current path.
+PATH CONTROLLER  
+  Create Path: LB + Y - Creates a new camera path.  
+  Add Node to Path: LB + A - Adds the current camera position/orientation as a node to the path.  
+  Play/Stop Path: LB + X - Starts or stops playing the current camera path.  
+  Cycle Path Visualization: LB + Left Stick - Cycles through different path visualization modes.  
+  Delete Current Path: LB + B - Deletes the currently selected path.  
+  Cycle to Next Path: LB + D-Pad Right - Switches to the next available camera path.  
+  Delete Last Node: LB + D-Pad Left - Removes the last added node from the current path.  
 
 

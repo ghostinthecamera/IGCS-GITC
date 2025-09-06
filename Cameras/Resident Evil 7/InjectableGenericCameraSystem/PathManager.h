@@ -57,6 +57,7 @@ namespace IGCS
         bool handleInsertNodeBeforeMessage(uint8_t byteArray[], DWORD arrayLength);
         [[nodiscard]] const std::unordered_map<std::string, CameraPath>& getPaths() const { return _paths; }
         void sendAllCameraPathsCombined();
+        static void D3DHookChecks();
         void handleDeleteNodeMessage(uint8_t byteArray[], DWORD arrayLength);
         void handleDeleteNodeMessage(uint8_t nodeIndex);
         void goToNodeSetup(uint8_t byteArray[], DWORD arrayLength);
@@ -107,7 +108,7 @@ namespace IGCS
 
         void handlePathScrubbingMessage(uint8_t byteArray[], DWORD arrayLength);
         void updatePMState(PathManagerStatus status);
-        void sendPathProgress(float progress) const;
+        static void sendPathProgress(float progress);
         void updateOffsetforVisualisation();
         void updateOffsetforVisualisation() const;
         void setScrubbingProgress(float progress) { _scrubbingProgress = progress; }
@@ -152,7 +153,7 @@ namespace IGCS
 
         bool _isScrubbing = false;
         float _scrubbingProgress = 0.0f;
-        bool _reshadeResult = true;
+        bool _reshadeResult = false;
 
         std::atomic<bool> _isProcessingAction{ false };
 

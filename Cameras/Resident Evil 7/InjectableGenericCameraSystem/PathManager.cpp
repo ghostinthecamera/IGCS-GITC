@@ -230,9 +230,7 @@ namespace IGCS
 
 		if (_paths.contains(pathName)) {
 
-			if (D3DMODE == D3DMODE::DX12 && !Globals::instance().settings().d3ddisabled && D3D12Hook::instance().isVisualisationEnabled()) {
-				D3D12Hook::instance().safeInterpolationModeChange();
-			}
+			D3DHookChecks();
 
 			_paths.erase(_paths.find(pathName)); // Remove the path from the map
 
@@ -273,9 +271,7 @@ namespace IGCS
 
 		if (_paths.contains(_selectedPath)) {
 
-			if (D3DMODE == D3DMODE::DX12 && !Globals::instance().settings().d3ddisabled && D3D12Hook::instance().isVisualisationEnabled()) {
-				D3D12Hook::instance().safeInterpolationModeChange();
-			}
+			D3DHookChecks();
 
 			_paths.erase(_paths.find(_selectedPath)); // Remove the path from the map
 			MessageHandler::logLine("Path deleted: %s", _selectedPath.c_str());
@@ -375,11 +371,18 @@ namespace IGCS
 			return;
 
 		// Update visualization
-		if (D3DMODE == D3DMODE::DX11 && D3DHook::instance().isVisualizationEnabled())
-			D3DHook::instance().safeInterpolationModeChange();
-		
-		if (D3DMODE == D3DMODE::DX12 && D3D12Hook::instance().isVisualisationEnabled())
-			D3D12Hook::instance().safeInterpolationModeChange();
+		D3DHookChecks();
+	}
+
+	void PathManager::D3DHookChecks()
+	{
+		if (D3DMODE == D3DMODE::DX11 && !Globals::instance().settings().d3ddisabled && D3DHook::instance().isVisualizationEnabled()) {
+			D3DHook::instance().markResourcesForUpdate();
+		}
+
+		if (D3DMODE == D3DMODE::DX12 && !Globals::instance().settings().d3ddisabled && D3D12Hook::instance().isVisualisationEnabled()) {
+			D3D12Hook::instance().markResourcesForUpdate();
+		}
 	}
 
 	void PathManager::handleAddPathMessage(uint8_t byteArray[], const DWORD arrayLength)
@@ -870,7 +873,7 @@ namespace IGCS
 		}
 	}
 
-	void PathManager::sendPathProgress(float progress) const
+	void PathManager::sendPathProgress(float progress)
 	{
 		// Ensure progress is valid
 		progress = max(0.0f, min(1.0f, progress));

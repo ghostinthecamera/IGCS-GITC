@@ -76,8 +76,9 @@ namespace IGCS
 	struct GameAddressData
 	{
 		uint8_t* cameraAddress = nullptr;
-		uint8_t* replayTimescaleAddress = nullptr;
-		uint8_t* gameplayTimescaleAddress = nullptr;
+		uint8_t* timescaleAddress = nullptr;
+		uint8_t* vignetteAddress = nullptr;
+		uint8_t* playerAddress = nullptr;
 	};
 
 	/// <summary>

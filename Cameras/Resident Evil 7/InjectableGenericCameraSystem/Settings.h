@@ -117,8 +117,8 @@ namespace IGCS
 		bool handheldPositionToggleB;
 		bool handheldRotationToggleB;
 		//game specific
-		bool altTracking;
-		bool incShadowRes;
+		bool disableFlashlight;
+		bool disableVignette;
 
 		
 
@@ -188,9 +188,7 @@ namespace IGCS
 				if (!PathManager::instance()._pathManagerState)
 					return;
 
-				//D3DHook::instance().safeInterpolationModeChange();
-				D3D12Hook::instance().safeInterpolationModeChange();
-				//D3D11on12Hook::instance().safeInterpolationModeChange();
+				PathManager::D3DHookChecks();
 				break;
 			case SettingType::PathEasingType:
 				easingtype = Utils::uintFromBytes(payload, payloadLength, 2);
@@ -210,9 +208,7 @@ namespace IGCS
 				if (!PathManager::instance()._pathManagerState)
 					return;
 				
-				//D3DHook::instance().safeInterpolationModeChange();
-				D3D12Hook::instance().safeInterpolationModeChange();
-				//D3D11on12Hook::instance().safeInterpolationModeChange();
+				PathManager::D3DHookChecks();
 				break;
 			case SettingType::DeltaType:
 				deltaType = payload[2] == static_cast<uint8_t>(1);
@@ -311,7 +307,6 @@ namespace IGCS
 				unpauseOnPlay = payload[2] == static_cast<uint8_t>(1);
 				break;
 			case SettingType::VisualisationToggle:
-
 				//Utils::callOnChange(togglePathVisualisation, payload[2], [](auto t) {D3DHook::instance().setVisualisation(t);});
 				Utils::callOnChange(togglePathVisualisation, payload[2], [](auto t) {D3D12Hook::instance().setVisualisation(t); });
 				break;
@@ -374,11 +369,13 @@ namespace IGCS
 				pathBaselineSpeed = Utils::floatFromBytes(payload, payloadLength, 2);
 				break;
 			//gamespecific
-			case SettingType::AltPlayerTracking:
-				altTracking = payload[2] == static_cast<uint8_t>(1);
+			case SettingType::DisableFlashlight:
+				Utils::callOnChange(disableFlashlight, payload[2],
+					[](auto t) {GameSpecific::CameraManipulator::toggleFlashlight(t); });
 				break;
-			case SettingType::IncreaseShadowRes:
-				Utils::callOnChange(incShadowRes, payload[2], [](auto t) {MemoryPatcher::togglePatch("ShadowRes",t); });
+			case SettingType::DisableVignette:
+				Utils::callOnChange(disableVignette, payload[2],
+					[](auto t) {GameSpecific::CameraManipulator::toggleVignette(t); });
 				break;
 			default:
 				// nothing

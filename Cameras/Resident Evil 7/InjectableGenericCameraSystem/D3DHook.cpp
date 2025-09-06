@@ -84,6 +84,13 @@ namespace IGCS {
         }
     }
 
+    //need to update this to newer D3D12 approach
+    float D3DHook::getAspectRatio() const
+    {
+		if (_windowHeight == 0) return 1.77778f; // Default to 16:9 if height is zero to avoid division by zero
+		return static_cast<float>(_windowWidth) / static_cast<float>(_windowHeight);
+    }
+
     //==================================================================================================
     // Singleton Implementation
     //==================================================================================================
@@ -2649,13 +2656,13 @@ namespace IGCS {
         XMMATRIX& projMatrix) {
 
         // Get camera position and quaternion from game memory
-        void* activeCamAddress = GameSpecific::CameraManipulator::getCameraStruct();
-        XMFLOAT3 camPos = GameSpecific::CameraManipulator::getCurrentCameraCoords();
-        XMFLOAT4 camQuat;
-        memcpy(&camQuat, static_cast<char*>(activeCamAddress) + QUATERNION_IN_STRUCT_OFFSET, sizeof(XMFLOAT4));
+        auto activeCamAddress = GameSpecific::CameraManipulator::getCameraStructAddress();
+
+        const auto camPos = GameSpecific::CameraManipulator::getCurrentCameraCoords();
+        const auto camQuat = reinterpret_cast<XMFLOAT4*>(activeCamAddress + QUATERNION_IN_STRUCT_OFFSET);
 
         // Load vectors
-        XMVECTOR quatVec = XMLoadFloat4(&camQuat);
+        XMVECTOR quatVec = XMLoadFloat4(camQuat);
         XMVECTOR posVec = XMLoadFloat3(&camPos);
 
         // Build view matrix from transformed basis vectors

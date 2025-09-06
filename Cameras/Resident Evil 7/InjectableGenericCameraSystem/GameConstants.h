@@ -30,11 +30,11 @@
 namespace IGCS
 {
 	// Mandatory constants to define for a game
-	inline constexpr auto GAME_NAME = "GRID (2019) - WIP";
-	inline constexpr auto CAMERA_VERSION = "1.0.0d";
+	inline constexpr auto GAME_NAME = "Resident Evil 7 Tools";
+	inline constexpr auto CAMERA_VERSION = "1.0.0";
 	inline constexpr auto CAMERA_CREDITS = "ghostinthecamera";
-	inline constexpr auto GAME_WINDOW_TITLE = L"GRID (2019) (DirectX 12)";
-	inline constexpr auto GAME_EXE_NAME = "Grid_dx12.exe";
+	inline constexpr auto GAME_WINDOW_TITLE = L"RESIDENT EVIL 7 biohazard";
+	inline constexpr auto GAME_EXE_NAME = "re7.exe";
 	inline constexpr auto INITIAL_PITCH_RADIANS = 0.0f;	// around X axis	(right)
 	inline constexpr auto INITIAL_YAW_RADIANS = 0.0f;	// around Y axis	(up)
 	inline constexpr auto INITIAL_ROLL_RADIANS = 0.0f;	// around Z axis	(out of the screen)
@@ -52,31 +52,29 @@ namespace IGCS
 	inline constexpr auto DEFAULT_MOVEMENT_SMOOTHNESS = 5.0f;
 	inline constexpr auto DEFAULT_ROTATION_SMOOTHNESS = 5.0f;
 	inline constexpr auto DEFAULT_LOOKAT = false;
+
 	//System default defines
-	inline constexpr auto MATRIX_SIZE = 12;
-	inline constexpr auto COORD_SIZE = 3;
 	inline constexpr auto DEFAULT_IGCS_TYPE = 6;
-	inline constexpr auto BYTE_PAUSE = 0x00;
-	inline constexpr auto BYTE_RESUME = 0x01;
-	inline constexpr auto NEGATE_PITCH = false; //true
-	inline constexpr auto NEGATE_YAW = true; //true
-	inline constexpr auto NEGATE_ROLL = true;
 
 	// Game specific tool settings
 	inline constexpr auto MULTIPLICATION_ORDER = EulerOrder::YXZ;
 	inline constexpr auto D3DMODE = D3DMODE::DX12; // Set to DX11 or DX12 based on the game
 	inline constexpr auto RUN_IN_HOOKED_PRESENT = true;
 	inline constexpr auto USE_WINDOWFOREGROUND_OVERRIDE = false;
+	inline constexpr auto XINPUT_VERSION = L"XINPUT1_3"; // XInput DLL to hook, usually XINPUT1_3 or XINPUT9_1_0
 
 	// Other Compile time constants
 	inline constexpr auto PATH_MANAGER_MAXPATHS = 5;
 	inline constexpr auto PATH_MAX_NODES = 8;
-	inline constexpr float FOV_ASPECT_RATIO = 1.7777777777777777777777777777778f; // Used to calculate vertical FOV from horizontal FOV
+	inline constexpr float ASPECT_RATIO = 1.7777777777777777777777777777778f; // Used to calculate vertical FOV from horizontal FOV
 
 	// Modify these constants (?1.f or 1.f) to match your engine’s forward/right/up directions. 1.f == current behaviour.
 	inline constexpr float kForwardSign = -1.0f; // set to ?1.f if engine uses negative forward
 	inline constexpr float kRightSign = 1.0f; // set to ?1.f if engine uses negative right
 	inline constexpr float kUpSign = 1.0f; // set to ?1.f if engine uses negative up
+	inline constexpr auto NEGATE_PITCH = false;
+	inline constexpr auto NEGATE_YAW = true;
+	inline constexpr auto NEGATE_ROLL = true;
 
 	// D3DLogging Constant
 	inline constexpr auto D3DLOGGING = true;
@@ -84,35 +82,32 @@ namespace IGCS
 
 	// AOB Keys for interceptor's AOB scanner
 	inline constexpr auto ACTIVE_CAMERA_ADDRESS_INTERCEPT = "ACTIVE_CAMERA_ADDRESS_INTERCEPT";
-	inline constexpr auto FOV_WRITE_INJECTION1 = "FOV_WRITE_INJECTION1";
-	inline constexpr auto FOV_WRITE2 = "FOV_WRITE2";
-	inline constexpr auto LOD_KEY = "LOD_KEY";
-	inline constexpr auto TIMESCALE_ABS_INTERCEPT_KEY = "TIMESCALE_ABS_INTERCEPT_KEY";;
-	inline constexpr auto TIMESCALE_INJECTION = "TIMESCALE_INJECTION";
-	inline constexpr auto HUD_TOGGLE_INJECTION = "HUD_TOGGLE_INJECTION";
-	inline constexpr auto GAMEPLAY_TIMESCALE = "GAMEPLAY_TIMESCALE";
-	inline constexpr auto GAMEPLAY_TIMESCALE_INTERCEPTION = "GAMEPLAY_TIMESCALE_INTERCEPTION";
-	inline constexpr auto HUD_TOGGLE_CHECKER_NOP = "HUD_TOGGLE_CHECKER_NOP";
-	inline constexpr auto PLAYER_POSITION = "PLAYER_POSITION";
+	inline constexpr auto FOV_WRITE = "FOV_WRITE";
+	inline constexpr auto CAMERA_POSITION_WRITE = "CAMERA_POSITION_WRITE";
+	inline constexpr auto CAMERA_ROTATION_WRITE = "CAMERA_ROTATION_WRITE";
+	inline constexpr auto DISABLE_FLASHLIGHT = "DISABLE_FLASHLIGHT";
+	inline constexpr auto HUD_TOGGLE = "HUD_TOGGLE";
+	inline constexpr auto VIGNETTE_TOGGLE = "VIGNETTE_TOGGLE";
+	inline constexpr auto TIMESCALE_ADDRESS = "TIMESCALE_ADDRESS";
+	inline constexpr auto PLAYER_ADDRESS = "PLAYER_ADDRESS";
+	inline constexpr auto PLAYER_POSITION_ZERO = "PLAYER_POSITION_ZERO";
+	inline constexpr auto DISABLE_PLAYER_LIGHT_CHECK = "DISABLE_PLAYER_LIGHT_CHECK";
 
 	// Indices in the structures read by interceptors 
-	inline constexpr auto COORDS_IN_STRUCT_OFFSET = 0x140;
-	inline constexpr auto QUATERNION_IN_STRUCT_OFFSET = 0x150;
-	inline constexpr auto HFOV_IN_STRUCT_OFFSET = 0x194;
-	inline constexpr auto VFOV_IN_STRUCT_OFFSET = 0x198;
-	inline constexpr auto REPLAY_TIMESCALE_OFFSET = 0x54;  // float;
-	inline constexpr auto GAMEPLAY_TIMESCALE_OFFSET = 0x168;  // double;
-	inline constexpr auto CAR_POSITION_IN_CAMSTRUCT_OFFSET = 0x2B0;
-	inline constexpr auto CAR_ROTATION_IN_CAMSTRUCT_OFFSET = 0x280; //rotation matrix - convert back to quaternion;
-	inline constexpr auto NEARZ_IN_STRUCT_OFFSET = 0x18C;
-	inline constexpr auto FARZ_IN_STRUCT_OFFSET = 0x190;
-	inline constexpr auto CAR_POSITION_IN_VEHICLE_OFFSET = 0x2E0; // 3 floats
-	inline constexpr auto CAR_ROTATION_IN_VEHICLE_OFFSET = 0x2F0; // 4 floats - quaternion
+	inline constexpr auto COORDS_IN_STRUCT_OFFSET = 0x30;
+	inline constexpr auto QUATERNION_IN_STRUCT_OFFSET = 0x40;
+	inline constexpr auto MATRIX_IN_STRUCT_OFFSET = 0x80;
+	inline constexpr auto SECOND_COORDS_IN_STRUCT_OFFSET = 0xB0;
+	inline constexpr auto FOV_IN_STRUCT_OFFSET = 0x158;
+	inline constexpr auto NEARZ_IN_STRUCT_OFFSET = 0x150;
+	inline constexpr auto FARZ_IN_STRUCT_OFFSET = 0x154;
+	inline constexpr auto VIGNETTE_OFFSET = 0x20C;
+	inline constexpr auto TIMESCALE_OFFSET = 0x348;
+	inline constexpr auto PLAYER_POSITION_OFFSET = 0x30;
+	inline constexpr auto PLAYER_ROTATION_OFFSET = 0x40; //quaternion
+
 
 	// Patches for the game
-	inline constexpr uint8_t patchbyte[] = { 0xB2, 0x41, 0x77, 0x00 }; // patch to prevent focus loss
-	inline constexpr uint8_t hudByte[] = { 0xEB, 0x13, 0x90, 0x90, 0x90, 0x90, 0x90 }; //skip visibility checks and jump to xor al,al to return null for all draw elements and ret
-	inline constexpr uint8_t vignettePatch[] = { 0x90, 0x90, 0x90, 0x90, 0x90 }; // patch to prevent focus loss
-	inline constexpr uint8_t caPatch[] = { 0x90, 0x90, 0x90, 0x90, 0x90 }; // patch to prevent focus loss
-	inline constexpr int shadowResPatch = 4096; // patch to set shadow resolution to max (4)
+	inline constexpr uint8_t hudPatch[] = { 0xEB, 0x5B }; // changes 74 to EB
+	inline constexpr uint8_t playerPositionPatch[] = {0xEB};
 }

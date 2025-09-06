@@ -40,31 +40,21 @@ using namespace std;
 
 extern "C" {
 	uint8_t* g_cameraStructAddress = nullptr;
-	//uint8_t* g_cameraQuaternionAddress = nullptr;
-	//uint8_t* g_cameraPositionAddress = nullptr;
-	//uint8_t* g_carPositionAddress = nullptr;
-	uint8_t* g_replayTimescaleAddress = nullptr;
-	uint8_t* g_gameplayTimescaleAddress = nullptr;
+	uint8_t* g_timescaleAddress = nullptr;
 	uint8_t* g_playerStructAddress = nullptr;
+	uint8_t* g_vignetteAddress = nullptr;
 }
 
 namespace IGCS::GameSpecific::CameraManipulator
 {
-	static float cachedGamespeedPauseA = 1.0f;
-	static double cachedGamespeedPauseB = 1.0;
-	static float cachedGamespeedSlowMoA = 1.0f;
-	static double cachedGamespeedSlowMoB = 1.0;
+	static float cachedGamespeedPause = 1.0f;
+	static float cachedGamespeedSlowMo = 1.0f;
 
 
 	void updateCameraDataInGameData()
 	{
 		if (!g_cameraEnabled)
 			return;
-
-		if (!System::instance().isCameraStructValid)
-			return;
-
-		
 
 		if (isCameraFound())
 		{
@@ -94,8 +84,6 @@ namespace IGCS::GameSpecific::CameraManipulator
 	void applySettingsToGameState()
 	{
 		const auto& s = Globals::instance().settings();
-
-		
 	}
 
 	void displayResolution(int width, int height)
@@ -105,40 +93,25 @@ namespace IGCS::GameSpecific::CameraManipulator
 
 	void cachetimespeed()
 	{
-		if (g_replayTimescaleAddress)
-		{
-			const auto replayGamespeed = reinterpret_cast<float*>(g_replayTimescaleAddress + REPLAY_TIMESCALE_OFFSET);
-			cachedGamespeedPauseA = *replayGamespeed;
-		}
+		if (!g_timescaleAddress)
+			return;
 
-		if (g_gameplayTimescaleAddress)
-		{
-			const auto gameplayGamespeed = reinterpret_cast<double*>(g_gameplayTimescaleAddress + GAMEPLAY_TIMESCALE_OFFSET);
-			cachedGamespeedPauseB = *gameplayGamespeed;
-		}
+		const auto s = reinterpret_cast<float*>(g_timescaleAddress + TIMESCALE_OFFSET);
+		cachedGamespeedPause = *s;
 	}
 
 	void cacheslowmospeed()
 	{
-		if (g_replayTimescaleAddress)
-		{
-			const auto replayGamespeed = reinterpret_cast<float*>(g_replayTimescaleAddress + REPLAY_TIMESCALE_OFFSET);
-			cachedGamespeedSlowMoA = *replayGamespeed;
-		}
+		if (!g_timescaleAddress)
+			return;
 
-		if (g_gameplayTimescaleAddress)
-		{
-			const auto gameplayGamespeed = reinterpret_cast<double*>(g_gameplayTimescaleAddress + GAMEPLAY_TIMESCALE_OFFSET);
-			cachedGamespeedSlowMoB = *gameplayGamespeed;
-		}
+		const auto s = reinterpret_cast<float*>(g_timescaleAddress + TIMESCALE_OFFSET);
+		cachedGamespeedSlowMo = *s;
 	}
 
 	float getNearZ()
 	{
 		if (!g_cameraStructAddress)
-			return 0.1f;
-
-		if (!System::instance().isCameraStructValid)
 			return 0.1f;
 
 		const auto nearZAddress = reinterpret_cast<float*>(g_cameraStructAddress + NEARZ_IN_STRUCT_OFFSET);
@@ -159,63 +132,19 @@ namespace IGCS::GameSpecific::CameraManipulator
 
 	void setTimeStopValue(bool pauseGame)
 	{
-		if (g_replayTimescaleAddress && System::instance().isReplayTimescaleValid)
-		{
-			const auto replayGamespeed = reinterpret_cast<float*>(g_replayTimescaleAddress + REPLAY_TIMESCALE_OFFSET);
-			*replayGamespeed = pauseGame ? 0.0f : cachedGamespeedPauseA;
-		}
-
-		if (g_gameplayTimescaleAddress)
-		{
-			auto& x = System::instance().getAOBBlock();
-			const auto a = x[GAMEPLAY_TIMESCALE].absoluteAddress();
-			if (pauseGame)
-			{
-				constexpr double value = 0.0;
-				uint8_t val[8];
-				memcpy(val, &value, sizeof(double));
-				GameImageHooker::writeRange(a + 0x02, val, sizeof(double));
-			}
-			else
-			{
-				const double value = cachedGamespeedPauseB;
-				uint8_t val[8];
-				memcpy(val, &value, sizeof(double));
-				GameImageHooker::writeRange(a + 0x02, val, sizeof(double));
-			}
-
-		}
-
+		if (!g_timescaleAddress)
+			return;
+		const auto s = reinterpret_cast<float*>(g_timescaleAddress + TIMESCALE_OFFSET);
+		*s = pauseGame ? 0.0f : cachedGamespeedPause;
 	}
 
 	void setSlowMo(float amount, bool slowMo)
 	{
-		if (g_replayTimescaleAddress && System::instance().isReplayTimescaleValid)
-		{
-			const auto replayGamespeed = reinterpret_cast<float*>(g_replayTimescaleAddress + REPLAY_TIMESCALE_OFFSET);
-			*replayGamespeed = slowMo ? amount * cachedGamespeedPauseA : cachedGamespeedPauseA;
-		}
+		if (!g_timescaleAddress)
+			return;
 
-		if (g_gameplayTimescaleAddress)
-		{
-			auto& x = System::instance().getAOBBlock();
-			const auto a = x[GAMEPLAY_TIMESCALE].absoluteAddress();
-			if (slowMo)
-			{
-				const double value = amount * cachedGamespeedSlowMoB;
-				uint8_t val[8];
-				memcpy(val, &value, sizeof(double));
-				GameImageHooker::writeRange(a + 0x02, val, sizeof(double));
-			}
-			else
-			{
-				const double value = cachedGamespeedSlowMoB;
-				uint8_t val[8];
-				memcpy(val, &value, sizeof(double));
-				GameImageHooker::writeRange(a + 0x02, val, sizeof(double));
-			}
-
-		}
+		const auto s = reinterpret_cast<float*>(g_timescaleAddress + TIMESCALE_OFFSET);
+		*s = slowMo ? amount * cachedGamespeedPause : cachedGamespeedPause;
 	}
 
 	// Resets the FOV to the one it got when we enabled the camera
@@ -224,7 +153,7 @@ namespace IGCS::GameSpecific::CameraManipulator
 		if (!g_cameraStructAddress)
 			return;
 
-		const auto fovAddress = reinterpret_cast<float*>(g_cameraStructAddress + HFOV_IN_STRUCT_OFFSET);
+		const auto fovAddress = reinterpret_cast<float*>(g_cameraStructAddress + FOV_IN_STRUCT_OFFSET);
 		*fovAddress = cachedData._fov;
 	}
 
@@ -235,19 +164,8 @@ namespace IGCS::GameSpecific::CameraManipulator
 		if (!g_cameraStructAddress || !g_cameraEnabled)
 			return;
 
-		//const auto fovAddress = reinterpret_cast<float*>(g_cameraStructAddress + HFOV_IN_STRUCT_OFFSET);
-		//*fovAddress = fovtowrite;
-
-		// Calculate VFOV from HFOV
-		const float vfovtowrite = fovtowrite / FOV_ASPECT_RATIO;
-
-		// Write HFOV
-		const auto hfovAddress = reinterpret_cast<float*>(g_cameraStructAddress + HFOV_IN_STRUCT_OFFSET);
-		*hfovAddress = fovtowrite;
-
-		// Write VFOV
-		const auto vfovAddress = reinterpret_cast<float*>(g_cameraStructAddress + VFOV_IN_STRUCT_OFFSET);
-		*vfovAddress = vfovtowrite;
+		const auto fovAddress = reinterpret_cast<float*>(g_cameraStructAddress + FOV_IN_STRUCT_OFFSET);
+		*fovAddress = XMConvertToDegrees(fovtowrite);
 	}
 
 	float getCurrentFoV()
@@ -255,8 +173,8 @@ namespace IGCS::GameSpecific::CameraManipulator
 		if (!g_cameraStructAddress)
 			return DEFAULT_FOV;
 
-		const auto fovAddress = reinterpret_cast<float*>(g_cameraStructAddress + HFOV_IN_STRUCT_OFFSET);
-		return *fovAddress;
+		const auto fovAddress = reinterpret_cast<float*>(g_cameraStructAddress + FOV_IN_STRUCT_OFFSET);
+		return XMConvertToRadians(*fovAddress);
 	}
 
 	float getCurrentVFoV()
@@ -264,13 +182,24 @@ namespace IGCS::GameSpecific::CameraManipulator
 		if (!g_cameraStructAddress)
 			return DEFAULT_FOV;
 
-		return getCurrentFoV() / FOV_ASPECT_RATIO;
+		float aspectRatio;
+
+		if (!Globals::instance().settings().d3ddisabled)
+		{
+			aspectRatio = (D3DMODE == D3DMODE::DX11) ? D3DHook::instance().getAspectRatio() : D3D12Hook::instance().getAspectRatio();
+		}
+		else
+		{
+			aspectRatio = ASPECT_RATIO;
+		}
+
+		return 2.0f * atan(tan(getCurrentFoV() / 2.0f) / aspectRatio);
 	}
 	
 
 	XMFLOAT3 getCurrentCameraCoords()
 	{
-		if (!g_cameraStructAddress || !System::instance().isCameraStructValid){
+		if (!g_cameraStructAddress){
 			return { 0.0f, 0.0f, 0.0f }; // Return a default value if the address is not valid
 		}
 
@@ -281,7 +210,7 @@ namespace IGCS::GameSpecific::CameraManipulator
 
 	XMVECTOR getCurrentCameraCoordsVector()
 	{
-		if (!g_cameraStructAddress || !System::instance().isCameraStructValid)
+		if (!g_cameraStructAddress)
 			return XMVECTOR(DirectX::XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)); // Return a default vector if the address is not valid
 
 		const auto coordsInMemory = reinterpret_cast<float*>(g_cameraStructAddress + COORDS_IN_STRUCT_OFFSET);
@@ -290,52 +219,29 @@ namespace IGCS::GameSpecific::CameraManipulator
 
 	XMVECTOR getCurrentPlayerPosition()
 	{
-		if (Globals::instance().settings().altTracking)
-		{
-			if (!g_cameraStructAddress || !System::instance().isCameraStructValid)
-				return XMVECTOR(XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)); // Return a default vector if the address is not valid
+		if (!g_playerStructAddress)
+			return XMVECTOR(XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)); // Return a default vector if the address is not valid
 
-			const auto coordsInMemory = reinterpret_cast<float*>(g_cameraStructAddress + CAR_POSITION_IN_CAMSTRUCT_OFFSET);
-			return XMVECTOR(XMVectorSet(coordsInMemory[0], coordsInMemory[1], coordsInMemory[2], 0.0f));
-		}
-		else
-		{
-			if (!g_playerStructAddress || !System::instance().isPlayerStructValid)
-				return XMVECTOR(XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)); // Return a default vector if the address is not valid
+		const auto coordsInMemory = reinterpret_cast<float*>(g_playerStructAddress + PLAYER_POSITION_OFFSET);
+		return XMVECTOR(XMVectorSet(coordsInMemory[0], coordsInMemory[1], coordsInMemory[2], 0.0f));
 
-			const auto coordsInMemory = reinterpret_cast<float*>(g_playerStructAddress + CAR_POSITION_IN_VEHICLE_OFFSET);
-			return XMVECTOR(XMVectorSet(coordsInMemory[0], coordsInMemory[1], coordsInMemory[2], 0.0f));
-		}
-
-		return XMVECTOR(XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)); // Default position if not found
+		//return XMVECTOR(XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)); // Default position if not found
 	}
 
 	XMVECTOR getCurrentPlayerRotation()
 	{
-		if (Globals::instance().settings().altTracking)
-		{
-			if (!g_cameraStructAddress || !System::instance().isCameraStructValid)
-				return XMVECTOR(XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)); // Return a default vector if the address is not valid
+		if (!g_playerStructAddress)
+			return XMVECTOR(XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)); // Return a default vector if the address is not valid
 
-			const auto m = reinterpret_cast<XMMATRIX*>(g_cameraStructAddress + CAR_ROTATION_IN_CAMSTRUCT_OFFSET);
-			const XMVECTOR r = XMQuaternionRotationMatrix(*m);
-			return r;
-		}
-		else
-		{
-			if (!g_playerStructAddress || !System::instance().isPlayerStructValid)
-				return XMVECTOR(XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f)); // Return a default vector if the address is not valid
+		const auto r = reinterpret_cast<float*>(g_playerStructAddress + PLAYER_ROTATION_OFFSET);
+		return XMVECTOR(XMVectorSet(r[0], r[1], r[2], r[3]));
 
-			const auto r = reinterpret_cast<float*>(g_playerStructAddress + CAR_ROTATION_IN_VEHICLE_OFFSET);
-			return XMVECTOR(XMVectorSet(r[0], r[1], r[2], r[3]));
-		}
-
-		return XMVECTOR(XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f)); // Default rotation if not found
+		//return XMVECTOR(XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f)); // Default rotation if not found
 	}
 
 	void setCurrentCameraCoords(XMFLOAT3 coords)
 	{
-		if (!g_cameraStructAddress || !System::instance().isCameraStructValid)
+		if (!g_cameraStructAddress)
 			return;
 
 		const auto coordsInMemory = reinterpret_cast<float*>(g_cameraStructAddress + COORDS_IN_STRUCT_OFFSET);
@@ -345,11 +251,19 @@ namespace IGCS::GameSpecific::CameraManipulator
 
 	void writeNewCameraValuesToGameData(XMFLOAT3& newCoords,XMVECTOR newLookQuaternion)
 	{
-		if (!isCameraFound() || !System::instance().isCameraStructValid)
+		if (!isCameraFound())
 			return;
 
-		auto c = reinterpret_cast<float*>(g_cameraStructAddress + COORDS_IN_STRUCT_OFFSET);
-		auto q = reinterpret_cast<XMFLOAT4*>(g_cameraStructAddress + QUATERNION_IN_STRUCT_OFFSET);
+		static bool handednessChecked = false;
+		if (!handednessChecked)
+		{
+			Utils::determineHandedness();
+			handednessChecked = true;
+		}
+
+		const auto c = reinterpret_cast<float*>(g_cameraStructAddress + COORDS_IN_STRUCT_OFFSET);
+		const auto q = reinterpret_cast<XMFLOAT4*>(g_cameraStructAddress + QUATERNION_IN_STRUCT_OFFSET);
+		const auto m = reinterpret_cast<XMMATRIX*>(g_cameraStructAddress + MATRIX_IN_STRUCT_OFFSET);
 
 		// Write coordinates directly as floats
 		c[0] = newCoords.x;
@@ -357,6 +271,14 @@ namespace IGCS::GameSpecific::CameraManipulator
 		c[2] = newCoords.z;
 
 		XMStoreFloat4(q, newLookQuaternion);
+
+		auto mInt = XMMatrixRotationQuaternion(newLookQuaternion);
+		mInt.r[3].m128_f32[0] = newCoords.x;
+		mInt.r[3].m128_f32[1] = newCoords.y;
+		mInt.r[3].m128_f32[2] = newCoords.z;
+		mInt.r[3].m128_f32[3] = 1.0f;
+
+		*m = mInt;
 	}
 
 	// Version that takes XMVECTOR
@@ -377,11 +299,9 @@ namespace IGCS::GameSpecific::CameraManipulator
 	void displayAddresses()
 	{
 		MessageHandler::logDebug("Camera struct address: %p", static_cast<void*>(g_cameraStructAddress));
-		MessageHandler::logDebug("Replay Timescale Address: %p", static_cast<void*>(g_replayTimescaleAddress));
-		MessageHandler::logDebug("Gameplay Timescale address: %p", static_cast<void*>(g_gameplayTimescaleAddress));
-		MessageHandler::logDebug("Car position address: %p", static_cast<void*>(g_playerStructAddress + CAR_POSITION_IN_VEHICLE_OFFSET));
-		//MessageHandler::logDebug("DOF strength address: %p", static_cast<void*>(g_dofStrengthAddress));
-		//MessageHandler::logDebug("Timescale address: %p", static_cast<void*>(g_timescaleAddress));
+		MessageHandler::logDebug("Timescale Address: %p", static_cast<void*>(g_timescaleAddress));
+		MessageHandler::logDebug("Vignette address: %p", static_cast<void*>(g_vignetteAddress));
+		MessageHandler::logDebug("player address: %p", static_cast<void*>(g_playerStructAddress));
 	}
 
 
@@ -392,7 +312,7 @@ namespace IGCS::GameSpecific::CameraManipulator
 			return;
 		}
 		source.RestoreData(reinterpret_cast<float*>(g_cameraStructAddress + QUATERNION_IN_STRUCT_OFFSET), reinterpret_cast<float*>(g_cameraStructAddress + COORDS_IN_STRUCT_OFFSET),
-						   reinterpret_cast<float*>(g_cameraStructAddress + HFOV_IN_STRUCT_OFFSET));
+						   reinterpret_cast<float*>(g_cameraStructAddress + FOV_IN_STRUCT_OFFSET));
 	}
 
 
@@ -403,17 +323,15 @@ namespace IGCS::GameSpecific::CameraManipulator
 			return;
 		}
 		destination.CacheData(reinterpret_cast<float*>(g_cameraStructAddress + QUATERNION_IN_STRUCT_OFFSET), reinterpret_cast<float*>(g_cameraStructAddress + COORDS_IN_STRUCT_OFFSET),
-							  reinterpret_cast<float*>(g_cameraStructAddress + HFOV_IN_STRUCT_OFFSET));
+							  reinterpret_cast<float*>(g_cameraStructAddress + FOV_IN_STRUCT_OFFSET));
 	}
 
 	void cacheGameAddresses(GameAddressData& destination)
 	{
 		destination.cameraAddress = g_cameraStructAddress;
-		destination.replayTimescaleAddress = g_replayTimescaleAddress;
-		destination.gameplayTimescaleAddress = g_gameplayTimescaleAddress;
-		//destination.carPositionAddress = g_carPositionAddress;
-		//destination.dofStrengthAddress = g_dofStrengthAddress;
-		//destination.timescaleAddress = g_timescaleAddress;
+		destination.timescaleAddress = g_timescaleAddress;
+		destination.vignetteAddress = g_vignetteAddress;
+		destination.playerAddress = g_playerStructAddress;
 	}
 
 	/// <summary>
@@ -432,7 +350,6 @@ namespace IGCS::GameSpecific::CameraManipulator
 	void restoreigcsData(const IGCSSessionCacheData& igcscache)
 	{
 		Camera::instance().setRotation(igcscache.eulers);
-
 		restoreCurrentCameraCoords(igcscache.Coordinates);
 		restoreFOV(igcscache.fov);
 	}
@@ -451,6 +368,7 @@ namespace IGCS::GameSpecific::CameraManipulator
 		memcpy(coordsInMemory, &coordstorestore, 3 * sizeof(float));
 	}
 
+	// check units
 	void restoreFOV(const float fov)
 	{
 		if (g_cameraStructAddress)
@@ -458,13 +376,8 @@ namespace IGCS::GameSpecific::CameraManipulator
 			return;
 		}
 
-		const auto fovAddress = reinterpret_cast<float*>(g_cameraStructAddress + HFOV_IN_STRUCT_OFFSET);
+		const auto fovAddress = reinterpret_cast<float*>(g_cameraStructAddress + FOV_IN_STRUCT_OFFSET);
 		*fovAddress = fov;
-	}
-
-	LPBYTE getCameraStruct()
-	{
-		return g_cameraStructAddress;
 	}
 
 	void setMatrixRotationVectors()
@@ -503,6 +416,29 @@ namespace IGCS::GameSpecific::CameraManipulator
 	/// Game specific code
 	/// </summary>
 
+	void toggleVignette(bool enable)
+	{
+		if (!g_vignetteAddress)
+		{
+			return;
+		}
+
+		const auto v = g_vignetteAddress + VIGNETTE_OFFSET;
+		enable ? *v = static_cast<uint8_t>(2) : *v = static_cast<uint8_t>(0);
+		const auto state = *v;
+		MessageHandler::logDebug("Vignette state set to %i", state);
+	}
+
+	void toggleFlashlight(bool enable)
+	{
+		if (!g_playerStructAddress)
+		{
+			return;
+		}
+
+		g_disableFlashlight = enable ? static_cast<uint8_t>(1) : static_cast<uint8_t>(0);
+	}
+
 	void setResolution(int width, int height)
 	{
 		//update below specific to game
@@ -530,62 +466,62 @@ namespace IGCS::GameSpecific::CameraManipulator
 	}
 
 	bool validatePlayerPositionMemory() {
-		if (!g_playerStructAddress) {
-			return false;
-		}
-		__try {
-			// Try to read critical camera data to validate accessibility
-			// Test reading position data
-			const auto pos = reinterpret_cast<float*>(g_playerStructAddress + CAR_POSITION_IN_VEHICLE_OFFSET);
-			volatile float testRead = *pos;
-			return true;
-		}
-		__except (EXCEPTION_EXECUTE_HANDLER) {
-			// Memory became inaccessible
-			g_playerStructAddress = nullptr;
-			return false;
-		}
+		//if (!g_playerStructAddress) {
+		//	return false;
+		//}
+		//__try {
+		//	// Try to read critical camera data to validate accessibility
+		//	// Test reading position data
+		//	const auto pos = reinterpret_cast<float*>(g_playerStructAddress + CAR_POSITION_IN_VEHICLE_OFFSET);
+		//	volatile float testRead = *pos;
+		//	return true;
+		//}
+		//__except (EXCEPTION_EXECUTE_HANDLER) {
+		//	// Memory became inaccessible
+		//	g_playerStructAddress = nullptr;
+		//	return false;
+		//}
 		return true; // Default return value if not implemented
 	}
 
 
 	bool validateCameraMemory() {
-		if (!g_cameraStructAddress) {
-			return false;
-		}
+		//if (!g_cameraStructAddress) {
+		//	return false;
+		//}
 
-		__try {
-			// Try to read critical camera data to validate accessibility
+		//__try {
+		//	// Try to read critical camera data to validate accessibility
 
-			// Test reading quaternion data
-			const auto q = reinterpret_cast<float*>(g_cameraStructAddress + QUATERNION_IN_STRUCT_OFFSET);
-			volatile float testRead = *q;
+		//	// Test reading quaternion data
+		//	const auto q = reinterpret_cast<float*>(g_cameraStructAddress + QUATERNION_IN_STRUCT_OFFSET);
+		//	volatile float testRead = *q;
 
-			return true;
-		}
-		__except (EXCEPTION_EXECUTE_HANDLER) {
-			// Memory became inaccessible
-			g_cameraStructAddress = nullptr;
-			return false;
-		}
+		//	return true;
+		//}
+		//__except (EXCEPTION_EXECUTE_HANDLER) {
+		//	// Memory became inaccessible
+		//	g_cameraStructAddress = nullptr;
+		//	return false;
+		//}
 		return false; // Default return value if not implemented
 	}
 
 	bool validateReplayTimescaleMemory() {
-		if (!g_replayTimescaleAddress) {
-			return false;
-		}
-		__try {
-			// Try to read critical timescale data to validate accessibility
-			const auto replayTimescale = reinterpret_cast<float*>(g_replayTimescaleAddress + REPLAY_TIMESCALE_OFFSET);
-			volatile float testRead = *replayTimescale;
-			return true;
-		}
-		__except (EXCEPTION_EXECUTE_HANDLER) {
-			// Memory became inaccessible
-			g_replayTimescaleAddress = nullptr;
-			return false;
-		}
+		//if (!g_timescaleAddress) {
+		//	return false;
+		//}
+		//__try {
+		//	// Try to read critical timescale data to validate accessibility
+		//	const auto replayTimescale = reinterpret_cast<float*>(g_timescaleAddress + REPLAY_TIMESCALE_OFFSET);
+		//	volatile float testRead = *replayTimescale;
+		//	return true;
+		//}
+		//__except (EXCEPTION_EXECUTE_HANDLER) {
+		//	// Memory became inaccessible
+		//	g_timescaleAddress = nullptr;
+		//	return false;
+		//}
 		return false; // Default return value if not implemented
 	}
 

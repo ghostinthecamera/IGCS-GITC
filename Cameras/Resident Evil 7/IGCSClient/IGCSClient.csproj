@@ -248,7 +248,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="IGCSIcon.ico" />
-    <Resource Include="Resources\Grid2019img.jpg" />
+    <Resource Include="Resources\re7.jpg" />
     <Resource Include="Resources\ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>

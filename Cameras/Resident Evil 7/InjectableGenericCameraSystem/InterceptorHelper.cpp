@@ -40,76 +40,61 @@ using namespace std;
 // external asm functions
 extern "C" {
 	void cameraStructInterceptor();
-	void timescaleInterceptor();
-	void fovReadInterceptor();
-	void lodSettingInterceptor();
-    void gameplayTimescaleInterceptor();
-    void playerPositionInterceptor();
+    void cameraPositionInterceptor();
+    void cameraRotationInterceptor();
+	void vignetteInterceptor();
+    void timescaleInterceptor();
+	void playerStructInterceptor();
+    void playerLightCheckInterceptor();
+
 }
 
 // external addresses used in asm.
 extern "C" {
 	uint8_t* _cameraStructInterceptionContinue = nullptr;
+	uint8_t* _cameraPositionInterceptionContinue = nullptr;
+	uint8_t* _cameraRotationInterceptionContinue = nullptr;
+	uint8_t* _vignetteInterceptionContinue = nullptr;
 	uint8_t* _timescaleInterceptionContinue = nullptr;
-	uint8_t* _fovReadInterceptionContinue = nullptr;
-	uint8_t* _timescaleAbsolute = nullptr;
-	uint8_t* _lodSettingInterceptionContinue = nullptr;
-	uint8_t* _gameplayTimescaleInterceptionContinue = nullptr;
-	uint8_t* _playerPositionInterceptionContinue = nullptr;
+	uint8_t* _playerStructInterceptionContinue = nullptr;
+    uint8_t* _playerLightCheckInterceptionContinue = nullptr;
+    uint8_t* _playerLightCheckJumpTarget = nullptr;
 }
 
 namespace IGCS::GameSpecific
 {
-
-    // Helper function for initialization hooks that need error checking
-    bool tryInitHook(map<string, AOBBlock>& aobBlocks, const string& key,
-        const function<void(AOBBlock&)>& operation)
-    {
-        try {
-            if (aobBlocks.find(key) != aobBlocks.end()) {
-                operation(aobBlocks[key]);
-                return true;
-            }
-            MessageHandler::logError("Block '%s' not found in AOBBlocks map", key.c_str());
-            return false;
-        }
-        catch (const exception& e) {
-            MessageHandler::logError("Error in operation for block '%s': %s", key.c_str(), e.what());
-            return false;
-        }
-    }
-
     // AOB pattern constants - definitions moved here from function body for better organization
     const struct {
-        string active_camera_address = "41 0F 11 86 ?? ?? ?? ?? 41 0F 11 8E ?? ?? ?? ?? E8 ?? ?? ?? ?? 0F B6 84 24";
-		string timescale_injection = "F3 0F 10 4B ?? 48 8B 4B ??";
-		string fov_injection_key1 = "8B 02 89 01 8B 42 ?? 89 41 ?? 0F 28 42 ?? 66 0F 7F 41 ?? 8B 42 ?? 89 41 ?? 8B 42 ?? 89 41 ?? 8B 42 ?? 89 41 ?? 8B 42 ?? 89 41 ?? 8B 42 ?? | 89 41 ?? 8B 42 ?? 89 41 ?? 8B 42 ?? 89 41 ?? 8B 42 ?? 89 41 ?? 8B 42 ?? 89 41 ?? 8B 42 ?? 89 41 ?? 8B 42 ?? 89 41 ?? 8B 42 ?? 89 41 ?? 8B 42 ?? 89 41 ?? 8B 42 ?? 89 41 ?? 8B 42 ?? 89 41 ?? 8B 42 ?? 89 41 ?? 8B 42 ?? 89 41 ?? 8B 42 ?? 89 41 ?? 0F B6 42 ?? 88 41 ?? C3";
-		string fov_write_key2 = "8B 02 89 01 8B 42 ?? 89 41 ?? 0F 28 42 ?? 66 0F 7F 41 ?? 8B 42 ?? 89 41 ?? 8B 42 ?? 89 41 ?? 8B 42 ?? 89 41 ?? 8B 42 ?? 89 41 ?? 8B 42 ?? 89 41 ?? 8B 42 ?? 89 41 ?? 8B 42 ?? | 89 41 ?? 8B 42 ?? 89 41 ?? 8B 42 ?? 89 41 ?? 8B 42 ?? 89 41 ?? 8B 42 ?? 89 41 ?? 8B 42 ?? 89 41 ?? 8B 42 ?? 89 41 ?? 8B 42 ?? 89 41 ?? 8B 42 ?? 89 41 ?? 8B 42 ?? 89 41 ?? 8B 42 ?? 89 41 ?? 8B 42 ?? 89 41 ?? 0F B6 42 ?? 88 41 ?? C3";
-		string lod_key = "41 88 86 ?? ?? ?? ?? 41 89 96 ?? ?? ?? ?? 84 C0 0F 84 ?? ?? ?? ??";
-		string timescale_absolute_intercept_key = "F3 0F 10 4B ?? 48 8B 4B ?? E8 | ?? ?? ?? ??";
-        string hud_toggle = "80 B9 58 02 00 00 00 74 0C 80 B9 ?? ?? ?? ?? 00 74 03 B0 01 C3 32 C0 C3 CC CC CC CC";
-        string gameplay_timescale = "48 B8 00 00 00 00 00 00 F0 3F F2 0F 11 8B ?? ?? ?? ??";
-        string gameplay_timescale_interception = "48 89 83 ?? ?? ?? ?? 48 8B 43 ?? F2 0F 11 8B ?? ?? ?? ??";
-        string hud_toggle_checker_nop = "74 05 E8 ?? ?? ?? ?? 48 8D 8B ?? ?? ?? ?? 0F 28 CE"; // 2 nops
-        string player_position = "48 8B 41 08 0F 10 80 E0 02 00 00 66";
+        string active_camera_address = "F3 0F 11 4A ?? E9 ?? ?? ?? ?? | 48 8B 48 ?? 48 8B 81 ?? ?? ?? ?? 48 85 C0 74 03 8B 40 ?? 85 C0 0F 84 ?? ?? ?? ??";
+		string camera_write_byte = "48 83 78 18 00 0F 85 27 06 00 00 F3 0F 10 87 F0 04 00 00 F3 0F 10 8F F4 04 00 00 F3 0F 10 97 F8 04 00 00"; // write 48 83 78 18 01
+		string fov_write = "F3 0F 11 40 38 48 83 79 18 00 0F 85 3E 05 00 00 48 85 C0 0F 84 DD 04 00 00"; //5 nops
+		string camera_position_write = "89 41 ?? 8B 42 ?? 89 41 ?? 8B 42 ?? 89 41 ?? 80 B9 ?? ?? ?? ?? 00 C6 81 ?? ?? ?? ?? 01 75 32";
+		string camera_rotation_write = "8B 02 89 41 ?? 8B 42 ?? 89 41 ?? 8B 42 ?? 89 41 ?? 8B 42 0C 89 41 4C 80 B9 ?? ?? ?? ?? 00 C6 81 ?? ?? ?? ?? 01 75 33 48 8B CF 48 85 FF 74 2B";
+        string disable_flaslight = "75 48 48 85 C0 74 43 48 63 8F ?? ?? ?? ?? 85 C9 78 18 48 8B 80 ?? ?? ?? ??";
+		string hud_toggle = "74 5B 48 8B 41 ?? 48 89 74 24 ?? 4C 89 74 24 ?? 4C 8B 30 8B 70 ??"; //change 74 5B (je) to EB 5B (jmp)
+        string vignette_address = "48 8B 41 30 8B 80 0C 02 00 00 C3 CC CC CC";
+        string timescale_address = "F3 0F 59 83 ?? ?? ?? ?? F3 0F 11 83 ?? ?? ?? ?? 0F 5A C0 F2 41 0F 5E C0";
+        string player_address = "F3 0F 10 40 ?? 48 8D 54 24 ?? F3 0F 10 48 ?? 48 8B C8 F3 0F 10 50 ??";
+        string player_position_zero = "75 27 F3 0F 11 47 ?? F3 0F 11 4F ?? F3 0F 11 57 ?? 80 BF ?? ?? ?? ?? 00 C6 87 ?? ?? ?? ?? 01"; //change 75 27 to EB 27
+        string light_injection = "48 8B 47 ?? A8 01 75 48 48 85 C0 74 43 48 63 8F ?? ?? ?? ??";
     } aob;
 
     bool InterceptorHelper::initializeAOBBlocks(const LPBYTE hostImageAddress, DWORD hostImageSize, map<string, AOBBlock>& aobBlocks)
     {
         // Initialize all AOB blocks with their patterns
         aobBlocks[ACTIVE_CAMERA_ADDRESS_INTERCEPT] = AOBBlock(ACTIVE_CAMERA_ADDRESS_INTERCEPT, aob.active_camera_address, 1);
-    	aobBlocks[TIMESCALE_INJECTION] = AOBBlock(TIMESCALE_INJECTION, aob.timescale_injection, 1);
-        aobBlocks[FOV_WRITE_INJECTION1] = AOBBlock(FOV_WRITE_INJECTION1, aob.fov_injection_key1, 1);
-		aobBlocks[FOV_WRITE2] = AOBBlock(FOV_WRITE2, aob.fov_write_key2, 1);
-		aobBlocks[LOD_KEY] = AOBBlock(LOD_KEY, aob.lod_key, 1);
-		aobBlocks[TIMESCALE_ABS_INTERCEPT_KEY] = AOBBlock(TIMESCALE_ABS_INTERCEPT_KEY, aob.timescale_absolute_intercept_key, 1);
-		aobBlocks[HUD_TOGGLE_INJECTION] = AOBBlock(HUD_TOGGLE_INJECTION, aob.hud_toggle, 1);
-		aobBlocks[GAMEPLAY_TIMESCALE] = AOBBlock(GAMEPLAY_TIMESCALE, aob.gameplay_timescale, 1);
-		aobBlocks[GAMEPLAY_TIMESCALE_INTERCEPTION] = AOBBlock(GAMEPLAY_TIMESCALE_INTERCEPTION, aob.gameplay_timescale_interception, 1);
-		aobBlocks[HUD_TOGGLE_CHECKER_NOP] = AOBBlock(HUD_TOGGLE_CHECKER_NOP, aob.hud_toggle_checker_nop, 1);
-		aobBlocks[PLAYER_POSITION] = AOBBlock(PLAYER_POSITION, aob.player_position, 1);
+        aobBlocks[FOV_WRITE] = AOBBlock(FOV_WRITE, aob.fov_write, 1);
+        aobBlocks[CAMERA_POSITION_WRITE] = AOBBlock(CAMERA_POSITION_WRITE, aob.camera_position_write, 1);
+        aobBlocks[CAMERA_ROTATION_WRITE] = AOBBlock(CAMERA_ROTATION_WRITE, aob.camera_rotation_write, 1);
+        aobBlocks[DISABLE_FLASHLIGHT] = AOBBlock(DISABLE_FLASHLIGHT, aob.disable_flaslight, 1);
+        aobBlocks[HUD_TOGGLE] = AOBBlock(HUD_TOGGLE, aob.hud_toggle, 1);
+        aobBlocks[VIGNETTE_TOGGLE] = AOBBlock(VIGNETTE_TOGGLE, aob.vignette_address, 1);
+        aobBlocks[TIMESCALE_ADDRESS] = AOBBlock(TIMESCALE_ADDRESS, aob.timescale_address, 1);
+        aobBlocks[PLAYER_ADDRESS] = AOBBlock(PLAYER_ADDRESS, aob.player_address, 1);
+        aobBlocks[PLAYER_POSITION_ZERO] = AOBBlock(PLAYER_POSITION_ZERO, aob.player_position_zero, 1);
+        aobBlocks[DISABLE_PLAYER_LIGHT_CHECK] = AOBBlock(DISABLE_PLAYER_LIGHT_CHECK, aob.light_injection, 1);
 
-        // Scan for all patterns
+    	// Scan for all patterns
         bool result = true;
         for (auto& [key, block] : aobBlocks)
         {
@@ -129,44 +114,49 @@ namespace IGCS::GameSpecific
         return result;
     }
 
-    bool InterceptorHelper::setCameraStructInterceptorHook(map<string, AOBBlock>& aobBlocks)
+    bool InterceptorHelper::setCameraStructInterceptorHook()
     {
-        return tryInitHook(aobBlocks, ACTIVE_CAMERA_ADDRESS_INTERCEPT, [](AOBBlock& block) {
-                GameImageHooker::setHook(&block, 0x10, &_cameraStructInterceptionContinue, &cameraStructInterceptor);
-            });
+        return tryInitHook(ACTIVE_CAMERA_ADDRESS_INTERCEPT, [](AOBBlock& block) {
+	        GameImageHooker::setHook(&block, 0x0E, &_cameraStructInterceptionContinue, &cameraStructInterceptor);
+        });
     }
 
-	bool InterceptorHelper::setPostCameraStructHooks(map<string, AOBBlock>& aobBlocks)
+	bool InterceptorHelper::setPostCameraStructHooks()
 	{
 		bool result = true;
-		result &= tryInitHook(aobBlocks, FOV_WRITE_INJECTION1,
-			[](AOBBlock& block) {
-				GameImageHooker::setHook(&block, 0x0F, &_fovReadInterceptionContinue, &fovReadInterceptor);
-			});
-		result &= tryInitHook(aobBlocks, TIMESCALE_INJECTION,
-			[](AOBBlock& block) {
-				GameImageHooker::setHook(&block, 0x0E, &_timescaleInterceptionContinue, &timescaleInterceptor);
-			});
-		result &= tryInitHook(aobBlocks, LOD_KEY,
-			[](AOBBlock& block) {
-				GameImageHooker::setHook(&block, 0x0E, &_lodSettingInterceptionContinue, &lodSettingInterceptor);
-			});
-		result &= tryInitHook(aobBlocks, GAMEPLAY_TIMESCALE_INTERCEPTION,
-			[](AOBBlock& block) {
-				GameImageHooker::setHook(&block, 0x13, &_gameplayTimescaleInterceptionContinue, &gameplayTimescaleInterceptor);
-			});
-		result &= tryInitHook(aobBlocks, PLAYER_POSITION,
-			[](AOBBlock& block) {
-				GameImageHooker::setHook(&block, 0x0F, &_playerPositionInterceptionContinue, &playerPositionInterceptor);
-			});
+		result &= tryInitHook(CAMERA_POSITION_WRITE, [](AOBBlock& block) {
+			GameImageHooker::setHook(&block, 0x0F, &_cameraPositionInterceptionContinue, &cameraPositionInterceptor);
+		});
+		result &= tryInitHook(CAMERA_ROTATION_WRITE, [](AOBBlock& block) {
+			GameImageHooker::setHook(&block, 0x17, &_cameraRotationInterceptionContinue, &cameraRotationInterceptor);
+		});
+        result &= tryInitHook(VIGNETTE_TOGGLE, [](AOBBlock& block) {
+            GameImageHooker::setHook(&block, 0x0A, &_vignetteInterceptionContinue, &vignetteInterceptor); // pass continue var but we dont need it
+        });
+        result &= tryInitHook(TIMESCALE_ADDRESS, [](AOBBlock& block) {
+            GameImageHooker::setHook(&block, 0x10, &_timescaleInterceptionContinue, &timescaleInterceptor); // pass continue var but we dont need it
+        });
+        result &= tryInitHook(PLAYER_ADDRESS, [](AOBBlock& block) {
+            GameImageHooker::setHook(&block, 0x0F, &_playerStructInterceptionContinue, &playerStructInterceptor); // pass continue var but we dont need it
+        });
+        result &= tryInitHook(DISABLE_PLAYER_LIGHT_CHECK, [](AOBBlock& block) {
+            // The original jne is `75 48`. The target address is:
+            // instruction_address + instruction_size + relative_offset
+            // re7.exe+241610E + 2 + 0x48 = re7.exe+2416158
+            // Our block starts at 2416108. The jne starts at an offset of 6 from there.
+            LPBYTE jneInstructionAddress = block.locationInImage() + 6;
+            _playerLightCheckJumpTarget = jneInstructionAddress + 2 + 0x48; // Calculate absolute jump address
+
+            // We need to overwrite 14 bytes to fit our hook.
+            GameImageHooker::setHook(&block, 0xE, &_playerLightCheckInterceptionContinue, &playerLightCheckInterceptor);
+        });
 
 		return result;
 	}
 
-    bool InterceptorHelper::toggleHud(map<string, AOBBlock>& aobBlocks, const bool hudVisible)
+    bool InterceptorHelper::toggleHud(const bool hudVisible)
     {
-    	Utils::saveBytesWrite(aobBlocks[HUD_TOGGLE_INJECTION], sizeof(hudByte), hudByte, !hudVisible);
-        Utils::toggleNOPState(aobBlocks[HUD_TOGGLE_CHECKER_NOP], 2, !hudVisible);
+    	Utils::saveBytesWrite(HUD_TOGGLE, sizeof(hudPatch), hudPatch, !hudVisible);
     	return true;
     }
 
@@ -177,15 +167,17 @@ namespace IGCS::GameSpecific
 
     void InterceptorHelper::getAbsoluteAddresses(map<string, AOBBlock>& aobBlocks)
     {
-        _timescaleAbsolute = Utils::calculateAbsoluteAddress(&aobBlocks[TIMESCALE_ABS_INTERCEPT_KEY], 4);
-
-		MessageHandler::logDebug("Timescale absolute address: %p", _timescaleAbsolute);
+		//_timescaleAbsolute = Utils::calculateAbsoluteAddress(&aobBlocks[TIMESCALE_ABS_INTERCEPT_KEY], 4);
+		//MessageHandler::logDebug("Timescale absolute address: %p", _timescaleAbsolute);
     }
 
-    bool InterceptorHelper::cameraSetup(map<string, AOBBlock>& aobBlocks, bool enabled, GameAddressData& addressData)
+    bool InterceptorHelper::cameraSetup(bool enabled, GameAddressData& addressData)
     {
         try {
-            return true;
+            Utils::toggleNOPState(FOV_WRITE, 5, enabled);
+            Utils::saveBytesWrite(PLAYER_POSITION_ZERO, sizeof(playerPositionPatch), playerPositionPatch, enabled);
+
+        	return true;
         }
         catch (const exception& e) {
             MessageHandler::logError("Failed to set up camera: %s", e.what());
@@ -193,22 +185,17 @@ namespace IGCS::GameSpecific
         }
     }
 
-    bool InterceptorHelper::toolsInit(map<string, AOBBlock>& aobBlocks)
+    bool InterceptorHelper::toolsInit()
     {
 	    try
 	    {
-	    	MemoryPatcher::addPatches({
-			    {"FocusLoss1", 0x774204, patchbyte},
-			    {"FocusLoss2", 0x7741EC, patchbyte},
-			    {"FocusLoss3", 0x7741F4, patchbyte},
-				{"Vignette", 0x9074E3, vignettePatch},
-                {"ChromaticAbberation", 0x907501, caPatch },
-                {"ShadowRes", 0x16BD8D4, Utils::intToBytes(shadowResPatch)} //Grid_dx12.exe+16BD8D4
-            });
+	    	//MemoryPatcher::addPatches({
+			   // {"FocusLoss1", 0x774204, patchbyte},
+			//});
 
-			// Enable all patches apart from shadow res at init
-			std:vector<std::string> initPatches = { "FocusLoss1", "FocusLoss2", "FocusLoss3", "Vignette", "ChromaticAbberation"};
-            MemoryPatcher::togglePatchGroup(initPatches, true);
+			//// Enable all patches apart from shadow res at init
+			//std:vector<std::string> initPatches = { "FocusLoss1", "FocusLoss2", "FocusLoss3", "Vignette", "ChromaticAbberation"};
+			//MemoryPatcher::togglePatchGroup(initPatches, true);
 	    }
 	    catch (const exception& e)
 	    {

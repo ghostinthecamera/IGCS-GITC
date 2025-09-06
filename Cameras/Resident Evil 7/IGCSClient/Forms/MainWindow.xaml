@@ -46,7 +46,7 @@
                 <system:Double x:Key="TabViewItemHeaderIconSize">14</system:Double>
             </TabControl.Resources>
             <TabControl.Background>
-                <ImageBrush Stretch="UniformToFill" TileMode="None" Opacity="0.6" ImageSource="/Resources/Grid2019img.jpg">
+                <ImageBrush Stretch="UniformToFill" TileMode="None" Opacity="0.6" ImageSource="/Resources/re7.jpg">
                     <ImageBrush.Transform>
                         <TransformGroup>
                             <ScaleTransform/>

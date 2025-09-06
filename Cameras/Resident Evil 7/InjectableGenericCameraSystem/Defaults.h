@@ -180,8 +180,8 @@ namespace IGCS
 		HandheldPositionToggleB = 65,
 		HandheldDriftSpeedB = 66,
 		HandheldRotationDriftSpeedB = 67,
-		AltPlayerTracking = 68,
-		IncreaseShadowRes = 69
+		DisableFlashlight = 68,
+		DisableVignette = 69
 	};
 
 

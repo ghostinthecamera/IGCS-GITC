@@ -231,7 +231,7 @@ namespace IGCSClient.Classes
 		public void SaveSettingsToIni()
 		{
 			var iniFile = new IniFileHandler(ConstantsEnums.IniFilename);
-			foreach (var setting in _settings)
+			foreach (var setting in _settings.Where(s=>s.IsPersistent))
             {
                 iniFile.Write(setting.Name, setting.GetValueAsString(), "CameraSettings");
 			}
@@ -279,7 +279,7 @@ namespace IGCSClient.Classes
 		{
 			var iniFile = new IniFileHandler(ConstantsEnums.IniFilename);
 			if (!iniFile.FileExists()) return;
-			foreach (var setting in _settings.Where(setting => setting.Name != nameof(SettingType.ScrubbingProgress)))
+			foreach (var setting in _settings.Where(setting => setting.IsPersistent))
 			{
 				setting.SetValueFromString(iniFile.Read(setting.Name, "CameraSettings"));
 			}

@@ -144,7 +144,6 @@ namespace IGCS
 			else
 			{
 				MessageHandler::logLine("DirectX Hook Enabled: Running frame update in IGCS thread");
-				CameraManipulator::displayAddresses();
 				// If RUN_IN_HOOKED_PRESENT is false, we need to run the main loop in our own thread.
 				// so we run updateframe while the system is active
 				while (Globals::instance().systemActive())
@@ -161,7 +160,7 @@ namespace IGCS
 	// updates the data and camera for a frame 
 	void System::updateFrame()
 	{
-		validateAddresses(); //needed in ego engine
+		//validateAddresses(); //needed in ego engine
 		frameSkip();
 		updateDeltaTime();
 		CameraManipulator::cacheGameAddresses(_addressData);
@@ -318,14 +317,14 @@ namespace IGCS
 				CameraManipulator::restoreGameCameraData(_originalData);
 				Camera.setFoV(_originalData._fov, true);
 				Globals.cameraMovementLocked(false);
-				InterceptorHelper::cameraSetup(_aobBlocks, false, _addressData);
+				InterceptorHelper::cameraSetup(false, _addressData);
 			}
 			else
 			{
 				// it's going to be enabled, so cache the original values before we enable it so we can restore it afterwards
 				CameraManipulator::cacheGameCameraData(_originalData);
 				CameraManipulator::displayAddresses();
-				InterceptorHelper::cameraSetup(_aobBlocks, true, _addressData);
+				InterceptorHelper::cameraSetup(true, _addressData);
 				Camera.prepareCamera();
 			}
 			g_cameraEnabled ^= 1;
@@ -375,15 +374,19 @@ namespace IGCS
 
 		if (Input::isActionActivated(ActionType::CycleDepthBuffers))
 		{
-			//D3DHook::instance().cycleDepthBuffer();
-			D3D12Hook::instance().cycleDepthBuffer();
+			if (Globals::instance().settings().d3ddisabled || !isD3DInitialised)
+				return; // depth buffer cycling not available when d3d is disabled
+
+			(D3DMODE == D3DMODE::DX11) ? D3DHook::instance().cycleDepthBuffer() : D3D12Hook::instance().cycleDepthBuffer();
 			_applyHammerPrevention = true;
 		}
 
 		if (Input::isActionActivated(ActionType::ToggleDepthBuffer))
 		{
-			//D3DHook::instance().toggleDepthBufferUsage();
-			D3D12Hook::instance().toggleDepthBufferUsage();
+			if (Globals::instance().settings().d3ddisabled || !isD3DInitialised)
+				return;
+
+			(D3DMODE == D3DMODE::DX11) ? D3DHook::instance().toggleDepthBufferUsage() : D3D12Hook::instance().toggleDepthBufferUsage();
 			MessageHandler::addNotification(D3D12Hook::instance().isUsingDepthBuffer() ? "Depth buffer usage enabled" : "Depth buffer usage disabled");
 			_applyHammerPrevention = true;
 		}
@@ -497,8 +500,7 @@ namespace IGCS
 		const bool slowMovement = Utils::ctrlPressed() || Input::isActionActivated(ActionType::GamepadSlowModifier);
 
 		// Determine base multiplier
-		const float baseMultiplier = fastMovement ? settings.fastMovementMultiplier :
-			slowMovement ? settings.slowMovementMultiplier : 1.0f;
+		const float baseMultiplier = fastMovement ? settings.fastMovementMultiplier : slowMovement ? settings.slowMovementMultiplier : 1.0f;
 
 		// Apply FoV scaling
 		const float fovScalingFactor = Utils::clamp(abs(CameraManipulator::getCurrentFoV() / DEFAULT_FOV), 0.01f, 1.0f);
@@ -520,6 +522,9 @@ namespace IGCS
 		// Path Visualization Toggle
 		if (Input::isActionActivated(ActionType::PathVisualizationToggle))
 		{
+			if (Globals::instance().settings().d3ddisabled || !isD3DInitialised)
+				return;
+
 			const bool toggleValue = !Globals::instance().settings().togglePathVisualisation;
 			//Utils::callOnChange(Globals::instance().settings().togglePathVisualisation, toggleValue, [](auto t) {D3DHook::instance().setVisualisation(t); });
 			//NamedPipeManager::instance().writeBinaryPayload(D3DHook::instance().isVisualisationEnabled(), MessageType::UpdateVisualisation);
@@ -1049,9 +1054,9 @@ namespace IGCS
 
 		blocksInit = InterceptorHelper::initializeAOBBlocks(_hostImageAddress, _hostImageSize, _aobBlocks);
 		InterceptorHelper::getAbsoluteAddresses(_aobBlocks); //return if needed
-		cameraStructInit = InterceptorHelper::setCameraStructInterceptorHook(_aobBlocks);
+		cameraStructInit = InterceptorHelper::setCameraStructInterceptorHook();
 		waitForCameraStructAddresses();		// blocks till camera is found.
-		postCameraStructInit = InterceptorHelper::setPostCameraStructHooks(_aobBlocks);
+		postCameraStructInit = InterceptorHelper::setPostCameraStructHooks();
 
 		// camera struct found, init our own camera object now and hook into game code which uses camera.
 		_cameraStructFound = true;
@@ -1067,10 +1072,9 @@ namespace IGCS
 		CameraManipulator::displayAddresses();
 
 		//apply any code changes now
-		InterceptorHelper::toolsInit(_aobBlocks);
+		InterceptorHelper::toolsInit();
 
 		_deltaTime = 0.0f;
-
 	}
 
 	void System::minhookInitialisation()
@@ -1119,11 +1123,13 @@ namespace IGCS
 			switch (D3DMODE)
 			{
 				case D3DMODE::DX11:
-					if (!D3DHook::instance().initialize())
+					isD3DInitialised = D3DHook::instance().initialize();
+					if (!isD3DInitialised)
 						MessageHandler::logError("Failed to initialize D3D11 hook");
 					break;
 				case D3DMODE::DX12:
-					if (!D3D12Hook::instance().initialise())
+					isD3DInitialised = D3D12Hook::instance().initialise();
+					if (!isD3DInitialised)
 						MessageHandler::logError("Failed to initialize D3D12 hook");
 					break;
 			}
@@ -1160,7 +1166,7 @@ namespace IGCS
 	void System::toggleHud()
 	{
 		bool hudVisible = Globals::instance().toggleHudVisible();
-		InterceptorHelper::toggleHud(_aobBlocks, hudVisible);
+		InterceptorHelper::toggleHud(hudVisible);
 		MessageHandler::addNotification(hudVisible ? "HUD visible" : "HUD hidden");
 	}
 
@@ -1287,12 +1293,6 @@ namespace IGCS
 
 	void System::toggledepthBufferUsage()
 	{
-		//D3DHook::instance().toggleDepthBufferUsage();
-		//if (D3DHook::instance().isUsingDepthBuffer())
-		//	MessageHandler::addNotification("Using Depth Buffer");
-		//else
-		//	MessageHandler::addNotification("Depth Buffer disabled");
-
 		D3D12Hook::instance().toggleDepthBufferUsage();
 		if (D3D12Hook::instance().isUsingDepthBuffer())
 			MessageHandler::addNotification("Using Depth Buffer");

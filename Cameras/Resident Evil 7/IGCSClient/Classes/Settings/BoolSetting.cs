@@ -38,8 +38,8 @@ namespace IGCSClient.Classes
 		private readonly bool _defaultValue;
 
 
-		public BoolSetting(byte id, string name, bool defaultValue)
-			: base(id, name, SettingKind.NormalSetting)
+		public BoolSetting(byte id, string name, bool defaultValue, bool isPersistent = true)
+			: base(id, name, SettingKind.NormalSetting, isPersistent)
 		{
 			_defaultValue = defaultValue;
 		}

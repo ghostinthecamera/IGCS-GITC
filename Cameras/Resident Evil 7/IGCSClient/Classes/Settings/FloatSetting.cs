@@ -45,11 +45,12 @@ namespace IGCSClient.Classes
 		private readonly float _defaultValue;
         private readonly double _tickInterval; // Optional - if not provided, uses increment
         private readonly bool _useFlexibleTicks;
+        private bool _isPersistent;
         #endregion
 
 
-        public FloatSetting(byte id, string name, double minValue, double maxValue, int scale, double increment, float defaultValue)
-			: base(id, name, SettingKind.NormalSetting)
+        public FloatSetting(byte id, string name, double minValue, double maxValue, int scale, double increment, float defaultValue, bool isPersistent = true)
+			: base(id, name, SettingKind.NormalSetting, isPersistent)
 		{
             _minValue = minValue;
             _maxValue = maxValue;
@@ -61,8 +62,8 @@ namespace IGCSClient.Classes
         }
 
         public FloatSetting(byte id, string name, double minValue, double maxValue, int scale,
-            double stepSize, double tickInterval, float defaultValue)
-            : base(id, name, SettingKind.NormalSetting)
+            double stepSize, double tickInterval, float defaultValue, bool isPersistent = true)
+            : base(id, name, SettingKind.NormalSetting, isPersistent)
         {
             _minValue = minValue;
             _maxValue = maxValue;
@@ -118,5 +119,5 @@ namespace IGCSClient.Classes
 		{
 			return this.Value.ToString(CultureInfo.InvariantCulture.NumberFormat);
 		}
-	}
+    }
 }

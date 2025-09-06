@@ -32,11 +32,13 @@
 ;---------------------------------------------------------------
 ; Public definitions so the linker knows which names are present in this file
 PUBLIC cameraStructInterceptor
+PUBLIC cameraPositionInterceptor
+PUBLIC cameraRotationInterceptor
+PUBLIC vignetteInterceptor
 PUBLIC timescaleInterceptor
-PUBLIC fovReadInterceptor
-PUBLIC lodSettingInterceptor
-PUBLIC gameplayTimescaleInterceptor
-PUBLIC playerPositionInterceptor
+PUBLIC playerStructInterceptor
+PUBLIC playerLightCheckInterceptor
+
 ;---------------------------------------------------------------
 
 ;---------------------------------------------------------------
@@ -44,199 +46,239 @@ PUBLIC playerPositionInterceptor
 ; values in asm to communicate with the system
 EXTERN g_cameraEnabled: byte
 EXTERN g_cameraStructAddress: qword
-EXTERN g_replayTimescaleAddress: qword
-EXTERN _timescaleAbsolute: qword
-EXTERN g_gameplayTimescaleAddress: qword
+EXTERN g_vignetteAddress: qword
+EXTERN g_timescaleAddress: qword
 EXTERN g_playerStructAddress: qword
+EXTERN g_disableFlashlight: byte
 
 ;---------------------------------------------------------------
 
 ;---------------------------------------------------------------
 ; Own externs, defined in InterceptorHelper.cpp
 EXTERN _cameraStructInterceptionContinue: qword
+EXTERN _cameraPositionInterceptionContinue: qword
+EXTERN _cameraRotationInterceptionContinue: qword
+EXTERN _vignetteInterceptionContinue: qword
 EXTERN _timescaleInterceptionContinue: qword
-EXTERN _fovReadInterceptionContinue: qword
-EXTERN _lodSettingInterceptionContinue: qword
-EXTERN _gameplayTimescaleInterceptionContinue: qword
-EXTERN _playerPositionInterceptionContinue: qword
+EXTERN _playerStructInterceptionContinue: qword
+EXTERN _playerLightCheckInterceptionContinue: qword
+EXTERN _playerLightCheckJumpTarget: qword
 
 .data
 
 .code
 
+
 cameraStructInterceptor PROC
-;for IGCS Camera: 41 0F 11 86 ?? ?? ?? ?? 41 0F 11 8E ?? ?? ?? ?? E8 ?? ?? ?? ?? 0F B6 84 24
-;Grid_dx12.exe+A2C7C5 - 48 8D 4C 24 40        - lea rcx,[rsp+40]
-;Grid_dx12.exe+A2C7CA - E8 D1E5FDFF           - call Grid_dx12.exe+A0ADA0
-;Grid_dx12.exe+A2C7CF - 0F28 84 24 20010000   - movaps xmm0,[rsp+00000120]
-;Grid_dx12.exe+A2C7D7 - 49 8D 8E 60010000     - lea rcx,[r14+00000160]
-;Grid_dx12.exe+A2C7DE - 0F28 8C 24 30010000   - movaps xmm1,[rsp+00000130]
-;Grid_dx12.exe+A2C7E6 - 48 8D 94 24 40010000  - lea rdx,[rsp+00000140]
-;Grid_dx12.exe+A2C7EE - 41 0F11 86 40010000   - movups [r14+00000140],xmm0			<<coords/inject here
-;Grid_dx12.exe+A2C7F6 - 41 0F11 8E 50010000   - movups [r14+00000150],xmm1			<<quaternion
-;Grid_dx12.exe+A2C7FE - E8 4DCCE2FF           - call Grid_dx12.exe+859450			<<<return here
-;Grid_dx12.exe+A2C803 - 0FB6 84 24 B0010000   - movzx eax,byte ptr [rsp+000001B0]
-;Grid_dx12.exe+A2C80B - 41 88 86 D0010000     - mov [r14+000001D0],al
-;Grid_dx12.exe+A2C812 - 0FB6 84 24 B1010000   - movzx eax,byte ptr [rsp+000001B1]
-;Grid_dx12.exe+A2C81A - 41 88 86 D1010000     - mov [r14+000001D1],al
-;Grid_dx12.exe+A2C821 - 0FB6 84 24 B2010000   - movzx eax,byte ptr [rsp+000001B2]
-;Grid_dx12.exe+A2C829 - 41 88 86 D2010000     - mov [r14+000001D2],al
-	mov [g_cameraStructAddress], r14
-	cmp byte ptr [g_cameraEnabled],1
-	je exit
-	movups [r14+00000140h],xmm0	
-	movups [r14+00000150h],xmm1
+;for IGCS Camera: F3 0F 11 4A ?? E9 ?? ?? ?? ?? | 48 8B 48 ?? 48 8B 81 ?? ?? ?? ?? 48 85 C0 74 03 8B 40 ?? 85 C0 0F 84 ?? ?? ?? ??
+;re7.exe+242E4DB - F3 0F10 05 0D5CA906   - movss xmm0,[re7.AmdPowerXpressRequestHighPerformance+1B04] { (0.00) }
+;re7.exe+242E4E3 - F3 0F11 42 30         - movss [rdx+30],xmm0
+;re7.exe+242E4E8 - F3 0F10 0D 045CA906   - movss xmm1,[re7.AmdPowerXpressRequestHighPerformance+1B08] { (0.00) }
+;re7.exe+242E4F0 - F3 0F11 4A 34         - movss [rdx+34],xmm1
+;re7.exe+242E4F5 - F3 0F10 05 FB5BA906   - movss xmm0,[re7.AmdPowerXpressRequestHighPerformance+1B0C] { (0.00) }
+;re7.exe+242E4FD - F3 0F11 42 38         - movss [rdx+38],xmm0
+;re7.exe+242E502 - F3 0F10 0D F25BA906   - movss xmm1,[re7.AmdPowerXpressRequestHighPerformance+1B10] { (1.00) }
+;re7.exe+242E50A - F3 0F11 4A 3C         - movss [rdx+3C],xmm1
+;re7.exe+242E50F - E9 C6000000           - jmp re7.exe+242E5DA
+;re7.exe+242E514 - 48 8B 48 18           - mov rcx,[rax+18]			<< inject here/ rcx has address
+;re7.exe+242E518 - 48 8B 81 D0000000     - mov rax,[rcx+000000D0]
+;re7.exe+242E51F - 48 85 C0              - test rax,rax				
+;re7.exe+242E522 - 74 03                 - je re7.exe+242E527		<<return here
+;re7.exe+242E524 - 8B 40 1C              - mov eax,[rax+1C]
+;re7.exe+242E527 - 85 C0                 - test eax,eax
+;re7.exe+242E529 - 0F84 11FFFFFF         - je re7.exe+242E440
+;re7.exe+242E52F - 48 8B 89 D0000000     - mov rcx,[rcx+000000D0]
+;re7.exe+242E536 - 48 8D 55 F7           - lea rdx,[rbp-09]
+;re7.exe+242E53A - 0F29 B4 24 A0000000   - movaps [rsp+000000A0],xmm6
+;re7.exe+242E542 - 48 8B 49 20           - mov rcx,[rcx+20]
+;re7.exe+242E546 - E8 35E9FFFF           - call re7.exe+242CE80
+;re7.exe+242E54B - F3 0F10 0D 5DFE7B03   - movss xmm1,[re7.exe+5BEE3B0] { (0.00) }
+	mov rcx,[rax+18h]
+	mov [g_cameraStructAddress], rcx
+	mov rax,[rcx+000000D0h]
+	test rax,rax
 exit:
 	jmp qword ptr [_cameraStructInterceptionContinue]	; jmp back into the original game code, which is the location after the original statements above.
 cameraStructInterceptor ENDP
 
-fovReadInterceptor PROC
-;Grid_dx12.exe+859472 - 89 41 28              - mov [rcx+28],eax
-;Grid_dx12.exe+859475 - 8B 42 2C              - mov eax,[rdx+2C]
-;Grid_dx12.exe+859478 - 89 41 2C              - mov [rcx+2C],eax
-;Grid_dx12.exe+85947B - 8B 42 30              - mov eax,[rdx+30]
-;Grid_dx12.exe+85947E - 89 41 30              - mov [rcx+30],eax			<<<<inject here
-;Grid_dx12.exe+859481 - 8B 42 34              - mov eax,[rdx+34]
-;Grid_dx12.exe+859484 - 89 41 34              - mov [rcx+34],eax			<<hfov write
-;Grid_dx12.exe+859487 - 8B 42 38              - mov eax,[rdx+38]
-;Grid_dx12.exe+85948A - 89 41 38              - mov [rcx+38],eax			<<vfov write
-;Grid_dx12.exe+85948D - 8B 42 3C              - mov eax,[rdx+3C]			<<< return here
-;Grid_dx12.exe+859490 - 89 41 3C              - mov [rcx+3C],eax
-;Grid_dx12.exe+859493 - 8B 42 40              - mov eax,[rdx+40]
-;Grid_dx12.exe+859496 - 89 41 40              - mov [rcx+40],eax
-;Grid_dx12.exe+859499 - 8B 42 44              - mov eax,[rdx+44]
-;Grid_dx12.exe+85949C - 89 41 44              - mov [rcx+44],eax
-;Grid_dx12.exe+85949F - 8B 42 48              - mov eax,[rdx+48]
-;Grid_dx12.exe+8594A2 - 89 41 48              - mov [rcx+48],eax
-	cmp byte ptr [g_cameraEnabled],0
-	je originalcode
-	push rbx
-	lea rbx,[rcx-160h]
-	cmp rbx, [g_cameraStructAddress]
-	pop rbx
-	jne originalcode
+
+cameraPositionInterceptor PROC
+;89 41 ?? 8B 42 ?? 89 41 ?? 8B 42 ?? 89 41 ?? 80 B9 ?? ?? ?? ?? 00 C6 81 ?? ?? ?? ?? 01 75 32
+;re7.exe+24159EF - CC                    - int 3 
+;re7.exe+24159F0 - 8B 02                 - mov eax,[rdx]
+;re7.exe+24159F2 - 4C 8B C9              - mov r9,rcx
+;re7.exe+24159F5 - 89 41 30              - mov [rcx+30],eax							<< inject here, cmp to g_cameraStructAddress and skip if equal
+;re7.exe+24159F8 - 8B 42 04              - mov eax,[rdx+04]
+;re7.exe+24159FB - 89 41 34              - mov [rcx+34],eax
+;re7.exe+24159FE - 8B 42 08              - mov eax,[rdx+08]
+;re7.exe+2415A01 - 89 41 38              - mov [rcx+38],eax
+;re7.exe+2415A04 - 80 B9 01010000 00     - cmp byte ptr [rcx+00000101],00 { 0 }		<<return here
+;re7.exe+2415A0B - C6 81 00010000 01     - mov byte ptr [rcx+00000100],01 { 1 }
+;re7.exe+2415A12 - 75 32                 - jne re7.exe+2415A46
+;re7.exe+2415A14 - 48 8B 49 60           - mov rcx,[rcx+60];
+	cmp byte ptr [g_cameraEnabled], 1
+	jne skipCheck
+	cmp rcx, [g_cameraStructAddress]
+	je skip
+skipCheck:
 	mov dword ptr [rcx+30h],eax
-	mov eax, dword ptr [rdx+34h]
-	;mov dword ptr [rcx+34h],eax
-	mov eax,dword ptr [rdx+38h]
-	;mov dword ptr [rcx+38h],eax
-	jmp exit
-originalcode:
-	mov dword ptr [rcx+30h],eax
-	mov eax, dword ptr [rdx+34h]
+	mov eax,[rdx+04h]
 	mov dword ptr [rcx+34h],eax
-	mov eax,dword ptr [rdx+38h]
+	mov eax,[rdx+08h]
 	mov dword ptr [rcx+38h],eax
+	jmp exit
+skip:
+	;mov [rcx+30h],eax
+	mov eax,[rdx+04h]
+	;mov [rcx+34h],eax
+	mov eax,[rdx+08h]
+	;mov [rcx+38h],eax
 exit:
-	jmp qword ptr [_fovReadInterceptionContinue]	; jmp back into the original game code, which is the location after the original statements above.
-fovReadInterceptor ENDP
+	jmp qword ptr [_cameraPositionInterceptionContinue]	; jmp back into the original game code, which is the location after the original statements above.
+cameraPositionInterceptor ENDP
+
+cameraRotationInterceptor PROC
+;8B 02 89 41 ?? 8B 42 ?? 89 41 ?? 8B 42 ?? 89 41 ?? 8B 42 0C 89 41 4C 80 B9 ?? ?? ?? ?? 00 C6 81 ?? ?? ?? ?? 01 75 33 48 8B CF 48 85 FF 74 2B
+;re7.exe+2416269 - 75 44                 - jne re7.exe+24162AF
+;re7.exe+241626B - C6 83 01010000 01     - mov byte ptr [rbx+00000101],01 { 1 }
+;re7.exe+2416272 - 80 B9 01010000 00     - cmp byte ptr [rcx+00000101],00 { 0 }
+;re7.exe+2416279 - EB 53                 - jmp re7.exe+24162CE
+;re7.exe+241627B - 8B 02                 - mov eax,[rdx]						<<inject here, cmp to g_cameraStructAddress and skip if equal
+;re7.exe+241627D - 89 41 40              - mov [rcx+40],eax
+;re7.exe+2416280 - 8B 42 04              - mov eax,[rdx+04]
+;re7.exe+2416283 - 89 41 44              - mov [rcx+44],eax
+;re7.exe+2416286 - 8B 42 08              - mov eax,[rdx+08]
+;re7.exe+2416289 - 89 41 48              - mov [rcx+48],eax
+;re7.exe+241628C - 8B 42 0C              - mov eax,[rdx+0C]
+;re7.exe+241628F - 89 41 4C              - mov [rcx+4C],eax
+;re7.exe+2416292 - 80 B9 01010000 00     - cmp byte ptr [rcx+00000101],00 { 0 }	<<return here
+;re7.exe+2416299 - C6 81 00010000 01     - mov byte ptr [rcx+00000100],01 { 1 }
+;re7.exe+24162A0 - 75 33                 - jne re7.exe+24162D5
+;re7.exe+24162A2 - 48 8B CF              - mov rcx,rdi
+;re7.exe+24162A5 - 48 85 FF              - test rdi,rdi
+;re7.exe+24162A8 - 74 2B                 - je re7.exe+24162D5
+	cmp byte ptr [g_cameraEnabled], 1
+	jne skipCheck
+	cmp rcx, [g_cameraStructAddress]
+	je skip
+skipCheck:
+	mov eax,[rdx]
+	mov dword ptr [rcx+40h],eax
+	mov eax,[rdx+04h]
+	mov dword ptr [rcx+44h],eax
+	mov eax,[rdx+08h]
+	mov dword ptr [rcx+48h],eax
+	mov eax,[rdx+0Ch]
+	mov dword ptr [rcx+4Ch],eax
+	jmp exit
+skip:
+	mov eax,[rdx]
+	;mov dword ptr [rcx+40h],eax
+	mov eax,[rdx+04h]
+	;mov dword ptr [rcx+44h],eax
+	mov eax,[rdx+08h]
+	;mov dword ptr [rcx+48h],eax
+	mov eax,[rdx+0Ch]
+	;mov dword ptr [rcx+4Ch],eax
+exit:
+	jmp qword ptr [_cameraRotationInterceptionContinue]	; jmp back into the original game code, which is the location after the original statements above.
+cameraRotationInterceptor ENDP
+
+vignetteInterceptor PROC
+;re7.exe+2E85A34 - F3 0F10 80 84010000   - movss xmm0,[rax+00000184]
+;re7.exe+2E85A3C - C3                    - ret 
+;re7.exe+2E85A3D - CC                    - int 3 
+;re7.exe+2E85A3E - CC                    - int 3 
+;re7.exe+2E85A3F - CC                    - int 3 
+;re7.exe+2E85A40 - 48 8B 41 30           - mov rax,[rcx+30]			<<inject here, 
+;re7.exe+2E85A44 - 8B 80 0C 02 00 00     - mov eax,[rax+0000020C]
+;re7.exe+2E85A4A - C3                    - ret 
+;re7.exe+2E85A4B - CC                    - int 3 
+;re7.exe+2E85A4C - CC                    - int 3 
+;re7.exe+2E85A4D - CC                    - int 3	
+;re7.exe+2E85A4E - CC                    - int 3 
+	mov rax,[rcx+30h]
+	mov [g_vignetteAddress], rax
+	mov eax,dword ptr [rax+0000020Ch]
+	ret 
+vignetteInterceptor ENDP
 
 timescaleInterceptor PROC
-;Grid_dx12.exe+1EF132 - 74 0D                 - je Grid_dx12.exe+1EF141
-;Grid_dx12.exe+1EF134 - 0F57 C9               - xorps xmm1,xmm1
-;Grid_dx12.exe+1EF137 - E8 44249500           - call Grid_dx12.exe+B41580
-;Grid_dx12.exe+1EF13C - E9 C9010000           - jmp Grid_dx12.exe+1EF30A
-;Grid_dx12.exe+1EF141 - F3 0F10 4B 54         - movss xmm1,[rbx+54]				<<< inject here
-;Grid_dx12.exe+1EF146 - 48 8B 4B 58           - mov rcx,[rbx+58]
-;Grid_dx12.exe+1EF14A - E8 31249500           - call Grid_dx12.exe+B41580
-;Grid_dx12.exe+1EF14F - E9 B6010000           - jmp Grid_dx12.exe+1EF30A			<<<return here
-;Grid_dx12.exe+1EF154 - F3 0F10 43 18         - movss xmm0,[rbx+18]
-;Grid_dx12.exe+1EF159 - 0F2E C6               - ucomiss xmm0,xmm6
-	mov [g_replayTimescaleAddress], rbx
-	movss xmm1, dword ptr [rbx+54h]
-	mov rcx,[rbx+58h]
-	call [_timescaleAbsolute]
-exit:
-	jmp qword ptr [_timescaleInterceptionContinue]	; jmp back into the original game code, which is the location after the original statements above.
+;re7.exe+240D4D4 - F3 0F11 83 4C030000   - movss [rbx+0000034C],xmm0
+;re7.exe+240D4DC - F3 0F10 83 4C030000   - movss xmm0,[rbx+0000034C]
+;re7.exe+240D4E4 - F3 0F59 83 48030000   - mulss xmm0,[rbx+00000348]	<<inject here, read rbx
+;re7.exe+240D4EC - F3 0F11 83 4C030000   - movss [rbx+0000034C],xmm0	
+;re7.exe+240D4F4 - 0F5A C0               - cvtps2pd xmm0,xmm0			<<return here
+;re7.exe+240D4F7 - F2 41 0F5E C0         - divsd xmm0,xmm8
+;re7.exe+240D4FC - 66 0F5A C0            - cvtpd2ps xmm0,xmm0
+	mulss xmm0, dword ptr [rbx+00000348h]
+	mov [g_timescaleAddress], rbx
+	movss dword ptr [rbx+0000034Ch],xmm0
+	jmp qword ptr [_timescaleInterceptionContinue]
 timescaleInterceptor ENDP
 
-gameplayTimescaleInterceptor PROC
-;Grid_dx12.exe+A576AF - F2 0F11 83 50010000   - movsd [rbx+00000150],xmm0
-;Grid_dx12.exe+A576B7 - F2 0F58 83 60010000   - addsd xmm0,[rbx+00000160]
-;Grid_dx12.exe+A576BF - 48 89 83 68010000     - mov [rbx+00000168],rax		<<inbject here/also the timescale write
-;Grid_dx12.exe+A576C6 - 48 8B 43 68           - mov rax,[rbx+68]
-;Grid_dx12.exe+A576CA - F2 0F11 8B 58010000   - movsd [rbx+00000158],xmm1
-;Grid_dx12.exe+A576D2 - F2 0F11 83 60010000   - movsd [rbx+00000160],xmm0	<< return here
-mov [rbx+00000168h],rax
-mov [g_gameplayTimescaleAddress],rbx
-mov rax,[rbx+68h]
-movsd qword ptr [rbx+00000158h],xmm1
-jmp qword ptr [_gameplayTimescaleInterceptionContinue]	; jmp back into the original game code, which is the location after the original statements above.
-gameplayTimescaleInterceptor ENDP
+playerStructInterceptor PROC
+;re7.exe+23A17AF - F3 44 0F11 9B A0020000  - movss [rbx+000002A0],xmm11
+;re7.exe+23A17B8 - F3 0F11 BB A4020000   - movss [rbx+000002A4],xmm7
+;re7.exe+23A17C0 - F3 44 0F11 8B A8020000  - movss [rbx+000002A8],xmm9
+;re7.exe+23A17C9 - F3 44 0F11 93 AC020000  - movss [rbx+000002AC],xmm10
+;re7.exe+23A17D2 - 48 83 78 18 00        - cmp qword ptr [rax+18],00 { 0 }
+;re7.exe+23A17D7 - 75 60                 - jne re7.exe+23A1839
+;re7.exe+23A17D9 - 48 8B 43 78           - mov rax,[rbx+78]
+;re7.exe+23A17DD - 48 85 C0              - test rax,rax
+;re7.exe+23A17E0 - 74 48                 - je re7.exe+23A182A
+;re7.exe+23A17E2 - F3 0F10 40 30         - movss xmm0,[rax+30]			<<intercept here, rax has player struct address
+;re7.exe+23A17E7 - 48 8D 54 24 20        - lea rdx,[rsp+20]
+;re7.exe+23A17EC - F3 0F10 48 34         - movss xmm1,[rax+34]
+;re7.exe+23A17F1 - 48 8B C8              - mov rcx,rax					<<return here
+;re7.exe+23A17F4 - F3 0F10 50 38         - movss xmm2,[rax+38]
+;re7.exe+23A17F9 - F3 0F11 83 A0030000   - movss [rbx+000003A0],xmm0
+;re7.exe+23A1801 - F3 0F11 8B A4030000   - movss [rbx+000003A4],xmm1
+;re7.exe+23A1809 - F3 0F11 93 A8030000   - movss [rbx+000003A8],xmm2
+	mov [g_playerStructAddress], rax
+	movss xmm0,dword ptr[rax+30h]
+	lea rdx,[rsp+20h]
+	movss xmm1,dword ptr [rax+34h]
+	jmp qword ptr [_playerStructInterceptionContinue]
+playerStructInterceptor ENDP
 
+playerLightCheckInterceptor PROC
+; This codecave replaces the following 5 original instructions:
+; 1. mov rax,[rdi+60]
+; 2. test al,01
+; 3. jne re7.exe+2416158
+; 4. test rax,rax
+; 5. je re7.exe+2416158
+; this is quite a complex interception, due to the number of jumps involved.
 
-lodSettingInterceptor PROC
-;Grid_dx12.exe+A70D03 - 42 80 7C 00 18 00     - cmp byte ptr [rax+r8+18],00 { 0 }
-;Grid_dx12.exe+A70D09 - 0F84 E4000000         - je Grid_dx12.exe+A70DF3
-;Grid_dx12.exe+A70D0F - F3 41 0F10 86 48090000  - movss xmm0,[r14+00000948]
-;Grid_dx12.exe+A70D18 - B0 01                 - mov al,01 { 1 }
-;Grid_dx12.exe+A70D1A - F3 41 0F11 86 4C090000  - movss [r14+0000094C],xmm0
-;Grid_dx12.exe+A70D23 - 41 88 86 A00A0000     - mov [r14+00000AA0],al			<< inject here
-;Grid_dx12.exe+A70D2A - 41 89 96 9C0A0000     - mov [r14+00000A9C],edx			<<< change to mov 0x0
-;Grid_dx12.exe+A70D31 - 84 C0                 - test al,al						<<< return here
-;Grid_dx12.exe+A70D33 - 0F84 B5010000         - je Grid_dx12.exe+A70EEE
-;Grid_dx12.exe+A70D39 - 49 8B 46 40           - mov rax,[r14+40]
-;Grid_dx12.exe+A70D3D - 4C 8B A0 88000000     - mov r12,[rax+00000088]
-;Grid_dx12.exe+A70D44 - 4D 85 E4              - test r12,r12
-;Grid_dx12.exe+A70D47 - 0F84 99010000         - je Grid_dx12.exe+A70EE6
-;Grid_dx12.exe+A70D4D - 48 8B 81 58010000     - mov rax,[rcx+00000158]
-;Grid_dx12.exe+A70D54 - 45 33 FF              - xor r15d,r15d
-;Grid_dx12.exe+A70D57 - 48 2B 81 50010000     - sub rax,[rcx+00000150]
-	cmp byte ptr [g_cameraEnabled],1
-	je writelod
-	mov byte ptr [r14+00000AA0h],al
-	mov dword ptr [r14+00000A9Ch],edx
-	jmp exit
-writelod:
-	mov byte ptr [r14+00000AA0h],al
-	mov dword ptr [r14+00000A9Ch],00000000
-exit:
-	jmp qword ptr [_lodSettingInterceptionContinue]	; jmp back into the original game code, which is the location after the original statements above.
-lodSettingInterceptor ENDP
+    mov rax,[rdi+60h]						; Replicates instruction 1: mov rax,[rdi+60]
+    test al, 1								; Replicates instruction 2: test al,01
+    cmp byte ptr [g_disableFlashlight], 1	; Check if your custom logic should run
+    jne original_flags_preserved
 
-playerPositionInterceptor PROC
-;Grid_dx12.exe+5815DC - C3                    - ret 
-;Grid_dx12.exe+5815DD - CC                    - int 3 
-;Grid_dx12.exe+5815DE - CC                    - int 3 
-;Grid_dx12.exe+5815DF - CC                    - int 3 
-;Grid_dx12.exe+5815E0 - 48 8B 41 08           - mov rax,[rcx+08]			<<inject here
-;Grid_dx12.exe+5815E4 - 0F10 80 E0020000      - movups xmm0,[rax+000002E0]  <<rax has player behicle object
-;Grid_dx12.exe+5815EB - 66 0F7F 02            - movdqa [rdx],xmm0
-;Grid_dx12.exe+5815EF - C3                    - ret							<<return here
-;Grid_dx12.exe+5815F0 - 48 8B 41 08           - mov rax,[rcx+08]
-;Grid_dx12.exe+5815F4 - F3 0F10 80 E8180000   - movss xmm0,[rax+000018E8]
-;Grid_dx12.exe+5815FC - C3                    - ret 
-;Grid_dx12.exe+5815FD - CC                    - int 3 
-;Grid_dx12.exe+5815FE - CC                    - int 3 
-;Grid_dx12.exe+5815FF - CC                    - int 3 
-	mov rax,[rcx+08h]
-	mov [g_playerStructAddress],rax
-	movups xmm0,[rax+000002E0h]
-	movdqa [rdx],xmm0
-	jmp qword ptr [_playerPositionInterceptionContinue]	; jmp back into the original game code, which is the location after the original statements above.
-playerPositionInterceptor ENDP
+; --- Custom Logic Path (g_disableFlashlight is 1) ---
+    ; This path overwrites the flags from the 'test al, 1' instruction
+    push rax
+    mov rax, [g_cameraStructAddress]
+    cmp rdi, rax
+    pop rax
+    ; The flags are now set by this CMP instruction
 
-;dofInterceptor PROC
-;dirtrally2.AK::MusicEngine::Term+9D0 - 0F2E DE               - ucomiss xmm3,xmm6
-;dirtrally2.AK::MusicEngine::Term+9D3 - 74 05                 - je dirtrally2.AK::MusicEngine::Term+9DA
-;dirtrally2.AK::MusicEngine::Term+9D5 - 0F57 C0               - xorps xmm0,xmm0
-;dirtrally2.AK::MusicEngine::Term+9D8 - EB 07                 - jmp dirtrally2.AK::MusicEngine::Term+9E1
-;dirtrally2.AK::MusicEngine::Term+9DA - 0F28 05 AF77B600      - movaps xmm0,[dirtrally2.exe+1228000] { (0.01) }
-;dirtrally2.AK::MusicEngine::Term+9E1 - 0F29 81 70070000      - movaps [rcx+00000770],xmm0
-;dirtrally2.AK::MusicEngine::Term+9E8 - F3 0F10 81 AC070000   - movss xmm0,[rcx+000007AC]	<<rcx+7AC has dof strength //inject here //it doesnt get written from my testing so can just overwrite it on toggle
-;dirtrally2.AK::MusicEngine::Term+9F0 - 0FC6 C0 00            - shufps xmm0,xmm0,00 { 0 }
-;dirtrally2.AK::MusicEngine::Term+9F4 - 0F59 81 70070000      - mulps xmm0,[rcx+00000770]
-;dirtrally2.AK::MusicEngine::Term+9FB - 0F29 81 70070000      - movaps [rcx+00000770],xmm0	<<return  here
-;dirtrally2.AK::MusicEngine::Term+A02 - 80 79 58 00           - cmp byte ptr [rcx+58],00 { 0 }
-;dirtrally2.AK::MusicEngine::Term+A06 - 75 12                 - jne dirtrally2.AK::MusicEngine::Term+A1A
-;dirtrally2.AK::MusicEngine::Term+A08 - F3 0F10 81 A8070000   - movss xmm0,[rcx+000007A8]
-;dirtrally2.AK::MusicEngine::Term+A10 - 0F2F C6               - comiss xmm0,xmm6
-;dirtrally2.AK::MusicEngine::Term+A13 - 72 05                 - jb dirtrally2.AK::MusicEngine::Term+A1A
-;	movss xmm0,dword ptr [rcx+000007ACh]
-;	mov [g_dofStrengthAddress],rcx
-;	shufps xmm0,xmm0,00h
-;	mulps xmm0,[rcx+00000770h]
-;	jmp qword ptr [_dofInjectionContinue]
-;dofInterceptor ENDP
+original_flags_preserved:
+; --- Shared Logic Path ---
+    ; Replicates instruction 3: jne re7.exe+2416158
+    ; This JNE uses the flags from either the original 'test' or your custom 'cmp'
+    jne jump_target_label 
+    ; --- Fallthrough Logic (if the first JNE was NOT taken) ---
+    test rax,rax							; Replicates instruction 4: test rax,rax
+    je jump_target_label					; Replicates instruction 5: je re7.exe+2416158
+    jmp qword ptr [_playerLightCheckInterceptionContinue] ; If NEITHER of the conditional jumps were taken, we continue execution after the overwritten block.
+
+jump_target_label:
+    ; Both original conditional jumps went to the same address.
+    ; This label sends us there.
+    jmp qword ptr [_playerLightCheckJumpTarget]
+
+playerLightCheckInterceptor ENDP
 
 END

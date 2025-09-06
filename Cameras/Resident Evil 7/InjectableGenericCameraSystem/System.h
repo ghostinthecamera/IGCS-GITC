@@ -65,6 +65,7 @@ namespace IGCS
 		void toggleGamePause(bool displayNotification = true);
 		GameAddressData& getAddressData() { return _addressData; }
 		bool isIGCSSessionActive() const { return _IGCSConnectorSessionActive; }
+		[[nodiscard]]const map<string, AOBBlock>& getAOBs() const { return _aobBlocks; }
 		uint8_t IGCSsuccess = 0;
 		uint8_t IGCScamenabled = 1;
 		uint8_t IGCSsessionactive = 3;
@@ -82,6 +83,7 @@ namespace IGCS
 		bool postCameraStructInit = false;
 		bool isCameraStructValid = true;
 		bool isPlayerStructValid = true;
+		bool isD3DInitialised = false;
 
 	private:
 		System();

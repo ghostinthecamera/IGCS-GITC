@@ -71,9 +71,9 @@ namespace IGCSClient.GameSpecific.Classes
             appState.AddSetting(new ToggleSetting(SettingType.RotationMode, nameof(SettingType.RotationMode), new List<string> { "Standard", "SQUAD", "Riemann Cubic"}, null, 0));
             appState.AddSetting(new BoolSetting(SettingType.CameraShakeToggle, nameof(SettingType.CameraShakeToggle), GameSpecificSettingDefaults.CameraShakeToggle));
             //appState.AddSetting(new FloatSetting(SettingType.Amplitude, nameof(SettingType.Amplitude), 0.01, 1.0, 2, 0.01, GameSpecificSettingDefaults.Amplitude));
-            appState.AddSetting(new FloatSetting(SettingType.Amplitude, nameof(SettingType.Amplitude), 0.01,1.0,2,0.01,0.1,GameSpecificSettingDefaults.Amplitude));
-            appState.AddSetting(new FloatSetting(SettingType.Frequency, nameof(SettingType.Frequency), 0.01, 1.0, 2, 0.01, 0.1, GameSpecificSettingDefaults.Frequency));
-            appState.AddSetting(new BoolSetting(SettingType.HandheldCameraToggle, nameof(SettingType.HandheldCameraToggle), GameSpecificSettingDefaults.HandheldCameraToggle));
+            appState.AddSetting(new FloatSetting(SettingType.Amplitude, nameof(SettingType.Amplitude), 0.01,1.0,2,0.01,0.1,GameSpecificSettingDefaults.Amplitude, isPersistent:false));
+            appState.AddSetting(new FloatSetting(SettingType.Frequency, nameof(SettingType.Frequency), 0.01, 1.0, 2, 0.01, 0.1, GameSpecificSettingDefaults.Frequency, isPersistent: false));
+            appState.AddSetting(new BoolSetting(SettingType.HandheldCameraToggle, nameof(SettingType.HandheldCameraToggle), GameSpecificSettingDefaults.HandheldCameraToggle, isPersistent: false));
             appState.AddSetting(new FloatSetting(SettingType.HandheldIntensity, nameof(SettingType.HandheldIntensity), 0.01, 1.0, 2, 0.01, 0.1, GameSpecificSettingDefaults.HandheldIntensity));
             appState.AddSetting(new FloatSetting(SettingType.HandheldDriftIntensity, nameof(SettingType.HandheldDriftIntensity), 0.01, 1.0, 2, 0.01, 0.1, GameSpecificSettingDefaults.HandheldDriftIntensity));
             appState.AddSetting(new FloatSetting(SettingType.HandheldDriftSpeed, nameof(SettingType.HandheldDriftSpeed), 0.01, 1.0, 2, 0.01, 0.1, GameSpecificSettingDefaults.HandheldDriftSpeed));
@@ -81,8 +81,8 @@ namespace IGCSClient.GameSpecific.Classes
             appState.AddSetting(new FloatSetting(SettingType.HandheldJitterIntensity, nameof(SettingType.HandheldJitterIntensity), 0, 1.0, 2, 0.01, 0.1, GameSpecificSettingDefaults.HandheldJitterIntensity));
             appState.AddSetting(new FloatSetting(SettingType.HandheldBreathingIntensity, nameof(SettingType.HandheldBreathingIntensity), 0, 1.0, 2, 0.01, 0.1, GameSpecificSettingDefaults.HandheldBreathingIntensity));
             appState.AddSetting(new FloatSetting(SettingType.HandheldBreatingRate, nameof(SettingType.HandheldBreatingRate), 0, 1.0, 2, 0.01, 0.1, GameSpecificSettingDefaults.HandheldBreatingRate));
-            appState.AddSetting(new BoolSetting(SettingType.HandheldPositionToggle, nameof(SettingType.HandheldPositionToggle), GameSpecificSettingDefaults.HandheldPositionToggle));
-            appState.AddSetting(new BoolSetting(SettingType.HandheldRotationToggle, nameof(SettingType.HandheldRotationToggle), GameSpecificSettingDefaults.HandheldRotationToggle));
+            appState.AddSetting(new BoolSetting(SettingType.HandheldPositionToggle, nameof(SettingType.HandheldPositionToggle), GameSpecificSettingDefaults.HandheldPositionToggle, isPersistent: false));
+            appState.AddSetting(new BoolSetting(SettingType.HandheldRotationToggle, nameof(SettingType.HandheldRotationToggle), GameSpecificSettingDefaults.HandheldRotationToggle, isPersistent: false));
             appState.AddSetting(new BoolSetting(SettingType.PlayerRelativeToggle, nameof(SettingType.PlayerRelativeToggle), GameSpecificSettingDefaults.PlayerRelativeToggle));
             appState.AddSetting(new ToggleSetting(SettingType.PathEasingType, nameof(SettingType.PathEasingType), new List<string> { "No Easing", "Ease-in", "Ease-out", "Ease-in-out" }, null, GameSpecificSettingDefaults.PathToggleEasing));
             appState.AddSetting(new ToggleSetting(SettingType.PathSampleCount, nameof(SettingType.PathSampleCount), new List<string> { "64", "128", "256", "512", "1028", "2096"  }, new List<int> { 64, 128, 256, 512, 1028, 2096 }, GameSpecificSettingDefaults.PathSampleCount));
@@ -94,9 +94,9 @@ namespace IGCSClient.GameSpecific.Classes
             appState.AddSetting(new FloatSetting(SettingType.MovementSmoothness, nameof(SettingType.MovementSmoothness), 0.5, 20.0, 1, 0.5, GameSpecificSettingDefaults.MovementSmoothness));
             appState.AddSetting(new FloatSetting(SettingType.RotationSmoothness, nameof(SettingType.RotationSmoothness), 0.5, 20.0, 1, 0.5, GameSpecificSettingDefaults.RotationSmoothness));
             appState.AddSetting(new FloatSetting(SettingType.FOVSmoothness, nameof(SettingType.FOVSmoothness), 0.5, 20.0, 1, 0.5, GameSpecificSettingDefaults.FOVSmoothness));
-            appState.AddSetting(new FloatSetting(SettingType.ScrubbingProgress, nameof(SettingType.ScrubbingProgress), 0.0, 1.0, 2, 0.01,0.1, GameSpecificSettingDefaults.ScrubbingProgress));
+            appState.AddSetting(new FloatSetting(SettingType.ScrubbingProgress, nameof(SettingType.ScrubbingProgress), 0.0, 1.0, 2, 0.01,0.1, GameSpecificSettingDefaults.ScrubbingProgress, isPersistent:false));
             appState.AddSetting(new BoolSetting(SettingType.D3DDisabled, nameof(SettingType.D3DDisabled), GameSpecificSettingDefaults.D3DDisabled));
-            appState.AddSetting(new BoolSetting(SettingType.LookAtPlayer, nameof(SettingType.LookAtPlayer), GameSpecificSettingDefaults.LookAtPlayer));
+            appState.AddSetting(new BoolSetting(SettingType.LookAtPlayer, nameof(SettingType.LookAtPlayer), GameSpecificSettingDefaults.LookAtPlayer, isPersistent: false));
             appState.AddSetting(new BoolSetting(SettingType.PathLookAtEnabled, nameof(SettingType.PathLookAtEnabled), GameSpecificSettingDefaults.PathLookAtEnabled));
             appState.AddSetting(new FloatSetting(SettingType.PathLookAtOffsetX, nameof(SettingType.PathLookAtOffsetX), -5, 5, 2, 0.01,1, GameSpecificSettingDefaults.PathLookAtOffsetX));
             appState.AddSetting(new FloatSetting(SettingType.PathLookAtOffsetY, nameof(SettingType.PathLookAtOffsetY), -5, 5, 2, 0.01,1, GameSpecificSettingDefaults.PathLookAtOffsetY));
@@ -122,8 +122,8 @@ namespace IGCSClient.GameSpecific.Classes
             appState.AddSetting(new BoolSetting(SettingType.HandheldPositionToggleB, nameof(SettingType.HandheldPositionToggleB), GameSpecificSettingDefaults.HandheldPositionToggle));
             appState.AddSetting(new BoolSetting(SettingType.HandheldRotationToggleB, nameof(SettingType.HandheldRotationToggleB), GameSpecificSettingDefaults.HandheldRotationToggle));
             //game specific
-            appState.AddSetting(new BoolSetting(SettingType.AltPlayerTracking, nameof(SettingType.AltPlayerTracking), GameSpecificSettingDefaults.AltPlayerTracking));
-            appState.AddSetting(new BoolSetting(SettingType.IncreaseShadowRes, nameof(SettingType.IncreaseShadowRes), GameSpecificSettingDefaults.IncreaseShadowRes));
+            appState.AddSetting(new BoolSetting(SettingType.DisableFlashlight, nameof(SettingType.DisableFlashlight), GameSpecificSettingDefaults.DisableFlashlight, isPersistent:false));
+            appState.AddSetting(new BoolSetting(SettingType.DisableVignette, nameof(SettingType.DisableVignette), GameSpecificSettingDefaults.DisableVignette, isPersistent:false));
         }
 
 

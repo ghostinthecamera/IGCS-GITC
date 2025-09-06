@@ -67,5 +67,10 @@ namespace IGCSClient.Interfaces
 		/// </summary>
 		/// <param name="valueAsString"></param>
 		void SetValueFromString(string valueAsString);
-	}
+
+        /// <summary>
+        /// Gets whether the setting should be persisted between application sessions
+        /// </summary>
+        bool IsPersistent { get; }
+    }
 }

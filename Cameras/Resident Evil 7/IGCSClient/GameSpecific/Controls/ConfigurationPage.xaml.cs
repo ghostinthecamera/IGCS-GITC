@@ -176,11 +176,11 @@ namespace IGCSClient.GameSpecific.Controls
                     case SettingType.HandheldRotationDriftSpeedB:
                         setting.Setup(_handheldRotationDriftSpeedB);
                         break;
-                    case SettingType.AltPlayerTracking:
-                        setting.Setup(_altPLayerTracking);
+                    case SettingType.DisableFlashlight:
+                        setting.Setup(_disableFlashlight);
                         break;
-                    case SettingType.IncreaseShadowRes:
-                        setting.Setup(_incShadowRes);
+                    case SettingType.DisableVignette:
+                        setting.Setup(_disableVignette);
                         break;
                 }
 			}

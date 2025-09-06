@@ -37,8 +37,8 @@
 #include "System.h"
 
 extern "C" uint8_t g_cameraEnabled;
-extern "C" uint8_t g_hudEnabled;
-extern "C" double g_timescaleValue;
+extern "C" uint8_t g_disableFlashlight;
+
 
 
 namespace IGCS

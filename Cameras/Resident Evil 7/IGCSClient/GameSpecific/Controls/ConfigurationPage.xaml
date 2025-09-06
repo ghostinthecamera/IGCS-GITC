@@ -213,8 +213,8 @@
                                                               TickPlacement="Both" SnaptoTick="True" TickValue="0.05" 
                                                               LabelMargin="7,0,7,0" LeftLabelText="0" RightLabelText="2"/>
                                 <controls:BoolInputWPF LabelFontSize="13" Label="Look At Player" x:Name="_toggleLookAt"/>
-                                <controls:BoolInputWPF LabelFontSize="13" Label="Alternative Player Tracking" ToolTip="Allows tracking of the in focus vehicle/during gameplay" x:Name="_altPLayerTracking"/>
-                                <controls:BoolInputWPF LabelFontSize="13" Label="Increase Shadow Resolution" ToolTip="Increases shadow resolution to 4096" x:Name="_incShadowRes"/>
+                                <controls:BoolInputWPF LabelFontSize="13" Label="Disable Flashlight" ToolTip="Self explanatory" x:Name="_disableFlashlight"/>
+                                <controls:BoolInputWPF LabelFontSize="13" Label="Disable Vignette" ToolTip="Self explanatory" x:Name="_disableVignette"/>
                             </ui:SimpleStackPanel>
                         </Border>
 

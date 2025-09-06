@@ -41,6 +41,7 @@ namespace IGCSClient.Classes
 		private IInputControl<T> _inputControl;
 		private byte _settingKind;
         private string _pendingValue;
+        private bool _isPersistent;
         #endregion
 
 
@@ -49,20 +50,21 @@ namespace IGCSClient.Classes
         /// </summary>
         /// <param name="id">the id of the setting</param>
         /// <param name="name">the name of the setting</param>
-        /// <param name="settingKind">The kind of the setting, which is used for messaging</param>
-        public Setting(byte id, string name, byte settingKind)
-		{
-			this.ID = id;
-			this.Name = name;
-			_settingKind = settingKind;
-		}
+        /// <param name="isPersistent">Whether the setting should be persisted between application sessions</param>
+        public Setting(byte id, string name, byte settingKind, bool isPersistent = true)
+        {
+            this.ID = id;
+            this.Name = name;
+            _settingKind = settingKind;
+            _isPersistent = isPersistent;
+        }
 
 
-		/// <summary>
-		/// Sets up the setting with the control specified
-		/// </summary>
-		/// <param name="controlToUse"></param>
-		public virtual void Setup(IInputControl<T> controlToUse)
+        /// <summary>
+        /// Sets up the setting with the control specified
+        /// </summary>
+        /// <param name="controlToUse"></param>
+        public virtual void Setup(IInputControl<T> controlToUse)
 		{
 			ArgumentVerifier.CantBeNull(controlToUse, nameof(controlToUse));
 			_inputControl = controlToUse;
@@ -81,12 +83,15 @@ namespace IGCSClient.Classes
 		public virtual void SendValueAsMessage()
 		{
 			MessageHandlerSingleton.Instance().SendSettingMessage(this.ID, GeneralUtils.ConvertToByteArray(this.Value));
-			LogHandlerSingleton.Instance().LogLine("Setting value sent: ID: {0}. Value: {1}", "Setting", true, this.ID, this.GetValueAsString());
+			LogHandlerSingleton.Instance().LogLine("Setting value sent: {0} - ID: {1}. Value: {2}", "Setting", true, this.Name, this.ID, this.GetValueAsString());
 		}
 
 
-		/// <inheritdoc />
-		public void SetValueFromString(string valueAsString)
+        /// <inheritdoc />
+        public bool IsPersistent => _isPersistent;
+
+
+        public void SetValueFromString(string valueAsString)
 		{
             // Store the string value for later if _inputControl isn't set yet
             if (_inputControl == null)

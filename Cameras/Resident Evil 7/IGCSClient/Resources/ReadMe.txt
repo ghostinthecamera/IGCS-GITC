@@ -1,4 +1,4 @@
-Injectable Camera for Grid 2019
+Injectable Camera for Resident Evil 7
 ============================
 Current supported game version: Latest
 Camera version: 1.0.0 
@@ -14,17 +14,25 @@ Features
 - Timestop/Gamespeed control
 - Field of View control
 - HUD Toggle
-- Depth of Field Removal
-- In Game motion blur control
 - Path Controller
-- Path Visualisation
-- Player Look At Visualisation (via DX12 Hook which can be disabled)
-- Multiple freecamera and path controller camera modes (look at player, track player speed)
-- Camera shake (free cam and path controller)
+- Player LookAt
+- Camera Shake
+- Path/LookAt Visualisations
 - IGCSConnector support - IGCSDOF and Reshade States
 - Customisable Keys/Gamepad Buttons
-- Shadow resolution increase
+- Vignette removal
+- Disable flashlight
+- Compatible with REFramework
 
+REFramework
+========================
+The tools are compatible with REFramework from testing. If you use the ultrawide fix with FOV adjustment, you may notice some fov flickering when you enable/disable the camera. This is due to the way REFramework implements the ultrawide fix. You can disable FOV adjustment for Ultrawide in REFramework to stop this (and then reenable after).
+Using the FOV Fix in REFramework will break the IGCS visualisations. Simply using the ultrawide/aspect ration fix in REFramework is fine.
+
+Disable Vignette/Flashlight
+========================
+Pretty self explanatory - You can disable the vignette and flashlight effects in the configuration tab of the IGCS Client.
+If you use pause the game and then toggle the HUD to use the camera, the ability to toggle the flashlight is disabled. You have to disable flashlight prior to pausing the game if you use this method.
 
 Free Camera
 =======================
@@ -35,7 +43,7 @@ There are three modes:
 - Look at player (enable through configuration page)
 In this mode the camera will always look at the player object. You can move the camera as normal.
 In this mode there are two ways of adjusting the look at point: Target offset or Angle offset
-Target Offset: In this mode, the right stick will offset the look at point relative to the car position. i.e. moving the right stick up will move the offset point forward out of the cars front. Use LB+LT/RT to move the point up or down. Use LB+RB+R3 or Shift+F9 to display a sphere at the coordinates to help visualise. This is only available if the D3DHook is enabled.
+Target Offset: In this mode, the right stick will offset the look at point relative to the player position. i.e. moving the right stick up will move the offset point forward out of the player's forward direction. Use LB+LT/RT to move the point up or down. Use LB+RB+R3 or Shift+F9 to display a sphere at the coordinates to help visualise. This is only available if the D3DHook is enabled.
 Angle Offset: In this mode the right stick will offset the look at point by an angle, or another way to think about it is in screenspace. I.e. moving the right stick up will ensure that the camera is always rotated up from that point by that amount. There is only right and left possibilities here.
 - Camera Mount (enable by present LB+RB+A or Shift+F8 in normal free camera or look at player mode.
 In this mode, when the hot key is pressed, the camera will be locked in its position to the rotations and position of the player object. I.e. if the camera was mounted onto the car with a stick. Useful for generated motion blur with reshade.
@@ -44,7 +52,7 @@ Camera shake can be used with all these modes.
 
 Car Tracking
 =======================
-The default tracking mode for the look at/camer mount camera works best in replay mode.
+The default tracking mode for the look at/fixed mount camera works best in replay mode.
 If, for some reason, you want to use the look at or the camera mount during gameplay, the alternate tracking mode is better.
 
 Path Visualisations
@@ -61,13 +69,11 @@ Pause/Gamespeed Control
 ========================
 The tools have full control over the gamespeed. The game is paused by setting the speed to 0. You can set the speed to any value between 0 and 2. 
 
-You can set a slow motion factor to reduce the game speed (to help with that perfect shot) and this can be used with the game pause i.e. you can enable slow motion and then use the game pause hotkey to pause the game. However, if you try and use this during gameplay (i.e. non-replay) and set a gamespeed between 0.01 and 0.99 the game will stutter. 
-
-That said, I recommend using the game's built in game speed controls during replay. You can use the tools game speed as a multiplier (i.e. if you set the replay to 1/2 and then the tools are set to 0.5 you will effectively get 0.5*0.5 = 0.25 as the game speed.
+You can set a slow motion factor to reduce the game speed (to help with that perfect shot). 
 
 HUD Toggle
 =======================
-You can toggle the HUD using the tools. It doesn't get rid of everything. If you are using replay mode, the in game toggle is better and recommended
+You can toggle the HUD using the tools.
 
 Path Controller
 ========================
@@ -88,10 +94,6 @@ Advanced settings has some additional settings:
 Camera control device
 ========================
 In the configuration tab of the IGCS Client, you can specify what to use for controlling the camera: controller, keyboard+mouse, or both. The device you pick is blocked from giving input to the game, if you press 'Numpad .' (On by default). 
-
-Shadow Resolution Increase
-========================
-Enabling this changes the shadow resolution from 2048 to 4096. During a resize event (in game/hotsampling) this is reverted, because if left enabled it breaks the game shadows post resize (it's never straightforward). You will need to uncheck and recheck this to bring it back after a resize event.
 
 About hotsampling support
 ==========================

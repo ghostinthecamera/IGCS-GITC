@@ -34,7 +34,7 @@ namespace IGCSClient.GameSpecific.Classes
 {
 	internal static class GameSpecificConstants
 	{
-		public const string ClientWindowTitle = "GRID 2019 Tools";
+		public const string ClientWindowTitle = "Resident Evil 7 Tools";
 		public const string CameraVersion = "1.0.0";
 		public const string CameraCredits = "ghostinthecamera";
 		public const bool HotsamplingRequiresEXITSIZEMOVE = false;
@@ -85,14 +85,11 @@ namespace IGCSClient.GameSpecific.Classes
         public const float ScrubbingProgress = 0.0f;
         public const bool D3DDisabled = false; // Default: D3D hooking enabled
         public const bool LookAtPlayer = false;
-
         public const bool PathLookAtEnabled = false;
         public const float PathLookAtOffsetX = 0.0f; // Offset in the X direction for the look-at target
         public const float PathLookAtOffsetY = 0.0f; // Offset in the Y direction for the look-at target
         public const float PathLookAtOffsetZ = 0.0f; // Offset in the Z direction for the look-at target
-
         public const float PathLookAtSmoothness = 5.0f;
-
         public const bool PathSpeedMatchingEnabled = false;
         public const float PathSpeedScale = 1.0f; 
         public const float PathSpeedSmoothness = 5.0f;
@@ -101,8 +98,8 @@ namespace IGCSClient.GameSpecific.Classes
         public const float PathBaselineSpeed = 5.0f;
 
         // Game specific
-        public const bool AltPlayerTracking = false;
-        public const bool IncreaseShadowRes = false;
+        public const bool DisableFlashlight = false;
+        public const bool DisableVignette = false;
     }
 
 

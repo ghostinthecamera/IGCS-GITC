@@ -161,8 +161,8 @@ namespace IGCSClient
         public const byte HandheldDriftSpeedB = 66;
         public const byte HandheldRotationDriftSpeedB = 67;
         // to add more, derive a type of this class and define the next value one higher than the last one in this class.
-        public const byte AltPlayerTracking = 68;
-        public const byte IncreaseShadowRes = 69;
+        public const byte DisableFlashlight = 68;
+        public const byte DisableVignette = 69;
     }
 
 

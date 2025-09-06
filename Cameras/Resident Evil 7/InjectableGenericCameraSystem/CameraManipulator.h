@@ -71,15 +71,8 @@ namespace IGCS::GameSpecific::CameraManipulator
 	float getNearZ();
 	float getFarZ();
 	uint8_t* getCameraStructAddress();
-	bool validateCameraMemory();
-	bool validatePlayerPositionMemory();
-	bool validateReplayTimescaleMemory();
 
-	/// <summary>
-	/// igcsconnector functions
-	/// </summary>
-	/// <returns></returns>
-	LPBYTE getCameraStruct();
+
 	void setMatrixRotationVectors();
 	void cacheigcsData(IGCSSessionCacheData& igcscache);
 	void restoreigcsData(const IGCSSessionCacheData& igcscache);
@@ -88,5 +81,11 @@ namespace IGCS::GameSpecific::CameraManipulator
 	inline float fovinRadians(float fov) { return DirectX::XMConvertToRadians(fov);}
 	inline float fovinDegrees(float fov) { return DirectX::XMConvertToDegrees(fov); }
 
+	//game specific
+	void toggleVignette(bool enable);
+	void toggleFlashlight(bool enable);
+	bool validateCameraMemory();
+	bool validatePlayerPositionMemory();
+	bool validateReplayTimescaleMemory();
 
 }

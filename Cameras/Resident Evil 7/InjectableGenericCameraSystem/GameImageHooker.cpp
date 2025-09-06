@@ -33,14 +33,17 @@
 namespace IGCS::GameImageHooker
 {
 	// Sets a jmp qword ptr [address] statement at hostImageAddress + startOffset for x64 and a jmp <relative address> for x86
-	void setHook(LPBYTE hostImageAddress, DWORD startOffset, DWORD continueOffset, LPBYTE* interceptionContinue, void* asmFunction)
+	void setHook(LPBYTE hostImageAddress, DWORD startOffset, DWORD continueOffset, LPBYTE* interceptionContinue, void* asmFunction, const
+	             string& blockName)
 	{
-		if (hostImageAddress == nullptr)
+		if (!hostImageAddress)
 		{
 			return;
 		}
 		LPBYTE startOfHookAddress = hostImageAddress + startOffset;
 		*interceptionContinue = startOfHookAddress + continueOffset;
+
+
 #ifdef _WIN64
 		// x64
 		uint8_t instruction[14];	// 6 bytes of the jmp qword ptr [0] and 8 bytes for the real address which is stored right after the 6 bytes of jmp qword ptr [0] bytes 
@@ -59,14 +62,30 @@ namespace IGCS::GameImageHooker
 		DWORD* targetAddressLocationInInstruction = (DWORD*)&instruction[1];
 #endif
 		targetAddressLocationInInstruction[0] = targetAddress;	// write bytes this way to avoid endianess
+
+		// Temporarily change memory protection to be writable
+		DWORD oldProtect;
+		if (!VirtualProtect(startOfHookAddress, sizeof(instruction), PAGE_EXECUTE_READWRITE, &oldProtect))
+		{
+			MessageHandler::logError("Couldn't change memory protection to write. Error code: %010x", GetLastError());
+			return;
+		}
+
 		SIZE_T noBytesWritten;
 		if (BOOL result = WriteProcessMemory(OpenProcess(PROCESS_VM_OPERATION | PROCESS_VM_WRITE, FALSE, GetCurrentProcessId()), startOfHookAddress, instruction, sizeof(instruction), &noBytesWritten))
 		{
-			MessageHandler::logDebug("Hook set to address: %p", static_cast<void*>(startOfHookAddress));
+			MessageHandler::logDebug("%s::Hook set to address: %p", blockName.c_str(), static_cast<void*>(startOfHookAddress));
 		}
 		else
 		{
-			MessageHandler::logError("Couldn't write to process memory, so couldn't set hook. Error code: %010x", GetLastError());
+			MessageHandler::logError("%s::Couldn't write to process memory, so couldn't set hook. Error code: %010x", blockName.c_str(), GetLastError());
+		}
+
+		// Restore the original memory protection
+		DWORD temp; // This parameter is required but we don't need to use the value it receives.
+		if (!VirtualProtect(startOfHookAddress, sizeof(instruction), oldProtect, &temp))
+		{
+			MessageHandler::logError("Couldn't restore original memory protection. Error code: %010x", GetLastError());
 		}
 	}
 	
@@ -74,7 +93,7 @@ namespace IGCS::GameImageHooker
 	// Sets a jmp qword ptr [address] statement at baseAddress + startOffset for x64 and a jmp <relative address> for x86
 	void setHook(AOBBlock* hookData, DWORD continueOffset, LPBYTE* interceptionContinue, void* asmFunction)
 	{
-		setHook(hookData->locationInImage(), hookData->customOffset(), continueOffset, interceptionContinue, asmFunction);
+		setHook(hookData->locationInImage(), hookData->customOffset(), continueOffset, interceptionContinue, asmFunction, hookData->getName());
 	}
 
 

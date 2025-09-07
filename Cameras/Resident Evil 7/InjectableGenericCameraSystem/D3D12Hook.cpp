@@ -1305,7 +1305,7 @@ namespace IGCS {
     	renderPaths(_viewMatrix, _projMatrix);
 
         // Render free camera look-at target if enabled
-    	renderFreeCameraLookAtTarget(_viewMatrix, _projMatrix);
+    	renderFreeCameraLookAtTarget();
 
         // Transition back to PRESENT
         barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
@@ -1422,15 +1422,15 @@ namespace IGCS {
         }
 
         // Just do the actual rendering
-        renderPathTubes(viewMatrix, projMatrix);
-        renderDirectionArrows(viewMatrix, projMatrix);
-        renderNodeSpheres(viewMatrix, projMatrix);
-    	renderPathLookAtTarget(viewMatrix, projMatrix);
+        renderPathTubes();
+        renderDirectionArrows();
+        renderNodeSpheres();
+    	renderPathLookAtTarget();
     }
 
     void D3D12Hook::setupCameraMatrices() {
 
-        const auto activeCamAddress = GameSpecific::CameraManipulator::getCameraStructAddress();
+        auto* activeCamAddress = GameSpecific::CameraManipulator::getCameraStructAddress();
         if (!activeCamAddress) {
             _viewMatrix = XMMatrixIdentity();
             _projMatrix = XMMatrixIdentity();
@@ -1442,27 +1442,21 @@ namespace IGCS {
         const XMVECTOR posVec = XMLoadFloat3(&camPos);
         const XMVECTOR quatVec = XMLoadFloat4(camQuat);
 
-        // Create the camera's world matrix from its position and orientation.
         const XMMATRIX worldMatrix = XMMatrixRotationQuaternion(quatVec) * XMMatrixTranslationFromVector(posVec);
-
-        // The view matrix is simply the inverse of the camera's world matrix.
-        _viewMatrix = XMMatrixInverse(nullptr, worldMatrix);
 
         float fov = GameSpecific::CameraManipulator::getCurrentFoV();
         float nearZ = GameSpecific::CameraManipulator::getNearZ();
         float farZ = GameSpecific::CameraManipulator::getFarZ();
 
-        // Clamp values to be safe
         fov = max(0.01f, min(fov, 3.0f));
         nearZ = max(nearZ, 0.01f);
         farZ = max(farZ, nearZ + 0.1f);
 
         const float aspectRatio = _viewPort.Width / _viewPort.Height;
+        const float verticalFov = 2.0f * atan(tan(fov / 2.0f) / aspectRatio);
 
-        // Convert from horizontal to vertical FOV 
-        fov = 2.0f * atan(tan(fov / 2.0f) / aspectRatio);
-
-        _projMatrix = XMMatrixPerspectiveFovRH(fov, aspectRatio, nearZ, farZ);
+        _viewMatrix = XMMatrixInverse(nullptr, worldMatrix);
+        _projMatrix = XMMatrixPerspectiveFovRH(verticalFov, aspectRatio, nearZ, farZ);
     }
 
     D3D12_VIEWPORT D3D12Hook::getFullViewport()
@@ -1593,14 +1587,14 @@ namespace IGCS {
     //==================================================================================================
 	// Path Visualisation Rendering
 	//==================================================================================================
-    void D3D12Hook::renderPathTubes(const XMMATRIX& viewMatrix, const XMMATRIX& projMatrix) {
+    void D3D12Hook::renderPathTubes() {
         if (!_pPathTubeVertexBuffer || !_pPathTubeIndexBuffer || _pathTubeIndexCount == 0) {
             return;
         }
 
         // Update constant buffer
         const XMMATRIX worldMatrix = XMMatrixIdentity();
-        updateConstantBuffer(worldMatrix * viewMatrix * projMatrix);
+        updateConstantBuffer(worldMatrix * _viewMatrix * _projMatrix);
 
         // Set primitive topology
         //_pCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -1621,7 +1615,7 @@ namespace IGCS {
         }
     }
 
-    void D3D12Hook::renderNodeSpheres(const XMMATRIX& viewMatrix, const XMMATRIX& projMatrix) {
+    void D3D12Hook::renderNodeSpheres() {
         static int frameCounter = 0;
         const bool shouldLog = (frameCounter++ % 60 == 0);
 
@@ -1678,7 +1672,7 @@ namespace IGCS {
                 XMMATRIX worldMatrix = XMMatrixScaling(_nodeSize, _nodeSize, _nodeSize) *
                     XMMatrixTranslationFromVector(nodePosition);
 
-                updateConstantBuffer(worldMatrix * viewMatrix * projMatrix);
+                updateConstantBuffer(worldMatrix * _viewMatrix * _projMatrix);
                 _pCommandList->DrawIndexedInstanced(_sphereIndexCount, 1, 0, 0, 0);
 
                 totalSpheresRendered++;
@@ -1690,7 +1684,7 @@ namespace IGCS {
         }
     }
 
-    void D3D12Hook::renderDirectionArrows(const XMMATRIX& viewMatrix, const XMMATRIX& projMatrix) {
+    void D3D12Hook::renderDirectionArrows() {
         // Debug logging
 
         static int frameCounter = 0;
@@ -1762,7 +1756,7 @@ namespace IGCS {
                 auto arrowColor = XMFLOAT4(1.0f, 0.5f, 0.0f, 0.8f);
 
                 // Render arrow - now uses the D3DHook-style function
-                renderArrow(startPos, direction, length, arrowColor, viewMatrix, projMatrix);
+                renderArrow(startPos, direction, length, arrowColor);
                 arrowsRendered++;
             }
         }
@@ -1808,7 +1802,7 @@ namespace IGCS {
                 auto arrowColor = XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f);
 
                 // Render arrow with direction vector and length
-                renderArrow(position, forwardDir, scaledLength, arrowColor, viewMatrix, projMatrix);
+                renderArrow(position, forwardDir, scaledLength, arrowColor);
                 arrowsRendered++;
             }
         }
@@ -1819,11 +1813,9 @@ namespace IGCS {
     }
 
     void D3D12Hook::renderArrow(const XMFLOAT3& position,
-        const XMVECTOR& direction,
-        const float length,
-        const XMFLOAT4& color,
-        const XMMATRIX& viewMatrix,
-        const XMMATRIX& projMatrix) {
+                                const XMVECTOR& direction,
+                                const float length,
+                                const XMFLOAT4& color) {
 
         if (!_pCommandList || !_pArrowHeadVertexBuffer || !_pArrowShaftVertexBuffer) {
             return;
@@ -1865,7 +1857,7 @@ namespace IGCS {
         const XMMATRIX worldMatrix = scaleMatrix * flipMatrix * rotMatrix * translationMatrix;
 
         // Update constant buffer
-        updateConstantBuffer(worldMatrix * viewMatrix * projMatrix);
+        updateConstantBuffer(worldMatrix * _viewMatrix * _projMatrix);
 
         // Set primitive topology
         //_pCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -1881,7 +1873,7 @@ namespace IGCS {
         _pCommandList->DrawIndexedInstanced(_arrowHeadIndexCount, 1, 0, 0, 0);
     }
 
-    void D3D12Hook::renderFreeCameraLookAtTarget(const XMMATRIX& viewMatrix, const XMMATRIX& projMatrix) {
+    void D3D12Hook::renderFreeCameraLookAtTarget() {
     	if (!Camera::instance().getCameraLookAtVisualizationEnabled() && _visualisationEnabled)
             return;
         // Only render free camera look-at target when:
@@ -1908,7 +1900,7 @@ namespace IGCS {
             XMMatrixTranslationFromVector(targetPos);
 
         // Update constant buffer
-        updateConstantBuffer(worldMatrix * viewMatrix * projMatrix);
+        updateConstantBuffer(worldMatrix * _viewMatrix * _projMatrix);
 
         // Set vertex and index buffers
         _pCommandList->IASetVertexBuffers(0, 1, &_lookAtTargetVertexBufferView);
@@ -1918,7 +1910,7 @@ namespace IGCS {
         _pCommandList->DrawIndexedInstanced(_lookAtTargetIndexCount, 1, 0, 0, 0);
     }
 
-    void D3D12Hook::renderPathLookAtTarget(const XMMATRIX& viewMatrix, const XMMATRIX& projMatrix) {
+    void D3D12Hook::renderPathLookAtTarget() {
         if (!Globals::instance().settings().pathLookAtEnabled)
             return;
         // Only render path look-at target when:
@@ -1947,7 +1939,7 @@ namespace IGCS {
         const XMMATRIX worldMatrix = XMMatrixScaling(_lookAtTargetSize, _lookAtTargetSize, _lookAtTargetSize) *
             XMMatrixTranslationFromVector(targetPos);
 
-        updateConstantBuffer(worldMatrix * viewMatrix * projMatrix);
+        updateConstantBuffer(worldMatrix * _viewMatrix * _projMatrix);
 
         // Set primitive topology
         //_pCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);

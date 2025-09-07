@@ -133,8 +133,8 @@ namespace IGCS {
         //==============================================================================================
         void createSolidColorSphere(float radius = 0.5f,
             const XMFLOAT4& color = XMFLOAT4(0.0f, 1.0f, 0.0f, 0.8f));
-        void renderFreeCameraLookAtTarget(const XMMATRIX& viewMatrix, const XMMATRIX& projMatrix);
-        void renderPathLookAtTarget(const XMMATRIX& viewMatrix, const XMMATRIX& projMatrix);
+        void renderFreeCameraLookAtTarget();
+        void renderPathLookAtTarget();
 
         //==============================================================================================
         // Hooked Function Implementations (Static)
@@ -265,15 +265,13 @@ namespace IGCS {
         //==============================================================================================
         // Path Rendering
         //==============================================================================================
-        void renderPathTubes(const XMMATRIX& viewMatrix, const XMMATRIX& projMatrix);
-        void renderDirectionArrows(const XMMATRIX& viewMatrix, const XMMATRIX& projMatrix);
-        void renderNodeSpheres(const XMMATRIX& viewMatrix, const XMMATRIX& projMatrix);
+        void renderPathTubes();
+        void renderDirectionArrows();
+        void renderNodeSpheres();
         void renderArrow(const XMFLOAT3& position,
-            const XMVECTOR& direction,
-            const float length,
-            const XMFLOAT4& color,
-            const XMMATRIX& viewMatrix,
-            const XMMATRIX& projMatrix);
+                         const XMVECTOR& direction,
+                         const float length,
+                         const XMFLOAT4& color);
 
         //==============================================================================================
         // Path Processing

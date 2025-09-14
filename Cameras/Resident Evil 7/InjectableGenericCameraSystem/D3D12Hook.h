@@ -61,26 +61,26 @@ namespace IGCS {
         //==============================================================================================
         // Type Definitions
         //==============================================================================================
-        typedef HRESULT(WINAPI* Present_t)(IDXGISwapChain3* pSwapChain, UINT SyncInterval, UINT Flags);
-        typedef HRESULT(WINAPI* ResizeBuffers_t)(IDXGISwapChain3* pSwapChain, UINT BufferCount, UINT Width, UINT Height,
-            DXGI_FORMAT NewFormat, UINT SwapChainFlags);
-        typedef HRESULT(WINAPI* CreateSwapChain_t)(IDXGIFactory4* pFactory, IUnknown* pDevice, HWND hWnd,
-            const DXGI_SWAP_CHAIN_DESC* pDesc,
-            const DXGI_SWAP_CHAIN_FULLSCREEN_DESC* pFullscreenDesc,
-            IDXGIOutput* pRestrictToOutput, IDXGISwapChain** ppSwapChain);
-        typedef void(WINAPI* ExecuteCommandLists_t)(ID3D12CommandQueue* pCommandQueue, UINT NumCommandLists,
-            ID3D12CommandList* const* ppCommandLists);
-        typedef void(WINAPI* OMSetRenderTargets_t)(ID3D12GraphicsCommandList* pCommandList, UINT NumRenderTargetDescriptors,
-            const D3D12_CPU_DESCRIPTOR_HANDLE* pRenderTargetDescriptors,
-            BOOL RTsSingleHandleToDescriptorRange,
-            const D3D12_CPU_DESCRIPTOR_HANDLE* pDepthStencilDescriptor);
-        typedef void(WINAPI* CreateDepthStencilView_t)(ID3D12Device* pDevice, ID3D12Resource* pResource,
-            const D3D12_DEPTH_STENCIL_VIEW_DESC* pDesc,
-            D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor);
-        typedef void(WINAPI* ClearDepthStencilView_t)(ID3D12GraphicsCommandList* pCommandList,
-            D3D12_CPU_DESCRIPTOR_HANDLE DepthStencilView,
-            D3D12_CLEAR_FLAGS ClearFlags, FLOAT Depth, UINT8 Stencil,
-            UINT NumRects, const D3D12_RECT* pRects);
+        //typedef HRESULT(WINAPI* Present_t)(IDXGISwapChain3* pSwapChain, UINT SyncInterval, UINT Flags);
+        //typedef HRESULT(WINAPI* ResizeBuffers_t)(IDXGISwapChain3* pSwapChain, UINT BufferCount, UINT Width, UINT Height,
+        //    DXGI_FORMAT NewFormat, UINT SwapChainFlags);
+        //typedef HRESULT(WINAPI* CreateSwapChain_t)(IDXGIFactory4* pFactory, IUnknown* pDevice, HWND hWnd,
+        //    const DXGI_SWAP_CHAIN_DESC* pDesc,
+        //    const DXGI_SWAP_CHAIN_FULLSCREEN_DESC* pFullscreenDesc,
+        //    IDXGIOutput* pRestrictToOutput, IDXGISwapChain** ppSwapChain);
+        //typedef void(WINAPI* ExecuteCommandLists_t)(ID3D12CommandQueue* pCommandQueue, UINT NumCommandLists,
+        //    ID3D12CommandList* const* ppCommandLists);
+        //typedef void(WINAPI* OMSetRenderTargets_t)(ID3D12GraphicsCommandList* pCommandList, UINT NumRenderTargetDescriptors,
+        //    const D3D12_CPU_DESCRIPTOR_HANDLE* pRenderTargetDescriptors,
+        //    BOOL RTsSingleHandleToDescriptorRange,
+        //    const D3D12_CPU_DESCRIPTOR_HANDLE* pDepthStencilDescriptor);
+        //typedef void(WINAPI* CreateDepthStencilView_t)(ID3D12Device* pDevice, ID3D12Resource* pResource,
+        //    const D3D12_DEPTH_STENCIL_VIEW_DESC* pDesc,
+        //    D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptor);
+        //typedef void(WINAPI* ClearDepthStencilView_t)(ID3D12GraphicsCommandList* pCommandList,
+        //    D3D12_CPU_DESCRIPTOR_HANDLE DepthStencilView,
+        //    D3D12_CLEAR_FLAGS ClearFlags, FLOAT Depth, UINT8 Stencil,
+        //    UINT NumRects, const D3D12_RECT* pRects);
 
         //==============================================================================================
         // Singleton Pattern
@@ -357,15 +357,16 @@ namespace IGCS {
             UINT NumRects, const D3D12_RECT* pRects);
 
         //==============================================================================================
-        // Static Hook Function Pointers
-        //==============================================================================================
-        static Present_t _originalPresent;
-        static ResizeBuffers_t _originalResizeBuffers;
-        static CreateSwapChain_t _originalCreateSwapChain;
-        static ExecuteCommandLists_t _originalExecuteCommandLists;
-        static OMSetRenderTargets_t _originalOMSetRenderTargets;
-        static CreateDepthStencilView_t _originalCreateDepthStencilView;
-        static ClearDepthStencilView_t _originalClearDepthStencilView;
+    	// Static Hook Function Pointers
+    	//==============================================================================================
+        inline static decltype(&hookedPresent) _originalPresent = nullptr;
+        inline static decltype(&hookedResizeBuffers) _originalResizeBuffers = nullptr;
+        inline static decltype(&hookedCreateSwapChain) _originalCreateSwapChain = nullptr;
+        inline static decltype(&hookedExecuteCommandLists) _originalExecuteCommandLists = nullptr;
+        inline static decltype(&hookedOMSetRenderTargets) _originalOMSetRenderTargets = nullptr;
+        inline static decltype(&hookedCreateDepthStencilView) _originalCreateDepthStencilView = nullptr;
+        inline static decltype(&hookedClearDepthStencilView) _originalClearDepthStencilView = nullptr;
+
 
         //==============================================================================================
         // Static VTable Pointers

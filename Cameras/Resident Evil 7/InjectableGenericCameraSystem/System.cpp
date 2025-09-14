@@ -1087,7 +1087,7 @@ namespace IGCS
 		}
 		else
 		{
-			MessageHandler::logToFile("MinHook initialized successfully");
+			MessageHandler::logLine("MinHook initialized successfully");
 		}
 	}
 

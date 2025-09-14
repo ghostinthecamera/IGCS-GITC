@@ -25,13 +25,13 @@ namespace IGCS {
     //==================================================================================================
     // Static Member Initialization
     //==================================================================================================
-    D3D12Hook::Present_t D3D12Hook::_originalPresent = nullptr;
+    /*D3D12Hook::Present_t D3D12Hook::_originalPresent = nullptr;
     D3D12Hook::ResizeBuffers_t D3D12Hook::_originalResizeBuffers = nullptr;
     D3D12Hook::CreateSwapChain_t D3D12Hook::_originalCreateSwapChain = nullptr;
     D3D12Hook::ExecuteCommandLists_t D3D12Hook::_originalExecuteCommandLists = nullptr;
     D3D12Hook::OMSetRenderTargets_t D3D12Hook::_originalOMSetRenderTargets = nullptr;
     D3D12Hook::CreateDepthStencilView_t D3D12Hook::_originalCreateDepthStencilView = nullptr;
-    D3D12Hook::ClearDepthStencilView_t D3D12Hook::_originalClearDepthStencilView = nullptr;
+    D3D12Hook::ClearDepthStencilView_t D3D12Hook::_originalClearDepthStencilView = nullptr;*/
     void** D3D12Hook::s_command_queue_vtable = nullptr;
     void** D3D12Hook::s_command_list_vtable = nullptr;
     void** D3D12Hook::s_swapchain_vtable = nullptr;

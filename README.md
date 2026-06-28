@@ -4,7 +4,7 @@ __The tools are entirely built on the awesome Injectable Game Camera System crea
 
 All tool binaries have been removed as tools are being transferred to my new GITC Camera Tools platform - all currently available tools can be explored from https://ghostinthecamera.co.uk/tools/.
 
-Patreon: https://www.patreon.com/c/ghostinthecamera
+Patreon: [https://www.patreon.com/c/ghostinthecamera](https://www.patreon.com/ghostinthecamera/posts/deprecated-tools-162250868?utm_medium=clipboard_copy&utm_source=copyLink&utm_campaign=postshare_creator&utm_content=join_link)
 
 ### Cameras released: 
 - Armored Core 6

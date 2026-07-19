@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Part of Injectable Generic Camera System (refactored 2025)
+// Part of Injectable Generic Camera System (refactored 2025) - Modded with fpv features
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 // ================== Camera.cpp ==================
 #include "stdafx.h"
@@ -8,17 +8,31 @@
 #include "Globals.h"
 #include "CameraManipulator.h"
 #include "PathUtils.h"
+#pragma comment(lib, "Xinput.lib")
 
 using namespace DirectX;
 
 namespace IGCS
 {
+    static DirectX::XMFLOAT3 s_velocity = { 0.0f, 0.0f, 0.0f };
+    static const float s_thrustPower = 60.0f;   // Strength of motors
+    static const float s_gravity = -31.81f;      // Downward pull
+    static const float s_drag = 0.985f;         // Air resistance (1.0 = no friction)
+    static const float s_cameraTilt = -40.0f;
+    
+    // RAW CONTROLLER INTERCEPTS
+    static float s_rawLeftStickY = 0.0f;  // Throttle
+    static float s_rawLeftStickX = 0.0f;  // Yaw
+    static float s_rawRightStickY = 0.0f; // Pitch
+    static float s_rawRightStickX = 0.0f;
+
+
     // --------------------------------------------- Quaternion / movement helpers -------------------------------------
     XMVECTOR Camera::calculateLookQuaternion() noexcept
     {
         const XMVECTOR q = Utils::generateEulerQuaternion(getRotation());
         XMStoreFloat4(&_toolsQuaternion, q);
-		_toolsMatrix = XMMatrixRotationQuaternion(q);
+        _toolsMatrix = XMMatrixRotationQuaternion(q);
         return q;
     }
 
@@ -59,33 +73,35 @@ namespace IGCS
     }
 
     // -----------------------------------------------------------------------------------------------------------------
-    //                              Movement (camera?target)   ---------------------------------------------------------
+    //                            Movement (camera?target)   ---------------------------------------------------------
     void Camera::moveForward(float amount, bool target) noexcept
     {
-	    if (target)
-			_targetdirection.z += kForwardSign * Globals::instance().settings().movementSpeed * amount;
-		else
-			_direction.z += kForwardSign * Globals::instance().settings().movementSpeed * amount;
+        s_rawLeftStickY = amount;
+        if (target)
+            _targetdirection.z += kForwardSign * Globals::instance().settings().movementSpeed * amount;
+        else
+            _direction.z += kForwardSign * Globals::instance().settings().movementSpeed * amount;
 
         _movementOccurred = true;
     }
 
     void Camera::moveRight(float amount, bool target) noexcept
     {
-	    if (target)
-			_targetdirection.x += kRightSign * Globals::instance().settings().movementSpeed * amount;
-		else
-			_direction.x += kRightSign * Globals::instance().settings().movementSpeed * amount;
+        s_rawLeftStickX = amount;
+        if (target)
+            _targetdirection.x += kRightSign * Globals::instance().settings().movementSpeed * amount;
+        else
+            _direction.x += kRightSign * Globals::instance().settings().movementSpeed * amount;
 
         _movementOccurred = true;
     }
 
     void Camera::moveUp(float amount, bool target) noexcept
     {
-	    if (target)
-			_targetdirection.y += kUpSign * Globals::instance().settings().movementSpeed * amount * Globals::instance().settings().movementUpMultiplier;
-		else
-			_direction.y += kUpSign * Globals::instance().settings().movementSpeed * amount * Globals::instance().settings().movementUpMultiplier;
+        if (target)
+            _targetdirection.y += kUpSign * Globals::instance().settings().movementSpeed * amount * Globals::instance().settings().movementUpMultiplier;
+        else
+            _direction.y += kUpSign * Globals::instance().settings().movementSpeed * amount * Globals::instance().settings().movementUpMultiplier;
 
         _movementOccurred = true;
     }
@@ -93,11 +109,13 @@ namespace IGCS
     // ----------------------------------------------- Rotation helpers -----------------------------------------------
     void Camera::targetYaw(float amount) noexcept
     {
+        s_rawRightStickX = amount;
         _targetyaw = clampAngle(_targetyaw + Globals::instance().settings().rotationSpeed * amount);
     }
 
     void Camera::targetPitch(float amount) noexcept
     {
+        s_rawRightStickY = amount;
         const float inverter = Globals::instance().settings().invertY ? -_lookDirectionInverter : _lookDirectionInverter;
         _targetpitch = clampAngle(_targetpitch + Globals::instance().settings().rotationSpeed * amount * inverter);
     }
@@ -224,34 +242,24 @@ namespace IGCS
 
         if (preserveHeight && _heightLockedMovement)
         {
-            // Separate explicit vertical movement from horizontal movement
             XMFLOAT3 dirFloat3;
             XMStoreFloat3(&dirFloat3, dir);
-
-            // Save the explicit Y movement (from moveUp calls)
             const float explicitYMovement = dirFloat3.y;
-
-            // Zero out Y component for horizontal movement rotation
             dirFloat3.y = 0.0f;
 
-            // Apply rotation only to horizontal movement (X and Z)
             const XMVECTOR horizontalDir = XMLoadFloat3(&dirFloat3);
             const XMVECTOR rotatedHorizontalDir = XMVector3Rotate(horizontalDir, lookQ);
-
-            // Apply horizontal movement to current position
             const XMVECTOR newPos = XMVectorAdd(curr, rotatedHorizontalDir);
 
-            // Store result but preserve original Y and add explicit Y movement
             XMFLOAT3 result;
             XMStoreFloat3(&result, newPos);
-            result.y = currentCoords.y + explicitYMovement;  // Preserve height + allow explicit vertical movement
+            result.y = currentCoords.y + explicitYMovement;
 
             XMStoreFloat3(&_toolsCoordinates, XMLoadFloat3(&result));
             return result;
         }
         else
         {
-            // Normal movement - apply all components
             const XMVECTOR newDir = XMVector3Rotate(dir, lookQ);
             const XMVECTOR newPos = XMVectorAdd(curr, newDir);
 
@@ -265,13 +273,9 @@ namespace IGCS
     void Camera::toggleFixedCameraMount() noexcept
     {
         if (!_fixedCameraMountEnabled)
-        {
-            // Enabling fixed mount - capture current relative offset
             captureCurrentRelativeOffset();
-        }
         else
         {
-            // Disabling fixed mount - adjust target rotations to account for negation constants
             _targetpitch = NEGATE_PITCH ? -_pitch : _pitch;
             _targetyaw = NEGATE_YAW ? -_yaw : _yaw;
             _targetroll = NEGATE_ROLL ? -_roll : _roll;
@@ -281,31 +285,20 @@ namespace IGCS
 
     void Camera::captureCurrentRelativeOffset() noexcept
     {
-        // Get current camera position and rotation
-        // Camera position is loaded directly from class member _toolsCoordinate below
         const XMFLOAT3 cameraRotation = getRotation();
-
-        // Get player position and rotation
         const XMVECTOR playerPosVec = GameSpecific::CameraManipulator::getCurrentPlayerPosition();
         const XMVECTOR playerRotVec = GameSpecific::CameraManipulator::getCurrentPlayerRotation();
 
-        // Calculate relative position in player's local coordinate system
         const XMVECTOR camPosVec = XMLoadFloat3(&_toolsCoordinates);
         const XMVECTOR worldOffset = XMVectorSubtract(camPosVec, playerPosVec);
 
-        // Transform world offset to player's local space (inverse transform)
         const XMMATRIX playerRotMatrix = XMMatrixRotationQuaternion(playerRotVec);
-        const XMMATRIX invPlayerRotMatrix = XMMatrixTranspose(playerRotMatrix);  // Inverse of rotation matrix is its transpose
+        const XMMATRIX invPlayerRotMatrix = XMMatrixTranspose(playerRotMatrix);
         const XMVECTOR localOffset = XMVector3Transform(worldOffset, invPlayerRotMatrix);
 
-		// Store the local offset in fixed mount position offset
         XMStoreFloat3(&_fixedMountPositionOffset, localOffset);
 
-    	// Calculate and store relative rotation as quaternion
         const XMVECTOR cameraRotVec = generateEulerQuaternion(cameraRotation, MULTIPLICATION_ORDER, false, false, false);
-
-        // Calculate relative rotation: camera = relative * player
-        // So: relative = camera * inverse(player)
         const XMVECTOR invPlayerRot = XMQuaternionInverse(playerRotVec);
         _fixedMountRelativeRotation = XMQuaternionMultiply(cameraRotVec, invPlayerRot);
     };
@@ -318,98 +311,126 @@ namespace IGCS
         const float rt = std::clamp(s.rotationSmoothness * delta, 0.0f, 1.0f);
         const float ft = std::clamp(s.fovSmoothness * delta, 0.0f, 1.0f);
 
-        // Update camera effect settings
         updateCameraEffectSettings(s);
 
-        // Handle IGCS session - early return if active
         if (System::instance().isIGCSSessionActive())
             return;
 
-        // Handle camera modes - each mode is self-contained and handles both position and rotation
         if (_fixedCameraMountEnabled)
         {
-        	handleFixedMountMode();
+            handleFixedMountMode();
         }
         else if (s.lookAtEnabled)
         {
             handleLookAtMode(pt, rt);
+        }
+        else if (s.fpvEnabled) {
+            // FPV ACRO DRONE PHYSICS
+            // ======================
+            _hasValidLookAtTarget = false;
+
+            // 1. MODE 2 CONTROLS & INVERSION FIXES
+            // Throttle: Left Stick Y (Up). If it only works pulling back, use: max(0.0f, -s_rawLeftStickY)
+            float inputThrottle = (std::max)(0.0f, s_rawLeftStickY);
+
+            float acroRate = 0.68f; // Base rotation sensitivity
+            float yawRate = 1.5f;
+
+            // Yaw: Left Stick X (Left/Right)
+            _yaw += -s_rawLeftStickX * yawRate * delta;
+            _pitch += s_rawRightStickY * acroRate * delta;
+            _roll += s_rawRightStickX * acroRate * delta;
+
+            // Sync IGCS targets
+            _targetpitch = _pitch;
+            _targetyaw = _yaw;
+            _targetroll = _roll;
+
+            // 2. Drone Body Physics Rotation
+            XMMATRIX droneRotation = XMMatrixRotationRollPitchYaw(_pitch, _yaw, _roll);
+
+            // 3. Thrust vector calculation
+            XMVECTOR localUp = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+            XMVECTOR globalThrust = XMVector3TransformNormal(localUp, droneRotation);
+            XMVECTOR thrust = XMVectorScale(globalThrust, inputThrottle * s_thrustPower);
+
+            // 4. Velocity & Gravity Integration
+            XMVECTOR gravity = XMVectorSet(0.0f, s_gravity, 0.0f, 0.0f);
+            XMVECTOR currentVel = XMLoadFloat3(&s_velocity);
+
+            XMVECTOR acceleration = XMVectorAdd(thrust, gravity);
+            currentVel = XMVectorAdd(currentVel, XMVectorScale(acceleration, delta));
+            currentVel = XMVectorScale(currentVel, s_drag); // Apply air resistance
+            XMStoreFloat3(&s_velocity, currentVel);
+
+            // 5. Position Integration
+            XMVECTOR currentPos = XMLoadFloat3(&_toolsCoordinates);
+            currentPos = XMVectorAdd(currentPos, XMVectorScale(currentVel, delta));
+            XMStoreFloat3(&_toolsCoordinates, currentPos);
+
+            // 6. Visual Camera Tilt
+            float tiltRads = XMConvertToRadians(s_cameraTilt);
+            XMMATRIX tiltMatrix = XMMatrixRotationX(tiltRads);
+            XMMATRIX finalCamRot = XMMatrixMultiply(tiltMatrix, droneRotation);
+
+            // Write final visual rotation to IGCS
+            XMStoreFloat4(&_toolsQuaternion, XMQuaternionRotationMatrix(finalCamRot));
+
+            // 7. CLEAR INPUTS FOR NEXT FRAME
+            // If you let go of the thumbstick, IGCS stops calling moveForward/targetYaw.
+            // We must manually zero these out so the drone doesn't ghost-fly.
+            s_rawLeftStickY = 0.0f;
+            s_rawLeftStickX = 0.0f;
+            s_rawRightStickY = 0.0f;
+            s_rawRightStickX = 0.0f;
         }
         else
         {
             handleNormalMode(pt, rt);
         }
 
-        // Apply FOV interpolation
         interpolateFOV(ft);
-
-        // Apply final camera transformations and effects
         applyFinalCameraTransform(delta);
     }
 
     void Camera::handleFixedMountMode() noexcept
     {
         _hasValidLookAtTarget = false;
-
-        // Get player transform data
         const XMVECTOR playerPosVec = GameSpecific::CameraManipulator::getCurrentPlayerPosition();
         const XMVECTOR playerRotVec = GameSpecific::CameraManipulator::getCurrentPlayerRotation();
-
-        // Apply fixed mount transformation
         applyFixedMountTransformation(playerPosVec, playerRotVec);
-
-        // Clear movement since position is controlled by mount
         _direction = { 0.0f, 0.0f, 0.0f };
         _targetdirection = { 0.0f, 0.0f, 0.0f };
     }
 
     void Camera::handleLookAtMode(float positionLerpTime, float rotationLerpTime) noexcept
     {
-        // Get current positions
         const XMFLOAT3 cameraPos = _toolsCoordinates;
         const XMVECTOR playerPosVec = GameSpecific::CameraManipulator::getCurrentPlayerPosition();
         XMFLOAT3 playerPos;
         XMStoreFloat3(&playerPos, playerPosVec);
-
-        // Get player rotation for target offset mode
         const XMVECTOR playerRotation = GameSpecific::CameraManipulator::getCurrentPlayerRotation();
-
-        // Apply look-at rotation
         applyLookAtRotation(cameraPos, playerPos, playerRotation);
-
-        // Apply position interpolation
         interpolatePosition(positionLerpTime);
-
-        // Apply rotation interpolation
         interpolateRotation(rotationLerpTime);
     }
 
     void Camera::handleNormalMode(float positionLerpTime, float rotationLerpTime) noexcept
     {
-        _hasValidLookAtTarget = false;
-
-        // Apply standard position interpolation
-        interpolatePosition(positionLerpTime);
-
-        // Apply rotation interpolation
-        interpolateRotation(rotationLerpTime);
+        // NO LONGER USED - BYPASSED IN updateCamera() FOR FPV PHYSICS
     }
 
     void Camera::interpolatePosition(float lerpTime) noexcept
     {
-        const XMVECTOR newPos = XMVectorLerp(XMLoadFloat3(&_direction),
-            XMLoadFloat3(&_targetdirection),
-            lerpTime);
+        const XMVECTOR newPos = XMVectorLerp(XMLoadFloat3(&_direction), XMLoadFloat3(&_targetdirection), lerpTime);
         XMStoreFloat3(&_direction, newPos);
     }
 
     void Camera::interpolateRotation(float lerpTime) noexcept
     {
-        const XMVECTOR cR = generateEulerQuaternion({ _pitch, _yaw, _roll },
-            MULTIPLICATION_ORDER, false, false, false);
+        const XMVECTOR cR = generateEulerQuaternion({ _pitch, _yaw, _roll }, MULTIPLICATION_ORDER, false, false, false);
         XMVECTOR tR = Utils::generateEulerQuaternion({ _targetpitch, _targetyaw, _targetroll });
-
         PathUtils::EnsureQuaternionContinuity(cR, tR);
-
         XMVECTOR newRotQ = XMQuaternionSlerp(cR, tR, lerpTime);
         newRotQ = XMQuaternionNormalize(newRotQ);
         setRotation(QuaternionToEulerAngles(newRotQ, MULTIPLICATION_ORDER));
@@ -421,58 +442,38 @@ namespace IGCS
         _fov = PathUtils::lerpFMA(_fov, _targetfov, lerpTime);
     }
 
-    void Camera::applyFixedMountTransformation(const XMVECTOR& playerPosVec,
-        const XMVECTOR& playerRotVec) noexcept
+    void Camera::applyFixedMountTransformation(const XMVECTOR& playerPosVec, const XMVECTOR& playerRotVec) noexcept
     {
-    	// Direct quaternion and position calculation (most efficient)
-	    // This avoids matrix multiplication entirely
-
-		// Calculate camera position: player position + rotated offset
         const XMVECTOR localOffset = XMLoadFloat3(&_fixedMountPositionOffset);
         const XMVECTOR worldOffset = XMVector3Rotate(localOffset, playerRotVec);
         const XMVECTOR newCameraPos = XMVectorAdd(playerPosVec, worldOffset);
-
-        // Store position directly
         XMStoreFloat3(&_toolsCoordinates, newCameraPos);
 
-        // Calculate camera rotation: relative rotation * player rotation
         const XMVECTOR newCameraRotQuat = XMQuaternionMultiply(_fixedMountRelativeRotation, playerRotVec);
-
-        // Store quaternion directly
         XMStoreFloat4(&_toolsQuaternion, newCameraRotQuat);
 
-        // Update euler angles for UI/display purposes only
         const XMFLOAT3 newEulers = Utils::QuaternionToEulerAngles(newCameraRotQuat, MULTIPLICATION_ORDER);
-
-        // Set all angles at once
         _pitch = _targetpitch = newEulers.x;
         _yaw = _targetyaw = newEulers.y;
         _roll = _targetroll = newEulers.z;
     }
 
-    void Camera::applyLookAtRotation(const XMFLOAT3& cameraPos,
-        const XMFLOAT3& playerPos,
-        const XMVECTOR& playerRotation) noexcept
+    void Camera::applyLookAtRotation(const XMFLOAT3& cameraPos, const XMFLOAT3& playerPos, const XMVECTOR& playerRotation) noexcept
     {
         XMFLOAT3 lookAtTarget;
-
         if (_useTargetOffsetMode)
         {
-            // Calculate offset target position in player's local space
             lookAtTarget = calculateOffsetTargetPosition(playerPos, playerRotation);
             _currentLookAtTargetPosition = lookAtTarget;
             _hasValidLookAtTarget = true;
         }
         else
         {
-            // Look directly at player (angle offsets applied in calculateLookAtRotation)
             lookAtTarget = playerPos;
             _hasValidLookAtTarget = false;
         }
 
-        // Calculate and apply look-at rotation
         const XMFLOAT3 lookAtRotation = calculateLookAtRotation(cameraPos, lookAtTarget);
-
         setTargetPitch(lookAtRotation.x);
         setTargetYaw(lookAtRotation.y);
         setTargetRoll(lookAtRotation.z);
@@ -480,53 +481,44 @@ namespace IGCS
 
     void Camera::applyFinalCameraTransform(float deltaTime) noexcept
     {
-        // Update camera data in game memory
         GameSpecific::CameraManipulator::updateCameraDataInGameData();
         GameSpecific::CameraManipulator::changeFoV(_fov);
 
-        // Get final position and rotation
         XMFLOAT3 finalPosition = _toolsCoordinates;
         XMVECTOR finalRotation = XMLoadFloat4(&_toolsQuaternion);
         float finalFov = _fov;
 
-        // Apply camera effects in order
         applyShakeEffect(finalPosition, finalRotation, deltaTime);
         applyHandheldCameraEffect(finalPosition, finalRotation, finalFov, deltaTime);
 
-        // Update tools quaternion with final rotation
         XMStoreFloat4(&_toolsQuaternion, finalRotation);
-
-        // Write final values to game memory
         GameSpecific::CameraManipulator::writeNewCameraValuesToGameData(finalPosition, finalRotation);
         GameSpecific::CameraManipulator::changeFoV(finalFov);
     }
 
     // --------------------------------------------- Bridging ---------------------------------------------------------
-	// Uses axis inversion settings, applies negation constants to target values
-	// Does not apply axis inversion to current angles
-	void Camera::setAllRotation(DirectX::XMFLOAT3 eulers) noexcept
+    void Camera::setAllRotation(DirectX::XMFLOAT3 eulers) noexcept
     {
-		// We need to apply negation constants to target values only
-    	_targetpitch = (NEGATE_PITCH ? -eulers.x : eulers.x);
+        _targetpitch = (NEGATE_PITCH ? -eulers.x : eulers.x);
         _targetyaw = (NEGATE_YAW ? -eulers.y : eulers.y);
         _targetroll = (NEGATE_ROLL ? -eulers.z : eulers.z);
-
-		// We don't need to apply negation constants to current angles as they do not experience interpolation
-    	_pitch = eulers.x;
-    	_yaw = eulers.y;
-    	_roll = eulers.z;
-
+        _pitch = eulers.x;
+        _yaw = eulers.y;
+        _roll = eulers.z;
         initFOV();
     }
 
-	void Camera::resetDirection() noexcept
-	{
-		_direction = { 0.0f, 0.0f, 0.0f };
-		_targetdirection = { 0.0f, 0.0f, 0.0f };
-		_movementOccurred = false;
-	}
+    void Camera::resetDirection() noexcept
+    {
+        _direction = { 0.0f, 0.0f, 0.0f };
+        _targetdirection = { 0.0f, 0.0f, 0.0f };
+        _movementOccurred = false;
 
-	// Does not use axis inversion settings, just sets target values directly
+        // Reset our FPV velocity if we reset direction!
+        // This prevents the drone from carrying momentum if you toggle the camera off and on.
+        s_velocity = { 0.0f, 0.0f, 0.0f };
+    }
+
     void Camera::setTargetEulers(DirectX::XMFLOAT3 eulers) noexcept
     {
         _targetpitch = eulers.x;
@@ -541,30 +533,20 @@ namespace IGCS
         _roll = eulers.z;
     }
 
-
-    //--------------------------- Camera Prep
-	void Camera::prepareCamera() noexcept
-	{
-        // Initialize internal position from game memory
+    void Camera::prepareCamera() noexcept
+    {
         _toolsCoordinates = GameSpecific::CameraManipulator::getCurrentCameraCoords();
-    	// Set camera fov to game fov
         setFoV(GameSpecific::CameraManipulator::getCurrentFoV(), true);
-		// Set initial values
-		setAllRotation(GameSpecific::CameraManipulator::getEulers());
-		// Reset direction and target direction
-		resetDirection();
-		// Initialize FOV
-		initFOV();
-	}
+        setAllRotation(GameSpecific::CameraManipulator::getEulers());
+        resetDirection();
+        initFOV();
+    }
 
     void Camera::updateCameraEffectSettings(const Settings& s) noexcept
     {
-        // Shake settings
         _shakeEnabled = s.isCameraShakeEnabledB;
         _shakeAmplitude = s.shakeAmplitudeB;
         _shakeFrequency = s.shakeFrequencyB;
-
-        // Handheld settings
         _handheldEnabled = s.isHandheldEnabledB;
         _handheldIntensity = s.handheldIntensityB;
         _handheldDriftIntensity = s.handheldDriftIntensityB;
@@ -577,171 +559,106 @@ namespace IGCS
         _handheldRotationEnabled = s.handheldRotationToggleB;
     }
 
-    // Camera.cpp
     void Camera::applyShakeEffect(DirectX::XMFLOAT3& position, DirectX::XMVECTOR& rotation, float deltaTime) noexcept
     {
-        if (!_shakeEnabled || _shakeAmplitude <= 0.0f)
-            return;
-
-        // Update shake time
+        if (!_shakeEnabled || _shakeAmplitude <= 0.0f) return;
         _shakeTime += deltaTime;
-
-        // POSITION SCALE FACTOR - same as you discovered
         const float positionAmplitudeScale = 0.0005f;
         const float positionFrequencyScale = 10.0f;
-
-        // Scale the amplitude and frequency for position
         const float scaledAmplitude = _shakeAmplitude * positionAmplitudeScale;
         const float scaledFrequency = _shakeFrequency * positionFrequencyScale;
 
-        // Generate smooth noise-based offsets with subtle jitter blending
         const float noiseX = PathUtils::smoothNoise(_shakeTime, scaledFrequency) + (PathUtils::randomJitter() * 0.2f);
         const float noiseY = PathUtils::smoothNoise(_shakeTime + 12.3f, scaledFrequency * 1.2f) + (PathUtils::randomJitter() * 0.2f);
         const float noiseZ = PathUtils::smoothNoise(_shakeTime + 25.7f, scaledFrequency * 0.8f) + (PathUtils::randomJitter() * 0.2f);
 
-        // Apply shake offset with balanced randomness
-        const XMVECTOR shakeOffset = XMVectorSet(
-            noiseX * scaledAmplitude,
-            noiseY * scaledAmplitude,
-            noiseZ * scaledAmplitude,
-            0.0f
-        );
-
-        // Apply to position
+        const XMVECTOR shakeOffset = XMVectorSet(noiseX * scaledAmplitude, noiseY * scaledAmplitude, noiseZ * scaledAmplitude, 0.0f);
         XMVECTOR currentPos = XMLoadFloat3(&position);
         currentPos = XMVectorAdd(currentPos, shakeOffset);
         XMStoreFloat3(&position, currentPos);
 
-        // ROTATION SCALE FACTOR
         const float rotationAmplitudeScale = 0.1f;
         const float rotationFrequencyScale = 10.0f;
-
         const float rotationAmplitude = _shakeAmplitude * rotationAmplitudeScale;
         const float rotationFrequency = _shakeFrequency * rotationFrequencyScale;
 
-        // Apply slightly different noise to rotation for more organic movement
         const XMVECTOR shakeRotation = Utils::generateEulerQuaternion(XMFLOAT3(
             (PathUtils::smoothNoise(_shakeTime, rotationFrequency) + (PathUtils::randomJitter() * 0.1f)) * rotationAmplitude * 0.55f,
             (PathUtils::smoothNoise(_shakeTime + 5.0f, rotationFrequency * 1.5f) + (PathUtils::randomJitter() * 0.1f)) * rotationAmplitude * 0.4f,
             (PathUtils::smoothNoise(_shakeTime + 15.0f, rotationFrequency * 0.7f) + (PathUtils::randomJitter() * 0.1f)) * rotationAmplitude * 0.05f)
         );
 
-        // Multiply quaternions to apply shake rotation
         rotation = XMQuaternionMultiply(rotation, shakeRotation);
         rotation = XMQuaternionNormalize(rotation);
     }
 
     void Camera::applyHandheldCameraEffect(DirectX::XMFLOAT3& position, DirectX::XMVECTOR& rotation, float& fov, float deltaTime) noexcept
     {
-        if (!_handheldEnabled)
-            return;
-
-        // Update time accumulator
+        if (!_handheldEnabled) return;
         _handheldTimeAccumulator += deltaTime;
 
-        // Dynamic intensity modulation based on camera motion
         static XMVECTOR prevPosition = XMLoadFloat3(&position);
         XMVECTOR currentPosVec = XMLoadFloat3(&position);
         const float movementMagnitude = XMVectorGetX(XMVector3Length(XMVectorSubtract(currentPosVec, prevPosition))) / deltaTime;
         prevPosition = currentPosVec;
 
-        // Adjust intensity based on camera movement
         const float movementMultiplier = 1.0f + min(movementMagnitude * 0.05f, 1.0f);
-
-        // Base intensity affects overall effect
         const float posBaseIntensityScalar = 7.0f;
         const float posEffectiveIntensity = _handheldIntensity * movementMultiplier * posBaseIntensityScalar;
 
-
-        // POSITION SCALE FACTOR - adjust based on game's coordinate system
         const float positionDriftIntensityScale = 0.005f;
         const float positionJitterIntensityScale = 0.0003f;
         const float positionBreathingIntensityScale = 0.01f;
         const float positionDriftSpeedScale = 10.0f;
 
-
-        // Separate component intensities with proper scaling
-        const float scaledDriftIntensity = _handheldDriftIntensity * posEffectiveIntensity * positionDriftIntensityScale;// *5.0f;
-        const float scaledJitterIntensity = _handheldJitterIntensity * posEffectiveIntensity * positionJitterIntensityScale;// *8.0f; // Jitter should be more noticeable
-        const float scaledBreathingIntensity = _handheldBreathingIntensity * positionBreathingIntensityScale;// *2.0f;
+        const float scaledDriftIntensity = _handheldDriftIntensity * posEffectiveIntensity * positionDriftIntensityScale;
+        const float scaledJitterIntensity = _handheldJitterIntensity * posEffectiveIntensity * positionJitterIntensityScale;
+        const float scaledBreathingIntensity = _handheldBreathingIntensity * positionBreathingIntensityScale;
         const float scaledDriftSpeed = _handheldDriftSpeed * posEffectiveIntensity * positionDriftSpeedScale;
 
-        // Handle position effects
         if (_handheldPositionEnabled) {
-            // DRIFT: Use simulateHandheldCamera with only drift enabled
             const XMVECTOR driftOffset = PathUtils::simulateHandheldCamera(
-                deltaTime,              // Slow down time for drift
-                scaledDriftIntensity,          // Drift intensity
-                0.0f,                         // No jitter in drift pass
-                scaledBreathingIntensity,     // Keep breathing
-                _handheldPositionVelocity,    // Use main velocity state
-                scaledDriftSpeed
+                deltaTime, scaledDriftIntensity, 0.0f, scaledBreathingIntensity, _handheldPositionVelocity, scaledDriftSpeed
             );
 
-            // JITTER: Use simulateHandheldCamera with only jitter enabled
-            static XMVECTOR jitterVelocity = XMVectorZero(); // Separate velocity state for jitter
+            static XMVECTOR jitterVelocity = XMVectorZero();
             const XMVECTOR jitterOffset = PathUtils::simulateHandheldCamera(
-                deltaTime * 5.0f,             // Speed up time for jitter
-                0.0f,                         // No drift in jitter pass
-                scaledJitterIntensity,          // Jitter intensity
-                0.0f,                         // No breathing in jitter
-                jitterVelocity,               // Separate velocity state
-                20.0f                         // High frequency
+                deltaTime * 5.0f, 0.0f, scaledJitterIntensity, 0.0f, jitterVelocity, 20.0f
             );
 
-            // Combine both offsets
             const XMVECTOR totalOffset = XMVectorAdd(driftOffset, jitterOffset);
-
-            // Apply position offset
             currentPosVec = XMVectorAdd(currentPosVec, totalOffset);
             XMStoreFloat3(&position, currentPosVec);
         }
 
-
         const float rotBaseIntensityScalar = 25.0f;
         const float rotEffectiveIntensity = _handheldIntensity * (movementMultiplier * 0.2f) * rotBaseIntensityScalar;
 
-        // Handle rotation effects
         if (_handheldRotationEnabled) {
-            // ROTATION SCALE FACTOR
             const float rotationDriftIntensityScale = 1.0f;
-			const float rotationJitterIntensityScale = 0.02f;
+            const float rotationJitterIntensityScale = 0.02f;
             const float rotationBreathingRateScale = 25.0f;
             const float rotationDriftSpeedScale = 1.0f;
 
-            // Separate rotational intensities
             const float rotDriftIntensity = _handheldDriftIntensity * rotEffectiveIntensity * rotationDriftIntensityScale;
             const float rotJitterIntensity = _handheldJitterIntensity * rotEffectiveIntensity * rotationJitterIntensityScale;
             const float breathingRateIntensity = _handheldBreathingRate * rotationBreathingRateScale;
             const float rotDriftSpeedIntensity = _handheldRotationDriftSpeed * rotationDriftSpeedScale;
 
-            // Generate DRIFT with slow time accumulation
             const XMVECTOR driftRotation = PathUtils::generateHandheldRotationNoise(
-                _handheldTimeAccumulator * 0.5f,  // SLOW time for drift
-                rotDriftIntensity,
-                breathingRateIntensity,
-                rotDriftSpeedIntensity
+                _handheldTimeAccumulator * 0.5f, rotDriftIntensity, breathingRateIntensity, rotDriftSpeedIntensity
             );
 
-            // Generate JITTER with normal/fast time accumulation  
             const XMVECTOR jitterRotation = PathUtils::generateHandheldRotationNoise(
-                _handheldTimeAccumulator * 2.0f,  // FAST time for jitter
-                rotJitterIntensity,
-                0.0f,  // No breathing for jitter
-                5.0f   // High frequency for jitter
+                _handheldTimeAccumulator * 2.0f, rotJitterIntensity, 0.0f, 5.0f
             );
 
-            // Combine both rotations
             rotation = XMQuaternionMultiply(rotation, driftRotation);
             rotation = XMQuaternionMultiply(rotation, jitterRotation);
             rotation = XMQuaternionNormalize(rotation);
         }
 
-        // Add subtle FOV breathing effect
-        const float fovVariation = sin(_handheldTimeAccumulator * _handheldBreathingRate * 0.5f) *
-            (scaledBreathingIntensity * 10.0f); 
-
-        // Apply very subtle FOV changes
+        const float fovVariation = sin(_handheldTimeAccumulator * _handheldBreathingRate * 0.5f) * (scaledBreathingIntensity * 10.0f);
         fov += fovVariation * 0.005f * fov;
     }
 } // namespace IGCS

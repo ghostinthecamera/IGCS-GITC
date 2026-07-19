@@ -118,7 +118,6 @@ public:
 	void setInvertLStickY(bool b);
 	// If set to true, the Y-axis of the right analog stick will be inverted.
 	void setInvertRStickY(bool b);
-
 	// Only use this if you want to use some XInput functionality directly. It returns a pointer to the current state.
 	XINPUT_STATE* getState();
 	// Returns the gamepad's index (the argument the constructor was given). Kind of pointless, but whatever.

@@ -89,6 +89,7 @@ namespace IGCS
 		bool d3ddisabled;
 		bool lookAtEnabled;
 		bool pathLookAtEnabled;
+		bool fpvEnabled;
 		float pathLookAtOffsetX;
 		float pathLookAtOffsetY;
 		float pathLookAtOffsetZ;
